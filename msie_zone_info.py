@@ -164,7 +164,6 @@ def PrintZonesKey( regf_file, zones_key_path, output_mode = 0 ):
 
 					else:
 						value = setting_value.get_data_as_integer()
-
 						value_desc = ""
 
 						if setting_value.name in [
@@ -196,6 +195,7 @@ def PrintZonesKey( regf_file, zones_key_path, output_mode = 0 ):
 							print "Data: 0x%08x: %s" %( value, value_desc )
 						else:
 							print "Data: 0x%08x" %( value )
+
 					elif output_mode == 1:
 						if setting_value.name in CONTROL_DESCRIPTIONS:
 							control_desc = CONTROL_DESCRIPTIONS[ setting_value.name ]
