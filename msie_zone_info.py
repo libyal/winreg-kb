@@ -216,24 +216,19 @@ def PrintLockdownKey( regf_file, lockdown_key_path ):
 		print "Key: %s" %( lockdown_key_path )
 		print ""
 
-		iexplore_value = lockdown_key.get_value_by_name( "iexplore.exe" )
+		program_name = "iexplore.exe"
+		program_value = lockdown_key.get_value_by_name( program_name )
 
-		if iexplore_value:
-			value = ord( iexplore_value.data[ 3 ] )
-			value <<= 8
-			value |= ord( iexplore_value.data[ 2 ] )
-			value <<= 8
-			value |= ord( iexplore_value.data[ 1 ] )
-			value <<= 8
-			value |= ord( iexplore_value.data[ 0 ] )
-
-			if value == 1:
-				print "Local Machine lockdown for iexplore: True"
-			else:
-				print "Local Machine lockdown for iexplore: False"
+		if program_value:
+			value = program_value.get_data_as_integer()
 		else:
-			print "Local Machine lockdown for iexplore: False"
-	print ""
+			value = 0
+
+		if value == 1:
+			print "Local Machine lockdown for %s: True" % ( program_name )
+		else:
+			print "Local Machine lockdown for %s: False" % ( program_name )
+		print ""
 
 def Main( argc, argv ):
 	if argc != 2:
