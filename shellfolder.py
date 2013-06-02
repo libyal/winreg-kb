@@ -23,7 +23,7 @@ import sys
 import pyregf
 
 def PrintUsage():
-	print "Usage: ./shellfolders.py registry_file"
+	print "Usage: ./shellfolder.py registry_file"
 	print ""
 	print "   	registry_file: The path of the SOFTWARE registry file."
 	print ""
