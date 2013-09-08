@@ -19,24 +19,104 @@
 # limitations under the License.
 
 import argparse
+import os
 import sys
 
 import pyregf
+import sqlite3
 
 
 class StdoutWriter(object):
+  def Open(self):
+    return True
+
+  def Close(self):
+    return True
+
   def Write(self, guid, name, localized_string):
-      print "{0:s}\t{1:s}\t{2:s}".format(guid, name, localized_string)
+      print '{0:s}\t{1:s}\t{2:s}'.format(guid, name, localized_string)
+
+
+class Sqlite3Writer(object):
+  _CREATE_QUERY = (
+      'CREATE TABLE shellfolder ( guid TEXT, windows_version TEXT, name TEXT, '
+      'localized_string TEXT )')
+
+  _SELECT_QUERY = (
+      'SELECT guid FROM shellfolder WHERE guid = "{0:s}" AND '
+      'windows_version = "{1:s}"')
+
+  _INSERT_QUERY = (
+      'INSERT INTO shellfolder VALUES ( "{0:s}", "{1:s}", "{2:s}", "{3:s}" )')
+  
+  def __init__(self, database_file, windows_version):
+    self._database_file = database_file
+    self._windows_version = windows_version
+
+  def Open(self):
+    if os.path.exists(self._database_file):
+      self._create_new_database = False
+    else:
+      self._create_new_database = True
+
+    self._connection = sqlite3.connect(self._database_file)
+    if not self._connection:
+      return False
+
+    self._cursor = self._connection.cursor()
+    if not self._cursor:
+      return False
+
+    if self._create_new_database:
+      self._cursor.execute(self._CREATE_QUERY)
+
+    return True
+
+  def Close(self):
+    self._connection.close()
+
+    return True
+
+  def Write(self, guid, name, localized_string):
+    if not self._create_new_database:
+      sql_query = self._SELECT_QUERY.format(guid, self._windows_version)
+
+      self._cursor.execute(sql_query)
+
+      if self._cursor.fetchone():
+        have_entry = True
+      else:
+        have_entry = False
+    else:
+      have_entry = False
+
+    if not have_entry:
+      sql_query = self._INSERT_QUERY.format(
+          guid, self._windows_version, name, localized_string)
+
+      self._cursor.execute(sql_query)
+      self._connection.commit()
+    else:
+      print 'Ignoring duplicate: {0:s}'.format(guid)
 
 
 def Main():
   args_parser = argparse.ArgumentParser(description=(
-      "Extract the shell folder class identifiers from a SOFTWARE "
-      " Registry File (REGF)."))
+      'Extract the shell folder class identifiers from a SOFTWARE '
+      ' Registry File (REGF).'))
 
   args_parser.add_argument(
       'registry_file', nargs='?', action='store', metavar='SOFTWARE',
-      default=None, help='The path of the SOFTWARE Registry file.')
+      default=None, help='path of the SOFTWARE Registry file.')
+
+  args_parser.add_argument(
+      '--db', dest='database', action='store', metavar='shellitems.db',
+      default=None, help='path of the sqlite3 database to write to.')
+
+  args_parser.add_argument(
+      '--winver', dest='windows_version', action='store', metavar='xp',
+      default=None, help=('string that identifies the Windows version '
+                          'in the database.'))
 
   options = args_parser.parse_args()
 
@@ -47,12 +127,24 @@ def Main():
     print ''
     return False
 
-  writer = StdoutWriter()
+  if options.database and not options.windows_version:
+    print 'Windows version missing.'
+    print ''
+    args_parser.print_help()
+    print ''
+    return False
 
-  class_identifiers_key_path = "Classes\\CLSID"
+  if not options.database:
+    writer = StdoutWriter()
+  else:
+    writer = Sqlite3Writer(options.database, options.windows_version)
+
+  writer.Open()
 
   regf_file = pyregf.file()
   regf_file.open(options.registry_file)
+
+  class_identifiers_key_path = 'Classes\\CLSID'
 
   class_identifiers_key = regf_file.get_key_by_path(class_identifiers_key_path)
 
@@ -60,31 +152,33 @@ def Main():
     for class_identifier_key in class_identifiers_key.sub_keys:
       guid = class_identifier_key.name.lower()
 
-      shell_folder_key = class_identifier_key.get_sub_key_by_name("ShellFolder")
+      shell_folder_key = class_identifier_key.get_sub_key_by_name('ShellFolder')
       if shell_folder_key:
-        value = class_identifier_key.get_value_by_name("")
+        value = class_identifier_key.get_value_by_name('')
         if value:
           # The value data type does not have to be a string therefore try to
           # decode the data as an UTF-16 little-endian string and strip
           # the trailing end-of-string character
-          name = value.data.decode("utf-16-le")[:-1]
+          name = value.data.decode('utf-16-le')[:-1]
         else:
-          name = ""
+          name = ''
 
-        value = class_identifier_key.get_value_by_name("LocalizedString")
+        value = class_identifier_key.get_value_by_name('LocalizedString')
         if value:
           # The value data type does not have to be a string therefore try to
           # decode the data as an UTF-16 little-endian string and strip
           # the trailing end-of-string character
-          localized_string = value.data.decode("utf-16-le")[:-1]
+          localized_string = value.data.decode('utf-16-le')[:-1]
         else:
-          localized_string = ""
+          localized_string = ''
 
         writer.Write(guid, name, localized_string)
   else:
-    print "No class identifiers key found."
+    print 'No class identifiers key found.'
 
   regf_file.close()
+
+  writer.Close()
 
   return True
 
