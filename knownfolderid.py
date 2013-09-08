@@ -36,7 +36,7 @@ def Main( argc, argv ):
 	folder_descriptions_key_path = "Microsoft\\Windows\\CurrentVersion\\Explorer\\FolderDescriptions"
 
 	regf_file = pyregf.file()
-	regf_file.open( argv[1] )
+	regf_file.open( argv[ 1 ] )
 
 	folder_descriptions_key = regf_file.get_key_by_path( folder_descriptions_key_path )
 

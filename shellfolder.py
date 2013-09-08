@@ -36,7 +36,7 @@ def Main( argc, argv ):
 	class_identifiers_key_path = "Classes\\CLSID"
 
 	regf_file = pyregf.file()
-	regf_file.open( argv[1] )
+	regf_file.open( argv[ 1 ] )
 
 	class_identifiers_key = regf_file.get_key_by_path( class_identifiers_key_path )
 
@@ -51,7 +51,7 @@ def Main( argc, argv ):
 					# The value data type does not have to be a string there try to
 					# decode the data as an UTF-16 little-endian string and strip
 					# the trailing end-of-string character
-					name = value.data.decode("utf-16-le")[:-1]
+					name = value.data.decode( "utf-16-le" )[ :-1 ]
 				else:
 					name = ""
 
@@ -60,7 +60,7 @@ def Main( argc, argv ):
 					# The value data type does not have to be a string there try to
 					# decode the data as an UTF-16 little-endian string and strip
 					# the trailing end-of-string character
-					localized_string = value.data.decode("utf-16-le")[:-1]
+					localized_string = value.data.decode( "utf-16-le" )[ :-1 ]
 				else:
 					localized_string = ""
 
