@@ -18,52 +18,72 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import sys
 
 import pyregf
 
-def PrintUsage():
-	print "Usage: ./knownfolderid.py registry_file"
-	print ""
-	print "   	registry_file: The path of the SOFTWARE registry file."
-	print ""
 
-def Main( argc, argv ):
-	if argc != 2:
-		PrintUsage()
-		return( 1 )
+class StdoutWriter(object):
+  def Write(self, guid, name, localized_name):
+      print "{0:s}\t{1:s}\t{2:s}".format(guid, name, localized_name)
 
-	folder_descriptions_key_path = "Microsoft\\Windows\\CurrentVersion\\Explorer\\FolderDescriptions"
 
-	regf_file = pyregf.file()
-	regf_file.open( argv[ 1 ] )
+def Main():
+  args_parser = argparse.ArgumentParser(description=(
+      "Extract the known folder identifiers (KNOWNFOLDERID) from a SOFTWARE "
+      " Registry File (REGF)."))
 
-	folder_descriptions_key = regf_file.get_key_by_path( folder_descriptions_key_path )
+  args_parser.add_argument(
+      'registry_file', nargs='?', action='store', metavar='SOFTWARE',
+      default=None, help='The path of the SOFTWARE Registry file.')
 
-	if folder_descriptions_key:
-		for known_folder_key in folder_descriptions_key.sub_keys:
-			guid = known_folder_key.name.lower()
+  options = args_parser.parse_args()
 
-			value = known_folder_key.get_value_by_name( "Name" )
-			if value:
-				name = value.get_data_as_string()
-			else:
-				name = ""
+  if not options.registry_file:
+    print 'Registry file missing.'
+    print ''
+    args_parser.print_help()
+    print ''
+    return False
 
-			value = known_folder_key.get_value_by_name( "LocalizedName" )
-			if value:
-				localized_name = value.get_data_as_string()
-			else:
-				localized_name = ""
+  writer = StdoutWriter()
 
-			print "%s\t%s\t%s" %( guid, name, localized_name )
-	else:
-		print "No folder descriptions key found."
+  folder_descriptions_key_path = (
+      "Microsoft\\Windows\\CurrentVersion\\Explorer\\FolderDescriptions")
 
-	regf_file.close()
+  regf_file = pyregf.file()
+  regf_file.open(options.registry_file)
 
-	return( 0 )
+  folder_descriptions_key = regf_file.get_key_by_path(
+      folder_descriptions_key_path)
+
+  if folder_descriptions_key:
+    for known_folder_key in folder_descriptions_key.sub_keys:
+      guid = known_folder_key.name.lower()
+
+      value = known_folder_key.get_value_by_name("Name")
+      if value:
+        name = value.get_data_as_string()
+      else:
+        name = ""
+
+      value = known_folder_key.get_value_by_name("LocalizedName")
+      if value:
+        localized_name = value.get_data_as_string()
+      else:
+        localized_name = ""
+
+      writer.Write(guid, name, localized_name)
+  else:
+    print "No folder descriptions key found."
+
+  regf_file.close()
+
+  return True
 
 if __name__ == '__main__':
-	sys.exit( Main( len( sys.argv ), sys.argv ) )
-
+  if not Main():
+    sys.exit(1)
+  else:
+    sys.exit(0)

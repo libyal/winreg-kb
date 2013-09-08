@@ -18,60 +18,78 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import sys
 
 import pyregf
 
-def PrintUsage():
-	print "Usage: ./shellfolder.py registry_file"
-	print ""
-	print "   	registry_file: The path of the SOFTWARE registry file."
-	print ""
 
-def Main( argc, argv ):
-	if argc != 2:
-		PrintUsage()
-		return( 1 )
+class StdoutWriter(object):
+  def Write(self, guid, name, localized_string):
+      print "{0:s}\t{1:s}\t{2:s}".format(guid, name, localized_string)
 
-	class_identifiers_key_path = "Classes\\CLSID"
 
-	regf_file = pyregf.file()
-	regf_file.open( argv[ 1 ] )
+def Main():
+  args_parser = argparse.ArgumentParser(description=(
+      "Extract the shell folder class identifiers from a SOFTWARE "
+      " Registry File (REGF)."))
 
-	class_identifiers_key = regf_file.get_key_by_path( class_identifiers_key_path )
+  args_parser.add_argument(
+      'registry_file', nargs='?', action='store', metavar='SOFTWARE',
+      default=None, help='The path of the SOFTWARE Registry file.')
 
-	if class_identifiers_key:
-		for class_identifier_key in class_identifiers_key.sub_keys:
-			guid = class_identifier_key.name.lower()
+  options = args_parser.parse_args()
 
-			shell_folder_key = class_identifier_key.get_sub_key_by_name( "ShellFolder" )
-			if shell_folder_key:
-				value = class_identifier_key.get_value_by_name( "" )
-				if value:
-					# The value data type does not have to be a string there try to
-					# decode the data as an UTF-16 little-endian string and strip
-					# the trailing end-of-string character
-					name = value.data.decode( "utf-16-le" )[ :-1 ]
-				else:
-					name = ""
+  if not options.registry_file:
+    print 'Registry file missing.'
+    print ''
+    args_parser.print_help()
+    print ''
+    return False
 
-				value = class_identifier_key.get_value_by_name( "LocalizedString" )
-				if value:
-					# The value data type does not have to be a string there try to
-					# decode the data as an UTF-16 little-endian string and strip
-					# the trailing end-of-string character
-					localized_string = value.data.decode( "utf-16-le" )[ :-1 ]
-				else:
-					localized_string = ""
+  writer = StdoutWriter()
 
-				print "%s\t%s\t%s" %( guid, name, localized_string )
-	else:
-		print "No class identifiers key found."
+  class_identifiers_key_path = "Classes\\CLSID"
 
-	regf_file.close()
+  regf_file = pyregf.file()
+  regf_file.open(options.registry_file)
 
-	return( 0 )
+  class_identifiers_key = regf_file.get_key_by_path(class_identifiers_key_path)
+
+  if class_identifiers_key:
+    for class_identifier_key in class_identifiers_key.sub_keys:
+      guid = class_identifier_key.name.lower()
+
+      shell_folder_key = class_identifier_key.get_sub_key_by_name("ShellFolder")
+      if shell_folder_key:
+        value = class_identifier_key.get_value_by_name("")
+        if value:
+          # The value data type does not have to be a string therefore try to
+          # decode the data as an UTF-16 little-endian string and strip
+          # the trailing end-of-string character
+          name = value.data.decode("utf-16-le")[:-1]
+        else:
+          name = ""
+
+        value = class_identifier_key.get_value_by_name("LocalizedString")
+        if value:
+          # The value data type does not have to be a string therefore try to
+          # decode the data as an UTF-16 little-endian string and strip
+          # the trailing end-of-string character
+          localized_string = value.data.decode("utf-16-le")[:-1]
+        else:
+          localized_string = ""
+
+        writer.Write(guid, name, localized_string)
+  else:
+    print "No class identifiers key found."
+
+  regf_file.close()
+
+  return True
 
 if __name__ == '__main__':
-	sys.exit( Main( len( sys.argv ), sys.argv ) )
-
+  if not Main():
+    sys.exit(1)
+  else:
+    sys.exit(0)
