@@ -79,7 +79,7 @@ class Sqlite3Writer(object):
     """Closes the writer object."""
     self._connection.close()
 
-  def Write(self, guid, name, localized_string):
+  def WriteShellFolderClassIdentifier(self, guid, name, localized_string):
     """Writes the shell folder class identifier to the database.
 
     Args:
@@ -124,7 +124,7 @@ class StdoutWriter(object):
     """Closes the writer object."""
     pass
 
-  def Write(self, guid, name, localized_string):
+  def WriteShellFolderClassIdentifier(self, guid, name, localized_string):
     """Writes the shell folder class identifier to stdout.
 
     Args:
@@ -136,6 +136,11 @@ class StdoutWriter(object):
 
 
 def Main():
+  """The main program function.
+
+  Returns:
+    A boolean containing True if successful or False if not.
+  """
   args_parser = argparse.ArgumentParser(description=(
       'Extract the shell folder class identifiers from a SOFTWARE '
       ' Registry File (REGF).'))
@@ -175,7 +180,7 @@ def Main():
     writer = Sqlite3Writer(options.database, options.windows_version)
 
   if not writer.Open():
-    print 'Unable to open writer.'
+    print 'Unable to open output writer.'
     print ''
     return False
 
@@ -210,7 +215,7 @@ def Main():
         else:
           localized_string = ''
 
-        writer.Write(guid, name, localized_string)
+        writer.riteShellFolderClassIdentifier name, localized_string)
   else:
     print 'No class identifiers key found.'
 
