@@ -29,17 +29,17 @@ import sqlite3
 class Sqlite3Writer(object):
   """Class that defines a sqlite3 writer."""
 
-  _CREATE_QUERY = (
+  _SHELLFOLDER_CREATE_QUERY = (
       'CREATE TABLE shellfolder ( guid TEXT, windows_version TEXT, name TEXT, '
       'localized_string TEXT )')
 
-  _SELECT_QUERY = (
+  _SHELLFOLDER_INSERT_QUERY = (
+      'INSERT INTO shellfolder VALUES ( "{0:s}", "{1:s}", "{2:s}", "{3:s}" )')
+  
+  _SHELLFOLDER_SELECT_QUERY = (
       'SELECT guid FROM shellfolder WHERE guid = "{0:s}" AND '
       'windows_version = "{1:s}"')
 
-  _INSERT_QUERY = (
-      'INSERT INTO shellfolder VALUES ( "{0:s}", "{1:s}", "{2:s}", "{3:s}" )')
-  
   def __init__(self, database_file, windows_version):
     """Initializes the writer object.
 
@@ -71,7 +71,7 @@ class Sqlite3Writer(object):
       return False
 
     if self._create_new_database:
-      self._cursor.execute(self._CREATE_QUERY)
+      self._cursor.execute(self._SHELLFOLDER_CREATE_QUERY)
 
     return True
 
@@ -79,8 +79,8 @@ class Sqlite3Writer(object):
     """Closes the writer object."""
     self._connection.close()
 
-  def WriteShellFolderClassIdentifier(self, guid, name, localized_string):
-    """Writes the shell folder class identifier to the database.
+  def WriteShellFolder(self, guid, name, localized_string):
+    """Writes the shell folder to the database.
 
     Args:
       guid: the GUID.
@@ -88,7 +88,8 @@ class Sqlite3Writer(object):
       localized_string: localized string of the name.
     """
     if not self._create_new_database:
-      sql_query = self._SELECT_QUERY.format(guid, self._windows_version)
+      sql_query = self._SHELLFOLDER_SELECT_QUERY.format(
+          guid, self._windows_version)
 
       self._cursor.execute(sql_query)
 
@@ -100,7 +101,7 @@ class Sqlite3Writer(object):
       have_entry = False
 
     if not have_entry:
-      sql_query = self._INSERT_QUERY.format(
+      sql_query = self._SHELLFOLDER_INSERT_QUERY.format(
           guid, self._windows_version, name, localized_string)
 
       self._cursor.execute(sql_query)
@@ -124,8 +125,8 @@ class StdoutWriter(object):
     """Closes the writer object."""
     pass
 
-  def WriteShellFolderClassIdentifier(self, guid, name, localized_string):
-    """Writes the shell folder class identifier to stdout.
+  def WriteShellFolder(self, guid, name, localized_string):
+    """Writes the shell folder to stdout.
 
     Args:
       guid: the GUID.
@@ -215,7 +216,7 @@ def Main():
         else:
           localized_string = ''
 
-        writer.riteShellFolderClassIdentifier name, localized_string)
+        writer.WriteShellFolder(guid, name, localized_string)
   else:
     print 'No class identifiers key found.'
 
