@@ -101,7 +101,7 @@ class Sqlite3Writer(object):
     """Writes the shell folder to the database.
 
     Args:
-      shell_folder: the shell folder.
+      shell_folder: the shell folder (instance of ShellFolder).
     """
     if not self._create_new_database:
       sql_query = self._SHELLFOLDER_SELECT_QUERY.format(
@@ -146,7 +146,7 @@ class StdoutWriter(object):
     """Writes the shell folder to stdout.
 
     Args:
-      shell_folder: the shell folder.
+      shell_folder: the shell folder (instance of ShellFolder).
     """
     print '{0:s}\t{1:s}\t{2:s}'.format(
         shell_folder.guid, shell_folder.name, shell_folder.localized_string)
