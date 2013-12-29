@@ -19,11 +19,29 @@
 # limitations under the License.
 
 import argparse
+import logging
 import os
 import sys
 
 import pyregf
 import sqlite3
+
+
+class ShellFolder(object):
+  """Class that defines a shell folder."""
+
+  def __init__(self, guid, name, localized_string):
+    """Initializes the shell folder object.
+
+    Args:
+      guid: the GUID.
+      name: the name.
+      localized_string: localized string of the name.
+    """
+    super(ShellFolder, self).__init__()
+    self.guid = guid
+    self.name = name
+    self.localized_string = localized_string
 
 
 class Sqlite3Writer(object):
@@ -79,17 +97,15 @@ class Sqlite3Writer(object):
     """Closes the writer object."""
     self._connection.close()
 
-  def WriteShellFolder(self, guid, name, localized_string):
+  def WriteShellFolder(self, shell_folder):
     """Writes the shell folder to the database.
 
     Args:
-      guid: the GUID.
-      name: the name.
-      localized_string: localized string of the name.
+      shell_folder: the shell folder.
     """
     if not self._create_new_database:
       sql_query = self._SHELLFOLDER_SELECT_QUERY.format(
-          guid, self._windows_version)
+          shell_folder.guid, self._windows_version)
 
       self._cursor.execute(sql_query)
 
@@ -102,12 +118,13 @@ class Sqlite3Writer(object):
 
     if not have_entry:
       sql_query = self._SHELLFOLDER_INSERT_QUERY.format(
-          guid, self._windows_version, name, localized_string)
+          shell_folder.guid, self._windows_version, shell_folder.name,
+          shell_folder.localized_string)
 
       self._cursor.execute(sql_query)
       self._connection.commit()
     else:
-      print 'Ignoring duplicate: {0:s}'.format(guid)
+      logging.info(u'Ignoring duplicate: {0:s}'.format(shell_folder.guid))
 
 
 class StdoutWriter(object):
@@ -125,15 +142,14 @@ class StdoutWriter(object):
     """Closes the writer object."""
     pass
 
-  def WriteShellFolder(self, guid, name, localized_string):
+  def WriteShellFolder(self, shell_folder):
     """Writes the shell folder to stdout.
 
     Args:
-      guid: the GUID.
-      name: the name.
-      localized_string: localized string of the name.
+      shell_folder: the shell folder.
     """
-    print '{0:s}\t{1:s}\t{2:s}'.format(guid, name, localized_string)
+    print '{0:s}\t{1:s}\t{2:s}'.format(
+        shell_folder.guid, shell_folder.name, shell_folder.localized_string)
 
 
 def Main():
@@ -174,6 +190,9 @@ def Main():
     args_parser.print_help()
     print ''
     return False
+
+  logging.basicConfig(
+      level=logging.INFO, format=u'[%(levelname)s] %(message)s')
 
   if not options.database:
     writer = StdoutWriter()
@@ -216,7 +235,8 @@ def Main():
         else:
           localized_string = ''
 
-        writer.WriteShellFolder(guid, name, localized_string)
+        shell_folder = ShellFolder(guid, name, localized_string)
+        writer.WriteShellFolder(shell_folder)
   else:
     print 'No class identifiers key found.'
 
