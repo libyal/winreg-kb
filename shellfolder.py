@@ -26,18 +26,9 @@ import pyregf
 import sqlite3
 
 
-class StdoutWriter(object):
-  def Open(self):
-    return True
-
-  def Close(self):
-    return True
-
-  def Write(self, guid, name, localized_string):
-      print '{0:s}\t{1:s}\t{2:s}'.format(guid, name, localized_string)
-
-
 class Sqlite3Writer(object):
+  """Class that defines a sqlite3 writer."""
+
   _CREATE_QUERY = (
       'CREATE TABLE shellfolder ( guid TEXT, windows_version TEXT, name TEXT, '
       'localized_string TEXT )')
@@ -50,10 +41,22 @@ class Sqlite3Writer(object):
       'INSERT INTO shellfolder VALUES ( "{0:s}", "{1:s}", "{2:s}", "{3:s}" )')
   
   def __init__(self, database_file, windows_version):
+    """Initializes the writer object.
+
+    Args:
+      database_file: the name of the database file.
+      windows_version: the Windows version.
+    """
+    super(Sqlite3Writer, self).__init__()
     self._database_file = database_file
     self._windows_version = windows_version
 
   def Open(self):
+    """Opens the writer object.
+
+    Returns:
+      A boolean containing True if successful or False if not.
+    """
     if os.path.exists(self._database_file):
       self._create_new_database = False
     else:
@@ -73,11 +76,17 @@ class Sqlite3Writer(object):
     return True
 
   def Close(self):
+    """Closes the writer object."""
     self._connection.close()
 
-    return True
-
   def Write(self, guid, name, localized_string):
+    """Writes the shell folder class identifier to the database.
+
+    Args:
+      guid: the GUID.
+      name: the name.
+      localized_string: localized string of the name.
+    """
     if not self._create_new_database:
       sql_query = self._SELECT_QUERY.format(guid, self._windows_version)
 
@@ -98,6 +107,32 @@ class Sqlite3Writer(object):
       self._connection.commit()
     else:
       print 'Ignoring duplicate: {0:s}'.format(guid)
+
+
+class StdoutWriter(object):
+  """Class that defines a stdout writer."""
+
+  def Open(self):
+    """Opens the writer object.
+
+    Returns:
+      A boolean containing True if successful or False if not.
+    """
+    return True
+
+  def Close(self):
+    """Closes the writer object."""
+    pass
+
+  def Write(self, guid, name, localized_string):
+    """Writes the shell folder class identifier to stdout.
+
+    Args:
+      guid: the GUID.
+      name: the name.
+      localized_string: localized string of the name.
+    """
+    print '{0:s}\t{1:s}\t{2:s}'.format(guid, name, localized_string)
 
 
 def Main():
@@ -139,7 +174,10 @@ def Main():
   else:
     writer = Sqlite3Writer(options.database, options.windows_version)
 
-  writer.Open()
+  if not writer.Open():
+    print 'Unable to open writer.'
+    print ''
+    return False
 
   regf_file = pyregf.file()
   regf_file.open(options.registry_file)
