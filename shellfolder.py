@@ -426,10 +426,10 @@ def Main():
     return False
 
   if options.database and not options.windows_version:
-    print 'Windows version missing.'
-    print ''
+    print u'Windows version missing.'
+    print u''
     args_parser.print_help()
-    print ''
+    print u''
     return False
 
   logging.basicConfig(
@@ -441,8 +441,8 @@ def Main():
     writer = Sqlite3Writer(options.database, options.windows_version)
 
   if not writer.Open():
-    print 'Unable to open output writer.'
-    print ''
+    print u'Unable to open output writer.'
+    print u''
     return False
 
   collector = Collector()
@@ -491,9 +491,9 @@ def Main():
       writer.WriteShellFolder(shell_folder)
 
   if not found_class_identifiers_key:
-    print 'No class identifiers key found.'
+    print u'No class identifiers key found.'
   elif not found_shell_folder_identifier_key:
-    print 'No shell folder identifier key found.'
+    print u'No shell folder identifier key found.'
 
   registry_file.Close()
 
