@@ -246,90 +246,38 @@ class WindowsServiceCollector(WindowsVolumeCollector):
     print u''
 
     for service_key in services_key.sub_keys:
-      print u'{0:s}'.format(service_key.name)
-
       type_value = service_key.get_value_by_name('Type')
-      object_name_string = 'Object name'
-
       if type_value:
         type_value = type_value.data_as_integer
 
-        if type_value == 0x00000001:
-          type_string = 'Kernel device driver'
-
-        elif type_value == 0x00000002:
-          type_string = 'File system driver'
-
-        elif type_value == 0x00000004:
-          type_string = 'Adapter arguments'
-
-        elif type_value == 0x00000010:
-          type_string = 'Stand-alone service'
-          object_name_string = 'Account name'
-        
-        elif type_value == 0x00000020:
-          type_string = 'Shared service'
-          object_name_string = 'Account name'
-
-        else:
-          if type_value == 0x00000110:
-            object_name_string = 'Account name'
-
-          type_string = 'Unknown 0x{0:08x}'.format(type_value)
-
-        print u'\tType\t\t\t: {0:s}'.format(type_string)
-
       display_name_value = service_key.get_value_by_name('DisplayName') 
-
       if display_name_value:
         if display_name_value.type in [
             RegistryFile.REG_SZ, RegistryFile.REG_EXPAND_SZ]:
-          print u'\tDisplay name\t\t: {0:s}'.format(
-              display_name_value.data_as_string)
+          display_name_value = display_name_value.data_as_string
+        else:
+          display_name_value = None
 
       description_value = service_key.get_value_by_name('Description') 
-
       if description_value:
-        print u'\tDescription\t\t: {0:s}'.format(
-            description_value.data_as_string)
+        description_value = description_value.data_as_string
 
       image_path_value = service_key.get_value_by_name('ImagePath') 
-
       if image_path_value:
-        print u'\tExecutable\t\t: {0:s}'.format(image_path_value.data_as_string)
+        image_path_value = image_path_value.data_as_string
 
       object_name_value = service_key.get_value_by_name('ObjectName') 
-
       if object_name_value:
-        print u'\t{0:s}\t\t: {1:s}'.format(
-            object_name_string, object_name_value.data_as_string)
+        object_name_value = object_name_value.data_as_string
 
       start_value = service_key.get_value_by_name('Start')
-
       if start_value:
         start_value = start_value.data_as_integer
 
-        if start_value == 0x00000000:
-          start_string = 'Boot'
-
-        elif start_value == 0x00000001:
-          start_string = 'System'
-
-        elif start_value == 0x00000002:
-          start_string = 'Automatic'
-
-        elif start_value == 0x00000003:
-          start_string = 'On demand'
-
-        elif start_value == 0x00000004:
-          start_string = 'Disabled'
-
-        else:
-          start_string = 'Unknown 0x{0:08x}'.format(start_value)
-
-        print u'\tStart\t\t\t: {0:s}'.format(start_string)
-
-      print u''
+      windows_service = WindowsService(
+          service_key.name, type_value, display_name_value, description_value,
+          image_path_value, object_name_value, start_value)
+      output_writer.WriteWindowsService(windows_service)
 
   def CollectWindowsServices(self, output_writer):
     """Collects the Windows services from the SYSTEM Registry file.
@@ -428,6 +376,112 @@ class StdoutWriter(object):
   def Close(self):
     """Closes the output writer object."""
     pass
+
+  def WriteWindowsService(self, service):
+    """Writes the Windows service to stdout.
+
+    Args:
+      service: the Windows service (instance of WindowsService).
+    """
+    print u'{0:s}'.format(service.name)
+
+    if service.service_type:
+      print u'\tType\t\t\t: {0:s}'.format(service.GetServiceTypeDescription())
+
+    if service.display_name:
+      print u'\tDisplay name\t\t: {0:s}'.format(service.display_name)
+
+    if service.description:
+      print u'\tDescription\t\t: {0:s}'.format(service.description)
+
+    if service.image_path:
+      print u'\tExecutable\t\t: {0:s}'.format(service.image_path)
+
+    if service.object_name:
+      print u'\t{0:s}\t\t: {1:s}'.format(
+          service.GetObjectNameDescription(), service.object_name)
+
+    if service.start_value is not None:
+      print u'\tStart\t\t\t: {0:s}'.format(service.GetStartValueDescription())
+
+    print u''
+
+
+class WindowsService(object):
+  """Class that defines a Windows service."""
+
+  def __init__(self, name, service_type, display_name, description, image_path,
+               object_name, start_value):
+    """Initializes the Windows service object.
+
+    Args:
+      name: the name.
+      service_type: the service type.
+      display_name: the display name.
+      description: the service description.
+      image_path: the image path.
+      object_name: the object name
+      start_value: the start value.
+    """
+    super(WindowsService, self).__init__()
+    self.description = description
+    self.display_name = display_name
+    self.image_path = image_path
+    self.name = name
+    self.object_name = object_name
+    self.service_type = service_type
+    self.start_value = start_value
+
+  def GetObjectNameDescription(self):
+    """Retrieves the object name as a descriptive string."""
+    if self.service_type == 0x00000010:
+      return u'Account name'
+        
+    elif self.service_type == 0x00000020:
+      return u'Account name'
+
+    elif self.service_type == 0x00000110:
+      return u'Account name'
+
+    return u'Object name'
+
+  def GetServiceTypeDescription(self):
+    """Retrieves the service type as a descriptive string."""
+    if self.service_type == 0x00000001:
+      return u'Kernel device driver'
+
+    elif self.service_type == 0x00000002:
+      return u'File system driver'
+
+    elif self.service_type == 0x00000004:
+      return u'Adapter arguments'
+
+    elif self.service_type == 0x00000010:
+      return u'Stand-alone service'
+        
+    elif self.service_type == 0x00000020:
+      return u'Shared service'
+
+    return u'Unknown 0x{0:08x}'.format(self.service_type)
+
+  def GetStartValueDescription(self):
+    """Retrieves the start value as a descriptive string."""
+    if self.start_value == 0x00000000:
+      return u'Boot'
+
+    elif self.start_value == 0x00000001:
+      return u'System'
+
+    elif self.start_value == 0x00000002:
+      return u'Automatic'
+
+    elif self.start_value == 0x00000003:
+      return u'On demand'
+
+    elif self.start_value == 0x00000004:
+      return u'Disabled'
+
+    return u'Unknown 0x{0:08x}'.format(self.start_value)
 
 
 def Main():
