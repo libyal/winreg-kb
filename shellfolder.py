@@ -48,8 +48,8 @@ class CollectorError(Exception):
   """Class that defines collector errors."""
 
 
-class Collector(object):
-  """Class that defines a collector."""
+class WindowsVolumeCollector(object):
+  """Class that defines a Windows volume collector."""
 
   _WINDOWS_DIRECTORIES = frozenset([
       u'C:\\Windows',
@@ -58,14 +58,11 @@ class Collector(object):
       u'C:\\WINNT35',
   ])
 
-  REGISTRY_FILENAME_SOFTWARE = u'C:\\Windows\\System32\\config\\SOFTWARE'
-
   def __init__(self):
-    """Initializes the collector object."""
-    super(Collector, self).__init__()
+    """Initializes the Windows volume collector object."""
+    super(WindowsVolumeCollector, self).__init__()
     self._file_system = None
     self._path_resolver = None
-    self.system_root = None
 
   def GetWindowsVolumePathSpec(self, source_path):
     """Determines the file system path specification of the Windows volume.
@@ -194,26 +191,90 @@ class Collector(object):
 
     return True
 
-  def OpenRegistryFile(self, windows_path):
-    """Opens the registry file specificed by the Windows path.
+  def OpenFile(self, windows_path):
+    """Opens the file specificed by the Windows path.
 
     Args:
-      windows_path: the Windows path containing the Registry filename.
+      windows_path: the Windows path to the file.
 
     Returns:
-      The Registry file (instance of RegistryFile) or None.
+      The file-like object (instance of dfvfs.FileIO) or None if
+      the file does not exist.
     """
     path_spec = self._path_resolver.ResolvePath(windows_path)
     if path_spec is None:
       return None
 
-    file_object = resolver.Resolver.OpenFileObject(path_spec)
+    return resolver.Resolver.OpenFileObject(path_spec)
+
+
+class ShellFolderIdentifierCollector(WindowsVolumeCollector):
+  """Class that defines a Shell Folder identifier collector."""
+
+  _REGISTRY_FILENAME_SOFTWARE = u'C:\\Windows\\System32\\config\\SOFTWARE'
+
+  def __init__(self):
+    """Initializes the Shell Folder identifier collector object."""
+    super(ShellFolderIdentifierCollector, self).__init__()
+    self.found_class_identifiers_key = False
+    self.found_shell_folder_identifier_key = False
+
+  def _OpenRegistryFile(self, windows_path):
+    """Opens the registry file specificed by the Windows path.
+
+    Args:
+      windows_path: the Windows path to the Registry file.
+
+    Returns:
+      The Registry file (instance of RegistryFile) or None.
+    """
+    file_object = self.OpenFile(windows_path)
     if file_object is None:
       return None
 
     registry_file = RegistryFile()
     registry_file.Open(file_object)
     return registry_file
+
+  def CollectShellFolderIdentifiers(self, output_writer):
+    """Collects the Shell Folder identifiers from the SOFTWARE Registry file.
+
+    Args:
+      output_writer: the output writer object.
+    """
+    registry_file = self._OpenRegistryFile(
+        self._REGISTRY_FILENAME_SOFTWARE)
+
+    for class_identifier_key in registry_file.GetClassIdentifierKeys():
+      self.found_class_identifiers_key = True
+      guid = class_identifier_key.name.lower()
+
+      shell_folder_key = class_identifier_key.get_sub_key_by_name('ShellFolder')
+      if shell_folder_key:
+        self.found_shell_folder_identifier_key = True
+
+        value = class_identifier_key.get_value_by_name('')
+        if value:
+          # The value data type does not have to be a string therefore try to
+          # decode the data as an UTF-16 little-endian string and strip
+          # the trailing end-of-string character
+          name = value.data.decode('utf-16-le')[:-1]
+        else:
+          name = ''
+
+        value = class_identifier_key.get_value_by_name('LocalizedString')
+        if value:
+          # The value data type does not have to be a string therefore try to
+          # decode the data as an UTF-16 little-endian string and strip
+          # the trailing end-of-string character
+          localized_string = value.data.decode('utf-16-le')[:-1]
+        else:
+          localized_string = ''
+
+        shell_folder = ShellFolder(guid, name, localized_string)
+        output_writer.WriteShellFolder(shell_folder)
+
+    registry_file.Close()
 
 
 class RegistryFile(object):
@@ -284,7 +345,7 @@ class ShellFolder(object):
 
 
 class Sqlite3Writer(object):
-  """Class that defines a sqlite3 writer."""
+  """Class that defines a sqlite3 output writer."""
 
   _SHELLFOLDER_CREATE_QUERY = (
       'CREATE TABLE shellfolder ( guid TEXT, windows_version TEXT, name TEXT, '
@@ -298,7 +359,7 @@ class Sqlite3Writer(object):
       'windows_version = "{1:s}"')
 
   def __init__(self, database_file, windows_version):
-    """Initializes the writer object.
+    """Initializes the output writer object.
 
     Args:
       database_file: the name of the database file.
@@ -309,7 +370,7 @@ class Sqlite3Writer(object):
     self._windows_version = windows_version
 
   def Open(self):
-    """Opens the writer object.
+    """Opens the output writer object.
 
     Returns:
       A boolean containing True if successful or False if not.
@@ -333,7 +394,7 @@ class Sqlite3Writer(object):
     return True
 
   def Close(self):
-    """Closes the writer object."""
+    """Closes the output writer object."""
     self._connection.close()
 
   def WriteShellFolder(self, shell_folder):
@@ -367,10 +428,10 @@ class Sqlite3Writer(object):
 
 
 class StdoutWriter(object):
-  """Class that defines a stdout writer."""
+  """Class that defines a stdout output writer."""
 
   def Open(self):
-    """Opens the writer object.
+    """Opens the output writer object.
 
     Returns:
       A boolean containing True if successful or False if not.
@@ -378,7 +439,7 @@ class StdoutWriter(object):
     return True
 
   def Close(self):
-    """Closes the writer object."""
+    """Closes the output writer object."""
     pass
 
   def WriteShellFolder(self, shell_folder):
@@ -387,7 +448,7 @@ class StdoutWriter(object):
     Args:
       shell_folder: the shell folder (instance of ShellFolder).
     """
-    print '{0:s}\t{1:s}\t{2:s}'.format(
+    print u'{0:s}\t{1:s}\t{2:s}'.format(
         shell_folder.guid, shell_folder.name, shell_folder.localized_string)
 
 
@@ -436,16 +497,16 @@ def Main():
       level=logging.INFO, format=u'[%(levelname)s] %(message)s')
 
   if not options.database:
-    writer = StdoutWriter()
+    output_writer = StdoutWriter()
   else:
-    writer = Sqlite3Writer(options.database, options.windows_version)
+    output_writer = Sqlite3Writer(options.database, options.windows_version)
 
-  if not writer.Open():
+  if not output_writer.Open():
     print u'Unable to open output writer.'
     print u''
     return False
 
-  collector = Collector()
+  collector = ShellFolderIdentifierCollector()
 
   if not collector.GetWindowsVolumePathSpec(options.source):
     print (
@@ -454,52 +515,16 @@ def Main():
     print ''
     return False
 
-  # Determine the shell folder identifiers.
-  registry_file = collector.OpenRegistryFile(
-      collector.REGISTRY_FILENAME_SOFTWARE)
+  collector.CollectShellFolderIdentifiers(output_writer)
+  output_writer.Close()
 
-  found_class_identifiers_key = False
-  found_shell_folder_identifier_key = False
-
-  for class_identifier_key in registry_file.GetClassIdentifierKeys():
-    found_class_identifiers_key = True
-    guid = class_identifier_key.name.lower()
-
-    shell_folder_key = class_identifier_key.get_sub_key_by_name('ShellFolder')
-    if shell_folder_key:
-      found_shell_folder_identifier_key = True
-
-      value = class_identifier_key.get_value_by_name('')
-      if value:
-        # The value data type does not have to be a string therefore try to
-        # decode the data as an UTF-16 little-endian string and strip
-        # the trailing end-of-string character
-        name = value.data.decode('utf-16-le')[:-1]
-      else:
-        name = ''
-
-      value = class_identifier_key.get_value_by_name('LocalizedString')
-      if value:
-        # The value data type does not have to be a string therefore try to
-        # decode the data as an UTF-16 little-endian string and strip
-        # the trailing end-of-string character
-        localized_string = value.data.decode('utf-16-le')[:-1]
-      else:
-        localized_string = ''
-
-      shell_folder = ShellFolder(guid, name, localized_string)
-      writer.WriteShellFolder(shell_folder)
-
-  if not found_class_identifiers_key:
+  if not collector.found_class_identifiers_key:
     print u'No class identifiers key found.'
-  elif not found_shell_folder_identifier_key:
+  elif not collector.found_shell_folder_identifier_key:
     print u'No shell folder identifier key found.'
 
-  registry_file.Close()
-
-  writer.Close()
-
   return True
+
 
 if __name__ == '__main__':
   if not Main():
