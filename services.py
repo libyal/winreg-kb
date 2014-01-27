@@ -37,10 +37,10 @@ from dfvfs.volume import tsk_volume_system
 
 
 if dfvfs.__version__ < '20140127':
-  raise ImportWarning('shellfolder.py requires dfvfs 20140127 or later.')
+  raise ImportWarning('services.py requires dfvfs 20140127 or later.')
 
 if pyregf.get_version() < '20130716':
-  raise ImportWarning('shellfolder.py requires pyregf 20130716 or later.')
+  raise ImportWarning('services.py requires pyregf 20130716 or later.')
 
 
 class CollectorError(Exception):
