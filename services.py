@@ -62,6 +62,7 @@ class WindowsVolumeCollector(object):
     super(WindowsVolumeCollector, self).__init__()
     self._file_system = None
     self._path_resolver = None
+    self._windows_directory = None
 
   def GetWindowsVolumePathSpec(self, source_path):
     """Determines the file system path specification of the Windows volume.
@@ -148,6 +149,7 @@ class WindowsVolumeCollector(object):
 
               if result:
                 path_spec = volume_path_spec
+                self._windows_directory = windows_path
                 break
 
             if result:
@@ -188,6 +190,9 @@ class WindowsVolumeCollector(object):
     self._path_resolver = windows_path_resolver.WindowsPathResolver(
         self._file_system, path_spec)
 
+    self._path_resolver.SetEnvironmentVariable(
+        'WinDir', self._windows_directory)
+
     return True
 
   def OpenFile(self, windows_path):
@@ -210,7 +215,7 @@ class WindowsVolumeCollector(object):
 class WindowsServiceCollector(WindowsVolumeCollector):
   """Class that defines a Windows service collector."""
 
-  _REGISTRY_FILENAME_SYSTEM = u'C:\\Windows\\System32\\config\\SYSTEM'
+  _REGISTRY_FILENAME_SYSTEM = u'%WinDir%\\System32\\config\\SYSTEM'
 
   def __init__(self):
     """Initializes the Windows service collector object."""
