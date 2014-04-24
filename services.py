@@ -4,7 +4,7 @@
 # Script to print the drivers and services from the SYSTEM
 # Registry file (REGF)
 #
-# Copyright (c) 2013, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (c) 2013-2014, Joachim Metz <joachim.metz@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -223,7 +223,7 @@ class WindowsServiceCollector(WindowsVolumeCollector):
     self.found_services_key = False
 
   def _OpenRegistryFile(self, windows_path):
-    """Opens the registry file specificed by the Windows path.
+    """Opens the Registry file specificed by the Windows path.
 
     Args:
       windows_path: the Windows path to the Registry file.
@@ -497,7 +497,7 @@ def Main():
   """
   args_parser = argparse.ArgumentParser(description=(
       'Extract the services information from a SYSTEM '
-      ' Registry File (REGF).'))
+      'Registry File (REGF).'))
 
   args_parser.add_argument(
       'source', nargs='?', action='store', metavar='/mnt/c/',
@@ -530,7 +530,7 @@ def Main():
     print (
         u'Unable to retrieve the volume with the Windows directory from: '
         u'{0:s}.').format(options.source)
-    print ''
+    print u''
     return False
 
   collector.CollectWindowsServices(output_writer)

@@ -4,7 +4,7 @@
 # Script to print the known folder identifiers (KNOWNFOLDERID)
 # from the SOFTWARE Registry file (REGF)
 #
-# Copyright (c) 2013, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (c) 2013-2014, Joachim Metz <joachim.metz@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,13 +32,13 @@ class StdoutWriter(object):
     return True
 
   def Write(self, guid, name, localized_name):
-      print '{0:s}\t{1:s}\t{2:s}'.format(guid, name, localized_name)
+      print u'{0:s}\t{1:s}\t{2:s}'.format(guid, name, localized_name)
 
 
 def Main():
   args_parser = argparse.ArgumentParser(description=(
       'Extract the known folder identifiers (KNOWNFOLDERID) from a SOFTWARE '
-      ' Registry File (REGF).'))
+      'Registry File (REGF).'))
 
   args_parser.add_argument(
       'registry_file', nargs='?', action='store', metavar='SOFTWARE',
@@ -47,10 +47,10 @@ def Main():
   options = args_parser.parse_args()
 
   if not options.registry_file:
-    print 'Registry file missing.'
-    print ''
+    print u'Registry file missing.'
+    print u''
     args_parser.print_help()
-    print ''
+    print u''
     return False
 
   writer = StdoutWriter()
@@ -84,7 +84,7 @@ def Main():
 
       writer.Write(guid, name, localized_name)
   else:
-    print 'No folder descriptions key found.'
+    print u'No folder descriptions key found.'
 
   regf_file.close()
 

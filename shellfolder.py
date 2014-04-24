@@ -63,6 +63,7 @@ class WindowsVolumeCollector(object):
     super(WindowsVolumeCollector, self).__init__()
     self._file_system = None
     self._path_resolver = None
+    self._windows_directory = None
 
   def GetWindowsVolumePathSpec(self, source_path):
     """Determines the file system path specification of the Windows volume.
@@ -149,6 +150,7 @@ class WindowsVolumeCollector(object):
 
               if result:
                 path_spec = volume_path_spec
+                self._windows_directory = windows_path
                 break
 
             if result:
@@ -189,6 +191,9 @@ class WindowsVolumeCollector(object):
     self._path_resolver = windows_path_resolver.WindowsPathResolver(
         self._file_system, path_spec)
 
+    self._path_resolver.SetEnvironmentVariable(
+        'WinDir', self._windows_directory)
+
     return True
 
   def OpenFile(self, windows_path):
@@ -211,7 +216,7 @@ class WindowsVolumeCollector(object):
 class ShellFolderIdentifierCollector(WindowsVolumeCollector):
   """Class that defines a Shell Folder identifier collector."""
 
-  _REGISTRY_FILENAME_SOFTWARE = u'C:\\Windows\\System32\\config\\SOFTWARE'
+  _REGISTRY_FILENAME_SOFTWARE = u'%WinDir%\\System32\\config\\SOFTWARE'
 
   def __init__(self):
     """Initializes the Shell Folder identifier collector object."""
@@ -220,7 +225,7 @@ class ShellFolderIdentifierCollector(WindowsVolumeCollector):
     self.found_shell_folder_identifier_key = False
 
   def _OpenRegistryFile(self, windows_path):
-    """Opens the registry file specificed by the Windows path.
+    """Opens the Registry file specificed by the Windows path.
 
     Args:
       windows_path: the Windows path to the Registry file.
