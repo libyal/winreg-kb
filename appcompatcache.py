@@ -221,7 +221,7 @@ def PrintAppCompatCacheKey(regf_file, appcompatcache_key_path):
     number_of_characters += number_of_entries
 
     # TODO: likely header data?
-    print u'Chached entry array data:'
+    print u'Cached entry array data:'
     print Hexdump(value_data[16:number_of_entries])
 
     print u'String array data:'
@@ -245,7 +245,7 @@ def PrintAppCompatCacheKey(regf_file, appcompatcache_key_path):
   for cached_entry_index in range(0, number_of_cached_entries):
     next_value_data_index = value_data_index + cached_entry_size
 
-    print u'Chached entry: {0:d} data:'.format(cached_entry_index)
+    print u'Cached entry: {0:d} data:'.format(cached_entry_index)
     print Hexdump(value_data[value_data_index:next_value_data_index])
 
     if format_type == APPCOMPATCACHE_FORMAT_TYPE_XP:
