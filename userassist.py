@@ -19,6 +19,7 @@
 # limitations under the License.
 
 import argparse
+import datetime
 import construct
 import logging
 import sys
@@ -183,8 +184,12 @@ def PrintUserAssistKey(regf_file, userassist_key_path):
           print u'Unknown12\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
               parsed_data.get('unknown12'))
 
-        print u'Last execution time\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            parsed_data.get('last_execution_time'))
+        timestamp = parsed_data.get('last_execution_time')
+        date_string = (datetime.datetime(1601, 1, 1) +
+                       datetime.timedelta(microseconds=timestamp/10))
+
+        print u'Last execution time\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
+            date_string, timestamp)
 
         if format_version == 5:
           print u'Unknown13\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
@@ -238,4 +243,3 @@ if __name__ == '__main__':
     sys.exit(1)
   else:
     sys.exit(0)
-

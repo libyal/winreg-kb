@@ -20,6 +20,7 @@
 
 import argparse
 import construct
+import datetime
 import logging
 import sys
 
@@ -53,23 +54,88 @@ def Hexdump(data):
 
 
 def PrintAppCompatCacheKey(regf_file, appcompatcache_key_path):
-  # AppCompatCache format used in Windows XP.
+
+  APPCOMPATCACHE_FORMAT_TYPE_2000 = 1
+  APPCOMPATCACHE_FORMAT_TYPE_XP = 2
+  APPCOMPATCACHE_FORMAT_TYPE_2003 = 3
+  APPCOMPATCACHE_FORMAT_TYPE_VISTA = 4
+  APPCOMPATCACHE_FORMAT_TYPE_7 = 5
+  APPCOMPATCACHE_FORMAT_TYPE_8 = 6
+  APPCOMPATCACHE_FORMAT_TYPE_8_1 = 7
+
+  # AppCompatCache format signature used in Windows XP.
   APPCOMPATCACHE_HEADER_SIGNATURE_XP = 0xdeadbeef
-  APPCOMPATCACHE_HEADER_XP_32BIT_STRUCT = construct.Struct(
-      'appcompatcache_header_xp_32bit',
+
+  # AppCompatCache format used in Windows XP.
+  APPCOMPATCACHE_HEADER_XP_STRUCT = construct.Struct(
+      'appcompatcache_header_xp',
       construct.ULInt32('signature'),
-      construct.ULInt32('number_of_entries'),
+      construct.ULInt32('number_of_cached_entries'),
       construct.ULInt32('number_of_characters'),
       construct.ULInt32('unknown1'))
 
-  # AppCompatCache format used in Windows 2003, 7 and 2008.
+  # AppCompatCache format signature used in Windows 2003, Vista and 2008.
   APPCOMPATCACHE_HEADER_SIGNATURE_2003 = 0xbadc0ffe
-  APPCOMPATCACHE_HEADER_2003_32BIT_STRUCT = construct.Struct(
-      'appcompatcache_header_2003_32bit',
+
+  # AppCompatCache format used in Windows 2003.
+  APPCOMPATCACHE_HEADER_2003_STRUCT = construct.Struct(
+      'appcompatcache_header_2003',
       construct.ULInt32('signature'),
-      construct.ULInt32('number_of_entries'),
-      construct.ULInt32('number_of_characters'),
-      construct.ULInt32('unknown1'))
+      construct.ULInt32('number_of_cached_entries'),
+      construct.Padding(120))
+  # TODO: unsure about padding.
+
+  APPCOMPATCACHE_CACHE_ENTRY_2003_32BIT_STRUCT = construct.Struct(
+      'appcompatcache_cache_entry_2003_32bit',
+      construct.ULInt16('path_size'),
+      construct.ULInt16('maximum_path_size'),
+      construct.ULInt32('path_offset'),
+      construct.ULInt64('last_modification_time'),
+      construct.ULInt64('file_size'))
+
+  APPCOMPATCACHE_CACHE_ENTRY_2003_64BIT_STRUCT = construct.Struct(
+      'appcompatcache_cache_entry_2003_64bit',
+      construct.ULInt16('path_size'),
+      construct.ULInt16('maximum_path_size'),
+      construct.ULInt32('unknown1'),
+      construct.ULInt64('path_offset'),
+      construct.ULInt64('last_modification_time'),
+      construct.ULInt64('file_size'))
+
+  # AppCompatCache format used in Windows Vista and 2008.
+
+  # AppCompatCache format signature used in Windows 7 and 2008 R2.
+  APPCOMPATCACHE_HEADER_SIGNATURE_7 = 0xbadc0fee
+
+  # AppCompatCache format used in Windows 7 and 2008 R2.
+  APPCOMPATCACHE_HEADER_7_STRUCT = construct.Struct(
+      'appcompatcache_header_7',
+      construct.ULInt32('signature'),
+      construct.ULInt32('number_of_cached_entries'),
+      construct.Padding(120))
+
+  APPCOMPATCACHE_CACHE_ENTRY_7_32BIT_STRUCT = construct.Struct(
+      'appcompatcache_cache_entry_7_32bit',
+      construct.ULInt16('path_size'),
+      construct.ULInt16('maximum_path_size'),
+      construct.ULInt32('path_offset'),
+      construct.ULInt64('last_modification_time'),
+      construct.ULInt32('insertion_flags'),
+      construct.ULInt32('shim_flags'),
+      construct.ULInt32('data_size'),
+      construct.ULInt32('data_offset'))
+
+  APPCOMPATCACHE_CACHE_ENTRY_7_64BIT_STRUCT = construct.Struct(
+      'appcompatcache_cache_entry_7_64bit',
+      construct.ULInt16('path_size'),
+      construct.ULInt16('maximum_path_size'),
+      construct.ULInt32('unknown1'),
+      construct.ULInt64('path_offset'),
+      construct.ULInt64('last_modification_time'),
+      construct.ULInt32('insertion_flags'),
+      construct.ULInt32('shim_flags'),
+      construct.ULInt64('data_size'),
+      construct.ULInt64('data_offset'))
 
   # AppCompatCache format used in Windows 8.0.
 
@@ -86,41 +152,155 @@ def PrintAppCompatCacheKey(regf_file, appcompatcache_key_path):
     return
 
   value_data = value.data
+  value_data_index = 0
 
-  print u'Header data:'
-  print Hexdump(value_data[0:16])
+  signature = construct.ULInt32('signature').parse(value_data)
 
-  parsed_data = APPCOMPATCACHE_HEADER_XP_32BIT_STRUCT.parse(value_data)
+  if signature == APPCOMPATCACHE_HEADER_SIGNATURE_XP:
+    format_type = APPCOMPATCACHE_FORMAT_TYPE_XP
 
-  signature = parsed_data.get('signature')
-  number_of_entries = parsed_data.get('number_of_entries')
-  number_of_characters = parsed_data.get('number_of_characters')
+    header_size = APPCOMPATCACHE_HEADER_XP_STRUCT.sizeof()
+    parsed_data = APPCOMPATCACHE_HEADER_XP_STRUCT.parse(value_data)
 
-  print u'Signature\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(signature)
-  print u'Number of entries\t\t\t\t\t\t\t: {0:d}'.format(number_of_entries)
-  print u'Number of characters\t\t\t\t\t\t\t: {0:d}'.format(
-      number_of_characters)
+  elif signature == APPCOMPATCACHE_HEADER_SIGNATURE_2003:
+    format_type = APPCOMPATCACHE_FORMAT_TYPE_2003
 
-  print u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-      parsed_data.get('unknown1'))
+    # TODO: determine which format version is used.
+    header_size = APPCOMPATCACHE_HEADER_2003_STRUCT.sizeof()
+    parsed_data = APPCOMPATCACHE_HEADER_2003_STRUCT.parse(value_data)
 
-  if signature not in [
-      APPCOMPATCACHE_HEADER_SIGNATURE_XP,
-      APPCOMPATCACHE_HEADER_SIGNATURE_2003]:
+    # TODO: determine bit size.
+    bit_size = 32
+
+  elif signature == APPCOMPATCACHE_HEADER_SIGNATURE_7:
+    format_type = APPCOMPATCACHE_FORMAT_TYPE_7
+
+    # TODO: determine which format version is used.
+    header_size = APPCOMPATCACHE_HEADER_7_STRUCT.sizeof()
+    parsed_data = APPCOMPATCACHE_HEADER_7_STRUCT.parse(value_data)
+
+    # TODO: determine bit size.
+    bit_size = 64
+
+  else:
     logging.warning(u'Unsupported signature: 0x{0:08x}'.format(signature))
+
+    print u'Value data:'
+    print Hexdump(value_data)
     return
 
-  number_of_entries *= 4
-  number_of_entries += 16
+  next_value_data_index = value_data_index + header_size
 
-  number_of_characters *= 2
-  number_of_characters += number_of_entries
+  print u'Header data:'
+  print Hexdump(value_data[value_data_index:next_value_data_index])
 
-  print u'Integer array data:'
-  print Hexdump(value_data[16:number_of_entries])
+  value_data_index = next_value_data_index
 
-  print u'String array data:'
-  print Hexdump(value_data[number_of_entries:number_of_characters])
+  number_of_cached_entries = parsed_data.get('number_of_cached_entries')
+
+  print u'Signature\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(signature)
+  print u'Number of cached entries\t\t\t\t\t\t: {0:d}'.format(
+      number_of_cached_entries)
+
+  if format_type == APPCOMPATCACHE_FORMAT_TYPE_XP:
+    number_of_characters = parsed_data.get('number_of_characters')
+
+    number_of_entries *= 4
+    number_of_entries += 16
+
+    print u'Number of characters\t\t\t\t\t\t\t: {0:d}'.format(
+        number_of_characters)
+
+    print u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+        parsed_data.get('unknown1'))
+
+    number_of_characters *= 2
+    number_of_characters += number_of_entries
+
+    print u'Chached entry array data:'
+    print Hexdump(value_data[16:number_of_entries])
+
+    print u'String array data:'
+    print Hexdump(value_data[number_of_entries:number_of_characters])
+
+  if format_type == APPCOMPATCACHE_FORMAT_TYPE_XP:
+    pass
+
+  elif format_type == APPCOMPATCACHE_FORMAT_TYPE_2003:
+    if bit_size == 32:
+      cached_entry_size = APPCOMPATCACHE_CACHE_ENTRY_2003_32BIT_STRUCT.sizeof()
+      parsed_data = APPCOMPATCACHE_CACHE_ENTRY_2003_32BIT_STRUCT.parse(
+          value_data[value_data_index:])
+    elif bit_size == 64:
+      cached_entry_size = APPCOMPATCACHE_CACHE_ENTRY_2003_64BIT_STRUCT.sizeof()
+      parsed_data = APPCOMPATCACHE_CACHE_ENTRY_2003_64BIT_STRUCT.parse(
+          value_data[value_data_index:])
+
+  elif format_type == APPCOMPATCACHE_FORMAT_TYPE_7:
+    if bit_size == 32:
+      cached_entry_size = APPCOMPATCACHE_CACHE_ENTRY_7_32BIT_STRUCT.sizeof()
+      parsed_data = APPCOMPATCACHE_CACHE_ENTRY_7_32BIT_STRUCT.parse(
+          value_data[value_data_index:])
+    elif bit_size == 64:
+      cached_entry_size = APPCOMPATCACHE_CACHE_ENTRY_7_64BIT_STRUCT.sizeof()
+      parsed_data = APPCOMPATCACHE_CACHE_ENTRY_7_64BIT_STRUCT.parse(
+          value_data[value_data_index:])
+
+  for cached_entry_index in range(0, number_of_cached_entries):
+    next_value_data_index = value_data_index + cached_entry_size
+
+    print u'Chached entry: {0:d} data:'.format(cached_entry_index)
+    print Hexdump(value_data[value_data_index:next_value_data_index])
+
+    path_size = parsed_data.get('path_size')
+    maximum_path_size = parsed_data.get('maximum_path_size')
+    path_offset = parsed_data.get('path_offset')
+
+    print u'Path size\t\t\t\t\t\t\t\t: {0:d}'.format(path_size)
+    print u'Maximum path size\t\t\t\t\t\t\t: {0:d}'.format(maximum_path_size)
+    print u'Path offset\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(path_offset)
+
+    timestamp = parsed_data.get('last_modification_time')
+    date_string = (datetime.datetime(1601, 1, 1) +
+                   datetime.timedelta(microseconds=timestamp/10))
+
+    print u'Last modification time\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
+        date_string, timestamp)
+
+    if format_type == APPCOMPATCACHE_FORMAT_TYPE_XP:
+      data_size = 0
+
+    elif format_type == APPCOMPATCACHE_FORMAT_TYPE_2003:
+      data_size = 0
+
+    elif format_type == APPCOMPATCACHE_FORMAT_TYPE_7:
+      data_offset = parsed_data.get('data_offset')
+      data_size = parsed_data.get('data_size')
+
+      print u'Insertion flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+          parsed_data.get('insertion_flags'))
+      print u'Shim flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+          parsed_data.get('shim_flags'))
+      print u'Data offset\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(data_offset)
+      print u'Data size\t\t\t\t\t\t\t\t: {0:d}'.format(data_size)
+
+    path_size += path_offset
+    maximum_path_size += path_offset
+
+    print u''
+    print u'Path data:'
+    print Hexdump(value_data[path_offset:maximum_path_size])
+
+    print u'Path\t\t\t\t\t\t\t\t\t: {0:s}'.format(
+        value_data[path_offset:path_size].decode('utf-16-le'))
+
+    if data_size > 0:
+      data_size += data_offset
+
+      print u'Data:'
+      print Hexdump(value_data[data_offset:data_size])
+
+    value_data_index = next_value_data_index
 
   print u''
 
