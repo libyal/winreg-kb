@@ -214,9 +214,13 @@ def PrintAppCompatCacheKey(regf_file, appcompatcache_key_path):
     print u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
         parsed_data.get('unknown1'))
 
+  print u''
+
+  if format_type == APPCOMPATCACHE_FORMAT_TYPE_XP:
     number_of_characters *= 2
     number_of_characters += number_of_entries
 
+    # TODO: likely header data?
     print u'Chached entry array data:'
     print Hexdump(value_data[16:number_of_entries])
 
@@ -229,28 +233,40 @@ def PrintAppCompatCacheKey(regf_file, appcompatcache_key_path):
   elif format_type == APPCOMPATCACHE_FORMAT_TYPE_2003:
     if bit_size == 32:
       cached_entry_size = APPCOMPATCACHE_CACHE_ENTRY_2003_32BIT_STRUCT.sizeof()
-      parsed_data = APPCOMPATCACHE_CACHE_ENTRY_2003_32BIT_STRUCT.parse(
-          value_data[value_data_index:])
     elif bit_size == 64:
       cached_entry_size = APPCOMPATCACHE_CACHE_ENTRY_2003_64BIT_STRUCT.sizeof()
-      parsed_data = APPCOMPATCACHE_CACHE_ENTRY_2003_64BIT_STRUCT.parse(
-          value_data[value_data_index:])
 
   elif format_type == APPCOMPATCACHE_FORMAT_TYPE_7:
     if bit_size == 32:
       cached_entry_size = APPCOMPATCACHE_CACHE_ENTRY_7_32BIT_STRUCT.sizeof()
-      parsed_data = APPCOMPATCACHE_CACHE_ENTRY_7_32BIT_STRUCT.parse(
-          value_data[value_data_index:])
     elif bit_size == 64:
       cached_entry_size = APPCOMPATCACHE_CACHE_ENTRY_7_64BIT_STRUCT.sizeof()
-      parsed_data = APPCOMPATCACHE_CACHE_ENTRY_7_64BIT_STRUCT.parse(
-          value_data[value_data_index:])
 
   for cached_entry_index in range(0, number_of_cached_entries):
     next_value_data_index = value_data_index + cached_entry_size
 
     print u'Chached entry: {0:d} data:'.format(cached_entry_index)
     print Hexdump(value_data[value_data_index:next_value_data_index])
+
+    if format_type == APPCOMPATCACHE_FORMAT_TYPE_XP:
+      # TODO: implement.
+      pass
+
+    elif format_type == APPCOMPATCACHE_FORMAT_TYPE_2003:
+      if bit_size == 32:
+        parsed_data = APPCOMPATCACHE_CACHE_ENTRY_2003_32BIT_STRUCT.parse(
+          value_data[value_data_index:])
+      elif bit_size == 64:
+        parsed_data = APPCOMPATCACHE_CACHE_ENTRY_2003_64BIT_STRUCT.parse(
+            value_data[value_data_index:])
+
+    elif format_type == APPCOMPATCACHE_FORMAT_TYPE_7:
+      if bit_size == 32:
+        parsed_data = APPCOMPATCACHE_CACHE_ENTRY_7_32BIT_STRUCT.parse(
+            value_data[value_data_index:])
+      elif bit_size == 64:
+        parsed_data = APPCOMPATCACHE_CACHE_ENTRY_7_64BIT_STRUCT.parse(
+            value_data[value_data_index:])
 
     path_size = parsed_data.get('path_size')
     maximum_path_size = parsed_data.get('maximum_path_size')
