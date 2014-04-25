@@ -82,110 +82,115 @@ def PrintUserAssistKey(regf_file, userassist_key_path):
       construct.ULInt32('unknown13'))
 
   userassist_key = regf_file.get_key_by_path(userassist_key_path)
+  if not userassist_key:
+    logging.warning(u'Missing UserAssist key: {0:s}'.format(
+        userassist_key_path))
+    return
 
-  if userassist_key:
-    print u'Key: {0:s}'.format(userassist_key_path)
+  print u'Key: {0:s}'.format(userassist_key_path)
+  print u''
+
+  for guid_sub_key in userassist_key.sub_keys:
+    version_value = guid_sub_key.get_value_by_name('Version')
+
+    if not version_value:
+      logging.warning(u'Missing Version value in sub key: {0:s}'.format(
+          guid_sub_key.name))
+      continue
+
+    format_version = version_value.data_as_integer
+    if format_version == 3:
+      value_data_size = USERASSIST_V3_STRUCT.sizeof()
+    elif format_version == 5:
+      value_data_size = USERASSIST_V5_STRUCT.sizeof()
+
+    print u'GUID\t\t: {0:s}'.format(guid_sub_key.name)
+    print u'Format version\t: {0:d}'.format(format_version)
     print u''
 
-    for guid_sub_key in userassist_key.sub_keys:
-      version_value = guid_sub_key.get_value_by_name('Version')
+    count_sub_key = guid_sub_key.get_sub_key_by_name('Count')
+    for value in count_sub_key.values:
+      output_string = u'Original name\t: {0:s}'.format(value.name)
+      print output_string.encode('utf-8')
 
-      if not version_value:
-        logging.warning('Missing Version value in sub key: {0:s}'.format(
-            guid_sub_key.name))
-
-      format_version = version_value.data_as_integer
-      if format_version == 3:
-        value_data_size = USERASSIST_V3_STRUCT.sizeof()
-      elif format_version == 5:
-        value_data_size = USERASSIST_V5_STRUCT.sizeof()
-
-      print u'GUID\t\t: {0:s}'.format(guid_sub_key.name)
-      print u'Format version\t: {0:d}'.format(format_version)
-      print u''
-
-      count_sub_key = guid_sub_key.get_sub_key_by_name('Count')
-      for value in count_sub_key.values:
-        output_string = u'Original name\t: {0:s}'.format(value.name)
+      try:
+        value_name = value.name.decode('rot-13')
+        output_string = u'Converted name\t: {0:s}'.format(value_name)
         print output_string.encode('utf-8')
+      except UnicodeEncodeError as exception:
+        logging.warning(u'Unable to convert: {0:s} with error: {1:s}'.format(
+            value.name, exception))
 
-        try:
-          value_name = value.name.decode('rot-13')
-          output_string = u'Converted name\t: {0:s}'.format(value_name)
-          print output_string.encode('utf-8')
-        except UnicodeEncodeError as exception:
-          logging.warning(u'Unable to convert: {0:s} with error: {1:s}'.format(
-              value.name, exception))
+      print u'Value data:'
+      print Hexdump(value.data)
 
-        print u'Value data:'
-        print Hexdump(value.data)
+      if value_name != u'UEME_CTLSESSION':
+        if value_data_size != len(value.data):
+          logging.warning((
+              u'Version: {0:d} size mismatch (calculated: {1:d}, '
+              u'stored: {2:d}).').format(
+                  format_version, value_data_size, len(value.data)))
+          continue
 
-        if value_name != u'UEME_CTLSESSION':
-          if value_data_size != len(value.data):
-            logging.warning((
-                u'Version: {0:d} size mismatch (calculated: {1:d}, '
-                u'stored: {2:d}).').format(
-                    format_version, value_data_size, len(value.data)))
+        if format_version == 3:
+          parsed_data = USERASSIST_V3_STRUCT.parse(value.data)
+        elif format_version == 5:
+          parsed_data = USERASSIST_V5_STRUCT.parse(value.data)
 
-          if format_version == 3:
-            parsed_data = USERASSIST_V3_STRUCT.parse(value.data)
-          elif format_version == 5:
-            parsed_data = USERASSIST_V5_STRUCT.parse(value.data)
+        print u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            parsed_data.get('unknown1'))
 
-          print u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-              parsed_data.get('unknown1'))
+        print u'Execution count\t\t\t\t\t\t\t\t: {0:d}'.format(
+            parsed_data.get('execution_count'))
 
-          print u'Execution count\t\t\t\t\t\t\t\t: {0:d}'.format(
-              parsed_data.get('execution_count'))
+        if format_version == 5:
+          print u'Application focus count\t\t\t\t\t\t\t: {0:d}'.format(
+              parsed_data.get('application_focus_count'))
 
-          if format_version == 5:
-            print u'Application focus count\t\t\t\t\t\t\t: {0:d}'.format(
-                parsed_data.get('application_focus_count'))
+          print u'Application focus duration\t\t\t\t\t\t: {0:d}'.format(
+              parsed_data.get('application_focus_duration'))
 
-            print u'Application focus duration\t\t\t\t\t\t: {0:d}'.format(
-                parsed_data.get('application_focus_duration'))
+          print u'Unknown2\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get('unknown2'))
 
-            print u'Unknown2\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-                parsed_data.get('unknown2'))
+          print u'Unknown3\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get('unknown3'))
 
-            print u'Unknown3\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-                parsed_data.get('unknown3'))
+          print u'Unknown4\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get('unknown4'))
 
-            print u'Unknown4\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-                parsed_data.get('unknown4'))
+          print u'Unknown5\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get('unknown5'))
 
-            print u'Unknown5\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-                parsed_data.get('unknown5'))
+          print u'Unknown6\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get('unknown6'))
 
-            print u'Unknown6\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-                parsed_data.get('unknown6'))
+          print u'Unknown7\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get('unknown7'))
 
-            print u'Unknown7\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-                parsed_data.get('unknown7'))
+          print u'Unknown8\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get('unknown8'))
 
-            print u'Unknown8\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-                parsed_data.get('unknown8'))
+          print u'Unknown9\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get('unknown9'))
 
-            print u'Unknown9\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-                parsed_data.get('unknown9'))
+          print u'Unknown10\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get('unknown10'))
 
-            print u'Unknown10\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-                parsed_data.get('unknown10'))
+          print u'Unknown11\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get('unknown11'))
 
-            print u'Unknown11\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-                parsed_data.get('unknown11'))
+          print u'Unknown12\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+              parsed_data.get('unknown12'))
 
-            print u'Unknown12\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-                parsed_data.get('unknown12'))
+        print u'Last execution time\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            parsed_data.get('last_execution_time'))
 
-          print u'Last execution time\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-              parsed_data.get('last_execution_time'))
+        if format_version == 5:
+          print u'Unknown13\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+              parsed_data.get('unknown13'))
 
-          if format_version == 5:
-            print u'Unknown13\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-                parsed_data.get('unknown13'))
-
-          print u''
+        print u''
 
 
 def Main():
@@ -195,7 +200,7 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   args_parser = argparse.ArgumentParser(description=(
-      'Extract the MSIE zone information from a NTUSER.DAT or SYSTEM '
+      'Extract the MSIE zone information from a NTUSER.DAT '
       'Registry File (REGF).'))
 
   args_parser.add_argument(
