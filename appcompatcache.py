@@ -562,6 +562,17 @@ class AppCompatCacheKeyParser(object):
       print u'Shim flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
           cached_entry_object.shim_flags)
 
+      if cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_0:
+        cached_entry_data_offset += 8
+
+      elif cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_1:
+        print u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:04x}'.format(
+          construct.ULInt16('unknown1').parse(remaining_data[8:10]))
+
+        cached_entry_data_offset += 10
+
+      remaining_data = cached_entry_data[cached_entry_data_offset:]
+
     if format_type in [
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7]:
@@ -570,7 +581,7 @@ class AppCompatCacheKeyParser(object):
 
     elif format_type == self.FORMAT_TYPE_8:
       cached_entry_object.last_modification_time = construct.ULInt64(
-         'last_modification_time').parse(remaining_data[8:16])
+         'last_modification_time').parse(remaining_data[0:8])
 
     if not cached_entry_object.last_modification_time:
       print u'Last modification time\t\t\t\t\t\t\t: 0x{0:08x}'.format(
@@ -624,8 +635,8 @@ class AppCompatCacheKeyParser(object):
       print u'Data size\t\t\t\t\t\t\t\t: {0:d}'.format(data_size)
 
     elif format_type == self.FORMAT_TYPE_8:
-      data_offset = cached_entry_offset + cached_entry_data_offset + 20
-      data_size = construct.ULInt32('data_size').parse(remaining_data[16:20])
+      data_offset = cached_entry_offset + cached_entry_data_offset + 12
+      data_size = construct.ULInt32('data_size').parse(remaining_data[8:12])
 
       print u'Data size\t\t\t\t\t\t\t\t: {0:d}'.format(data_size)
 
