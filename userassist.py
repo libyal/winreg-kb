@@ -36,7 +36,8 @@ def Hexdump(data):
   previous_hexadecimal_string = None
 
   lines = []
-  for block_index in xrange(0, len(data), 16):
+  data_size = len(data)
+  for block_index in xrange(0, data_size, 16):
     data_string = data[block_index:block_index + 16]
 
     hexadecimal_string1 = ' '.join([
@@ -50,7 +51,7 @@ def Hexdump(data):
     remaining_size = 16 - len(data_string)
     if remaining_size == 0:
       whitespace = ''
-    elif remaining_size == 8:
+    elif remaining_size >= 8:
       whitespace = ' ' * ((3 * remaining_size) - 1)
     else:
       whitespace = ' ' * (3 * remaining_size)
@@ -59,7 +60,8 @@ def Hexdump(data):
         hexadecimal_string1, hexadecimal_string2, whitespace)
 
     if (previous_hexadecimal_string is not None and
-        previous_hexadecimal_string == hexadecimal_string):
+        previous_hexadecimal_string == hexadecimal_string and
+        block_index + 16 < data_size):
 
       if not in_group:
         in_group = True
