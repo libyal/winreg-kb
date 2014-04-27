@@ -32,25 +32,49 @@ HEXDUMP_CHARACTER_MAP = [
 
 
 def Hexdump(data):
-    lines = []
-    for block_index in xrange(0, len(data), 16):
-        data_string = data[block_index:block_index+16]
+  in_group = False
+  previous_hexadecimal_string = None
 
-        hexadecimal_string1 = ' '.join([
-            '{0:02x}'.format(ord(byte)) for byte in data_string[0:8]])
-        hexadecimal_string2 = ' '.join([
-            '{0:02x}'.format(ord(byte)) for byte in data_string[8:16]])
+  lines = []
+  for block_index in xrange(0, len(data), 16):
+    data_string = data[block_index:block_index + 16]
 
-        printable_string = ''.join([
-            HEXDUMP_CHARACTER_MAP[ord(byte)] for byte in data_string])
+    hexadecimal_string1 = ' '.join([
+        '{0:02x}'.format(ord(byte)) for byte in data_string[0:8]])
+    hexadecimal_string2 = ' '.join([
+        '{0:02x}'.format(ord(byte)) for byte in data_string[8:16]])
 
-        whitespace = ' ' * ((3 * (16 - len(data_string))) - 1)
+    printable_string = ''.join([
+        HEXDUMP_CHARACTER_MAP[ord(byte)] for byte in data_string])
 
-        lines.append('0x{0:08x}  {1:s}  {2:s}{3:s}  {4:s}\n'.format(
-            block_index, hexadecimal_string1, hexadecimal_string2,
-            whitespace, printable_string))
+    remaining_size = 16 - len(data_string)
+    if remaining_size == 0:
+      whitespace = ''
+    elif remaining_size == 8:
+      whitespace = ' ' * ((3 * remaining_size) - 1)
+    else:
+      whitespace = ' ' * (3 * remaining_size)
 
-    return ''.join(lines)
+    hexadecimal_string = '{0:s}  {1:s}{2:s}'.format(
+        hexadecimal_string1, hexadecimal_string2, whitespace)
+
+    if (previous_hexadecimal_string is not None and
+        previous_hexadecimal_string == hexadecimal_string):
+
+      if not in_group:
+        in_group = True
+
+        lines.append('...')
+
+    else:
+      lines.append('0x{0:08x}  {1:s}  {2:s}'.format(
+          block_index, hexadecimal_string, printable_string))
+
+      in_group = False
+      previous_hexadecimal_string = hexadecimal_string
+
+  lines.append('')
+  return '\n'.join(lines)
 
 
 def PrintUserAssistKey(regf_file, userassist_key_path):
