@@ -79,7 +79,7 @@ def Hexdump(data):
   return '\n'.join(lines)
 
 
-def PrintUserAssistKey(regf_file, userassist_key_path):
+def PrintUserAssistKey(regf_file, userassist_key_path, ascii_codepage):
   # UserAssist format version used in Windows 2000, XP, 2003, Vista.
   USERASSIST_V3_STRUCT = construct.Struct(
       'userassist_entry',
@@ -142,6 +142,20 @@ def PrintUserAssistKey(regf_file, userassist_key_path):
 
       try:
         value_name = value.name.decode('rot-13')
+      except UnicodeEncodeError as exception:
+        characters = []
+        for char in value.name:
+          if ord(char) < 128:
+            try:
+              characters.append(char.decode('rot-13'))
+            except UnicodeEncodeError:
+              characters.append(char)
+          else:
+            characters.append(char)
+
+        value_name = u''.join(characters)
+
+      try:
         output_string = u'Converted name\t: {0:s}'.format(value_name)
         print output_string.encode('utf-8')
       except UnicodeEncodeError as exception:
@@ -238,6 +252,10 @@ def Main():
       'registry_file', nargs='?', action='store', metavar='NTUSER.DAT',
       default=None, help='path of the NTUSER.DAT Registry file.')
 
+  args_parser.add_argument(
+      '--codepage', dest='codepage', action='store', metavar='CODEPAGE',
+      default='cp1252', help='the codepage of the extended ASCII strings.')
+
   options = args_parser.parse_args()
 
   if not options.registry_file:
@@ -257,7 +275,8 @@ def Main():
 
   PrintUserAssistKey(
    regf_file,
-   'Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\UserAssist')
+   'Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\UserAssist',
+   options.codepage)
 
   regf_file.close()
 
