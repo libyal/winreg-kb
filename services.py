@@ -92,8 +92,8 @@ class WindowsVolumeCollector(object):
       scan_context: the scan context (instance of dfvfs.ScanContext).
 
     Returns:
-      The volume scan node (instance of dfvfs.ScanNode) of the volume that
-      contains the Windows directory or None.
+      The volume scan node (instance of dfvfs.SourceScanNode) of the volume
+      that contains the Windows directory or None.
 
     Raises:
       CollectorError: if the scan context is invalid.

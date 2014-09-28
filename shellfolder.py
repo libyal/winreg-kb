@@ -92,8 +92,8 @@ class WindowsVolumeCollector(object):
       scan_context: the scan context (instance of dfvfs.ScanContext).
 
     Returns:
-      The volume scan node (instance of dfvfs.ScanNode) of the volume that
-      contains the Windows directory or None.
+      The volume scan node (instance of dfvfs.SourceScanNode) of the volume
+      that contains the Windows directory or None.
 
     Raises:
       CollectorError: if the scan context is invalid.
@@ -394,16 +394,32 @@ class ShellFolder(object):
 class Sqlite3Writer(object):
   """Class that defines a sqlite3 output writer."""
 
-  _SHELLFOLDER_CREATE_QUERY = (
-      'CREATE TABLE shellfolder ( guid TEXT, windows_version TEXT, name TEXT, '
-      'localized_string TEXT )')
+  _SHELL_FOLDER_CREATE_QUERY = (
+      'CREATE TABLE shell_folder ( guid TEXT, name TEXT )')
 
-  _SHELLFOLDER_INSERT_QUERY = (
-      'INSERT INTO shellfolder VALUES ( "{0:s}", "{1:s}", "{2:s}", "{3:s}" )')
+  _SHELL_FOLDER_INSERT_QUERY = (
+      'INSERT INTO shell_folder VALUES ( "{0:s}", "{1:s}" )')
 
-  _SHELLFOLDER_SELECT_QUERY = (
-      'SELECT guid FROM shellfolder WHERE guid = "{0:s}" AND '
-      'windows_version = "{1:s}"')
+  _SHELL_FOLDER_SELECT_QUERY = (
+      'SELECT name FROM shell_folder WHERE guid = "{0:s}"')
+
+  _LOCALIZED_NAME_CREATE_QUERY = (
+      'CREATE TABLE localized_name ( guid TEXT, reference TEXT )')
+
+  _LOCALIZED_NAME_INSERT_QUERY = (
+      'INSERT INTO localized_name VALUES ( "{0:s}", "{1:s}" )')
+
+  _LOCALIZED_NAME_SELECT_QUERY = (
+      'SELECT reference FROM localized_name WHERE guid = "{0:s}"')
+
+  _VERSION_CREATE_QUERY = (
+      'CREATE TABLE version ( guid TEXT, windows_version TEXT )')
+
+  _VERSION_INSERT_QUERY = (
+      'INSERT INTO version VALUES ( "{0:s}", "{1:s}" )')
+
+  _VERSION_SELECT_QUERY = (
+      'SELECT windows_version FROM version WHERE guid = "{0:s}"')
 
   def __init__(self, database_file, windows_version):
     """Initializes the output writer object.
@@ -439,7 +455,9 @@ class Sqlite3Writer(object):
       return False
 
     if self._create_new_database:
-      self._cursor.execute(self._SHELLFOLDER_CREATE_QUERY)
+      self._cursor.execute(self._SHELL_FOLDER_CREATE_QUERY)
+      self._cursor.execute(self._LOCALIZED_NAME_CREATE_QUERY)
+      self._cursor.execute(self._VERSION_CREATE_QUERY)
 
     return True
 
@@ -454,8 +472,7 @@ class Sqlite3Writer(object):
       shell_folder: the shell folder (instance of ShellFolder).
     """
     if not self._create_new_database:
-      sql_query = self._SHELLFOLDER_SELECT_QUERY.format(
-          shell_folder.guid, self._windows_version)
+      sql_query = self._SHELL_FOLDER_SELECT_QUERY.format(shell_folder.guid)
 
       self._cursor.execute(sql_query)
 
@@ -467,13 +484,19 @@ class Sqlite3Writer(object):
       have_entry = False
 
     if not have_entry:
-      sql_query = self._SHELLFOLDER_INSERT_QUERY.format(
-          shell_folder.guid, self._windows_version, shell_folder.name,
-          shell_folder.localized_string)
+      sql_query = self._SHELL_FOLDER_INSERT_QUERY.format(
+          shell_folder.guid, shell_folder.name)
+
+      sql_query = self._LOCALIZED_NAME_INSERT_QUERY.format(
+          shell_folder.guid, shell_folder.localized_string)
+
+      sql_query = self._VERSION_INSERT_QUERY.format(
+          shell_folder.guid, self._windows_version)
 
       self._cursor.execute(sql_query)
       self._connection.commit()
     else:
+      # TODO: print duplicates.
       logging.info(u'Ignoring duplicate: {0:s}'.format(shell_folder.guid))
 
 
