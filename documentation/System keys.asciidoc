@@ -1,0 +1,362 @@
+*TODO add information about non-NT Registry versions*
+
+== Current Control Set
+The Windows Registry contains the Current Control Set key:
+....
+HKEY_LOCAL_MACHINE\System\CurrentControlSet
+....
+
+This key is only present at run-time.
+
+The Current Control Set key is stored in the SYSTEM Registry file and can be 
+determined by reading the Current value from the key:
+....
+<RootKey>\Select
+....
+
+The Current value contains number of the current control set. Normally 1 or 2 
+but other values like 3 or 47 are known to be used. E.g. a value of 1 maps to 
+the Control Set key:
+....
+<RootKey>\ControlSet001
+....
+
+Normally there are multiple Control Set keys according to 
+http://support.microsoft.com/kb/100010[kb100010] the role each of the Control 
+Set keys can be different:
+[quote]
+____
+ControlSet001 may be the last control set you booted with, while ControlSet002 
+could be what is known as the last known good control set, or the control set 
+that last successfully booted Windows.
+____
+
+These roles are defined by the other values in the Select key:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| Current | REG_DWORD | Current Control Set
+| Default | REG_DWORD | Default Control Set
+| Failed | REG_DWORD | Control Set that failed to boot
+| LastKnownGood | REG_DWORD | Last known good Control Set
+|===
+
+[yellow-background]*TODO 0 indicates not set? Also speculations that 9 is the 
+largest value ControlSet00#*
+
+= Boot Verification = 
+*TODO add some description*
+
+The boot verification settings are stored in the key:
+....
+CurrentControlSet\Control\BootVerificationProgram
+....
+
+== Session Manager
+*TODO add some description*
+
+The session manager settings are stored in the key:
+....
+CurrentControlSet\Control\Session Manager
+....
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| BootExecute | REG_BINARY, REG_MULTI_SZ | The applications, services, and commands executed during start-up.
+|===
+
+== Environment variables
+The environment variables are stored in the key:
+....
+CurrentControlSet\Control\Session Manager\Environment
+....
+
+The names of the values in this key represent the name of the environment variable, e.g.
+....
+CurrentControlSet\Control\Session Manager\Environment\windir
+....
+
+The contents of the value should be a string, e.g.
+....
+%SystemRoot%
+....
+
+=== SystemRoot environment variable
+The value of %SystemRoot% environment variable is stored in the SystemRoot 
+value of the following Registry key:
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion
+....
+
+This key is stored in the SOFTWARE Registry file as:
+....
+<RootKey>\Microsoft\Windows NT\CurrentVersion
+....
+
+The contents of the value should be a string, e.g.
+....
+C:\Windows\
+....
+
+*TODO what about the PathName value*
+
+=== User specific environment variables
+*TODO*
+....
+HKEY_CURRENT_USER\Environment
+....
+
+== Run and Run Once keys
+Run and Run Once keys cause programs to run each time a user logs on. There a 
+per-user and per-system Run and Run Once keys.
+
+Per-user Run and Run Once keys
+....
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce
+....
+
+Per-system Run and Run Once keys
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce
+....
+
+Only on Windows 95, 98, Me.
+
+Run in the background when the logon dialog box first appears, or at the boot 
+process stage if there is no logon.
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunServices
+....
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce
+....
+
+Contains first-boot activities after setup or when the Add/Remove Programs 
+Wizard was used.
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce\Setup
+....
+
+*TODO add description of sub keys and values*
+....
+description-string=commandline
+....
+
+According to http://msdn.microsoft.com/en-us/library/aa376977(v=vs.85).aspx[MSDN]:
+[quote]
+____
+By default, the value of a RunOnce key is deleted before the command line is 
+run. You can prefix a RunOnce value name with an exclamation point (!) to defer 
+deletion of the value until after the command runs. Without the exclamation 
+point prefix, if the RunOnce operation fails the associated program will not be 
+asked to run the next time you start the computer.
+
+By default, these keys are ignored when the computer is started in Safe Mode. 
+The value name of RunOnce keys can be prefixed with an asterisk (*) to force 
+the program to run even in Safe mode.
+____
+
+*TODO what about*
+....
+HKLM\Software\Microsoft\Windows\CurrentVersion\policies\Explorer\Run
+HKCU\Software\Microsoft\Windows NT\CurrentVersion\Windows\Run
+....
+
+== Services key
+*TODO fine tune rough notes*
+
+Settings to load/run drivers and services are stored in the Services key:
+....
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services
+....
+
+Sub keys:
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| %NAME% | The driver or service sub key. +
+Where %NAME% corresponds with the name of the driver or service.
+|===
+
+=== Driver or Service Name sub key
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| DependOnGroup | REG_MULTI_SZ | Other groups the device or service is dependent on.
+| DependOnService | REG_MULTI_SZ | Other services the device or service is dependent on.
+| Description | REG_SZ | Description.
+| DisplayName | REG_SZ or REG_MULTI_SZ | Display name.
+| DriverPackageId | |
+| ErrorControl | REG_DWORD | The level of error control.
+| FailureActions | |
+| Group | REG_SZ | Name of the group the device or service is part of.
+| ImagePath | REG_SZ | Path and filename of device or service executable file (or image).
+| ObjectName | REG_SZ | See section: ObjectName value data
+| RequiredPrivileges | |
+| Start | REG_DWORD | The start control value.
+| ServiceSidType | |
+| Tag | REG_DWORD |
+| Type | REG_DWORD | The driver or service type.
+|===
+
+==== ErrorControl value data
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00000000 | Ignore |
+| 0x00000001 | Normal |
+| 0x00000002 | Severe |
+| 0x00000003 | Critical |
+|===
+
+==== ObjectName value data
+The ObjectName value has a different meaning for different types of Driver or Service Name sub keys.
+
+* For a driver type the ObjectName value contains the Windows NT driver object name that the I/O Manager uses to load the device driver.
+* For a service type the ObjectName value contains the account name under which the service will log on to run.
+
+Windows Services shows this value as "LogOn As".
+
+==== Start value data
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00000000 | Boot | Driver or service controlled by the kernel that is loaded by the boot loader.
+| 0x00000001 | System | Driver or service controlled by the I/O sub system that is loaded at kernel initialization.
+| 0x00000002 | Automatic | Driver or service controlled by the Services Control Manager that is loaded at start up. +
+Also referred to as: Auto load
+| 0x00000003 | On demand | Driver or service controlled by the Services Control Manager that is loaded on demand. +
+Also referred to as: Load on demand or Automatic (Delayed start)
+| 0x00000004 | Disabled | Driver or service controlled by the Services Control Manager that is disabled.
+|===
+
+Windows Services shows this value as "Startup Type".
+
+==== Type value data
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00000001 | | Kernel device driver
+| 0x00000002 | | File system driver
+| 0x00000004 | | A set of argument for an adapter
+| 0x00000008 | | *Unknown, seen in combination Fs_Rec*
+| 0x00000010 | | Stand-alone (self-contained) service
+| 0x00000020 | | Shared service
+| | |
+| 0x00000100 | | [yellow-background]*Unknown, seen in combination with 0x00000010 and 0x00000020. Goes back to Windows 2000 maybe to indicate a network service.*
+|===
+
+== Notes
+Installed "Programs and Features"
+....
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer
+....
+
+=== USBSTOR
+....
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Enum\USBSTOR
+....
+
+Sub key level 1: Disk&Ven_&Prod_&Rev_0.00
+....
+<Device Type>&Ven_<Vendor>&Prod_<Product>&Rev_<Revision Number>
+....
+
+Sub key level 2: 1002131402536a&0
+
+*Sub keys:*
+
+* Device Parameters
+* LogConf
+* Properties
+
+*Values:*
+
+* Capabilities
+* Class
+* ClassGUID
+* CompatibleIDs
+* ConfigFlags
+* ContainerID
+* DeviceDesc
+* Driver
+* FriendlyName
+* HardwareID
+* Mfg
+* Service
+
+=== System restore
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\SystemRestore
+....
+
+=== Windows system locations
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion
+....
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| CommonFilesDir | REG_SZ |
+| DevicePath | REG_SZ |
+| MediaPath | REG_SZ |
+| MediaPathUnexpanded | REG_SZ |
+| PF_AccessoriesName | |
+| ProductId | |
+| ProgramFilesDir | REG_SZ |
+| SM_AccessoriesName | |
+| SM_ConfigureProgramsExisted | |
+| SM_ConfigureProgramsName | |
+| SM_GamesName | |
+| WallPaperDir | REG_SZ |
+|===
+
+=== Windows version information
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion
+....
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| BuildLab | REG_SZ |
+| CSDVersion | REG_SZ | Service pack
+| CurrentBuild | REG_SZ | Current build (obsolete) e.g. 1.511.1
+| CurrentBuildNumber | REG_SZ | Current build number e.g. 2600
+| CurrentType | REG_SZ |
+| CurrentVersion | REG_SZ | Current major and minor version e.g. 5.1
+| DigitalProductId | REG_BINARY |
+| InstallDate | REG_LONG |
+| LicenseInfo | REG_BINARY |
+| PathName | REG_SZ | Windows path name e.g. C:\Windows
+| ProductId | REG_SZ | Product identifier
+| ProductName | REG_SZ | Product name e.g Microsoft Windows XP
+| RegDone | |
+| RegisteredOrganization | REG_SZ | Registered organization
+| RegisteredOwner | REG_SZ | Registered owner
+| SoftwareType | REG_SZ | Software type e.g. SYSTEM
+| SourcePath | REG_SZ |
+| SubVersionNumber | |
+| SystemRoot | REG_SZ | The system root also the value of %SystemRoot%
+|===
+
+== Also see
+* https://github.com/libyal/winreg-kb/wiki/Time-zone-keys[Time Zone Keys]
+
+== External Links
+* http://technet.microsoft.com/en-us/library/cc963230.aspx[MSDN: BootExecute]
+* http://msdn.microsoft.com/en-us/library/aa376977(v=vs.85).aspx[MSDN: Run and RunOnce Registry Keys]
+* http://support.microsoft.com/kb/103000[kb103000: CurrentControlSet\Services Subkey Entries]
+* http://support.microsoft.com/kb/137367[kb137367: Definition of the RunOnce Keys in the Registry]
+* http://blogs.technet.com/b/mrsnrub/archive/2011/05/25/how-does-last-known-good-work.aspx[Technet: How does Last Known Good work?]

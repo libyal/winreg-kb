@@ -1,0 +1,369 @@
+== Application Compatibility Cache Key
+[yellow-background]*TODO add some description*
+
+The Application Compatibility Cache (or Shim Cache) seems to have been 
+introduced in Windows 2000. The format is significantly different between the 
+different versions of Windows. It can be found in the Registry key:
+
+In Windows 2000 and XP:
+....
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\AppCompatibility
+....
+
+In Windows 2003 and later:
+....
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\AppCompatCache
+....
+
+=== Windows 2000
+
+[yellow-background]*TODO describe sub values*
+
+=== Windows XP
+Windows XP stores the application compatibility cache in the value: AppCompatCache.
+
+The value data consists of:
+
+* header
+* array of cache entries (suggested that the maximum is 92)
+
+[NOTE]
+64-bit versions of Windows XP will use the Windows 2003 64-bit format.
+
+==== Windows XP application compat cache header
+The Windows XP application compat cache header is 400 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | 0xef, 0xbe, 0xad, 0xde | Signature
+| 4 | 4 | | Number of cached entries
+| 8 | 4 | | Unknown (number of header array entries?)
+| 12 | 4 | 0x00000000 | Unknown, empty values
+| 16 | ... | | Array of 32-bit values
+| ... | ... | | Unknown (padding?) +
+Contains 0-byte values
+|===
+
+==== Windows XP 32-bit application compat cache entry
+The Windows XP 32-bit application compat cache entry is 552 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 x ( MAX_PATH + 4 ) = 528 | | Path +
+UTF-16 little-endian string with end-of-character +
+Note that the unused bytes can contain remnant data
+| 528 | 8 | | Last modification time +
+Contains a FILETIME
+| 536 | 8 | | File size
+| 544 | 8 | | Last update time +
+Contains a FILETIME
+|===
+
+[NOTE]
+The last modification time applies to that of the file e.g. for NTFS this is 
+the last modified time of the file as stored in the $STANDARD_INFORMATION 
+attribute.
+
+=== Windows 2003
+Windows 2003 stores the application compatibility cache in the value: AppCompatCache
+
+The value data consists of:
+
+* header
+* array of cache entries (suggested that the maximum is 512)
+* string data
+
+==== Windows 2003 application compat cache header
+The Windows 2003 application compat cache header is 8 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | 0xfe, 0x0f, 0xdc, 0xba | Signature
+| 4 | 4 | | Number of cached entries
+|===
+
+==== Windows 2003 32-bit application compat cache entry
+The Windows 2003 32-bit application compat cache entry is 24 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | Path size
+| 2 | 2 | | Maximum path size
+| 4 | 4 | | Path offset +
+The offset value is relative to the start of the header
+| 8 | 8 | | Last modification time +
+Contains a FILETIME
+| 16 | 8 | | File size
+|===
+
+[NOTE]
+The last modification time applies to that of the file e.g. for NTFS this is 
+the last modified time of the file as stored in the $STANDARD_INFORMATION 
+attribute.
+
+==== Windows 2003 64-bit application compat cache entry
+The Windows 2003 64-bit application compat cache entry is 32 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | Path size
+| 2 | 2 | | Maximum path size
+| 4 | 4 | | Unknown (padding)
+| 8 | 8 | | Path offset +
+The offset value is relative to the start of the header
+| 16 | 8 | | Last modification time +
+Contains a FILETIME
+| 24 | 8 | | File size
+|===
+
+[NOTE]
+The last modification time applies to that of the file e.g. for NTFS this is 
+the last modified time of the file as stored in the $STANDARD_INFORMATION 
+attribute.
+
+=== Windows Vista and 2008
+Windows Vista and 2008 store the application compatibility cache in the value: AppCompatCache
+
+The value data consists of:
+
+* header
+* array of cache entries (suggested that the maximum is 1024)
+* string data
+
+[NOTE]
+If the cache is empty it will only consists of a header.
+ 
+==== Windows Vista application compat cache header
+The Windows Vista application compat cache header is 8 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | 0xfe, 0x0f, 0xdc, 0xba | Signature
+| 4 | 4 | | Number of cached entries
+|===
+
+==== Windows Vista 32-bit application compat cache entry
+The Windows Vista 32-bit application compat cache entry is 24 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | Path size
+| 2 | 2 | | Maximum path size
+| 4 | 4 | | Path offset +
+The offset value is relative to the start of the header
+| 8 | 8 | | Last modification time +
+Contains a FILETIME
+| 16 | 4 | | Insertion flags
+| 20 | 4 | | Shim flags
+|===
+
+[NOTE]
+The last modification time applies to that of the file e.g. for NTFS this is 
+the last modified time of the file as stored in the $STANDARD_INFORMATION 
+attribute.
+
+==== Windows Vista 64-bit application compat cache entry
+The Windows Vista 64-bit application compat cache entry is 32 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | Path size
+| 2 | 2 | | Maximum path size
+| 4 | 4 | | Unknown (padding)
+| 8 | 8 | | Path offset +
+The offset value is relative to the start of the header
+| 16 | 8 | | Last modification time +
+Contains a FILETIME
+| 16 | 4 | | Insertion flags
+| 20 | 4 | | Shim flags
+|===
+
+[NOTE]
+The last modification time applies to that of the file e.g. for NTFS this is 
+the last modified time of the file as stored in the $STANDARD_INFORMATION 
+attribute.
+
+=== Windows 7 and 2008 R2
+Windows 7 and 2008 R2 store the application compatibility cache in the value: AppCompatCache
+
+The value data consists of:
+
+* header
+* array of cache entries (suggested that the maximum is 1024)
+* data
+* string data
+
+==== Windows 7 application compat cache header
+The Windows 7 application compat cache header is 128 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | 0xee, 0x0f, 0xdc, 0xba | Signature
+| 4 | 4 | | Number of cached entries
+| 8 | 120 | | Unknown (cache statistics?)
+|===
+
+==== Windows 7 32-bit application compat cache entry
+The Windows 7 32-bit application compat cache entry is 32 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | Path size +
+The byte of the path without the end-of-string character
+| 2 | 2 | | Maximum path size +
+The byte of the path with the end-of-string character
+| 4 | 4 | | Path offset +
+The offset value is relative to the start of the header
+| 8 | 8 | | Last modification time +
+Contains a FILETIME
+| 16 | 4 | | Insertion flags
+| 20 | 4 | | Shim flags
+| 24 | 4 | | Data size
+| 28 | 4 | | Data offset +
+The offset value is relative to the start of the header
+|===
+
+[NOTE]
+The last modification time applies to that of the file e.g. for NTFS this is 
+the last modified time of the file as stored in the $STANDARD_INFORMATION 
+attribute.
+
+==== Windows 7 64-bit application compat cache entry
+The Windows 7 64-bit application compat cache entry is 48 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | Path size +
+The byte of the path without the end-of-string character
+| 2 | 2 | | Maximum path size +
+The byte of the path with the end-of-string character
+| 4 | 4 | | Unknown (padding)
+| 8 | 8 | | Path offset +
+The offset value is relative to the start of the header
+| 16 | 8 | | Last modification time +
+Contains a FILETIME
+| 24 | 4 | | Insertion flags
+| 28 | 4 | | Shim flags
+| 32 | 8 | | Data size
+| 40 | 8 | | Data offset +
+The offset value is relative to the start of the header
+|===
+
+[NOTE]
+The last modification time applies to that of the file e.g. for NTFS this is 
+the last modified time of the file as stored in the $STANDARD_INFORMATION 
+attribute.
+
+=== Windows 8
+Windows 8 store the application compatibility cache in the value: AppCompatCache
+
+The value data consists of:
+
+* header
+* array of cache entries
+
+==== Windows 8 application compat cache header
+The Windows 8 application compat cache header is 128 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | 128 | Header size
+| 4 | 4 | | Unknown
+| 8 | 120 | | Unknown
+|===
+
+==== Windows 8.0 application compat cache entry
+The Windows 8.0 application compat cache entry is variable bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | "00ts" | Signature
+| 4 | 4 | | Unknown
+| 8 | 4 | | Cache entry data size +
+The size of the cache entry without the first 12 bytes
+| 12 | 2 | | Path size
+| 14 | ... | | Path +
+UTF-16 little-endian string without end-of-character
+| ... | 4 | | Unknown (Insertion flags?)
+| ... | 4 | | Unknown (Shim flags?)
+| ... | 8 | | Last modification time +
+Contains a FILETIME
+| ... | 4 | | Data size
+| ... | ... | | Data
+|===
+
+[NOTE]
+The last modification time applies to that of the file e.g. for NTFS this is 
+the last modified time of the file as stored in the $STANDARD_INFORMATION 
+attribute.
+
+==== Windows 8.1 application compat cache entry
+The Windows 8.1 application compat cache entry is variable bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | "10ts" | Signature
+| 4 | 4 | | Unknown
+| 8 | 4 | | Cache entry data size +
+The size of the cache entry without the first 12 bytes
+| 12 | 2 | | Path size
+| 14 | ... | | Path +
+UTF-16 little-endian string without end-of-character
+| ... | 4 | | Unknown (Insertion flags?)
+| ... | 4 | | Unknown (Shim flags?)
+| ... | 2 | | Unknown
+| ... | 8 | | Last modification time +
+Contains a FILETIME
+| ... | 4 | | Data size
+| ... | ... | | Data
+|===
+
+[NOTE]
+The last modification time applies to that of the file e.g. for NTFS this is 
+the last modified time of the file as stored in the $STANDARD_INFORMATION 
+attribute.
+
+=== Insertion flags
+[yellow-background]*TODO describe*
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00000001 | |
+| 0x00000002 | |
+| 0x00000004 | |
+| 0x00000008 | |
+|===
+
+=== Shim flags
+[yellow-background]*TODO describe*
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00000001 | | Unknown (Has data?)
+| 0x00000020 | |
+| 0x00000100 | |
+| 0x00001000 | |
+|===
+
+=== Data
+[yellow-background]*TODO describe*
+
+== External Links
+* https://dl.mandiant.com/EE/library/Whitepaper_ShimCacheParser.pdf[Leveraging the Application Compatibility Cache in Forensic Investigations], by Andrew Davis, 2012
+

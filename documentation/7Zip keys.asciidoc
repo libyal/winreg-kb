@@ -1,0 +1,55 @@
+*NOTE this page largely contains some notes for now*
+
+== 7-Zip keys
+The 7-Zip uses the following Windows Registry key to store various user specific information.
+
+....
+HKEY_CURRENT_USER\Software\7-Zip
+....
+
+Sub keys:
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| FM |
+|===
+
+Values:
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| Lang | | Language identifier in the form: "en-us" or "-" if empty.
+|===
+
+=== 7-Zip FM sub key
+
+Sub keys:
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| Columns |
+|===
+
+Values:
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| FlatViewArc# | | Where # is a numeric value e.g. 0 or 1
+| FolderShortcuts | |
+| FolderHistory | | Contains a list of UTF-16 little-endian encoded strings with an end-of-string character
+| ListMode | |
+| Panels | |
+| PanelPath# | | Where # is a numeric value e.g. 0 or 1 +
+Contains an UTF-16 little-endian encoded string
+| Position | |
+|===
+
+=== 7-Zip FM Columns sub key
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| 7-Zip.Rar | REG_BINARY |
+| 7-Zip.7z | REG_BINARY |
+|===
+

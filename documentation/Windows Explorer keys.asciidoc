@@ -1,0 +1,122 @@
+*TODO some random notes for now*
+
+= Known folder identifier keys =
+Introduced in Windows Vista.
+
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions
+....
+
+Values:
+
+[options="header"]
+|===
+| Value | Data type | Description
+| Name | |
+| LocalizedName | |
+|===
+
+= Shell Folder sub key =
+
+The shell folder sub key can be found in some https://github.com/libyal/winreg-kb/wiki/Component-Object-Model-keys[COM Class Identifier (CLSID) keys].
+
+....
+HKEY_CLASSES_ROOT\CLSID\{%GUID%}\ShellFolder
+....
+
+Sub keys specific to folder identifiers:
+
+[options="header"]
+|===
+| Name | Description
+| shell |
+| shellex |
+| ShellFolder |
+|===
+
+Values:
+
+[options="header"]
+|===
+| Value | Data type | Description
+| (default value) | |
+| InfoTip | |
+| LocalizedString | |
+| SortOrderIndex | |
+|===
+
+== Shell Folder sub key ==
+Values:
+
+[options="header"]
+|===
+| Value | Data type | Description
+| Attributes | REG_DWORD |
+| CallForAttributes | |
+| HideOnDesktopPerUser | |
+|===
+
+== Localized String value data ==
+The Localize String value contains a localized version of the folder name, e.g. on Windows XP the folder identifier key:
+
+....
+HKEY_CLASSES_ROOT\CLSID\{450d8fba-ad25-11d0-98a8-0800361b1103}
+....
+
+Has a LocalizedString value with the following data:
+
+....
+@%SystemRoot%\system32\SHELL32.dll,-9227
+....
+
+Which is the https://github.com/libyal/winreg-kb/wiki/MUI-form[MUI Form] for "My Documents".
+
+= Folder Redirection Keys =
+Folders that can be redirected:
+
+* Application Data
+* Desktop
+* My Documents folder
+* My Pictures folder
+* Start menu
+
+....
+HKEY_CURRENT_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders
+HKEY_CURRENT_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders
+....
+
+....
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders
+....
+
+= MUI Cache =
+*TODO*
+
+....
+HKEY_CURRENT_USER\Software\Microsoft\Windows\ShellNoRoam\MUICache
+HKEY_CURRENT_USER\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\MuiCache
+....
+
+=  Typed Paths =
+*TODO*
+
+....
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\TypedPaths
+....
+
+[options="header"]
+|===
+| Value| Data type| Description
+| %ITEM% | REG_SZ | Where %ITEM% is a string in the form: "url[0-9]+"
+|===
+
+= Notes =
+
+....
+HKEY_CURRENT_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\BitBucket\%VOLUME_LETTER%\VolumeSerialNumber
+....
+
+= External Links =
+* http://support.microsoft.com/kb/242557[kb242557: Registry Settings for Folder Redirection in Windows]
+

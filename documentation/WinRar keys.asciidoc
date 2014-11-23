@@ -1,0 +1,17 @@
+*NOTE this page largely contains some notes for now*
+
+= WinRAR keys =
+
+[source]
+----
+HKEY_CURRENT_USER\Software\WinRAR\ArcHistory
+HKEY_CURRENT_USER\Software\WinRAR\DialogEditHistory\ArcName
+HKEY_CURRENT_USER\Software\WinRAR\DialogEditHistory\ExtrPath
+----
+
+[options="header"]
+|===
+| Value | Data type | Description
+| %ITEM% | REG_SZ | Where %ITEM% is a string in the form: "[0-9]+"
+|===
+

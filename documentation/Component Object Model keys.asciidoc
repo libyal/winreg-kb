@@ -1,0 +1,61 @@
+*NOTE this page largely contains some notes for now*
+
+== Class Identifier (CLSID) key
+The Class Identifier (CLSID) key can be found in:
+
+....
+HKEY_CLASSES_ROOT\CLSID\{%GUID%}
+HKEY_CLASSES_ROOT\Wow6432Node\CLSID\{%GUID%}
+....
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| AuxUserType | Application's short display name and names
+| CLSID | Class identifiers
+| Control | ActiveX Control settings
+| Conversion | Convert dialog box format conversion settings
+| DataFormats | Data formats supported by an application
+| DefaultIcon | Default icon settings
+| Implemented Categories |
+| InprocServer | 16-bit in-process server settings
+| InProcServer32 | 32-bit (and 64-bit) in-process server settings
+| Insertable | Insert Object dialog box list box settings
+| Interface | Supported interface IDs (IIDs)
+| LocalServer32 | 32-bit local server application settings
+| MiscStatus | Settings how to create and display the object
+| PersistentHandler |
+| Verb | Application verbs
+|===
+
+MSDN defines DefaultIcon as a REG_SZ value but in Windows XP it seems to be a 
+key where the icon resource identifier is stored in the default value of the 
+key.
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| AppID | REG_SZ | Associated application identifier +
+Contains a string in the form: "{GUID}"
+| AutoConvertTo | REG_SZ | Automatic conversion class identifier
+| AutoTreatAs | REG_SZ | Automatically treat as (emulation) class identifier
+| InprocHandler | REG_SZ | 16-bit custom in-process handler
+| InprocHandler32 | REG_SZ | 32-bit custom in-process handler
+| LocalServer | REG_SZ| 16-bit local server application
+| ProgID | REG_SZ | Associated program identifier +
+Contains a string in the form: "Program.Component"
+| ToolBoxBitmap32 | REG_SZ | Toolbar or toolbox button bitmap +
+Contains a resource identifier
+| TreatAs | REG_SZ | Identifier of class that can emulate the current class
+| Version | REG_SZ | version number
+| VersionIndependentProgID | REG_SZ | Version independent associated program identifier
+|===
+
+== External Links
+* http://msdn.microsoft.com/en-us/library/windows/desktop/ms691424(v=vs.85).aspx[MSDN: CLSID Key]
+* http://msdn.microsoft.com/en-us/library/windows/desktop/ms678473(v=vs.85).aspx[MSDN: ProxyStubClsid]
+
