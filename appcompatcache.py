@@ -735,14 +735,12 @@ def Main():
   # HKLM
 
   # Windows XP
-  PrintAppCompatCacheKey(
-      regf_file,
-      'ControlSet001\\Control\\Session Manager\\AppCompatibility')
+  key_path = 'ControlSet001\\Control\\Session Manager\\AppCompatibility'
+  PrintAppCompatCacheKey(regf_file, key_path)
 
   # Windows 2003 and later
-  PrintAppCompatCacheKey(
-      regf_file,
-      'ControlSet001\\Control\\Session Manager\\AppCompatCache')
+  key_path = 'ControlSet001\\Control\\Session Manager\\AppCompatCache'
+  PrintAppCompatCacheKey(regf_file, key_path)
 
   # TODO: handle multiple control sets.
 
@@ -756,4 +754,3 @@ if __name__ == '__main__':
     sys.exit(1)
   else:
     sys.exit(0)
-
