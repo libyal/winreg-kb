@@ -1,22 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
-# Script to print the MSIE zone information in the Windows Registry
-# from the NTUSER.DAT or SOFTWARE Registry file (REGF)
-#
-# Copyright (c) 2013-2014, Joachim Metz <joachim.metz@gmail.com>
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 import argparse
 import sys
@@ -39,7 +22,8 @@ CONTROL_DESCRIPTIONS = {
     '1001': 'Download signed ActiveX controls',
     '1004': 'Download unsigned ActiveX controls',
     '1200': 'Run ActiveX controls and plug-ins',
-    '1201': 'Initialize and script ActiveX controls not marked as safe for scripting',
+    '1201': ('Initialize and script ActiveX controls not marked as safe for '
+             'scripting'),
     '1206': 'Allow scripting of Internet Explorer Web browser control',
     '1207': 'Reserved',
     '1208': 'Allow previously unused ActiveX controls to run without prompt',
@@ -90,7 +74,8 @@ CONTROL_DESCRIPTIONS = {
     '2100': 'Open files based on content, not file extension',
     '2101': ('Web sites in less privileged web content zone can navigate into '
              'this zone'),
-    '2102': 'Allow script initiated windows without size or position constraints',
+    '2102': ('Allow script initiated windows without size or position '
+             'constraints'),
     '2103': 'Allow status bar updates via script',
     '2104': 'Allow websites to open windows without address or status bars',
     '2105': 'Allow websites to prompt for information using scripted windows',
@@ -134,7 +119,7 @@ CONTROL_VALUES_1C00 = {
 }
 
 
-def PrintZonesKey(regf_file, zones_key_path, output_mode = 0):
+def PrintZonesKey(regf_file, zones_key_path, output_mode=0):
   zones_key = regf_file.get_key_by_path(zones_key_path)
 
   if zones_key:
@@ -151,7 +136,7 @@ def PrintZonesKey(regf_file, zones_key_path, output_mode = 0):
 
       for setting_value in zone_key.values:
         if not setting_value.name:
-          next
+          continue
 
         elif setting_value.name in [
             'Description', 'DisplayName', 'PMDisplayName']:
@@ -159,7 +144,7 @@ def PrintZonesKey(regf_file, zones_key_path, output_mode = 0):
             print u'{0:s}: {1:s}'.format(
                 setting_value.name, setting_value.data_as_string)
 
-        elif (len(setting_value.name) == 4 and setting_value.name != 'Icon'):
+        elif len(setting_value.name) == 4 and setting_value.name != 'Icon':
           if len(setting_value.data) != 4:
             if output_mode == 0:
               print u'Value: {0:s}'.format(setting_value.data.encode('hex'))
@@ -195,16 +180,16 @@ def PrintZonesKey(regf_file, zones_key_path, output_mode = 0):
             else:
               print u'Control: {0:s}'.format(setting_value.name)
             if value_desc:
-              print u'Data: 0x%08x: {0:s}'.format(value, value_desc)
+              print u'Data: 0x{0:08x}: {1:s}'.format(value, value_desc)
             else:
-              print u'Data: 0x%08x'.format(value)
+              print u'Data: 0x{0:08x}'.format(value)
 
           elif output_mode == 1:
             if setting_value.name in CONTROL_DESCRIPTIONS:
               control_desc = CONTROL_DESCRIPTIONS[setting_value.name]
             else:
               control_desc = ''
-            print u'{0:s}\t0x{1:08x}\t{1:s}\t{3:s}'.format(
+            print u'{0:s}\t0x{1:08x}\t{2:s}\t{3:s}'.format(
                 setting_value.name, value, value_desc, control_desc)
 
         else:
@@ -266,39 +251,39 @@ def Main():
 
   # HKCU
 
-  PrintLockdownKey(
-   regf_file,
-   ('Software\\Policies\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-    'FEATURE_LOCALMACHINE_LOCKDOWN'))
+  key_path = (
+      'Software\\Policies\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
+      'FEATURE_LOCALMACHINE_LOCKDOWN')
+  PrintLockdownKey(regf_file, key_path)
 
-  PrintLockdownKey(
-   regf_file,
-   ('Software\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-    'FEATURE_LOCALMACHINE_LOCKDOWN'))
+  key_path = (
+      'Software\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
+      'FEATURE_LOCALMACHINE_LOCKDOWN')
+  PrintLockdownKey(regf_file, key_path)
 
   # HKLM
 
-  PrintLockdownKey(
-   regf_file,
-   ('Policies\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-    'FEATURE_LOCALMACHINE_LOCKDOWN'))
+  key_path = (
+      'Policies\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
+      'FEATURE_LOCALMACHINE_LOCKDOWN')
+  PrintLockdownKey(regf_file, key_path)
 
-  PrintLockdownKey(
-   regf_file,
-   ('Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-    'FEATURE_LOCALMACHINE_LOCKDOWN'))
+  key_path = (
+      'Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
+      'FEATURE_LOCALMACHINE_LOCKDOWN')
+  PrintLockdownKey(regf_file, key_path)
 
   # HKLM Wow64
 
-  PrintLockdownKey(
-   regf_file,
-   ('Wow6432Node\\Policies\\Microsoft\\Internet Explorer\\Main\\'
-    'FeatureControl\\FEATURE_LOCALMACHINE_LOCKDOWN'))
+  key_path = (
+      'Wow6432Node\\Policies\\Microsoft\\Internet Explorer\\Main\\'
+      'FeatureControl\\FEATURE_LOCALMACHINE_LOCKDOWN')
+  PrintLockdownKey(regf_file, key_path)
 
-  PrintLockdownKey(
-   regf_file,
-   ('Wow6432Node\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-    'FEATURE_LOCALMACHINE_LOCKDOWN'))
+  key_path = (
+      'Wow6432Node\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
+      'FEATURE_LOCALMACHINE_LOCKDOWN')
+  PrintLockdownKey(regf_file, key_path)
 
   # TODO: check for value Policies\\Microsoft\\Windows\\CurrentVersion\\
   # Internet Settings\\Security_HKEY_LOCAL_MACHINE_only and its data
@@ -306,77 +291,66 @@ def Main():
 
   # HKCU
 
-  PrintZonesKey(
-   regf_file,
-   ('Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
-    'Internet Settings\\Zones'),
-   output_mode)
+  key_path = (
+      'Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
+      'Internet Settings\\Zones')
+  PrintZonesKey(regf_file, key_path, output_mode)
 
-  PrintZonesKey(
-   regf_file,
-   ('Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
-    'Internet Settings\\Lockdown_Zones'),
-   output_mode)
+  key_path = (
+      'Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
+      'Internet Settings\\Lockdown_Zones')
+  PrintZonesKey(regf_file, key_path, output_mode)
 
-  PrintZonesKey(
-   regf_file,
-   ('Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Zones'),
-   output_mode)
+  key_path = (
+      'Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Zones')
+  PrintZonesKey(regf_file, key_path, output_mode)
 
-  PrintZonesKey(
-   regf_file,
-   ('Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-    'Lockdown_Zones'),
-   output_mode)
+  key_path = (
+      'Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
+      'Lockdown_Zones')
+  PrintZonesKey(regf_file, key_path, output_mode)
 
   # HKLM
 
-  PrintZonesKey(
-   regf_file,
-   ('Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-    'Zones'),
-   output_mode)
+  key_path = (
+      'Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
+      'Zones')
+  PrintZonesKey(regf_file, key_path, output_mode)
 
-  PrintZonesKey(
-   regf_file,
-   ('Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-    'Lockdown_Zones'),
-   output_mode)
+  key_path = (
+      'Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
+      'Lockdown_Zones')
+  PrintZonesKey(regf_file, key_path, output_mode)
 
-  PrintZonesKey(
-   regf_file,
-   'Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Zones',
-   output_mode)
+  key_path = (
+      'Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Zones')
+  PrintZonesKey(regf_file, key_path, output_mode)
 
-  PrintZonesKey(
-   regf_file,
-   'Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Lockdown_Zones',
-   output_mode)
+  key_path = (
+      'Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Lockdown_Zones')
+  PrintZonesKey(regf_file, key_path, output_mode)
 
   # HKLM Wow64
 
-  PrintZonesKey(
-   regf_file,
-   ('Wow6432Node\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
-    'Internet Settings\\Zones'),
-   output_mode)
+  key_path = (
+      'Wow6432Node\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
+      'Internet Settings\\Zones')
+  PrintZonesKey(regf_file, key_path, output_mode)
 
-  PrintZonesKey(
-   regf_file,
-   ('Wow6432Node\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
-    'Internet Settings\\Lockdown_Zones'),
-   output_mode)
+  key_path = (
+      'Wow6432Node\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
+      'Internet Settings\\Lockdown_Zones')
+  PrintZonesKey(regf_file, key_path, output_mode)
 
-  PrintZonesKey(
-   regf_file,
-   'Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Zones',
-   output_mode)
+  key_path = (
+      'Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
+      'Zones')
+  PrintZonesKey(regf_file, key_path, output_mode)
 
-  PrintZonesKey(
-   regf_file,
-   ('Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-    'Lockdown_Zones'),
-   output_mode)
+  key_path = (
+      'Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
+      'Lockdown_Zones'),
+  PrintZonesKey(regf_file, key_path, output_mode)
 
   regf_file.close()
 

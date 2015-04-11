@@ -16,9 +16,9 @@ Values:
 | LocalizedName | |
 |===
 
-= Shell Folder sub key =
+= Shell Folder CLSID sub key =
 
-The shell folder sub key can be found in some https://github.com/libyal/winreg-kb/wiki/Component-Object-Model-keys[COM Class Identifier (CLSID) keys].
+The shell folder CLSID sub key can be found in some https://github.com/libyal/winreg-kb/wiki/Component-Object-Model-keys[COM Class Identifier (CLSID) keys].
 
 ....
 HKEY_CLASSES_ROOT\CLSID\{%GUID%}\ShellFolder
@@ -54,6 +54,19 @@ Values:
 | Attributes | REG_DWORD |
 | CallForAttributes | |
 | HideOnDesktopPerUser | |
+|===
+
+== Attributes values ==
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00000010 | SFGAO_CANRENAME | The extension's root folder can be renamed by the user. The folder's shortcut menu will have a Rename item.
+| 0x00000020 | SFGAO_CANDELETE | The extension's root folder can be deleted by the user. The folder's shortcut menu will have a Delete item.
+| 0x00000040 | SFGAO_HASPROPSHEET | The extension's root folder has a Properties property sheet. The folder's shortcut menu will have a Properties item.
+| | |
+| 0x20000000 | SFGAO_FOLDER | The extension's root folder contains one or more items.
+| 0x80000000 | SFGAO_HASSUBFOLDER | The extension's root folder contains one or more subfolders. Windows Explorer will place a plus sign ( `+` ) next to the folder icon.
 |===
 
 == Localized String value data ==
@@ -119,4 +132,5 @@ HKEY_CURRENT_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\BitBucke
 
 = External Links =
 * http://support.microsoft.com/kb/242557[kb242557: Registry Settings for Folder Redirection in Windows]
+* https://msdn.microsoft.com/en-us/library/windows/desktop/cc144093(v=vs.85).aspx[MSDN: Implementing the Basic Folder Object Interfaces]
 

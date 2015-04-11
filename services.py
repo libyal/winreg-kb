@@ -1,27 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
-# Script to print the drivers and services from the SYSTEM
-# Registry file (REGF)
-#
-# Copyright (c) 2013-2014, Joachim Metz <joachim.metz@gmail.com>
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 import argparse
 import logging
 import os
-import stat
 import sys
 
 import dfvfs
@@ -299,7 +281,7 @@ class WindowsServiceCollector(WindowsVolumeCollector):
       if type_value:
         type_value = type_value.data_as_integer
 
-      display_name_value = service_key.get_value_by_name('DisplayName') 
+      display_name_value = service_key.get_value_by_name('DisplayName')
       if display_name_value:
         if display_name_value.type in [
             RegistryFile.REG_SZ, RegistryFile.REG_EXPAND_SZ]:
@@ -307,15 +289,15 @@ class WindowsServiceCollector(WindowsVolumeCollector):
         else:
           display_name_value = None
 
-      description_value = service_key.get_value_by_name('Description') 
+      description_value = service_key.get_value_by_name('Description')
       if description_value:
         description_value = description_value.data_as_string
 
-      image_path_value = service_key.get_value_by_name('ImagePath') 
+      image_path_value = service_key.get_value_by_name('ImagePath')
       if image_path_value:
         image_path_value = image_path_value.data_as_string
 
-      object_name_value = service_key.get_value_by_name('ObjectName') 
+      object_name_value = service_key.get_value_by_name('ObjectName')
       if object_name_value:
         object_name_value = object_name_value.data_as_string
 
@@ -485,7 +467,7 @@ class WindowsService(object):
     """Retrieves the object name as a descriptive string."""
     if self.service_type == 0x00000010:
       return u'Account name'
-        
+
     elif self.service_type == 0x00000020:
       return u'Account name'
 
@@ -507,7 +489,7 @@ class WindowsService(object):
 
     elif self.service_type == 0x00000010:
       return u'Stand-alone service'
-        
+
     elif self.service_type == 0x00000020:
       return u'Shared service'
 

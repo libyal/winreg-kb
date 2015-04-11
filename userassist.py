@@ -1,22 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
-# Script to print the UserAssist information in the Windows Registry
-# from the NTUSER.DAT Registry file (REGF)
-#
-# Copyright (c) 2014, Joachim Metz <joachim.metz@gmail.com>
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 import argparse
 import datetime
@@ -26,6 +9,8 @@ import sys
 
 import pyregf
 
+
+# pylint: disable=logging-format-interpolation
 
 HEXDUMP_CHARACTER_MAP = [
     '.' if byte < 0x20 or byte > 0x7e else chr(byte) for byte in range(256)]
@@ -41,12 +26,12 @@ def Hexdump(data):
     data_string = data[block_index:block_index + 16]
 
     hexadecimal_string1 = ' '.join([
-        '{0:02x}'.format(ord(byte)) for byte in data_string[0:8]])
+        '{0:02x}'.format(ord(byte_value)) for byte_value in data_string[0:8]])
     hexadecimal_string2 = ' '.join([
-        '{0:02x}'.format(ord(byte)) for byte in data_string[8:16]])
+        '{0:02x}'.format(ord(byte_value)) for byte_value in data_string[8:16]])
 
     printable_string = ''.join([
-        HEXDUMP_CHARACTER_MAP[ord(byte)] for byte in data_string])
+        HEXDUMP_CHARACTER_MAP[ord(byte_value)] for byte_value in data_string])
 
     remaining_size = 16 - len(data_string)
     if remaining_size == 0:
@@ -79,7 +64,7 @@ def Hexdump(data):
   return '\n'.join(lines)
 
 
-def PrintUserAssistKey(regf_file, userassist_key_path, ascii_codepage):
+def PrintUserAssistKey(regf_file, userassist_key_path, unused_ascii_codepage):
   # UserAssist format version used in Windows 2000, XP, 2003, Vista.
   USERASSIST_V3_STRUCT = construct.Struct(
       'userassist_entry',
@@ -273,10 +258,9 @@ def Main():
 
   # HKCU
 
-  PrintUserAssistKey(
-   regf_file,
-   'Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\UserAssist',
-   options.codepage)
+  key_path = (
+      'Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\UserAssist')
+  PrintUserAssistKey(regf_file, key_path, options.codepage)
 
   regf_file.close()
 

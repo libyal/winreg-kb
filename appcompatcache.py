@@ -1,22 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
-# Script to print the AppCompatCache information in the Windows Registry
-# from the SYSTEM Registry file (REGF)
-#
-# Copyright (c) 2014, Joachim Metz <joachim.metz@gmail.com>
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 import argparse
 import construct
@@ -26,6 +9,8 @@ import sys
 
 import pyregf
 
+
+# pylint: disable=logging-format-interpolation
 
 HEXDUMP_CHARACTER_MAP = [
     '.' if byte < 0x20 or byte > 0x7e else chr(byte) for byte in range(256)]
@@ -41,12 +26,12 @@ def Hexdump(data):
     data_string = data[block_index:block_index + 16]
 
     hexadecimal_string1 = ' '.join([
-        '{0:02x}'.format(ord(byte)) for byte in data_string[0:8]])
+        '{0:02x}'.format(ord(byte_value)) for byte_value in data_string[0:8]])
     hexadecimal_string2 = ' '.join([
-        '{0:02x}'.format(ord(byte)) for byte in data_string[8:16]])
+        '{0:02x}'.format(ord(byte_value)) for byte_value in data_string[8:16]])
 
     printable_string = ''.join([
-        HEXDUMP_CHARACTER_MAP[ord(byte)] for byte in data_string])
+        HEXDUMP_CHARACTER_MAP[ord(byte_value)] for byte_value in data_string])
 
     remaining_size = 16 - len(data_string)
     if remaining_size == 0:
@@ -456,7 +441,7 @@ class AppCompatCacheKeyParser(object):
     elif format_type == self.FORMAT_TYPE_2003:
       if cached_entry_size == self._CACHED_ENTRY_2003_32BIT_STRUCT.sizeof():
         cached_entry_struct = self._CACHED_ENTRY_2003_32BIT_STRUCT.parse(
-          cached_entry_data)
+            cached_entry_data)
 
       elif cached_entry_size == self._CACHED_ENTRY_2003_64BIT_STRUCT.sizeof():
         cached_entry_struct = self._CACHED_ENTRY_2003_64BIT_STRUCT.parse(
@@ -465,7 +450,7 @@ class AppCompatCacheKeyParser(object):
     elif format_type == self.FORMAT_TYPE_VISTA:
       if cached_entry_size == self._CACHED_ENTRY_VISTA_32BIT_STRUCT.sizeof():
         cached_entry_struct = self._CACHED_ENTRY_VISTA_32BIT_STRUCT.parse(
-          cached_entry_data)
+            cached_entry_data)
 
       elif cached_entry_size == self._CACHED_ENTRY_VISTA_64BIT_STRUCT.sizeof():
         cached_entry_struct = self._CACHED_ENTRY_VISTA_64BIT_STRUCT.parse(
@@ -567,7 +552,7 @@ class AppCompatCacheKeyParser(object):
 
       elif cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_1:
         print u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:04x}'.format(
-          construct.ULInt16('unknown1').parse(remaining_data[8:10]))
+            construct.ULInt16('unknown1').parse(remaining_data[8:10]))
 
         cached_entry_data_offset += 10
 
@@ -577,11 +562,11 @@ class AppCompatCacheKeyParser(object):
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7]:
       cached_entry_object.last_modification_time = cached_entry_struct.get(
-         'last_modification_time')
+          'last_modification_time')
 
     elif format_type == self.FORMAT_TYPE_8:
       cached_entry_object.last_modification_time = construct.ULInt64(
-         'last_modification_time').parse(remaining_data[0:8])
+          'last_modification_time').parse(remaining_data[0:8])
 
     if not cached_entry_object.last_modification_time:
       print u'Last modification time\t\t\t\t\t\t\t: 0x{0:08x}'.format(
@@ -751,13 +736,13 @@ def Main():
 
   # Windows XP
   PrintAppCompatCacheKey(
-   regf_file,
-   'ControlSet001\Control\Session Manager\AppCompatibility')
+      regf_file,
+      'ControlSet001\\Control\\Session Manager\\AppCompatibility')
 
   # Windows 2003 and later
   PrintAppCompatCacheKey(
-   regf_file,
-   'ControlSet001\Control\Session Manager\AppCompatCache')
+      regf_file,
+      'ControlSet001\\Control\\Session Manager\\AppCompatCache')
 
   # TODO: handle multiple control sets.
 
