@@ -195,27 +195,17 @@ class Registry(object):
       if registry_file:
         registry_file.Close()
 
-  def _GetFileByPath(self, key_path):
-    """Retrieves the Registry file for a specific path.
+  def _GetCachedFileByPath(self, safe_key_path):
+    """Retrieves a cached Registry file for a specific path.
 
     Args:
-      key_path: the Registry key path.
+      safe_key_path: the Registry key path, in upper case with a resolved
+                     root key alias.
 
     Returns:
       A tuple of the key path prefix and the corresponding Registry file object
       (instance of RegistryFile) or None if not available.
     """
-    root_key_path, _, key_path = key_path.partition(self._PATH_SEPARATOR)
-
-    # Resolve a root key alias.
-    root_key_path = self._ROOT_KEY_ALIASES.get(root_key_path, root_key_path)
-
-    if root_key_path not in self._ROOT_KEYS:
-      raise RuntimeError(u'Unsupported root key: {0:s}'.format(root_key_path))
-
-    safe_key_path = self._PATH_SEPARATOR.join([root_key_path, key_path])
-    safe_key_path = safe_key_path.upper()
-
     longest_key_path_prefix = u''
     longest_key_path_prefix_length = len(longest_key_path_prefix)
     for key_path_prefix in self._registry_files.iterkeys():
@@ -225,17 +215,31 @@ class Registry(object):
           longest_key_path_prefix = key_path_prefix
           longest_key_path_prefix_length = key_path_prefix_length
 
+    if not longest_key_path_prefix:
+      return None, None 
+
+    registry_file = self._registry_files.get(longest_key_path_prefix, None)
+    return longest_key_path_prefix, registry_file
+
+  def _GetFileByPath(self, safe_key_path):
+    """Retrieves the Registry file for a specific path.
+
+    Args:
+      safe_key_path: the Registry key path, in upper case with a resolved
+                     root key alias.
+
+    Returns:
+      A tuple of the key path prefix and the corresponding Registry file object
+      (instance of RegistryFile) or None if not available.
+    """
     # TODO: handle HKEY_USERS in both 9X and NT.
 
-    key_path_prefix = None
-    registry_file = self._registry_files.get(longest_key_path_prefix, None)
+    key_path_prefix, registry_file = self._GetCachedFileByPath(safe_key_path)
     if not registry_file:
       for mapping in self._GetFileMappingsByPath(safe_key_path):
         registry_file = self._registry_file_reader.Open(mapping.windows_path)
         if registry_file:
-          if longest_key_path_prefix:
-            key_path_prefix = longest_key_path_prefix
-          else:
+          if not key_path_prefix:
             key_path_prefix = mapping.key_path_prefix
 
           # Note make sure the key path prefix is stored in upper case.
@@ -244,19 +248,19 @@ class Registry(object):
 
     return key_path_prefix, registry_file
 
-  def _GetFileMappingsByPath(self, key_path):
+  def _GetFileMappingsByPath(self, safe_key_path):
     """Retrieves the Registry file mappings for a specific path.
 
     Args:
-      key_path: the Registry key path, in upper case with a resolved root key
-                alias.
+      safe_key_path: the Registry key path, in upper case with a resolved
+                     root key alias.
 
     Yields:
       Registry file mapping objects (instances of RegistryFileMapping).
     """
     candidate_mappings = []
     for mapping in self._REGISTRY_FILE_MAPPINGS_NT:
-      if key_path.startswith(mapping.key_path_prefix):
+      if safe_key_path.startswith(mapping.key_path_prefix):
         candidate_mappings.append(mapping)
 
     # Sort the candidate mappings by longest (most specific) match first.
@@ -273,10 +277,27 @@ class Registry(object):
 
     Returns:
       A Registry key (instance of RegistryKey) or None if not available.
+
+    Raises:
+      RuntimeError: if the root key is not supported.
     """
-    key_path_prefix, registry_file = self._GetFileByPath(key_path)
+    root_key_path, _, key_path = key_path.partition(self._PATH_SEPARATOR)
+
+    # Resolve a root key alias.
+    root_key_path = self._ROOT_KEY_ALIASES.get(root_key_path, root_key_path)
+
+    if root_key_path not in self._ROOT_KEYS:
+      raise RuntimeError(u'Unsupported root key: {0:s}'.format(root_key_path))
+
+    key_path = self._PATH_SEPARATOR.join([root_key_path, key_path])
+    safe_key_path = key_path.upper()
+
+    key_path_prefix, registry_file = self._GetFileByPath(safe_key_path)
     if not registry_file:
       return
+
+    if not safe_key_path.startswith(key_path_prefix):
+      raise RuntimeError(u'Key path prefix mismatch.')
 
     key_path = key_path[len(key_path_prefix):]
     return registry_file.GetKeyByPath(key_path)
