@@ -8,114 +8,114 @@ import pyregf
 
 
 DEFAULT_ZONE_NAMES = {
-    '0': 'My Computer',
-    '1': 'Local Intranet Zone',
-    '2': 'Trusted sites Zone',
-    '3': 'Internet Zone',
-    '4': 'Restricted Sites Zone',
+    u'0': u'My Computer',
+    u'1': u'Local Intranet Zone',
+    u'2': u'Trusted sites Zone',
+    u'3': u'Internet Zone',
+    u'4': u'Restricted Sites Zone',
 }
 
 # Sources:
 # http://support.microsoft.com/kb/182569
 # http://technet.microsoft.com/en-us/library/cc783259(v=ws.10).aspx
 CONTROL_DESCRIPTIONS = {
-    '1001': 'Download signed ActiveX controls',
-    '1004': 'Download unsigned ActiveX controls',
-    '1200': 'Run ActiveX controls and plug-ins',
-    '1201': ('Initialize and script ActiveX controls not marked as safe for '
-             'scripting'),
-    '1206': 'Allow scripting of Internet Explorer Web browser control',
-    '1207': 'Reserved',
-    '1208': 'Allow previously unused ActiveX controls to run without prompt',
-    '1209': 'Allow Scriptlets',
-    '120A': 'Override Per-Site (domain-based) ActiveX restrictions',
-    '120B': 'Override Per-Site (domain-based) ActiveX restrictions',
-    '1400': 'Active scripting',
-    '1402': 'Scripting of Java applets',
-    '1405': 'Script ActiveX controls marked as safe for scripting',
-    '1406': 'Access data sources across domains',
-    '1407': 'Allow Programmatic clipboard access',
-    '1408': 'Reserved',
-    '1601': 'Submit non-encrypted form data',
-    '1604': 'Font download',
-    '1605': 'Run Java',
-    '1606': 'Userdata persistence',
-    '1607': 'Navigate sub-frames across different domains',
-    '1608': 'Allow META REFRESH',
-    '1609': 'Display mixed content',
-    '160A': 'Include local directory path when uploading files to a server',
-    '1800': 'Installation of desktop items',
-    '1802': 'Drag and drop or copy and paste files',
-    '1803': 'File Download',
-    '1804': 'Launching programs and files in an IFRAME',
-    '1805': 'Launching programs and files in webview',
-    '1806': 'Launching applications and unsafe files',
-    '1807': 'Reserved',
-    '1808': 'Reserved',
-    '1809': 'Use Pop-up Blocker',
-    '180A': 'Reserved',
-    '180B': 'Reserved',
-    '180C': 'Reserved',
-    '180D': 'Reserved',
-    '1A00': 'Logon',
-    '1A02': 'Allow persistent cookies that are stored on your computer',
-    '1A03': 'Allow per-session cookies (not stored)',
-    '1A04': ('Don\'t prompt for client certificate selection when no '
-             'certificates or only one certificate exists'),
-    '1A05': 'Allow 3rd party persistent cookies',
-    '1A06': 'Allow 3rd party session cookies',
-    '1A10': 'Privacy Settings',
-    '1C00': 'Java permissions',
-    '1E05': 'Software channel permissions',
-    '1F00': 'Reserved',
-    '2000': 'Binary and script behaviors',
-    '2001': 'Run components signed with Authenticode',
-    '2004': 'Run components not signed with Authenticode',
-    '2100': 'Open files based on content, not file extension',
-    '2101': ('Web sites in less privileged web content zone can navigate into '
-             'this zone'),
-    '2102': ('Allow script initiated windows without size or position '
-             'constraints'),
-    '2103': 'Allow status bar updates via script',
-    '2104': 'Allow websites to open windows without address or status bars',
-    '2105': 'Allow websites to prompt for information using scripted windows',
-    '2200': 'Automatic prompting for file downloads',
-    '2201': 'Automatic prompting for ActiveX controls',
-    '2300': 'Allow web pages to use restricted protocols for active content',
-    '2301': 'Use Phishing Filter',
-    '2400': '.NET Framework: XAML browser applications',
-    '2401': '.NET Framework: XPS documents',
-    '2402': '.NET Framework: Loose XAML',
-    '2500': 'Turn on Protected Mode [Vista only setting]',
-    '2600': 'Enable .NET Framework setup',
+    u'1001': 'Download signed ActiveX controls',
+    u'1004': 'Download unsigned ActiveX controls',
+    u'1200': 'Run ActiveX controls and plug-ins',
+    u'1201': ('Initialize and script ActiveX controls not marked as safe for '
+              'scripting'),
+    u'1206': 'Allow scripting of Internet Explorer Web browser control',
+    u'1207': 'Reserved',
+    u'1208': 'Allow previously unused ActiveX controls to run without prompt',
+    u'1209': 'Allow Scriptlets',
+    u'120A': 'Override Per-Site (domain-based) ActiveX restrictions',
+    u'120B': 'Override Per-Site (domain-based) ActiveX restrictions',
+    u'1400': 'Active scripting',
+    u'1402': 'Scripting of Java applets',
+    u'1405': 'Script ActiveX controls marked as safe for scripting',
+    u'1406': 'Access data sources across domains',
+    u'1407': 'Allow Programmatic clipboard access',
+    u'1408': 'Reserved',
+    u'1601': 'Submit non-encrypted form data',
+    u'1604': 'Font download',
+    u'1605': 'Run Java',
+    u'1606': 'Userdata persistence',
+    u'1607': 'Navigate sub-frames across different domains',
+    u'1608': 'Allow META REFRESH',
+    u'1609': 'Display mixed content',
+    u'160A': 'Include local directory path when uploading files to a server',
+    u'1800': 'Installation of desktop items',
+    u'1802': 'Drag and drop or copy and paste files',
+    u'1803': 'File Download',
+    u'1804': 'Launching programs and files in an IFRAME',
+    u'1805': 'Launching programs and files in webview',
+    u'1806': 'Launching applications and unsafe files',
+    u'1807': 'Reserved',
+    u'1808': 'Reserved',
+    u'1809': 'Use Pop-up Blocker',
+    u'180A': 'Reserved',
+    u'180B': 'Reserved',
+    u'180C': 'Reserved',
+    u'180D': 'Reserved',
+    u'1A00': 'Logon',
+    u'1A02': 'Allow persistent cookies that are stored on your computer',
+    u'1A03': 'Allow per-session cookies (not stored)',
+    u'1A04': ('Don\'t prompt for client certificate selection when no '
+              'certificates or only one certificate exists'),
+    u'1A05': 'Allow 3rd party persistent cookies',
+    u'1A06': 'Allow 3rd party session cookies',
+    u'1A10': 'Privacy Settings',
+    u'1C00': 'Java permissions',
+    u'1E05': 'Software channel permissions',
+    u'1F00': 'Reserved',
+    u'2000': 'Binary and script behaviors',
+    u'2001': 'Run components signed with Authenticode',
+    u'2004': 'Run components not signed with Authenticode',
+    u'2100': 'Open files based on content, not file extension',
+    u'2101': ('Web sites in less privileged web content zone can navigate into '
+              'this zone'),
+    u'2102': ('Allow script initiated windows without size or position '
+              'constraints'),
+    u'2103': 'Allow status bar updates via script',
+    u'2104': 'Allow websites to open windows without address or status bars',
+    u'2105': 'Allow websites to prompt for information using scripted windows',
+    u'2200': 'Automatic prompting for file downloads',
+    u'2201': 'Automatic prompting for ActiveX controls',
+    u'2300': 'Allow web pages to use restricted protocols for active content',
+    u'2301': 'Use Phishing Filter',
+    u'2400': '.NET Framework: XAML browser applications',
+    u'2401': '.NET Framework: XPS documents',
+    u'2402': '.NET Framework: Loose XAML',
+    u'2500': 'Turn on Protected Mode [Vista only setting]',
+    u'2600': 'Enable .NET Framework setup',
 }
 
 CONTROL_VALUES_COMMON_ENABLE = {
-    0x00000000: 'Enable',
-    0x00000001: 'Prompt',
-    0x00000003: 'Disable',
-    0x00010000: 'Administrator approved',
+    0x00000000: u'Enable',
+    0x00000001: u'Prompt',
+    0x00000003: u'Disable',
+    0x00010000: u'Administrator approved',
 }
 
 CONTROL_VALUES_COMMON_SAFETY = {
-    0x00010000: 'High safety',
-    0x00020000: 'Medium safety',
-    0x00030000: 'Low safety',
+    0x00010000: u'High safety',
+    0x00020000: u'Medium safety',
+    0x00030000: u'Low safety',
 }
 
 CONTROL_VALUES_1A00 = {
-    0x00000000: 'Automatic logon with current user name and password',
-    0x00010000: 'Prompt for user name and password',
-    0x00020000: 'Automatic logon only in Intranet zone',
-    0x00030000: 'Anonymous logon',
+    0x00000000: u'Automatic logon with current user name and password',
+    0x00010000: u'Prompt for user name and password',
+    0x00020000: u'Automatic logon only in Intranet zone',
+    0x00030000: u'Anonymous logon',
 }
 
 CONTROL_VALUES_1C00 = {
-    0x00000000: 'Disable Java',
-    0x00010000: 'High safety',
-    0x00020000: 'Medium safety',
-    0x00030000: 'Low safety',
-    0x00800000: 'Custom',
+    0x00000000: u'Disable Java',
+    0x00010000: u'High safety',
+    0x00020000: u'Medium safety',
+    0x00030000: u'Low safety',
+    0x00800000: u'Custom',
 }
 
 
@@ -139,37 +139,38 @@ def PrintZonesKey(regf_file, zones_key_path, output_mode=0):
           continue
 
         elif setting_value.name in [
-            'Description', 'DisplayName', 'PMDisplayName']:
+            u'Description', u'DisplayName', u'PMDisplayName']:
           if output_mode == 0:
             print u'{0:s}: {1:s}'.format(
                 setting_value.name, setting_value.data_as_string)
 
-        elif len(setting_value.name) == 4 and setting_value.name != 'Icon':
+        elif len(setting_value.name) == 4 and setting_value.name != u'Icon':
           if len(setting_value.data) != 4:
             if output_mode == 0:
-              print u'Value: {0:s}'.format(setting_value.data.encode('hex'))
+              print u'Value: {0:s}'.format(setting_value.data.encode(u'hex'))
 
           else:
             value = setting_value.get_data_as_integer()
-            value_desc = ''
+            value_desc = u''
 
             if setting_value.name in [
-                '1001', '1004', '1200', '1201', '1400', '1402', '1405', '1406',
-                '1407', '1601', '1604', '1606', '1607', '1608', '1609', '1800',
-                '1802', '1803', '1804', '1809', '1A04', '2000', '2001', '2004',
-                '2100', '2101', '2102', '2200', '2201', '2300']:
+                u'1001', u'1004', u'1200', u'1201', u'1400', u'1402', u'1405',
+                u'1406', u'1407', u'1601', u'1604', u'1606', u'1607', u'1608',
+                u'1609', u'1800', u'1802', u'1803', u'1804', u'1809', u'1A04',
+                u'2000', u'2001', u'2004', u'2100', u'2101', u'2102', u'2200',
+                u'2201', u'2300']:
               if value in CONTROL_VALUES_COMMON_ENABLE:
                 value_desc = CONTROL_VALUES_COMMON_ENABLE[value]
 
-            elif setting_value.name == '1A00':
+            elif setting_value.name == u'1A00':
               if value in CONTROL_VALUES_1A00:
                 value_desc = CONTROL_VALUES_1A00[value]
 
-            elif setting_value.name == '1C00':
+            elif setting_value.name == u'1C00':
               if value in CONTROL_VALUES_1C00:
                 value_desc = CONTROL_VALUES_1C00[value]
 
-            elif setting_value.name == '1E05':
+            elif setting_value.name == u'1E05':
               if value in CONTROL_VALUES_COMMON_SAFETY:
                 value_desc = CONTROL_VALUES_COMMON_SAFETY[value]
 
@@ -188,7 +189,7 @@ def PrintZonesKey(regf_file, zones_key_path, output_mode=0):
             if setting_value.name in CONTROL_DESCRIPTIONS:
               control_desc = CONTROL_DESCRIPTIONS[setting_value.name]
             else:
-              control_desc = ''
+              control_desc = u''
             print u'{0:s}\t0x{1:08x}\t{2:s}\t{3:s}'.format(
                 setting_value.name, value, value_desc, control_desc)
 
@@ -206,7 +207,7 @@ def PrintLockdownKey(regf_file, lockdown_key_path):
     print u'Key: {0:s}'.format(lockdown_key_path)
     print u''
 
-    program_name = 'iexplore.exe'
+    program_name = u'iexplore.exe'
     program_value = lockdown_key.get_value_by_name(program_name)
 
     if program_value:
@@ -228,12 +229,12 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   args_parser = argparse.ArgumentParser(description=(
-      'Extract the MSIE zone information from a NTUSER.DAT or SYSTEM '
-      'Registry File (REGF).'))
+      u'Extract the MSIE zone information from a NTUSER.DAT or SYSTEM '
+      u'Registry File (REGF).'))
 
   args_parser.add_argument(
-      'registry_file', nargs='?', action='store', metavar='SOFTWARE',
-      default=None, help='path of the SOFTWARE Registry file.')
+      u'registry_file', nargs=u'?', action=u'store', metavar=u'SOFTWARE',
+      default=None, help=u'path of the SOFTWARE Registry file.')
 
   options = args_parser.parse_args()
 
@@ -252,37 +253,37 @@ def Main():
   # HKCU
 
   key_path = (
-      'Software\\Policies\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-      'FEATURE_LOCALMACHINE_LOCKDOWN')
+      u'Software\\Policies\\Microsoft\\Internet Explorer\\Main\\'
+      u'FeatureControl\\FEATURE_LOCALMACHINE_LOCKDOWN')
   PrintLockdownKey(regf_file, key_path)
 
   key_path = (
-      'Software\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-      'FEATURE_LOCALMACHINE_LOCKDOWN')
+      u'Software\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
+      u'FEATURE_LOCALMACHINE_LOCKDOWN')
   PrintLockdownKey(regf_file, key_path)
 
   # HKLM
 
   key_path = (
-      'Policies\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-      'FEATURE_LOCALMACHINE_LOCKDOWN')
+      u'Policies\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
+      u'FEATURE_LOCALMACHINE_LOCKDOWN')
   PrintLockdownKey(regf_file, key_path)
 
   key_path = (
-      'Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-      'FEATURE_LOCALMACHINE_LOCKDOWN')
+      u'Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
+      u'FEATURE_LOCALMACHINE_LOCKDOWN')
   PrintLockdownKey(regf_file, key_path)
 
   # HKLM Wow64
 
   key_path = (
-      'Wow6432Node\\Policies\\Microsoft\\Internet Explorer\\Main\\'
-      'FeatureControl\\FEATURE_LOCALMACHINE_LOCKDOWN')
+      u'Wow6432Node\\Policies\\Microsoft\\Internet Explorer\\Main\\'
+      u'FeatureControl\\FEATURE_LOCALMACHINE_LOCKDOWN')
   PrintLockdownKey(regf_file, key_path)
 
   key_path = (
-      'Wow6432Node\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-      'FEATURE_LOCALMACHINE_LOCKDOWN')
+      u'Wow6432Node\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
+      u'FEATURE_LOCALMACHINE_LOCKDOWN')
   PrintLockdownKey(regf_file, key_path)
 
   # TODO: check for value Policies\\Microsoft\\Windows\\CurrentVersion\\
@@ -292,64 +293,64 @@ def Main():
   # HKCU
 
   key_path = (
-      'Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
-      'Internet Settings\\Zones')
+      u'Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
+      u'Internet Settings\\Zones')
   PrintZonesKey(regf_file, key_path, output_mode)
 
   key_path = (
-      'Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
-      'Internet Settings\\Lockdown_Zones')
+      u'Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
+      u'Internet Settings\\Lockdown_Zones')
   PrintZonesKey(regf_file, key_path, output_mode)
 
   key_path = (
-      'Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Zones')
+      u'Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Zones')
   PrintZonesKey(regf_file, key_path, output_mode)
 
   key_path = (
-      'Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-      'Lockdown_Zones')
+      u'Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
+      u'Lockdown_Zones')
   PrintZonesKey(regf_file, key_path, output_mode)
 
   # HKLM
 
   key_path = (
-      'Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-      'Zones')
+      u'Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
+      u'Zones')
   PrintZonesKey(regf_file, key_path, output_mode)
 
   key_path = (
-      'Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-      'Lockdown_Zones')
+      u'Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
+      u'Lockdown_Zones')
   PrintZonesKey(regf_file, key_path, output_mode)
 
   key_path = (
-      'Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Zones')
+      u'Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Zones')
   PrintZonesKey(regf_file, key_path, output_mode)
 
   key_path = (
-      'Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Lockdown_Zones')
+      u'Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Lockdown_Zones')
   PrintZonesKey(regf_file, key_path, output_mode)
 
   # HKLM Wow64
 
   key_path = (
-      'Wow6432Node\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
-      'Internet Settings\\Zones')
+      u'Wow6432Node\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
+      u'Internet Settings\\Zones')
   PrintZonesKey(regf_file, key_path, output_mode)
 
   key_path = (
-      'Wow6432Node\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
-      'Internet Settings\\Lockdown_Zones')
+      u'Wow6432Node\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
+      u'Internet Settings\\Lockdown_Zones')
   PrintZonesKey(regf_file, key_path, output_mode)
 
   key_path = (
-      'Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-      'Zones')
+      u'Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
+      u'Zones')
   PrintZonesKey(regf_file, key_path, output_mode)
 
   key_path = (
-      'Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-      'Lockdown_Zones'),
+      u'Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
+      u'Lockdown_Zones'),
   PrintZonesKey(regf_file, key_path, output_mode)
 
   regf_file.close()
