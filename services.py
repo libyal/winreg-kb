@@ -9,6 +9,8 @@ import collector
 import registry_file
 
 
+# pylint: disable=superfluous-parens
+
 class WindowsServicesCollector(collector.WindowsRegistryCollector):
   """Class that defines a Windows services collector."""
 
@@ -24,9 +26,9 @@ class WindowsServicesCollector(collector.WindowsRegistryCollector):
       output_writer: the output writer object.
       services_key: the services Registry key (instance of pyregf.key).
     """
-    print u'\tNumber of entries\t: {0:d}'.format(
-        services_key.number_of_sub_keys)
-    print u''
+    print(u'\tNumber of entries\t: {0:d}'.format(
+        services_key.number_of_sub_keys))
+    print(u'')
 
     for service_key in services_key.sub_keys:
       type_value = service_key.get_value_by_name(u'Type')
@@ -81,7 +83,7 @@ class WindowsServicesCollector(collector.WindowsRegistryCollector):
           if services_key:
             self.found_services_key = True
 
-            print u'Control set: {0:s}'.format(control_set_key.name)
+            print(u'Control set: {0:s}'.format(control_set_key.name))
             self._CollectWindowsServicesFromKey(output_writer, services_key)
 
     registry_file_object.Close()
@@ -108,28 +110,28 @@ class StdoutWriter(object):
     Args:
       service: the Windows service (instance of WindowsService).
     """
-    print u'{0:s}'.format(service.name)
+    print(u'{0:s}'.format(service.name))
 
     if service.service_type:
-      print u'\tType\t\t\t: {0:s}'.format(service.GetServiceTypeDescription())
+      print(u'\tType\t\t\t: {0:s}'.format(service.GetServiceTypeDescription()))
 
     if service.display_name:
-      print u'\tDisplay name\t\t: {0:s}'.format(service.display_name)
+      print(u'\tDisplay name\t\t: {0:s}'.format(service.display_name))
 
     if service.description:
-      print u'\tDescription\t\t: {0:s}'.format(service.description)
+      print(u'\tDescription\t\t: {0:s}'.format(service.description))
 
     if service.image_path:
-      print u'\tExecutable\t\t: {0:s}'.format(service.image_path)
+      print(u'\tExecutable\t\t: {0:s}'.format(service.image_path))
 
     if service.object_name:
-      print u'\t{0:s}\t\t: {1:s}'.format(
-          service.GetObjectNameDescription(), service.object_name)
+      print(u'\t{0:s}\t\t: {1:s}'.format(
+          service.GetObjectNameDescription(), service.object_name))
 
     if service.start_value is not None:
-      print u'\tStart\t\t\t: {0:s}'.format(service.GetStartValueDescription())
+      print(u'\tStart\t\t\t: {0:s}'.format(service.GetStartValueDescription()))
 
-    print u''
+    print(u'')
 
 
 class WindowsService(object):
@@ -203,22 +205,22 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   args_parser = argparse.ArgumentParser(description=(
-      u'Extract the services information from a SYSTEM '
-      u'Registry File (REGF).'))
+      u'Extract the services information from a SYSTEM Registry File (REGF).'))
 
   args_parser.add_argument(
-      u'source', nargs=u'?', action=u'store', metavar=u'/mnt/c/',
-      default=None, help=(
-          u'path of the volume containing C:\\Windows or the filename of '
-          u'a storage media image containing the C:\\Windows directory.'))
+      u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,
+      help=(
+          u'path of the volume containing C:\\Windows, the filename of '
+          u'a storage media image containing the C:\\Windows directory,'
+          u'or the path of a SYSTEM Registry file.'))
 
   options = args_parser.parse_args()
 
   if not options.source:
-    print u'Source value is missing.'
-    print u''
+    print(u'Source value is missing.')
+    print(u'')
     args_parser.print_help()
-    print u''
+    print(u'')
     return False
 
   logging.basicConfig(
@@ -227,24 +229,24 @@ def Main():
   output_writer = StdoutWriter()
 
   if not output_writer.Open():
-    print u'Unable to open output writer.'
-    print u''
+    print(u'Unable to open output writer.')
+    print(u'')
     return False
 
   collector_object = WindowsServicesCollector()
 
   if not collector_object.GetWindowsVolumePathSpec(options.source):
-    print (
+    print((
         u'Unable to retrieve the volume with the Windows directory from: '
-        u'{0:s}.').format(options.source)
-    print u''
+        u'{0:s}.').format(options.source))
+    print(u'')
     return False
 
   collector_object.CollectWindowsServices(output_writer)
   output_writer.Close()
 
   if not collector_object.found_services_key:
-    print u'No services key found.'
+    print(u'No services key found.')
 
   return True
 

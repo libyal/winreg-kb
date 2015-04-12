@@ -89,6 +89,8 @@ class WindowsKnownFoldersCollector(collector.WindowsRegistryCollector):
 
 
 class StdoutWriter(object):
+  """Class that defines a stdout output writer."""
+
   def Close(self):
     """Closes the output writer object."""
     return
@@ -118,8 +120,7 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   args_parser = argparse.ArgumentParser(description=(
-      u'Extract the known folder identifiers (KNOWNFOLDERID) from a SOFTWARE '
-      u'Registry File (REGF).'))
+      u'Extract the known folders from a SOFTWARE Registry File (REGF).'))
 
   args_parser.add_argument(
       u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,

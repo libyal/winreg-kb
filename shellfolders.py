@@ -240,8 +240,8 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   args_parser = argparse.ArgumentParser(description=(
-      u'Extract the shell folder class identifiers from a SOFTWARE '
-      u'Registry File (REGF).'))
+      u'Extract the shell folder class identifiers from a SOFTWARE Registry '
+      u'File (REGF).'))
 
   args_parser.add_argument(
       u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,
