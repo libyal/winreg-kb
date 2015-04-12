@@ -17,7 +17,7 @@ import collector
 class ShellFolderIdentifierCollector(collector.WindowsRegistryCollector):
   """Class that defines a Shell Folder identifier collector."""
 
-  _CLASS_IDENTIFIERS_KEY_PATH = u'Classes\\CLSID'
+  _CLASS_IDENTIFIERS_KEY_PATH = u'HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID'
 
   def __init__(self):
     """Initializes the Shell Folder identifier collector object."""
@@ -25,32 +25,20 @@ class ShellFolderIdentifierCollector(collector.WindowsRegistryCollector):
     self.found_class_identifiers_key = False
     self.found_shell_folder_identifier_key = False
 
-  def _GetClassIdentifierKeys(self, registry_file):
-    """Retrieves the class identifier keys.
-
-    Args:
-      registry_file: A Registry file object (instance of RegistryFile).
-
-    Yields:
-      A Registry key (instance of pyregf.key).
-    """
-    class_identifiers_key = registry_file.GetKeyByPath(
-        self._CLASS_IDENTIFIERS_KEY_PATH)
-
-    if class_identifiers_key:
-      for class_identifier_key in class_identifiers_key.sub_keys:
-        yield class_identifier_key
-
   def Collect(self, output_writer):
     """Collects the Shell Folder identifiers.
 
     Args:
       output_writer: the output writer object.
     """
-    registry_file = self._OpenRegistryFile(self._REGISTRY_FILENAME_SOFTWARE)
+    self.found_class_identifiers_key = False
+    class_identifiers_key = self._registry.GetKeyByPath(
+        self._CLASS_IDENTIFIERS_KEY_PATH)
+    if not class_identifiers_key:
+      return
 
-    for class_identifier_key in self._GetClassIdentifierKeys(registry_file):
-      self.found_class_identifiers_key = True
+    self.found_class_identifiers_key = True
+    for class_identifier_key in class_identifiers_key.sub_keys:
       guid = class_identifier_key.name.lower()
 
       shell_folder_key = class_identifier_key.get_sub_key_by_name(
@@ -78,8 +66,6 @@ class ShellFolderIdentifierCollector(collector.WindowsRegistryCollector):
 
         shell_folder = ShellFolder(guid, name, localized_string)
         output_writer.WriteShellFolder(shell_folder)
-
-    registry_file.Close()
 
 
 class ShellFolder(object):

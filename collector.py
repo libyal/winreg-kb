@@ -247,6 +247,8 @@ class WindowsVolumeCollector(object):
         return False
 
     self._path_resolver.SetEnvironmentVariable(
+        u'SystemRoot', self._windows_directory)
+    self._path_resolver.SetEnvironmentVariable(
         u'WinDir', self._windows_directory)
 
     return True
@@ -277,7 +279,6 @@ class WindowsRegistryCollector(WindowsVolumeCollector):
   """Class that defines a Windows Registry collector."""
 
   # TODO: replace by Registry.
-  _REGISTRY_FILENAME_SOFTWARE = u'%WinDir%\\System32\\config\\SOFTWARE'
   _REGISTRY_FILENAME_SYSTEM = u'%WinDir%\\System32\\config\\SYSTEM'
 
   def __init__(self):

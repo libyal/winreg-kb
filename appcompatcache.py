@@ -610,15 +610,14 @@ class WindowsAppCompatCacheCollector(collector.WindowsRegistryCollector):
     self.found_app_compat_cache_key = False
 
   def _CollectAppCompatCacheFromKey(
-      self, output_writer, registry_file, key_path):
+      self, output_writer, key_path):
     """Collects Application Compatibility Cache form a key.
 
     Args:
       output_writer: the output writer object.
-      registry_file: the Registry file object (instance of RegistryFile).
       key_path: the path of the Application Compatibility Cache key.
     """
-    app_compat_cache_key = registry_file.GetKeyByPath(key_path)
+    app_compat_cache_key = self._registry.GetKeyByPath(key_path)
     if not app_compat_cache_key:
       return
 
@@ -679,21 +678,19 @@ class WindowsAppCompatCacheCollector(collector.WindowsRegistryCollector):
     """
     self.found_app_compat_cache_key = False
 
-    registry_file = self._OpenRegistryFile(self._REGISTRY_FILENAME_SYSTEM)
-    if not registry_file:
-      return
-
     # Windows XP
-    key_path = u'ControlSet001\\Control\\Session Manager\\AppCompatibility'
-    self._CollectAppCompatCacheFromKey(output_writer, registry_file, key_path)
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\System\\ControlSet001\\Control\\Session Manager\\'
+        u'AppCompatibility')
+    self._CollectAppCompatCacheFromKey(output_writer, key_path)
 
     # Windows 2003 and later
-    key_path = u'ControlSet001\\Control\\Session Manager\\AppCompatCache'
-    self._CollectAppCompatCacheFromKey(output_writer, registry_file, key_path)
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\System\\ControlSet001\\Control\\Session Manager\\'
+        u'AppCompatCache')
+    self._CollectAppCompatCacheFromKey(output_writer, key_path)
 
     # TODO: handle multiple control sets.
-
-    registry_file.Close()
 
 
 class StdoutWriter(object):
