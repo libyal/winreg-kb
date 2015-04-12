@@ -9,36 +9,18 @@ import collector
 
 # pylint: disable=superfluous-parens
 
-class KnownFolder(object):
-  """Class that defines a known folder."""
-
-  def __init__(self, guid, name, localized_name):
-    """Initializes the known folder object.
-
-    Args:
-      guid: the identifier.
-      name: the name.
-      localized_name: the localized name.
-    """
-    super(KnownFolder, self).__init__()
-    self.guid = guid
-    self.localized_name = localized_name
-    self.name = name
-
-
-class WindowsKnownFoldersCollector(collector.WindowsRegistryCollector):
-  """Class that defines a Windows known folders collector."""
+class WindowsSystemInfoCollector(collector.WindowsRegistryCollector):
+  """Class that defines a Windows system information collector."""
 
   DEFAULT_VALUE_NAME = u''
 
-  _FOLDER_DESCRIPTIONS_KEY_PATH = (
-      u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\'
-      u'Explorer\\FolderDescriptions')
+  _CURRENT_VERSION_KEY_PATH = (
+      u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')
 
   def __init__(self):
-    """Initializes the Windows known folders collector object."""
-    super(WindowsKnownFoldersCollector, self).__init__()
-    self.found_folder_descriptions_key = False
+    """Initializes the Windows system information collector object."""
+    super(WindowsSystemInfoCollector, self).__init__()
+    self.found_current_version_key = False
 
   def _GetValueAsStringFromKey(self, key, value_name, default_value=u''):
     """Retrieves a value as a string from the key.
@@ -61,28 +43,42 @@ class WindowsKnownFoldersCollector(collector.WindowsRegistryCollector):
     return value.get_data_as_string()
 
   def Collect(self, output_writer):
-    """Collects the known folders.
+    """Collects the system information.
 
     Args:
       output_writer: the output writer object.
     """
-    self.found_folder_descriptions_key = False
+    self.found_current_version_key = False
 
-    folder_descriptions_key = self._registry.GetKeyByPath(
-        self._FOLDER_DESCRIPTIONS_KEY_PATH)
-    if not folder_descriptions_key:
+    current_version_key = self._registry.GetKeyByPath(
+        self._CURRENT_VERSION_KEY_PATH)
+    if not current_version_key:
       return
 
-    self.found_folder_descriptions_key = True
+    self.found_current_version_key = True
 
-    for sub_key in folder_descriptions_key.sub_keys:
-      guid = sub_key.name.lower()
-      name = self._GetValueAsStringFromKey(sub_key, u'Name')
-      localized_name = self._GetValueAsStringFromKey(
-          sub_key, u'LocalizedName')
+    value_names = [
+        u'ProductName',
+        u'CSDVersion',
+        u'CurrentVersion',
+        u'CurrentBuildNumber',
+        u'CurrentType',
+        u'ProductId',
+        u'RegisteredOwner',
+        u'RegisteredOrganization',
+        u'PathName',
+        u'SystemRoot',
+    ]
 
-      known_folder = KnownFolder(guid, name, localized_name)
-      output_writer.WriteKnownFolder(known_folder)
+    for value_name in value_names:
+      value_string = self._GetValueAsStringFromKey(
+          current_version_key, value_name)
+      output_writer.WriteText(u'{0:s}: {1:s}'.format(value_name, value_string))
+
+    value = current_version_key.get_value_by_name(u'InstallDate')
+    if value:
+      output_writer.WriteText(u'InstallDate: {0:d}'.format(
+          value.get_data_as_integer()))
 
 
 class StdoutWriter(object):
@@ -100,14 +96,13 @@ class StdoutWriter(object):
     """
     return True
 
-  def WriteKnownFolder(self, known_folder):
-    """Writes a known folder to the output.
+  def WriteText(self, text):
+    """Writes text to stdout.
 
     Args:
-      known_folder: a known folder (instance KnownFolder).
+      text: the text to write.
     """
-    print(u'{0:s}\t{1:s}\t{2:s}'.format(
-        known_folder.guid, known_folder.name, known_folder.localized_name))
+    print(text)
 
 
 def Main():
@@ -117,7 +112,7 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   args_parser = argparse.ArgumentParser(description=(
-      u'Extract the known folders from a SOFTWARE Registry File (REGF).'))
+      u'Extract the system information from a SOFTWARE Registry File (REGF).'))
 
   args_parser.add_argument(
       u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,
@@ -142,7 +137,7 @@ def Main():
     print(u'')
     return False
 
-  collector_object = WindowsKnownFoldersCollector()
+  collector_object = WindowsSystemInfoCollector()
 
   if not collector_object.GetWindowsVolumePathSpec(options.source):
     print((
@@ -154,8 +149,8 @@ def Main():
   collector_object.Collect(output_writer)
   output_writer.Close()
 
-  if not collector_object.found_folder_descriptions_key:
-    print(u'No folder descriptions key found.')
+  if not collector_object.found_current_version_key:
+    print(u'No current version key found.')
 
   return True
 

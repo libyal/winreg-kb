@@ -72,23 +72,18 @@ class WindowsServicesCollector(collector.WindowsRegistryCollector):
     """
     self.found_services_key = False
 
-    registry_file = self._OpenRegistryFile(self._REGISTRY_FILENAME_SYSTEM)
-    if not registry_file:
+    system_key = self._registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
+    if not system_key:
       return
 
-    root_key = registry_file.GetRootKey()
+    for control_set_key in system_key.sub_keys:
+      if control_set_key.name.startswith(u'ControlSet'):
+        services_key = control_set_key.get_sub_key_by_name(u'Services')
+        if services_key:
+          self.found_services_key = True
 
-    if root_key:
-      for control_set_key in root_key.sub_keys:
-        if control_set_key.name.startswith(u'ControlSet'):
-          services_key = control_set_key.get_sub_key_by_name(u'Services')
-          if services_key:
-            self.found_services_key = True
-
-            print(u'Control set: {0:s}'.format(control_set_key.name))
-            self._CollectWindowsServicesFromKey(output_writer, services_key)
-
-    registry_file.Close()
+          print(u'Control set: {0:s}'.format(control_set_key.name))
+          self._CollectWindowsServicesFromKey(output_writer, services_key)
 
 
 class StdoutWriter(object):
