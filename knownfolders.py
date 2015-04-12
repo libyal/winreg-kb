@@ -32,7 +32,8 @@ class WindowsKnownFoldersCollector(collector.WindowsRegistryCollector):
   DEFAULT_VALUE_NAME = u''
 
   _FOLDER_DESCRIPTIONS_KEY_PATH = (
-      u'Microsoft\\Windows\\CurrentVersion\\Explorer\\FolderDescriptions')
+      u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\'
+      u'Explorer\\FolderDescriptions')
 
   def __init__(self):
     """Initializes the Windows known folders collector object."""
@@ -67,11 +68,7 @@ class WindowsKnownFoldersCollector(collector.WindowsRegistryCollector):
     """
     self.found_folder_descriptions_key = False
 
-    registry_file = self._OpenRegistryFile(self._REGISTRY_FILENAME_SOFTWARE)
-    if not registry_file:
-      return
-
-    folder_descriptions_key = registry_file.GetKeyByPath(
+    folder_descriptions_key = self._registry.GetKeyByPath(
         self._FOLDER_DESCRIPTIONS_KEY_PATH)
     if folder_descriptions_key:
       self.found_folder_descriptions_key = True
@@ -84,8 +81,6 @@ class WindowsKnownFoldersCollector(collector.WindowsRegistryCollector):
 
         known_folder = KnownFolder(guid, name, localized_name)
         output_writer.WriteKnownFolder(known_folder)
-
-    registry_file.Close()
 
 
 class StdoutWriter(object):

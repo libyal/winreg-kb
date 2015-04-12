@@ -23,6 +23,37 @@ class CollectorError(Exception):
   """Class that defines collector errors."""
 
 
+class CollectorRegistryFileReader(registry.RegistryFileReader):
+  """Class that defines the collector-based Windows Registry file reader."""
+
+  def __init__(self, collector):
+    """Initializes the Windows Registry file reader.
+
+    Args:
+      collector: the Windows volume collector (instance of
+                 WindowsVolumeCollector).
+    """
+    super(CollectorRegistryFileReader, self).__init__()
+    self._collector = collector
+
+  def Open(self, windows_path):
+    """Opens the Registry file specificed by the Windows path.
+
+    Args:
+      windows_path: the Windows path to the Registry file.
+
+    Returns:
+      The Registry file (instance of RegistryFile) or None.
+    """
+    file_object = self._collector.OpenFile(windows_path)
+    if file_object is None:
+      return None
+
+    registry_file = registry.RegistryFile()
+    registry_file.Open(file_object)
+    return registry_file
+
+
 class WindowsVolumeCollector(object):
   """Class that defines a Windows volume collector."""
 
@@ -245,9 +276,19 @@ class WindowsVolumeCollector(object):
 class WindowsRegistryCollector(WindowsVolumeCollector):
   """Class that defines a Windows Registry collector."""
 
+  # TODO: replace by Registry.
   _REGISTRY_FILENAME_SOFTWARE = u'%WinDir%\\System32\\config\\SOFTWARE'
   _REGISTRY_FILENAME_SYSTEM = u'%WinDir%\\System32\\config\\SYSTEM'
 
+  def __init__(self):
+    """Initializes the Windows Registry collector object."""
+    super(WindowsRegistryCollector, self).__init__()
+    registry_file_reader = CollectorRegistryFileReader(self)
+    self._registry = registry.Registry(registry_file_reader)
+
+  # TODO: improve handling Registry mapping of single file.
+
+  # TODO: replace by Registry.
   def _OpenRegistryFile(self, windows_path):
     """Opens the Registry file specificed by the Windows path.
 
