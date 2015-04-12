@@ -12,7 +12,7 @@ from dfvfs.path import factory as path_spec_factory
 from dfvfs.resolver import resolver
 from dfvfs.volume import tsk_volume_system
 
-import registry_file
+import registry
 
 
 if dfvfs.__version__ < u'20140727':
@@ -261,6 +261,6 @@ class WindowsRegistryCollector(WindowsVolumeCollector):
     if file_object is None:
       return None
 
-    registry_file_object = registry_file.RegistryFile()
-    registry_file_object.Open(file_object)
-    return registry_file_object
+    registry_file = registry.RegistryFile()
+    registry_file.Open(file_object)
+    return registry_file

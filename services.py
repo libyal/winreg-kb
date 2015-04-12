@@ -6,7 +6,7 @@ import logging
 import sys
 
 import collector
-import registry_file
+import registry
 
 
 # pylint: disable=superfluous-parens
@@ -38,8 +38,7 @@ class WindowsServicesCollector(collector.WindowsRegistryCollector):
       display_name_value = service_key.get_value_by_name(u'DisplayName')
       if display_name_value:
         if display_name_value.type in [
-            registry_file.RegistryFile.REG_SZ,
-            registry_file.RegistryFile.REG_EXPAND_SZ]:
+            registry.REG_SZ, registry.REG_EXPAND_SZ]:
           display_name_value = display_name_value.data_as_string
         else:
           display_name_value = None
@@ -65,16 +64,19 @@ class WindowsServicesCollector(collector.WindowsRegistryCollector):
           image_path_value, object_name_value, start_value)
       output_writer.WriteWindowsService(windows_service)
 
-  def CollectWindowsServices(self, output_writer):
-    """Collects the Windows services from the SYSTEM Registry file.
+  def Collect(self, output_writer):
+    """Collects the services.
 
     Args:
       output_writer: the output writer object.
     """
-    registry_file_object = self._OpenRegistryFile(
-        self._REGISTRY_FILENAME_SYSTEM)
+    self.found_services_key = False
 
-    root_key = registry_file_object.GetRootKey()
+    registry_file = self._OpenRegistryFile(self._REGISTRY_FILENAME_SYSTEM)
+    if not registry_file:
+      return
+
+    root_key = registry_file.GetRootKey()
 
     if root_key:
       for control_set_key in root_key.sub_keys:
@@ -86,7 +88,7 @@ class WindowsServicesCollector(collector.WindowsRegistryCollector):
             print(u'Control set: {0:s}'.format(control_set_key.name))
             self._CollectWindowsServicesFromKey(output_writer, services_key)
 
-    registry_file_object.Close()
+    registry_file.Close()
 
 
 class StdoutWriter(object):
@@ -242,7 +244,7 @@ def Main():
     print(u'')
     return False
 
-  collector_object.CollectWindowsServices(output_writer)
+  collector_object.Collect(output_writer)
   output_writer.Close()
 
   if not collector_object.found_services_key:

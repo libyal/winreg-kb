@@ -59,8 +59,8 @@ class WindowsKnownFoldersCollector(collector.WindowsRegistryCollector):
 
     return value.get_data_as_string()
 
-  def CollectWindowsKnownFolders(self, output_writer):
-    """Collects the Windows known folders from the SOFTWARE Registry file.
+  def Collect(self, output_writer):
+    """Collects the known folders.
 
     Args:
       output_writer: the output writer object.
@@ -154,7 +154,7 @@ def Main():
     print(u'')
     return False
 
-  collector_object.CollectWindowsKnownFolders(output_writer)
+  collector_object.Collect(output_writer)
   output_writer.Close()
 
   if not collector_object.found_folder_descriptions_key:

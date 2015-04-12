@@ -41,8 +41,8 @@ class ShellFolderIdentifierCollector(collector.WindowsRegistryCollector):
       for class_identifier_key in class_identifiers_key.sub_keys:
         yield class_identifier_key
 
-  def CollectShellFolderIdentifiers(self, output_writer):
-    """Collects the Shell Folder identifiers from the SOFTWARE Registry file.
+  def Collect(self, output_writer):
+    """Collects the Shell Folder identifiers.
 
     Args:
       output_writer: the output writer object.
@@ -297,7 +297,7 @@ def Main():
     print(u'')
     return False
 
-  collector_object.CollectShellFolderIdentifiers(output_writer)
+  collector_object.Collect(output_writer)
   output_writer.Close()
 
   if not collector_object.found_class_identifiers_key:
