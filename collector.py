@@ -6,6 +6,7 @@ import os
 import dfvfs
 
 from dfvfs.lib import definitions
+from dfvfs.lib import errors
 from dfvfs.helpers import source_scanner
 from dfvfs.helpers import windows_path_resolver
 from dfvfs.path import factory as path_spec_factory
@@ -21,37 +22,6 @@ if dfvfs.__version__ < u'20140727':
 
 class CollectorError(Exception):
   """Class that defines collector errors."""
-
-
-class CollectorRegistryFileReader(registry.RegistryFileReader):
-  """Class that defines the collector-based Windows Registry file reader."""
-
-  def __init__(self, collector):
-    """Initializes the Windows Registry file reader.
-
-    Args:
-      collector: the Windows volume collector (instance of
-                 WindowsVolumeCollector).
-    """
-    super(CollectorRegistryFileReader, self).__init__()
-    self._collector = collector
-
-  def Open(self, windows_path):
-    """Opens the Registry file specificed by the Windows path.
-
-    Args:
-      windows_path: the Windows path to the Registry file.
-
-    Returns:
-      The Registry file (instance of RegistryFile) or None.
-    """
-    file_object = self._collector.OpenFile(windows_path)
-    if file_object is None:
-      return None
-
-    registry_file = registry.RegistryFile()
-    registry_file.Open(file_object)
-    return registry_file
 
 
 class WindowsVolumeCollector(object):
@@ -118,7 +88,7 @@ class WindowsVolumeCollector(object):
 
     volume_identifiers = self._scanner.GetVolumeIdentifiers(volume_system)
     if not volume_identifiers:
-      return False
+      return
 
     volume_scan_node = None
     result = False
@@ -129,7 +99,14 @@ class WindowsVolumeCollector(object):
           volume_location)
       volume_path_spec = getattr(volume_scan_node, u'path_spec', None)
 
+      # The leaf scan node should contain the actual file system.
       file_system_scan_node = volume_scan_node.GetSubNodeByLocation(u'/')
+      if not file_system_scan_node:
+        continue
+
+      while file_system_scan_node.sub_nodes:
+        file_system_scan_node = file_system_scan_node.GetSubNodeByLocation(u'/')
+
       file_system_path_spec = getattr(file_system_scan_node, u'path_spec', None)
       file_system = resolver.Resolver.OpenFileSystem(file_system_path_spec)
 
@@ -143,8 +120,10 @@ class WindowsVolumeCollector(object):
       if result:
         break
 
-    if result:
-      return volume_scan_node
+    if not result:
+      return
+
+    return volume_scan_node
 
   def GetWindowsVolumePathSpec(self, source_path):
     """Determines the file system path specification of the Windows volume.
@@ -160,8 +139,11 @@ class WindowsVolumeCollector(object):
                       is not a file or directory, or if the format of or within
                       the source file is not supported.
     """
-    if not os.path.exists(source_path):
-      raise CollectorError(u'No such source: {0:s}.'.format(source_path))
+    # Note that os.path.exists() does not support Windows device paths.
+    if (not source_path.startswith(u'\\\\.\\') and
+        not os.path.exists(source_path)):
+      raise CollectorError(
+          u'No such device, file or directory: {0:s}.'.format(source_path))
 
     self._source_path = source_path
     scan_context = source_scanner.SourceScannerContext()
@@ -170,18 +152,24 @@ class WindowsVolumeCollector(object):
     scan_context.OpenSourcePath(source_path)
 
     while True:
-      scan_context = self._scanner.Scan(
-          scan_context, scan_path_spec=scan_path_spec)
+      last_scan_node = scan_context.last_scan_node
+      try:
+        scan_context = self._scanner.Scan(
+            scan_context, scan_path_spec=scan_path_spec)
+      except errors.BackEndError as exception:
+        raise CollectorError(
+            u'Unable to scan source, with error: {0:s}'.format(exception))
 
       # The source is a directory or file.
       if scan_context.source_type in [
           scan_context.SOURCE_TYPE_DIRECTORY, scan_context.SOURCE_TYPE_FILE]:
         break
 
-      if not scan_context.last_scan_node:
+      if (not scan_context.last_scan_node or
+          scan_context.last_scan_node == last_scan_node):
         raise CollectorError(
             u'No supported file system found in source: {0:s}.'.format(
-                source_path))
+                self._source_path))
 
       # The source scanner found a file system.
       if scan_context.last_scan_node.type_indicator in [
@@ -208,6 +196,7 @@ class WindowsVolumeCollector(object):
       # The source scanner found Volume Shadow Snapshot which is ignored.
       elif scan_context.last_scan_node.type_indicator in [
           definitions.TYPE_INDICATOR_VSHADOW]:
+        # Get the scan node of the current volume.
         scan_node = scan_context.last_scan_node.GetSubNodeByLocation(u'/')
         scan_context.last_scan_node = scan_node
         break
@@ -215,7 +204,7 @@ class WindowsVolumeCollector(object):
       else:
         raise CollectorError(
             u'Unsupported volume system found in source: {0:s}.'.format(
-                source_path))
+                self._source_path))
 
     if scan_context.source_type == scan_context.SOURCE_TYPE_FILE:
       self._single_file = True
@@ -242,9 +231,13 @@ class WindowsVolumeCollector(object):
     self._path_resolver = windows_path_resolver.WindowsPathResolver(
         self._file_system, mount_point)
 
-    if scan_context.source_type == scan_context.SOURCE_TYPE_DIRECTORY:
+    # The source is a directory or single volume storage media image.
+    if not self._windows_directory:
       if not self._ScanFileSystem(self._path_resolver):
         return False
+
+    if not self._windows_directory:
+      return False
 
     self._path_resolver.SetEnvironmentVariable(
         u'SystemRoot', self._windows_directory)
@@ -273,6 +266,37 @@ class WindowsVolumeCollector(object):
         return None
 
     return resolver.Resolver.OpenFileObject(path_spec)
+
+
+class CollectorRegistryFileReader(registry.RegistryFileReader):
+  """Class that defines the collector-based Windows Registry file reader."""
+
+  def __init__(self, collector):
+    """Initializes the Windows Registry file reader.
+
+    Args:
+      collector: the Windows volume collector (instance of
+                 WindowsVolumeCollector).
+    """
+    super(CollectorRegistryFileReader, self).__init__()
+    self._collector = collector
+
+  def Open(self, windows_path):
+    """Opens the Registry file specificed by the Windows path.
+
+    Args:
+      windows_path: the Windows path to the Registry file.
+
+    Returns:
+      The Registry file (instance of RegistryFile) or None.
+    """
+    file_object = self._collector.OpenFile(windows_path)
+    if file_object is None:
+      return None
+
+    registry_file = registry.RegistryFile()
+    registry_file.Open(file_object)
+    return registry_file
 
 
 class WindowsRegistryCollector(WindowsVolumeCollector):
