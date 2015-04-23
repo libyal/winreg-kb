@@ -22,12 +22,12 @@ There are multiple types of Registry File formats:
 [cols="1,1,1,3,1",options="header"]
 |===
 | Filename | Location | Windows version | Description | Corresponding Registry Key
-4+| _Windows 3.1_
+5+| _Windows 3.1_
 | REG.DAT | %SystemRoot% | 3.1 | Entire registry |
-4+| _Windows 9x/Me_
+5+| _Windows 9x/Me_
 | SYSTEM.DAT | %SystemRoot% | 9x/Me | System specific part of the Registry | HKEY_LOCAL_MACHINE
 | USER.DAT | %SystemRoot% | 9x/Me | User specific part of the Registry | HKEY_USERS
-4+| _Windows NT_
+5+| _Windows NT_
 | Amcache.hve | %SystemRoot%\AppCompat\Programs | 8, 10 | *TODO* |
 | BBI | %SystemRoot%\System32\config | 10 | *TODO* |
 | BCD | \Boot on boot volume | Vista, 7 | Boot Configuration Data (BCD) |
