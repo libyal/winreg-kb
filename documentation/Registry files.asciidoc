@@ -32,6 +32,7 @@ There are multiple types of Registry File formats:
 | BBI | %SystemRoot%\System32\config | 10 | *TODO* |
 | BCD | \Boot on boot volume | Vista, 7 | Boot Configuration Data (BCD) |
 | default | %SystemRoot%\System32\config | NT 4 and later | *TODO* |
+| DRIVERS | %SystemRoot%\System32\config | 10 | *TODO* |
 | ELAM | %SystemRoot%\System32\config | 10 | *TODO* |
 | NTUSER.DAT | %UserProfile% | NT 4 and later | User specific part of the Registry | HKEY_CURRENT_USER
 | NTUSER.MAN | %UserProfile% | NT 4 and later | Mandatory user specific part of the Registry |
