@@ -1,6 +1,15 @@
 *TODO some random notes for now*
 
-= Known folder identifier keys =
+:toc:
+:toc-placement: manual
+:toc-title: 
+:toclevels: 4
+
+[preface]
+== Table of contents
+toc::[]
+
+== Known folder identifier keys
 Introduced in Windows Vista.
 
 ....
@@ -16,8 +25,7 @@ Values:
 | LocalizedName | |
 |===
 
-= Shell Folder CLSID sub key =
-
+== Shell Folder CLSID sub key
 The shell folder CLSID sub key can be found in some https://github.com/libyal/winreg-kb/wiki/Component-Object-Model-keys[COM Class Identifier (CLSID) keys].
 
 ....
@@ -45,7 +53,7 @@ Values:
 | SortOrderIndex | |
 |===
 
-== Shell Folder sub key ==
+=== Shell Folder sub key
 Values:
 
 [options="header"]
@@ -56,7 +64,7 @@ Values:
 | HideOnDesktopPerUser | |
 |===
 
-== Attributes values ==
+=== Attributes values
 
 [cols="1,1,5",options="header"]
 |===
@@ -69,7 +77,7 @@ Values:
 | 0x80000000 | SFGAO_HASSUBFOLDER | The extension's root folder contains one or more subfolders. Windows Explorer will place a plus sign ( `+` ) next to the folder icon.
 |===
 
-== Localized String value data ==
+=== Localized String value data
 The Localize String value contains a localized version of the folder name, e.g. on Windows XP the folder identifier key:
 
 ....
@@ -84,7 +92,7 @@ Has a LocalizedString value with the following data:
 
 Which is the https://github.com/libyal/winreg-kb/wiki/MUI-form[MUI Form] for "My Documents".
 
-= Folder Redirection Keys =
+== Folder Redirection Keys
 Folders that can be redirected:
 
 * Application Data
@@ -103,7 +111,7 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folde
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders
 ....
 
-= MUI Cache =
+== MUI Cache
 *TODO*
 
 ....
@@ -111,7 +119,7 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows\ShellNoRoam\MUICache
 HKEY_CURRENT_USER\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\MuiCache
 ....
 
-=  Typed Paths =
+== Typed Paths
 *TODO*
 
 ....
@@ -124,13 +132,14 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\TypedPaths
 | %ITEM% | REG_SZ | Where %ITEM% is a string in the form: "url[0-9]+"
 |===
 
-= Notes =
+== Notes
 
 ....
 HKEY_CURRENT_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\BitBucket\%VOLUME_LETTER%\VolumeSerialNumber
 ....
 
-= External Links =
+== External Links
+
 * http://support.microsoft.com/kb/242557[kb242557: Registry Settings for Folder Redirection in Windows]
 * https://msdn.microsoft.com/en-us/library/windows/desktop/cc144093(v=vs.85).aspx[MSDN: Implementing the Basic Folder Object Interfaces]
 

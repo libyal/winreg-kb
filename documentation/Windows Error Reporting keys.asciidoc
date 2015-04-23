@@ -1,6 +1,15 @@
 *NOTE this page largely contains some notes for now*
 
-= Windows Error Reporting (WER) keys =
+:toc:
+:toc-placement: manual
+:toc-title: 
+:toclevels: 4
+
+[preface]
+== Table of contents
+toc::[]
+
+== Windows Error Reporting (WER) keys
 *TODO*
 
 [source]
@@ -57,7 +66,7 @@ MaxArchiveCount
 MaxQueueCount
 ----
 
-== Consent sub key ==
+=== Consent sub key
 *TODO*
 
 Values:
@@ -75,7 +84,7 @@ Values:
 1 - Default consent will override the application-specific consent|
 |===
 
-== Debug sub key ==
+=== Debug sub key
 *TODO*
 
 Sub keys:
@@ -92,7 +101,7 @@ Sub keys:
 | StoreLocation | REG_SZ | Location of last report?
 |===
 
-=== UI handles sub key ===
+==== UI handles sub key
 *TODO*
 
 Values:
@@ -106,7 +115,7 @@ RecoveryDialog
 RestartDialog
 ----
 
-== Hangs sub key ==
+=== Hangs sub key
 *TODO*
 
 [options="header"]
@@ -115,7 +124,7 @@ RestartDialog
 | NHRTimes | |
 |===
 
-== Kernel faults sub key ==
+=== Kernel faults sub key
 *TODO*
 
 Sub keys:
@@ -126,7 +135,7 @@ Sub keys:
 | Queue |
 |===
 
-=== Queue sub key ===
+==== Queue sub key
 *TODO*
 
 [options="header"]
@@ -141,7 +150,7 @@ Contains a FILETIME
 C:\\Windows\\Minidump\\MMDDYY-#-01.dmp
 ----
 
-== Local dumps sub key ==
+=== Local dumps sub key
 *TODO*
 
 [source]
@@ -175,7 +184,7 @@ By default: 1 (Mini dump)
 | CustomDumpFlags | REG_DWORD | Custom dump flag when dump type is 0 (Custom dump).
 |===
 
-== Dump type value ==
+=== Dump type value
 *TODO + move to table*
 
 [source]
@@ -185,7 +194,7 @@ By default: 1 (Mini dump)
 2: Full dump
 ----
 
-== Custom dump flags value ==
+=== Custom dump flags value
 *TODO*
 
 The custom dump options are a bitwise combination of the MINIDUMP_TYPE enumeration values.
@@ -202,7 +211,7 @@ ReportArchive
 ReportQueue
 ----
 
-= External Links =
+== External Links
 * http://msdn.microsoft.com/en-us/library/windows/desktop/bb787181(v=vs.85).aspx[MSDN: Collecting User-Mode Dumps]
 * http://msdn.microsoft.com/en-us/library/windows/desktop/ms680519(v=vs.85).aspx[MSDN: MINIDUMP_TYPE enumeration]
 * http://msdn.microsoft.com/en-us/library/windows/desktop/bb513638(v=vs.85).aspx[MSDN: WER Settings]

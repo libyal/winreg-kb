@@ -1,4 +1,13 @@
-= Time zone information =
+:toc:
+:toc-placement: manual
+:toc-title: 
+:toclevels: 4
+
+[preface]
+== Table of contents
+toc::[]
+
+== Time zone information
 The time zone information is stored in the following Registry key:
 
 [source]
@@ -50,7 +59,7 @@ UTC = local time + bias
 
 The values in this key corresponds with the http://msdn.microsoft.com/en-us/library/windows/desktop/ms725481(v=vs.85).aspx[TIME_ZONE_INFORMATION] and http://msdn.microsoft.com/en-us/library/windows/desktop/ms724253(v=vs.85).aspx[DYNAMIC_TIME_ZONE_INFORMATION] structures.
 
-== Time Zones key ==
+=== Time Zones key
 The time zones definitions are store in the Registry key:
 
 [source]
@@ -183,7 +192,7 @@ Values:
 | TzVersion | REG_DWORD |
 |===
 
-== Time Zones name sub key ==
+=== Time Zones name sub key
 
 Sub keys:
 [options="header"]
@@ -208,7 +217,7 @@ Values:
 Contains a _REG_TZI_FORMAT structure
 |===
 
-=== Dynamic Daylight Saving Time sub key ===
+==== Dynamic Daylight Saving Time sub key
 The Dynamic Daylight Saving Time sub key contains time zone information for time zones that apply different daylight saving per year.
 
 Values:
@@ -223,8 +232,8 @@ Contains a _REG_TZI_FORMAT structure
 
 Where %YEAR% represents the year the dynamic daylight saving time zone information applies to, e.g. 2006.
 
-= Data Structures =
-== SYSTEMTIME ==
+== Data Structures
+=== SYSTEMTIME
 The SYSTEMTIME is 16 bytes of size and consists of: 
 [options="header"]
 |===
@@ -246,7 +255,7 @@ Where seconds ranges from 0 to 59
 Where milli seconds ranges from 0 to 999
 |===
 
-== _REG_TZI_FORMAT ==
+=== _REG_TZI_FORMAT
 The _REG_TZI_FORMAT is 44 bytes of size and consists of: 
 [options="header"]
 |===
@@ -260,7 +269,7 @@ Contains a SYSTEMTIME structure.
 Contains a SYSTEMTIME structure.
 |===
 
-= External Links =
+== External Links
 * http://msdn.microsoft.com/en-us/library/ff794720(v=winembedded.60).aspx[MSDN: Computer Time Management and Embedded Systems (Standard 7 SP1)]
 * http://msdn.microsoft.com/en-us/library/windows/desktop/ms725481(v=vs.85).aspx[TIME_ZONE_INFORMATION structure ]
 * http://msdn.microsoft.com/en-us/library/windows/desktop/ms724253(v=vs.85).aspx[DYNAMIC_TIME_ZONE_INFORMATION structure]
