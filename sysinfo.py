@@ -1,13 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import argparse
 import sys
 
 import collector
 
-
-# pylint: disable=superfluous-parens
 
 class WindowsSystemInfoCollector(collector.WindowsRegistryCollector):
   """Class that defines a Windows system information collector."""

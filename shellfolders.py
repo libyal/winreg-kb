@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import argparse
 import logging
 import os
@@ -12,7 +13,6 @@ import collector
 
 
 # pylint: disable=logging-format-interpolation
-# pylint: disable=superfluous-parens
 
 class ShellFolderIdentifierCollector(collector.WindowsRegistryCollector):
   """Class that defines a Shell Folder identifier collector."""

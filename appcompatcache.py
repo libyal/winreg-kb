@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import argparse
 import construct
 import datetime
@@ -12,7 +13,6 @@ import hexdump
 
 
 # pylint: disable=logging-format-interpolation
-# pylint: disable=superfluous-parens
 
 class AppCompatCacheHeader(object):
   """Class that contains the Application Compatibility Cache header."""

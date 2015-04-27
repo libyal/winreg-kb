@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import argparse
 import logging
 import sys
@@ -8,8 +9,6 @@ import sys
 import collector
 import registry
 
-
-# pylint: disable=superfluous-parens
 
 class WindowsServicesCollector(collector.WindowsRegistryCollector):
   """Class that defines a Windows services collector."""
