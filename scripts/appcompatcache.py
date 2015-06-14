@@ -59,9 +59,9 @@ class AppCompatCacheKeyParser(object):
       u'appcompatcache_header_xp',
       construct.ULInt32(u'signature'),
       construct.ULInt32(u'number_of_cached_entries'),
+      construct.ULInt32(u'number_of_lru_entries'),
       construct.ULInt32(u'unknown1'),
-      construct.ULInt32(u'unknown2'),
-      construct.Padding(384))
+      construct.Array(96, construct.ULInt32("lru_entry")))
 
   _CACHED_ENTRY_XP_32BIT_STRUCT = construct.Struct(
       u'appcompatcache_cached_entry_xp_32bit',
@@ -279,13 +279,29 @@ class AppCompatCacheKeyParser(object):
           header_object.number_of_cached_entries))
 
     if format_type == self.FORMAT_TYPE_XP:
+      number_of_lru_entries = header_struct.get(u'number_of_lru_entries')
+      print(u'Number of LRU entries\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+          number_of_lru_entries))
       print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
           header_struct.get(u'unknown1')))
-      print(u'Unknown2\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          header_struct.get(u'unknown2')))
 
-      print(u'Unknown array data:')
-      print(hexdump.Hexdump(value_data[16:400]))
+      print(u'LRU entries:')
+      data_offset = 16
+      if number_of_lru_entries > 0 and number_of_lru_entries <= 96:
+        for lru_entry_index in range(number_of_lru_entries):
+          lru_entry = construct.ULInt32(u'cache_entry_index').parse(
+              value_data[data_offset:data_offset + 4])
+          data_offset += 4
+
+          print((
+              u'LRU entry: {0:d}\t\t\t\t\t\t\t\t: {1:d} '
+              u'(offset: 0x{2:08x})').format(
+                  lru_entry_index, lru_entry, 400 + (lru_entry * 552)))
+
+        print(u'')
+
+      print(u'Unknown data:')
+      print(hexdump.Hexdump(value_data[data_offset:400]))
 
     elif format_type == self.FORMAT_TYPE_8:
       print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
