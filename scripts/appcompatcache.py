@@ -212,6 +212,7 @@ class AppCompatCacheKeyParser(object):
         return self.FORMAT_TYPE_8
 
     elif signature == self._HEADER_SIGNATURE_10:
+      # Windows 10 uses the same cache entry signature as Windows 8.1
       if value_data[signature:signature + 4] in [
           self._CACHED_ENTRY_SIGNATURE_8_1]:
         return self.FORMAT_TYPE_10
@@ -506,9 +507,9 @@ class AppCompatCacheKeyParser(object):
 
       print(u'Path\t\t\t\t\t\t\t\t\t: {0:s}'.format(cached_entry_object.path))
 
-      remaining_data = cached_entry_data[cached_entry_data_offset:]
-
       if format_type == self.FORMAT_TYPE_8:
+        remaining_data = cached_entry_data[cached_entry_data_offset:]
+
         cached_entry_object.insertion_flags = construct.ULInt32(
             u'insertion_flags').parse(remaining_data[0:4])
         cached_entry_object.shim_flags = construct.ULInt32(

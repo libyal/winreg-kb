@@ -107,6 +107,7 @@ Windows XP stores the application compatibility cache in the value: AppCompatCac
 The value data consists of:
 
 * header
+** array of LRU cache entry index values
 * array of cache entries (suggested that the maximum is 92)
 
 [NOTE]
@@ -120,9 +121,11 @@ The Windows XP application compat cache header is 400 bytes of size and consists
 | Offset | Size | Value | Description
 | 0 | 4 | 0xef, 0xbe, 0xad, 0xde | Signature
 | 4 | 4 | | Number of cached entries
-| 8 | 4 | | [yellow-background]*Unknown (number of header array entries?)*
-| 12 | 4 | 0x00000000 | Unknown, empty values
-| 16 | ... | | Array of 32-bit values
+| 8 | 4 | | Number of LRU array entries
+| 12 | 4 | | [yellow-background]*Unknown (empty values)*
+| 16 | ... | | LRU array +
+Contains 32-bit value of the index within the array of cache entries +
+[yellow-background]*Currently it is unclear if the top or the bottom of the array is the LRU*
 | ... | ... | | [yellow-background]*Unknown (padding?)* +
 Contains 0-byte values
 |===
