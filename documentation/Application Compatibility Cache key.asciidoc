@@ -13,13 +13,21 @@ toc::[]
 [NOTE]
 Several sources claim that the Application Compatibility Cache is part of the
 https://msdn.microsoft.com/en-us/library/bb432182(v=vs.85).aspx[Application Compatibility Database].
-However these claims are not backed by facts. This document therefore
-assumes the Application Compatibility Cache part of the Windows Application
-Compatibility subsystem not the database.
+However these claims are not backed by facts since the article does not mention
+the relationship between the cache and the database. This document therefore
+assumes the Application Compatibility Cache to part of the Windows Application
+Compatibility subsystem instead.
 
-The Application Compatibility Cache (or Shim Cache) seems to have been 
-introduced in (at least) Windows XP. The format is significantly different 
-between the different versions of Windows.
+[NOTE]
+The actual difference between the Application Compatibility Cache and Shim 
+(Database) Cache is currently unknown. Be aware that in other sources the terms
+can be used interchangeable. Since MSDN explicitly defines
+BaseFlushAppcompatCache and ShimFlushCache, there is likely a subtle difference
+to what data is cached. Also see: https://technet.microsoft.com/en-us/library/dd837644(v=ws.10).aspx[Understanding Shims]
+
+The Application Compatibility Cache seems to have been introduced in (at least) 
+Windows XP. The format is significantly different between the different 
+versions of Windows.
 
 The Application Compatibility Cache can be found in the Registry key:
 
@@ -513,6 +521,41 @@ attribute.
 
 === Data
 [yellow-background]*TODO describe*
+
+== Notes
+....
+https://technet.microsoft.com/en-us/library/cc787360(v=ws.10).aspx
+
+Are these related?
+0x00000001 MS-DOS-based program
+0x00000002 OS/2-based program
+0x00000004 Windows-based 16-bit program
+0x00000008 Windows-based 32-bit program
+0x0000000C Windows-based 16-bit and 32-bit program
+0x0000000F Any version of a program
+0x00000010 Return user name instead of computer name for GetComputerName.
+0x00000020 Return Terminal Server build number instead of Windows 2000 build number for GetVersion.
+0x00000040 Synchronize user .ini file to system version.*
+0x00000080 Do not substitute user \Windows directory.**
+0x00000100 Disable registry mapping for program or registry key.
+0x00000200 Per-object user/system global mapping
+0x00000400 Return system \Windows directory instead of user \Windows directory for GetWindowsDir.
+0x00000800 Limit the reported physical memory for GlobalMemoryStatus.
+0x00001000 Log object creation to file.
+0x20000000 Do not put program to sleep on unsuccessful keyboard polling (Windows-based 16-bit programs only).
+....
+
+Related DLLs:
+
+* apphelp.dll; related to "AppHelp" functionality and Application Compatibility database
+* kernel32.dll; base cache management functionality
+
+AppHelp: https://msdn.microsoft.com/en-us/library/bb432181(v=vs.85).aspx
+
+Different shim types? MSIE and RPC shim types?
+
+Related Registry keys:
+HKLM\Sofware\Microsoft\Windows NT\CurrentVersion\AppCompatFlags
 
 == External Links
 * https://dl.mandiant.com/EE/library/Whitepaper_ShimCacheParser.pdf[Leveraging the Application Compatibility Cache in Forensic Investigations], by Andrew Davis, 2012
