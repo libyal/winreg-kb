@@ -466,9 +466,23 @@ attribute.
 |===
 | Value | Identifier | Description
 | 0x00000001 | |
-| 0x00000002 | |
+| 0x00000002 | | [yellow-background]*Indicated as executed by CSRSS.EXE flag* +
+[yellow-background]*Client/Server Runtime Subsystem (CSRSS)*
 | 0x00000004 | |
 | 0x00000008 | |
+| 0x00000010 | | [yellow-background]*Unknown (Seen in Windows 8.0, 8.1)*
+| 0x00000020 | | [yellow-background]*Unknown (Seen in Windows 8.0, 8.1)*
+| 0x00000040 | | [yellow-background]*Unknown (Seen in Windows 8.0, 8.1)*
+| 0x00000080 | | [yellow-background]*Unknown (Seen in Windows 8.0, 8.1)*
+| | |
+| 0x00010000 | | [yellow-background]*Unknown (Seen in Windows 8.1)*
+| 0x00020000 | | [yellow-background]*Unknown (Seen in Windows 8.1)*
+| 0x00030000 | | [yellow-background]*Unknown (Seen in Windows 8.1)*
+| 0x00040000 | | [yellow-background]*Unknown (Seen in Windows 8.1)*
+| 0x00100000 | | [yellow-background]*Unknown (Seen in Windows 8.1)*
+| 0x00200000 | | [yellow-background]*Unknown (Seen in Windows 8.1)*
+| 0x00400000 | | [yellow-background]*Unknown (Seen in Windows 8.1)*
+| 0x00800000 | | [yellow-background]*Unknown (Seen in Windows 8.1)*
 |===
 
 === Shim flags
@@ -478,9 +492,23 @@ attribute.
 |===
 | Value | Identifier | Description
 | 0x00000001 | | [yellow-background]*Unknown (Has data?)*
+| | |
 | 0x00000020 | |
-| 0x00000100 | |
-| 0x00001000 | |
+| | |
+| 0x00000100 | | [yellow-background]*Unknown (Seen in Windows 7)*
+| | |
+| 0x00001000 | | [yellow-background]*Unknown (Seen in Windows 7, 8.0)*
+| | |
+| 0x00010000 | | [yellow-background]*Unknown (Seen in Windows 8.0, 8.1)*
+| 0x00020000 | | [yellow-background]*Unknown (Seen in Windows 8.0)*
+| | |
+| 0x00100000 | | [yellow-background]*Unknown (Seen in Windows 8.1)*
+| 0x00200000 | | [yellow-background]*Unknown (Seen in Windows 8.1)*
+| | |
+| 0x01000000 | | [yellow-background]*Unknown (Seen in Windows 8.0, 8.1)*
+| 0x02000000 | | [yellow-background]*Unknown (Seen in Windows 8.0)*
+| | |
+| 0x10000000 | | [yellow-background]*Unknown (Seen in Windows 8.1)*
 |===
 
 === Data
