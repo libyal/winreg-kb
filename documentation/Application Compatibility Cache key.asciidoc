@@ -49,7 +49,7 @@ seen to contain the following values:
 |===
 | Value | Data type | Description
 | %NAME% | | [yellow-background]*Unknown* +
-[yellow-background]*Names seen: x, 462
+[yellow-background]*Names seen: x, 462*
 | DllPatch-%NAME% | | [yellow-background]*Unknown*
 |===
 
