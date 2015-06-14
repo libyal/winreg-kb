@@ -324,5 +324,5 @@ Contains an UTF-16 little-endian formatted string.
 == External Links
 * http://support.microsoft.com/kb/142298[kb142298]
 * http://support.microsoft.com/kb/813711[kb813711]
-* https://googledrive.com/host/0B3fBvzttpiiSajVqblZQT3FYZzg/Windows%20Shell%20Item%20format.pdf[Windows Shell Item format specification]
+* https://github.com/libyal/libfwsi/blob/master/documentation/Windows%20Shell%20Item%20format.asciidoc[Windows Shell Item format specification]
 

@@ -13,7 +13,7 @@ There are multiple types of Registry File formats:
 
   * SHCC used by Windows 3.1
   * CREG used by Windows 9x/Me
-  * https://googledrive.com/host/0B3fBvzttpiiSSC1yUDZpb3l0UHM/Windows%20NT%20Registry%20File%20(REGF)%20format.pdf[REGF] used by Windows NT 4 and later
+  * https://github.com/libyal/libregf/blob/master/documentation/Windows%20NT%20Registry%20File%20(REGF)%20format.asciidoc[REGF] used by Windows NT 4 and later
 
 *TODO what about earlier versions of Windows?*
 
