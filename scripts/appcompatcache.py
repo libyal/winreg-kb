@@ -49,6 +49,7 @@ class AppCompatCacheKeyParser(object):
   FORMAT_TYPE_VISTA = 4
   FORMAT_TYPE_7 = 5
   FORMAT_TYPE_8 = 6
+  FORMAT_TYPE_10 = 7
 
   # AppCompatCache format signature used in Windows XP.
   _HEADER_SIGNATURE_XP = 0xdeadbeef
@@ -170,11 +171,22 @@ class AppCompatCacheKeyParser(object):
   # AppCompatCache format used in Windows 8.1.
   _CACHED_ENTRY_SIGNATURE_8_1 = u'10ts'
 
+  # AppCompatCache format used in Windows 10
+  _HEADER_SIGNATURE_10 = 0x00000030
+
+  _HEADER_10_STRUCT = construct.Struct(
+      u'appcompatcache_header_8',
+      construct.ULInt32(u'signature'),
+      construct.ULInt32(u'unknown1'),
+      construct.Padding(28),
+      construct.ULInt32(u'number_of_cached_entries'),
+      construct.Padding(8))
+
   def __init__(self):
     """Initializes the parser object."""
     super(AppCompatCacheKeyParser, self).__init__()
 
-  def CheckSignature(self, value_data):
+  def _CheckSignature(self, value_data):
     """Parses the signature.
 
     Args:
@@ -199,6 +211,11 @@ class AppCompatCacheKeyParser(object):
           self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1]:
         return self.FORMAT_TYPE_8
 
+    elif signature == self._HEADER_SIGNATURE_10:
+      if value_data[signature:signature + 4] in [
+          self._CACHED_ENTRY_SIGNATURE_8_1]:
+        return self.FORMAT_TYPE_10
+
     return
 
   def ParseHeader(self, format_type, value_data):
@@ -216,7 +233,7 @@ class AppCompatCacheKeyParser(object):
     """
     if format_type not in [
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
-        self.FORMAT_TYPE_7, self.FORMAT_TYPE_8]:
+        self.FORMAT_TYPE_7, self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
       raise RuntimeError(u'Unsupported format type: {0:d}'.format(format_type))
 
     header_object = AppCompatCacheHeader()
@@ -241,6 +258,10 @@ class AppCompatCacheKeyParser(object):
       header_object.header_size = self._HEADER_8_STRUCT.sizeof()
       header_struct = self._HEADER_8_STRUCT.parse(value_data)
 
+    elif format_type == self.FORMAT_TYPE_10:
+      header_object.header_size = self._HEADER_10_STRUCT.sizeof()
+      header_struct = self._HEADER_10_STRUCT.parse(value_data)
+
     print(u'Header data:')
     print(hexdump.Hexdump(value_data[0:header_object.header_size]))
 
@@ -249,7 +270,7 @@ class AppCompatCacheKeyParser(object):
 
     if format_type in [
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
-        self.FORMAT_TYPE_7]:
+        self.FORMAT_TYPE_7, self.FORMAT_TYPE_10]:
       header_object.number_of_cached_entries = header_struct.get(
           u'number_of_cached_entries')
 
@@ -292,7 +313,7 @@ class AppCompatCacheKeyParser(object):
     """
     if format_type not in [
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
-        self.FORMAT_TYPE_7, self.FORMAT_TYPE_8]:
+        self.FORMAT_TYPE_7, self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
       raise RuntimeError(u'Unsupported format type: {0:d}'.format(format_type))
 
     cached_entry_data = value_data[cached_entry_offset:]
@@ -338,7 +359,7 @@ class AppCompatCacheKeyParser(object):
         elif format_type == self.FORMAT_TYPE_7:
           cached_entry_size = self._CACHED_ENTRY_7_32BIT_STRUCT.sizeof()
 
-    elif format_type == self.FORMAT_TYPE_8:
+    elif format_type in [self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
       cached_entry_size = self._CACHED_ENTRY_HEADER_8_STRUCT.sizeof()
 
     return cached_entry_size
@@ -365,7 +386,7 @@ class AppCompatCacheKeyParser(object):
     """
     if format_type not in [
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
-        self.FORMAT_TYPE_7, self.FORMAT_TYPE_8]:
+        self.FORMAT_TYPE_7, self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
       raise RuntimeError(u'Unsupported format type: {0:d}'.format(format_type))
 
     cached_entry_data = value_data[
@@ -377,7 +398,7 @@ class AppCompatCacheKeyParser(object):
       print(u'Cached entry: {0:d} data:'.format(cached_entry_index))
       print(hexdump.Hexdump(cached_entry_data))
 
-    elif format_type == self.FORMAT_TYPE_8:
+    elif format_type in [self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
       print(u'Cached entry: {0:d} header data:'.format(cached_entry_index))
       print(hexdump.Hexdump(cached_entry_data[:-2]))
 
@@ -415,7 +436,7 @@ class AppCompatCacheKeyParser(object):
         cached_entry_struct = self._CACHED_ENTRY_7_64BIT_STRUCT.parse(
             cached_entry_data)
 
-    elif format_type == self.FORMAT_TYPE_8:
+    elif format_type in [self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
       if cached_entry_data[0:4] not in [
           self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1]:
         raise RuntimeError(u'Unsupported cache entry signature')
@@ -435,7 +456,7 @@ class AppCompatCacheKeyParser(object):
       raise RuntimeError(u'Unsupported cache entry size: {0:d}'.format(
           cached_entry_size))
 
-    if format_type == self.FORMAT_TYPE_8:
+    if format_type in [self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
       print(u'Cached entry: {0:d} data:'.format(cached_entry_index))
       print(hexdump.Hexdump(cached_entry_data))
 
@@ -468,7 +489,7 @@ class AppCompatCacheKeyParser(object):
       print(u'Maximum path size\t\t\t\t\t\t\t: {0:d}'.format(maximum_path_size))
       print(u'Path offset\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(path_offset))
 
-    elif format_type == self.FORMAT_TYPE_8:
+    elif format_type in [self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
       path_size = cached_entry_struct.get(u'path_size')
 
       print(u'Signature\t\t\t\t\t\t\t\t: {0:s}'.format(
@@ -487,24 +508,25 @@ class AppCompatCacheKeyParser(object):
 
       remaining_data = cached_entry_data[cached_entry_data_offset:]
 
-      cached_entry_object.insertion_flags = construct.ULInt32(
-          u'insertion_flags').parse(remaining_data[0:4])
-      cached_entry_object.shim_flags = construct.ULInt32(
-          u'shim_flags').parse(remaining_data[4:8])
+      if format_type == self.FORMAT_TYPE_8:
+        cached_entry_object.insertion_flags = construct.ULInt32(
+            u'insertion_flags').parse(remaining_data[0:4])
+        cached_entry_object.shim_flags = construct.ULInt32(
+            u'shim_flags').parse(remaining_data[4:8])
 
-      print(u'Insertion flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          cached_entry_object.insertion_flags))
-      print(u'Shim flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          cached_entry_object.shim_flags))
+        print(u'Insertion flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            cached_entry_object.insertion_flags))
+        print(u'Shim flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            cached_entry_object.shim_flags))
 
-      if cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_0:
-        cached_entry_data_offset += 8
+        if cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_0:
+          cached_entry_data_offset += 8
 
-      elif cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_1:
-        print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:04x}'.format(
-            construct.ULInt16(u'unknown1').parse(remaining_data[8:10])))
+        elif cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_1:
+          print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:04x}'.format(
+              construct.ULInt16(u'unknown1').parse(remaining_data[8:10])))
 
-        cached_entry_data_offset += 10
+          cached_entry_data_offset += 10
 
       remaining_data = cached_entry_data[cached_entry_data_offset:]
 
@@ -514,7 +536,7 @@ class AppCompatCacheKeyParser(object):
       cached_entry_object.last_modification_time = cached_entry_struct.get(
           u'last_modification_time')
 
-    elif format_type == self.FORMAT_TYPE_8:
+    elif format_type in [self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
       cached_entry_object.last_modification_time = construct.ULInt64(
           u'last_modification_time').parse(remaining_data[0:8])
 
@@ -569,7 +591,7 @@ class AppCompatCacheKeyParser(object):
       print(u'Data offset\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(data_offset))
       print(u'Data size\t\t\t\t\t\t\t\t: {0:d}'.format(data_size))
 
-    elif format_type == self.FORMAT_TYPE_8:
+    elif format_type in [self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
       data_offset = cached_entry_offset + cached_entry_data_offset + 12
       data_size = construct.ULInt32(u'data_size').parse(remaining_data[8:12])
 
@@ -602,11 +624,23 @@ class AppCompatCacheKeyParser(object):
 
 
 class WindowsAppCompatCacheCollector(collector.WindowsRegistryCollector):
-  """Class that defines a Windows Application Compatibility Cache collector."""
+  """Class that defines a Windows Application Compatibility Cache collector.
 
-  def __init__(self):
-    """Initializes the Windows known folders collector object."""
+  Attributes:
+    found_app_compat_cache_key: boolean value to indicate a Windows
+                                Application Compatibility Cache key
+                                was found.
+  """
+
+  def __init__(self, debug=False):
+    """Initializes the Windows known folders collector object.
+
+    Args:
+      debug: optional boolean value to indicate if debug information should
+             be printed. The default is false.
+    """
     super(WindowsAppCompatCacheCollector, self).__init__()
+    self._debug = debug
     self.found_app_compat_cache_key = False
 
   def _CollectAppCompatCacheFromKey(
@@ -633,14 +667,15 @@ class WindowsAppCompatCacheCollector(collector.WindowsRegistryCollector):
 
     parser = AppCompatCacheKeyParser()
 
-    format_type = parser.CheckSignature(value_data)
-    if not format_type:
-      logging.warning(u'Unsupported signature.')
-
+    if self._debug:
       # TODO: replace WriteText by more output specific method e.g.
       # WriteValueData.
       output_writer.WriteText(u'Value data:')
       output_writer.WriteText(hexdump.Hexdump(value_data))
+
+    format_type = parser._CheckSignature(value_data)
+    if not format_type:
+      logging.warning(u'Unsupported signature.')
       return
 
     header_object = parser.ParseHeader(format_type, value_data)
@@ -723,23 +758,27 @@ def Main():
   Returns:
     A boolean containing True if successful or False if not.
   """
-  args_parser = argparse.ArgumentParser(description=(
+  argument_parser = argparse.ArgumentParser(description=(
       u'Extract the Application Compatibility Cache information from a SYSTEM '
       u'Registry File (REGF).'))
 
-  args_parser.add_argument(
+  argument_parser.add_argument(
+      u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,
+      help=u'enable debug output.')
+
+  argument_parser.add_argument(
       u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,
       help=(
           u'path of the volume containing C:\\Windows, the filename of '
           u'a storage media image containing the C:\\Windows directory,'
           u'or the path of a SYSTEM Registry file.'))
 
-  options = args_parser.parse_args()
+  options = argument_parser.parse_args()
 
   if not options.source:
     print(u'Source value is missing.')
     print(u'')
-    args_parser.print_help()
+    argument_parser.print_help()
     print(u'')
     return False
 
@@ -753,7 +792,7 @@ def Main():
     print(u'')
     return False
 
-  collector_object = WindowsAppCompatCacheCollector()
+  collector_object = WindowsAppCompatCacheCollector(debug=options.debug)
 
   if not collector_object.GetWindowsVolumePathSpec(options.source):
     print((
