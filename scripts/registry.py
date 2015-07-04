@@ -177,6 +177,10 @@ class Registry(object):
       u'HKEY_USERS',
   ])
 
+  _VIRTUAL_KEYS = [
+      (u'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet',
+       u'_GetCurrentControlSet')]
+
   def __init__(self, registry_file_reader):
     """Initializes the Windows Registry object.
 
@@ -216,10 +220,31 @@ class Registry(object):
           longest_key_path_prefix_length = key_path_prefix_length
 
     if not longest_key_path_prefix:
-      return None, None 
+      return None, None
 
     registry_file = self._registry_files.get(longest_key_path_prefix, None)
     return longest_key_path_prefix, registry_file
+
+  def _GetCurrentControlSet(self):
+    """Virtual key callback to determine the current control set.
+
+    Returns:
+      The resolved key path for the current control set key or
+      None if unable to resolve.
+    """
+    select_key_path = u'HKEY_LOCAL_MACHINE\\System\\Select'
+    select_key = self.GetKeyByPath(select_key_path)
+    if not select_key:
+      return
+
+    current_value = select_key.get_value_by_name(u'Current')
+    # TODO: add support for fallback.
+    if not current_value:
+      return
+
+    control_set = current_value.get_data_as_integer()
+    # TODO: check if control set is 0.
+    return u'HKEY_LOCAL_MACHINE\\System\\ControlSet{0:03d}'.format(control_set)
 
   def _GetFileByPath(self, safe_key_path):
     """Retrieves the Registry file for a specific path.
@@ -298,6 +323,21 @@ class Registry(object):
 
     if not safe_key_path.startswith(key_path_prefix):
       raise RuntimeError(u'Key path prefix mismatch.')
+
+    for virtual_key_path, virtual_key_callback in self._VIRTUAL_KEYS:
+      if key_path.startswith(virtual_key_path):
+        callback_function = getattr(self, virtual_key_callback)
+        resolved_key_path = callback_function()
+        if not resolved_key_path:
+          raise RuntimeError(u'Unable to resolve virtual key: {0:s}.'.format(
+              virtual_key_path))
+
+        virtual_key_path_length = len(virtual_key_path)
+        if key_path[virtual_key_path_length] == self._PATH_SEPARATOR:
+          virtual_key_path_length += 1
+
+        key_path = self._PATH_SEPARATOR.join([
+            resolved_key_path, key_path[virtual_key_path_length:]])
 
     key_path = key_path[len(key_path_prefix):]
     return registry_file.GetKeyByPath(key_path)

@@ -115,22 +115,22 @@ def Main():
   Returns:
     A boolean containing True if successful or False if not.
   """
-  args_parser = argparse.ArgumentParser(description=(
+  argument_parser = argparse.ArgumentParser(description=(
       u'Extract the known folders from a SOFTWARE Registry File (REGF).'))
 
-  args_parser.add_argument(
+  argument_parser.add_argument(
       u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,
       help=(
           u'path of the volume containing C:\\Windows, the filename of '
           u'a storage media image containing the C:\\Windows directory,'
           u'or the path of a SOFTWARE Registry file.'))
 
-  options = args_parser.parse_args()
+  options = argument_parser.parse_args()
 
   if not options.source:
     print(u'Source value is missing.')
     print(u'')
-    args_parser.print_help()
+    argument_parser.print_help()
     print(u'')
     return False
 

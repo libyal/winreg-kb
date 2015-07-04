@@ -63,26 +63,39 @@ class WindowsServicesCollector(collector.WindowsRegistryCollector):
           image_path_value, object_name_value, start_value)
       output_writer.WriteWindowsService(windows_service)
 
-  def Collect(self, output_writer):
+  def Collect(self, output_writer, all_control_sets=False):
     """Collects the services.
 
     Args:
       output_writer: the output writer object.
+      all_control_sets: optional value to indicate that services should be
+                        collected from all control sets instead of only the
+                        current control set. The default is false.
     """
     self.found_services_key = False
 
-    system_key = self._registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
-    if not system_key:
-      return
+    if all_control_sets:
+      system_key = self._registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
+      if not system_key:
+        return
 
-    for control_set_key in system_key.sub_keys:
-      if control_set_key.name.startswith(u'ControlSet'):
-        services_key = control_set_key.get_sub_key_by_name(u'Services')
-        if services_key:
-          self.found_services_key = True
+      for control_set_key in system_key.sub_keys:
+        if control_set_key.name.startswith(u'ControlSet'):
+          services_key = control_set_key.get_sub_key_by_name(u'Services')
+          if services_key:
+            self.found_services_key = True
 
-          print(u'Control set: {0:s}'.format(control_set_key.name))
-          self._CollectWindowsServicesFromKey(output_writer, services_key)
+            print(u'Control set: {0:s}'.format(control_set_key.name))
+            self._CollectWindowsServicesFromKey(output_writer, services_key)
+
+    else:
+      services_key = self._registry.GetKeyByPath(
+          u'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services')
+      if services_key:
+        self.found_services_key = True
+
+        print(u'Current ontrol set')
+        self._CollectWindowsServicesFromKey(output_writer, services_key)
 
 
 class StdoutWriter(object):
@@ -200,22 +213,27 @@ def Main():
   Returns:
     A boolean containing True if successful or False if not.
   """
-  args_parser = argparse.ArgumentParser(description=(
+  argument_parser = argparse.ArgumentParser(description=(
       u'Extract the services information from a SYSTEM Registry File (REGF).'))
 
-  args_parser.add_argument(
+  argument_parser.add_argument(
       u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,
       help=(
           u'path of the volume containing C:\\Windows, the filename of '
           u'a storage media image containing the C:\\Windows directory,'
           u'or the path of a SYSTEM Registry file.'))
 
-  options = args_parser.parse_args()
+  argument_parser.add_argument(
+      u'--all', dest=u'all_control_sets', action=u'store_true', default=False,
+      help=(
+          u'Process all control sets instead of only the current control set.'))
+
+  options = argument_parser.parse_args()
 
   if not options.source:
     print(u'Source value is missing.')
     print(u'')
-    args_parser.print_help()
+    argument_parser.print_help()
     print(u'')
     return False
 
@@ -238,7 +256,8 @@ def Main():
     print(u'')
     return False
 
-  collector_object.Collect(output_writer)
+  collector_object.Collect(
+      output_writer, all_control_sets=options.all_control_sets)
   output_writer.Close()
 
   if not collector_object.found_services_key:

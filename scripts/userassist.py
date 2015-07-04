@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import argparse
 import datetime
 import construct
@@ -49,8 +50,8 @@ def PrintUserAssistKey(regf_file, userassist_key_path, unused_ascii_codepage):
         userassist_key_path))
     return
 
-  print u'Key: {0:s}'.format(userassist_key_path)
-  print u''
+  print(u'Key: {0:s}'.format(userassist_key_path))
+  print(u'')
 
   for guid_sub_key in userassist_key.sub_keys:
     version_value = guid_sub_key.get_value_by_name(u'Version')
@@ -66,14 +67,14 @@ def PrintUserAssistKey(regf_file, userassist_key_path, unused_ascii_codepage):
     elif format_version == 5:
       value_data_size = USERASSIST_V5_STRUCT.sizeof()
 
-    print u'GUID\t\t: {0:s}'.format(guid_sub_key.name)
-    print u'Format version\t: {0:d}'.format(format_version)
-    print u''
+    print(u'GUID\t\t: {0:s}'.format(guid_sub_key.name))
+    print(u'Format version\t: {0:d}'.format(format_version))
+    print(u'')
 
     count_sub_key = guid_sub_key.get_sub_key_by_name(u'Count')
     for value in count_sub_key.values:
       output_string = u'Original name\t: {0:s}'.format(value.name)
-      print output_string.encode(u'utf-8')
+      print(output_string.encode(u'utf-8'))
 
       try:
         value_name = value.name.decode(u'rot-13')
@@ -92,13 +93,13 @@ def PrintUserAssistKey(regf_file, userassist_key_path, unused_ascii_codepage):
 
       try:
         output_string = u'Converted name\t: {0:s}'.format(value_name)
-        print output_string.encode(u'utf-8')
+        print(output_string.encode(u'utf-8'))
       except UnicodeEncodeError as exception:
         logging.warning(u'Unable to convert: {0:s} with error: {1:s}'.format(
             value.name, exception))
 
-      print u'Value data:'
-      print hexdump.Hexdump(value.data)
+      print(u'Value data:')
+      print(hexdump.Hexdump(value.data))
 
       if value_name != u'UEME_CTLSESSION':
         if value_data_size != len(value.data):
@@ -113,64 +114,64 @@ def PrintUserAssistKey(regf_file, userassist_key_path, unused_ascii_codepage):
         elif format_version == 5:
           parsed_data = USERASSIST_V5_STRUCT.parse(value.data)
 
-        print u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            parsed_data.get(u'unknown1'))
+        print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            parsed_data.get(u'unknown1')))
 
-        print u'Execution count\t\t\t\t\t\t\t\t: {0:d}'.format(
-            parsed_data.get(u'execution_count'))
+        print(u'Execution count\t\t\t\t\t\t\t\t: {0:d}'.format(
+            parsed_data.get(u'execution_count')))
 
         if format_version == 5:
-          print u'Application focus count\t\t\t\t\t\t\t: {0:d}'.format(
-              parsed_data.get(u'application_focus_count'))
+          print(u'Application focus count\t\t\t\t\t\t\t: {0:d}'.format(
+              parsed_data.get(u'application_focus_count')))
 
-          print u'Application focus duration\t\t\t\t\t\t: {0:d}'.format(
-              parsed_data.get(u'application_focus_duration'))
+          print(u'Application focus duration\t\t\t\t\t\t: {0:d}'.format(
+              parsed_data.get(u'application_focus_duration')))
 
-          print u'Unknown2\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-              parsed_data.get(u'unknown2'))
+          print(u'Unknown2\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get(u'unknown2')))
 
-          print u'Unknown3\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-              parsed_data.get(u'unknown3'))
+          print(u'Unknown3\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get(u'unknown3')))
 
-          print u'Unknown4\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-              parsed_data.get(u'unknown4'))
+          print(u'Unknown4\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get(u'unknown4')))
 
-          print u'Unknown5\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-              parsed_data.get(u'unknown5'))
+          print(u'Unknown5\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get(u'unknown5')))
 
-          print u'Unknown6\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-              parsed_data.get(u'unknown6'))
+          print(u'Unknown6\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get(u'unknown6')))
 
-          print u'Unknown7\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-              parsed_data.get(u'unknown7'))
+          print(u'Unknown7\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get(u'unknown7')))
 
-          print u'Unknown8\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-              parsed_data.get(u'unknown8'))
+          print(u'Unknown8\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get(u'unknown8')))
 
-          print u'Unknown9\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-              parsed_data.get(u'unknown9'))
+          print(u'Unknown9\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get(u'unknown9')))
 
-          print u'Unknown10\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-              parsed_data.get(u'unknown10'))
+          print(u'Unknown10\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get(u'unknown10')))
 
-          print u'Unknown11\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-              parsed_data.get(u'unknown11'))
+          print(u'Unknown11\t\t\t\t\t\t\t\t: {0:.2f}'.format(
+              parsed_data.get(u'unknown11')))
 
-          print u'Unknown12\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-              parsed_data.get(u'unknown12'))
+          print(u'Unknown12\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+              parsed_data.get(u'unknown12')))
 
         timestamp = parsed_data.get(u'last_execution_time')
         date_string = (datetime.datetime(1601, 1, 1) +
                        datetime.timedelta(microseconds=timestamp/10))
 
-        print u'Last execution time\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
-            date_string, timestamp)
+        print(u'Last execution time\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
+            date_string, timestamp))
 
         if format_version == 5:
-          print u'Unknown13\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-              parsed_data.get(u'unknown13'))
+          print(u'Unknown13\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+              parsed_data.get(u'unknown13')))
 
-        print u''
+        print(u'')
 
 
 def Main():
@@ -179,25 +180,25 @@ def Main():
   Returns:
     A boolean containing True if successful or False if not.
   """
-  args_parser = argparse.ArgumentParser(description=(
+  argument_parser = argparse.ArgumentParser(description=(
       u'Extract the MSIE zone information from a NTUSER.DAT '
       u'Registry File (REGF).'))
 
-  args_parser.add_argument(
+  argument_parser.add_argument(
       u'registry_file', nargs=u'?', action=u'store', metavar=u'NTUSER.DAT',
       default=None, help=u'path of the NTUSER.DAT Registry file.')
 
-  args_parser.add_argument(
+  argument_parser.add_argument(
       u'--codepage', dest=u'codepage', action=u'store', metavar=u'CODEPAGE',
       default=u'cp1252', help=u'the codepage of the extended ASCII strings.')
 
-  options = args_parser.parse_args()
+  options = argument_parser.parse_args()
 
   if not options.registry_file:
-    print u'Registry file missing.'
-    print u''
-    args_parser.print_help()
-    print u''
+    print(u'Registry file missing.')
+    print(u'')
+    argument_parser.print_help()
+    print(u'')
     return False
 
   logging.basicConfig(

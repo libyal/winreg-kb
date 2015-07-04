@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import argparse
 import sys
 
@@ -123,16 +124,16 @@ def PrintZonesKey(regf_file, zones_key_path, output_mode=0):
   zones_key = regf_file.get_key_by_path(zones_key_path)
 
   if zones_key:
-    print u'Key: {0:s}'.format(zones_key_path)
-    print u''
+    print(u'Key: {0:s}'.format(zones_key_path))
+    print(u'')
 
     for zone_key in zones_key.sub_keys:
       # TODO: the zone names are defined in another key.
       if zone_key.name in DEFAULT_ZONE_NAMES:
-        print u'Zone: {0:s}: {1:s}'.format(
-            zone_key.name, DEFAULT_ZONE_NAMES[zone_key.name])
+        print(u'Zone: {0:s}: {1:s}'.format(
+            zone_key.name, DEFAULT_ZONE_NAMES[zone_key.name]))
       else:
-        print u'Zone: {0:s}'.format(zone_key.name)
+        print(u'Zone: {0:s}'.format(zone_key.name))
 
       for setting_value in zone_key.values:
         if not setting_value.name:
@@ -141,13 +142,13 @@ def PrintZonesKey(regf_file, zones_key_path, output_mode=0):
         elif setting_value.name in [
             u'Description', u'DisplayName', u'PMDisplayName']:
           if output_mode == 0:
-            print u'{0:s}: {1:s}'.format(
-                setting_value.name, setting_value.data_as_string)
+            print(u'{0:s}: {1:s}'.format(
+                setting_value.name, setting_value.data_as_string))
 
         elif len(setting_value.name) == 4 and setting_value.name != u'Icon':
           if len(setting_value.data) != 4:
             if output_mode == 0:
-              print u'Value: {0:s}'.format(setting_value.data.encode(u'hex'))
+              print(u'Value: {0:s}'.format(setting_value.data.encode(u'hex')))
 
           else:
             value = setting_value.get_data_as_integer()
@@ -176,36 +177,36 @@ def PrintZonesKey(regf_file, zones_key_path, output_mode=0):
 
           if output_mode == 0:
             if setting_value.name in CONTROL_DESCRIPTIONS:
-              print u'Control: {0:s}: {1:s}'.format(
-                  setting_value.name, CONTROL_DESCRIPTIONS[setting_value.name])
+              print(u'Control: {0:s}: {1:s}'.format(
+                  setting_value.name, CONTROL_DESCRIPTIONS[setting_value.name]))
             else:
-              print u'Control: {0:s}'.format(setting_value.name)
+              print(u'Control: {0:s}'.format(setting_value.name))
             if value_desc:
-              print u'Data: 0x{0:08x}: {1:s}'.format(value, value_desc)
+              print(u'Data: 0x{0:08x}: {1:s}'.format(value, value_desc))
             else:
-              print u'Data: 0x{0:08x}'.format(value)
+              print(u'Data: 0x{0:08x}'.format(value))
 
           elif output_mode == 1:
             if setting_value.name in CONTROL_DESCRIPTIONS:
               control_desc = CONTROL_DESCRIPTIONS[setting_value.name]
             else:
               control_desc = u''
-            print u'{0:s}\t0x{1:08x}\t{2:s}\t{3:s}'.format(
-                setting_value.name, value, value_desc, control_desc)
+            print(u'{0:s}\t0x{1:08x}\t{2:s}\t{3:s}'.format(
+                setting_value.name, value, value_desc, control_desc))
 
         else:
           if output_mode == 0:
-            print u'Value: {0:s}'.format(setting_value.name)
+            print(u'Value: {0:s}'.format(setting_value.name))
 
-      print u''
+      print(u'')
 
 
 def PrintLockdownKey(regf_file, lockdown_key_path):
   lockdown_key = regf_file.get_key_by_path(lockdown_key_path)
 
   if lockdown_key:
-    print u'Key: {0:s}'.format(lockdown_key_path)
-    print u''
+    print(u'Key: {0:s}'.format(lockdown_key_path))
+    print(u'')
 
     program_name = u'iexplore.exe'
     program_value = lockdown_key.get_value_by_name(program_name)
@@ -216,10 +217,10 @@ def PrintLockdownKey(regf_file, lockdown_key_path):
       value = 0
 
     if value == 1:
-      print u'Local Machine lockdown for {0:s}: True'.format(program_name)
+      print(u'Local Machine lockdown for {0:s}: True'.format(program_name))
     else:
-      print u'Local Machine lockdown for {0:s}: False'.format(program_name)
-    print u''
+      print(u'Local Machine lockdown for {0:s}: False'.format(program_name))
+    print(u'')
 
 
 def Main():
@@ -228,21 +229,21 @@ def Main():
   Returns:
     A boolean containing True if successful or False if not.
   """
-  args_parser = argparse.ArgumentParser(description=(
+  argument_parser = argparse.ArgumentParser(description=(
       u'Extract the MSIE zone information from a NTUSER.DAT or SYSTEM '
       u'Registry File (REGF).'))
 
-  args_parser.add_argument(
+  argument_parser.add_argument(
       u'registry_file', nargs=u'?', action=u'store', metavar=u'SOFTWARE',
       default=None, help=u'path of the SOFTWARE Registry file.')
 
-  options = args_parser.parse_args()
+  options = argument_parser.parse_args()
 
   if not options.registry_file:
-    print u'Registry file missing.'
-    print u''
-    args_parser.print_help()
-    print u''
+    print(u'Registry file missing.')
+    print(u'')
+    argument_parser.print_help()
+    print(u'')
     return False
 
   output_mode = 1
