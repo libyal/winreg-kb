@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Classes to implement a Windows volume collector."""
 
+from __future__ import print_function
+import getpass
 import os
 
 import dfvfs
@@ -16,8 +18,8 @@ from dfvfs.volume import tsk_volume_system
 import registry
 
 
-if dfvfs.__version__ < u'20140727':
-  raise ImportWarning(u'collector.py requires dfvfs 20140727 or later.')
+if dfvfs.__version__ < u'20150704':
+  raise ImportWarning(u'collector.py requires dfvfs 20150704 or later.')
 
 
 class CollectorError(Exception):
@@ -39,10 +41,109 @@ class WindowsVolumeCollector(object):
     super(WindowsVolumeCollector, self).__init__()
     self._file_system = None
     self._path_resolver = None
-    self._scanner = source_scanner.SourceScanner()
+    self._source_scanner = source_scanner.SourceScanner()
     self._single_file = False
     self._source_path = None
     self._windows_directory = None
+
+  def _GetTSKPartitionIdentifiers(self, scan_node):
+    """Determines the TSK partition identifiers.
+
+    Args:
+      scan_node: the scan node (instance of dfvfs.ScanNode).
+
+    Returns:
+      A list of partition identifiers.
+
+    Raises:
+      RuntimeError: if the format of or within the source is not supported or
+                    the the scan node is invalid or if the volume for
+                    a specific identifier cannot be retrieved.
+    """
+    if not scan_node or not scan_node.path_spec:
+      raise RuntimeError(u'Invalid scan node.')
+
+    volume_system = tsk_volume_system.TSKVolumeSystem()
+    volume_system.Open(scan_node.path_spec)
+
+    volume_identifiers = self._source_scanner.GetVolumeIdentifiers(
+        volume_system)
+    if not volume_identifiers:
+      print(u'[WARNING] No partitions found.')
+      return
+
+    return volume_identifiers
+
+  def _PromptUserForEncryptedVolumeCredential(
+      self, scan_context, locked_scan_node, credentials):
+    """Prompts the user to provide a credential for an encrypted volume.
+
+    Args:
+      scan_context: the source scanner context (instance of
+                    SourceScannerContext).
+      locked_scan_node: the locked scan node (instance of SourceScanNode).
+      credentials: the credentials supported by the locked scan node (instance
+                   of dfvfs.Credentials).
+
+    Returns:
+      A boolean value indicating whether the volume was unlocked.
+    """
+    # TODO: print volume description.
+    if locked_scan_node.type_indicator == definitions.TYPE_INDICATOR_BDE:
+      print(u'Found a BitLocker encrypted volume.')
+    else:
+      print(u'Found an encrypted volume.')
+
+    credentials_list = list(credentials.CREDENTIALS)
+    credentials_list.append(u'skip')
+
+    print(u'Supported credentials:')
+    print(u'')
+    for index, name in enumerate(credentials_list):
+      print(u'  {0:d}. {1:s}'.format(index, name))
+    print(u'')
+    print(u'Note that you can abort with Ctrl^C.')
+    print(u'')
+
+    result = False
+    while not result:
+      print(u'Select a credential to unlock the volume: ', end=u'')
+      # TODO: add an input reader.
+      input_line = sys.stdin.readline()
+      input_line = input_line.strip()
+
+      if input_line in credentials_list:
+        credential_type = input_line
+      else:
+        try:
+          credential_type = int(input_line, 10)
+          credential_type = credentials_list[credential_type]
+        except (IndexError, ValueError):
+          print(u'Unsupported credential: {0:s}'.format(input_line))
+          continue
+
+      if credential_type == u'skip':
+        break
+
+      credential_data = getpass.getpass(u'Enter credential data: ')
+      print(u'')
+
+      if credential_type == u'key':
+        try:
+          credential_data = credential_data.decode(u'hex')
+        except TypeError:
+          print(u'Unsupported credential data.')
+          continue
+
+      result = self._source_scanner.Unlock(
+          scan_context, locked_scan_node.path_spec, credential_type,
+          credential_data)
+
+      if not result:
+        print(u'Unable to unlock volume.')
+        print(u'')
+
+    return result
 
   def _ScanFileSystem(self, path_resolver):
     """Scans a file system for the Windows volume.
@@ -66,64 +167,102 @@ class WindowsVolumeCollector(object):
 
     return result
 
-  def _ScanTSKPartionVolumeSystemPathSpec(self, scan_context):
-    """Scans a path specification for the Windows volume.
+  def _ScanVolume(self, scan_context, volume_scan_node, windows_path_specs):
+    """Scans the volume scan node for volume and file systems.
 
     Args:
-      scan_context: the scan context (instance of dfvfs.ScanContext).
-
-    Returns:
-      The volume scan node (instance of dfvfs.SourceScanNode) of the volume
-      that contains the Windows directory or None.
+      scan_context: the source scanner context (instance of
+                    SourceScannerContext).
+      volume_scan_node: the volume scan node (instance of dfvfs.ScanNode).
+      windows_path_specs: a list of source path specification (instances
+                          of dfvfs.PathSpec).
 
     Raises:
-      CollectorError: if the scan context is invalid.
+      RuntimeError: if the format of or within the source
+                    is not supported or the the scan node is invalid.
     """
-    if (not scan_context or not scan_context.last_scan_node or
-        not scan_context.last_scan_node.path_spec):
-      raise CollectorError(u'Invalid scan context.')
+    if not volume_scan_node or not volume_scan_node.path_spec:
+      raise RuntimeError(u'Invalid or missing volume scan node.')
 
-    volume_system = tsk_volume_system.TSKVolumeSystem()
-    volume_system.Open(scan_context.last_scan_node.path_spec)
+    if len(volume_scan_node.sub_nodes) == 0:
+      self._ScanVolumeScanNode(scan_context, volume_scan_node, windows_path_specs)
 
-    volume_identifiers = self._scanner.GetVolumeIdentifiers(volume_system)
-    if not volume_identifiers:
-      return
+    else:
+      # Some volumes contain other volume or file systems e.g. BitLocker ToGo
+      # has an encrypted and unencrypted volume.
+      for sub_scan_node in volume_scan_node.sub_nodes:
+        self._ScanVolumeScanNode(scan_context, sub_scan_node, windows_path_specs)
 
-    volume_scan_node = None
-    result = False
+  def _ScanVolumeScanNode(
+      self, scan_context, volume_scan_node, windows_path_specs):
+    """Scans an individual volume scan node for volume and file systems.
 
-    for volume_identifier in volume_identifiers:
-      volume_location = u'/{0:s}'.format(volume_identifier)
-      volume_scan_node = scan_context.last_scan_node.GetSubNodeByLocation(
-          volume_location)
-      volume_path_spec = getattr(volume_scan_node, u'path_spec', None)
+    Args:
+      scan_context: the source scanner context (instance of
+                    SourceScannerContext).
+      volume_scan_node: the volume scan node (instance of dfvfs.ScanNode).
+      windows_path_specs: a list of source path specification (instances
+                          of dfvfs.PathSpec).
 
-      # The leaf scan node should contain the actual file system.
-      file_system_scan_node = volume_scan_node.GetSubNodeByLocation(u'/')
-      if not file_system_scan_node:
-        continue
+    Raises:
+      RuntimeError: if the format of or within the source
+                    is not supported or the the scan node is invalid.
+    """
+    if not volume_scan_node or not volume_scan_node.path_spec:
+      raise RuntimeError(u'Invalid or missing volume scan node.')
 
-      while file_system_scan_node.sub_nodes:
-        file_system_scan_node = file_system_scan_node.GetSubNodeByLocation(u'/')
+    # Get the first node where where we need to decide what to process.
+    scan_node = volume_scan_node
+    while len(scan_node.sub_nodes) == 1:
+      scan_node = scan_node.sub_nodes[0]
 
-      file_system_path_spec = getattr(file_system_scan_node, u'path_spec', None)
-      file_system = resolver.Resolver.OpenFileSystem(file_system_path_spec)
+    # The source scanner found an encrypted volume and we need
+    # a credential to unlock the volume.
+    if scan_node.type_indicator in definitions.ENCRYPTED_VOLUME_TYPE_INDICATORS:
+      self._ScanVolumeScanNodeEncrypted(
+          scan_context, scan_node, windows_path_specs)
 
-      if file_system is None:
-        continue
+    # The source scanner found Volume Shadow Snapshot which is ignored.
+    elif scan_node.type_indicator == definitions.TYPE_INDICATOR_VSHADOW:
+      pass
 
-      path_resolver = windows_path_resolver.WindowsPathResolver(
-          file_system, volume_path_spec)
+    elif scan_node.type_indicator in definitions.FILE_SYSTEM_TYPE_INDICATORS:
+      file_system = resolver.Resolver.OpenFileSystem(scan_node.path_spec)
+      if file_system:
+        try:
+          path_resolver = windows_path_resolver.WindowsPathResolver(
+              file_system, scan_node.path_spec.parent)
 
-      result = self._ScanFileSystem(path_resolver)
-      if result:
-        break
+          result = self._ScanFileSystem(path_resolver)
+          if result:
+            windows_path_specs.append(scan_node.path_spec)
 
+        finally:
+          file_system.Close()
+
+  def _ScanVolumeScanNodeEncrypted(
+      self, scan_context, volume_scan_node, windows_path_specs):
+    """Scans an encrypted volume scan node for volume and file systems.
+
+    Args:
+      scan_context: the source scanner context (instance of
+                    SourceScannerContext).
+      volume_scan_node: the volume scan node (instance of dfvfs.ScanNode).
+      windows_path_specs: a list of source path specification (instances
+                          of dfvfs.PathSpec).
+    """
+    result = not scan_context.IsLockedScanNode(volume_scan_node.path_spec)
     if not result:
-      return
+      credentials = credentials_manager.CredentialsManager.GetCredentials(
+          volume_scan_node.path_spec)
 
-    return volume_scan_node
+      result = self._PromptUserForEncryptedVolumeCredential(
+          scan_context, volume_scan_node, credentials)
+
+    if result:
+      self._source_scanner.Scan(
+          scan_context, scan_path_spec=volume_scan_node.path_spec)
+      self._ScanVolume(scan_context, volume_scan_node, windows_path_specs)
 
   def GetWindowsVolumePathSpec(self, source_path):
     """Determines the file system path specification of the Windows volume.
@@ -147,81 +286,52 @@ class WindowsVolumeCollector(object):
 
     self._source_path = source_path
     scan_context = source_scanner.SourceScannerContext()
-    scan_path_spec = None
-
     scan_context.OpenSourcePath(source_path)
 
-    while True:
-      last_scan_node = scan_context.last_scan_node
-      try:
-        scan_context = self._scanner.Scan(
-            scan_context, scan_path_spec=scan_path_spec)
-      except errors.BackEndError as exception:
-        raise CollectorError(
-            u'Unable to scan source, with error: {0:s}'.format(exception))
+    try:
+      self._source_scanner.Scan(scan_context)
+    except (errors.BackEndError, ValueError) as exception:
+      raise RuntimeError(
+          u'Unable to scan source with error: {0:s}.'.format(exception))
 
-      # The source is a directory or file.
-      if scan_context.source_type in [
-          scan_context.SOURCE_TYPE_DIRECTORY, scan_context.SOURCE_TYPE_FILE]:
-        break
-
-      if (not scan_context.last_scan_node or
-          scan_context.last_scan_node == last_scan_node):
-        raise CollectorError(
-            u'No supported file system found in source: {0:s}.'.format(
-                self._source_path))
-
-      # The source scanner found a file system.
-      if scan_context.last_scan_node.type_indicator in [
-          definitions.TYPE_INDICATOR_TSK]:
-        break
-
-      # The source scanner found a BitLocker encrypted volume and we need
-      # a credential to unlock the volume.
-      if scan_context.last_scan_node.type_indicator in [
-          definitions.TYPE_INDICATOR_BDE]:
-        # TODO: ask for password.
-        raise CollectorError(
-            u'BitLocker encrypted volume not yet supported.')
-
-      # The source scanner found a partition table and we need to determine
-      # which partition contains the Windows directory.
-      elif scan_context.last_scan_node.type_indicator in [
-          definitions.TYPE_INDICATOR_TSK_PARTITION]:
-        scan_node = self._ScanTSKPartionVolumeSystemPathSpec(scan_context)
-        if not scan_node:
-          return False
-        scan_context.last_scan_node = scan_node
-
-      # The source scanner found Volume Shadow Snapshot which is ignored.
-      elif scan_context.last_scan_node.type_indicator in [
-          definitions.TYPE_INDICATOR_VSHADOW]:
-        # Get the scan node of the current volume.
-        scan_node = scan_context.last_scan_node.GetSubNodeByLocation(u'/')
-        scan_context.last_scan_node = scan_node
-        break
-
-      else:
-        raise CollectorError(
-            u'Unsupported volume system found in source: {0:s}.'.format(
-                self._source_path))
-
-    if scan_context.source_type == scan_context.SOURCE_TYPE_FILE:
+    self._single_file = False
+    if scan_context.source_type == definitions.SOURCE_TYPE_FILE:
       self._single_file = True
       return True
 
-    self._single_file = False
-    if scan_context.source_type != scan_context.SOURCE_TYPE_DIRECTORY:
-      if not scan_context.last_scan_node.type_indicator in [
-          definitions.TYPE_INDICATOR_TSK]:
-        raise CollectorError(
-            u'Unsupported source: {0:s} found unsupported file system.'.format(
-                source_path))
+    windows_path_specs = []
+    scan_node = scan_context.GetRootScanNode()
+    if scan_context.source_type == definitions.SOURCE_TYPE_DIRECTORY:
+      windows_path_specs.append(scan_node.path_spec)
 
-    file_system_path_spec = getattr(
-        scan_context.last_scan_node, u'path_spec', None)
-    self._file_system = resolver.Resolver.OpenFileSystem(
-        file_system_path_spec)
+    else:
+      # Get the first node where where we need to decide what to process.
+      while len(scan_node.sub_nodes) == 1:
+        scan_node = scan_node.sub_nodes[0]
+
+      # The source scanner found a partition table and we need to determine
+      # which partition needs to be processed.
+      if scan_node.type_indicator != definitions.TYPE_INDICATOR_TSK_PARTITION:
+        partition_identifiers = None
+
+      else:
+        partition_identifiers = self._GetTSKPartitionIdentifiers(scan_node)
+
+      if not partition_identifiers:
+        self._ScanVolume(scan_context, scan_node, windows_path_specs)
+
+      else:
+        for partition_identifier in partition_identifiers:
+          location = u'/{0:s}'.format(partition_identifier)
+          sub_scan_node = scan_node.GetSubNodeByLocation(location)
+          self._ScanVolume(scan_context, sub_scan_node, windows_path_specs)
+
+    if not windows_path_specs:
+      raise CollectorError(
+          u'No supported file system found in source.')
+
+    file_system_path_spec = windows_path_specs[0]
+    self._file_system = resolver.Resolver.OpenFileSystem(file_system_path_spec)
 
     if file_system_path_spec.type_indicator == definitions.TYPE_INDICATOR_OS:
       mount_point = file_system_path_spec

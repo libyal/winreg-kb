@@ -23,7 +23,8 @@ The actual difference between the Application Compatibility Cache and Shim
 (Database) Cache is currently unknown. Be aware that in other sources the terms
 can be used interchangeable. Since MSDN explicitly defines
 BaseFlushAppcompatCache and ShimFlushCache, there is likely a subtle difference
-to what data is cached. Also see: https://technet.microsoft.com/en-us/library/dd837644(v=ws.10).aspx[Understanding Shims]
+to what data is cached. Also see: https://technet.microsoft.com/en-us/library/dd837644(v=ws.10).aspx[Understanding Shims].
+In Windows also referred to as AppHelpCache?
 
 The Application Compatibility Cache seems to have been introduced in (at least) 
 Windows XP. The format is significantly different between the different 
@@ -294,7 +295,8 @@ The Windows 7 application compat cache header is 128 bytes of size and consists 
 | Offset | Size | Value | Description
 | 0 | 4 | 0xee, 0x0f, 0xdc, 0xba | Signature
 | 4 | 4 | | Number of cached entries
-| 8 | 120 | | [yellow-background]*Unknown (cache statistics?)*
+| 8 | 4 | 120 | [yellow-background]*Unknown (size?)*
+| 12 | 116 | | [yellow-background]*Unknown (cache statistics?)*
 |===
 
 ==== Windows 7 32-bit application compat cache entry
