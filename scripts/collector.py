@@ -4,9 +4,11 @@
 from __future__ import print_function
 import getpass
 import os
+import sys
 
 import dfvfs
 
+from dfvfs.credentials import manager as credentials_manager
 from dfvfs.lib import definitions
 from dfvfs.lib import errors
 from dfvfs.helpers import source_scanner
@@ -185,13 +187,15 @@ class WindowsVolumeCollector(object):
       raise RuntimeError(u'Invalid or missing volume scan node.')
 
     if len(volume_scan_node.sub_nodes) == 0:
-      self._ScanVolumeScanNode(scan_context, volume_scan_node, windows_path_specs)
+      self._ScanVolumeScanNode(
+          scan_context, volume_scan_node, windows_path_specs)
 
     else:
       # Some volumes contain other volume or file systems e.g. BitLocker ToGo
       # has an encrypted and unencrypted volume.
       for sub_scan_node in volume_scan_node.sub_nodes:
-        self._ScanVolumeScanNode(scan_context, sub_scan_node, windows_path_specs)
+        self._ScanVolumeScanNode(
+            scan_context, sub_scan_node, windows_path_specs)
 
   def _ScanVolumeScanNode(
       self, scan_context, volume_scan_node, windows_path_specs):
