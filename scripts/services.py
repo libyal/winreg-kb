@@ -10,12 +10,20 @@ import collector
 import registry
 
 
-class WindowsServicesCollector(collector.WindowsRegistryCollector):
-  """Class that defines a Windows services collector."""
+class WindowsServicesCollector(collector.WindowsVolumeCollector):
+  """Class that defines a Windows services collector.
+
+  Attributes:
+    found_services_key: boolean value to indicate the Services
+                        Registry key was found.
+  """
 
   def __init__(self):
     """Initializes the Windows services collector object."""
     super(WindowsServicesCollector, self).__init__()
+    registry_file_reader = collector.CollectorRegistryFileReader(self)
+    self._registry = registry.Registry(registry_file_reader)
+
     self.found_services_key = False
 
   def _CollectWindowsServicesFromKey(self, output_writer, services_key):

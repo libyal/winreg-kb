@@ -10,6 +10,7 @@ import sys
 
 import collector
 import hexdump
+import registry
 
 
 # pylint: disable=logging-format-interpolation
@@ -186,7 +187,7 @@ class AppCompatCacheKeyParser(object):
     """Initializes the parser object."""
     super(AppCompatCacheKeyParser, self).__init__()
 
-  def _CheckSignature(self, value_data):
+  def CheckSignature(self, value_data):
     """Parses the signature.
 
     Args:
@@ -640,13 +641,13 @@ class AppCompatCacheKeyParser(object):
     return cached_entry_object
 
 
-class WindowsAppCompatCacheCollector(collector.WindowsRegistryCollector):
+class WindowsAppCompatCacheCollector(collector.WindowsVolumeCollector):
   """Class that defines a Windows Application Compatibility Cache collector.
 
   Attributes:
-    found_app_compat_cache_key: boolean value to indicate a Windows
-                                Application Compatibility Cache key
-                                was found.
+    found_app_compat_cache_key: boolean value to indicate the Windows
+                                Application Compatibility Cache Registry
+                                key was found.
   """
 
   def __init__(self, debug=False):
@@ -658,6 +659,9 @@ class WindowsAppCompatCacheCollector(collector.WindowsRegistryCollector):
     """
     super(WindowsAppCompatCacheCollector, self).__init__()
     self._debug = debug
+    registry_file_reader = collector.CollectorRegistryFileReader(self)
+    self._registry = registry.Registry(registry_file_reader)
+
     self.found_app_compat_cache_key = False
 
   def _CollectAppCompatCacheFromKey(
@@ -690,7 +694,7 @@ class WindowsAppCompatCacheCollector(collector.WindowsRegistryCollector):
       output_writer.WriteText(u'Value data:')
       output_writer.WriteText(hexdump.Hexdump(value_data))
 
-    format_type = parser._CheckSignature(value_data)
+    format_type = parser.CheckSignature(value_data)
     if not format_type:
       logging.warning(u'Unsupported signature.')
       return

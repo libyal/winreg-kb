@@ -6,6 +6,7 @@ import argparse
 import sys
 
 import collector
+import registry
 
 
 class KnownFolder(object):
@@ -25,8 +26,13 @@ class KnownFolder(object):
     self.name = name
 
 
-class WindowsKnownFoldersCollector(collector.WindowsRegistryCollector):
-  """Class that defines a Windows known folders collector."""
+class WindowsKnownFoldersCollector(collector.WindowsVolumeCollector):
+  """Class that defines a Windows known folders collector.
+
+  Attributes:
+    found_folder_descriptions_key: boolean value to indicate a Known Folder
+                                   descriptions Registry key was found.
+  """
 
   DEFAULT_VALUE_NAME = u''
 
@@ -37,6 +43,9 @@ class WindowsKnownFoldersCollector(collector.WindowsRegistryCollector):
   def __init__(self):
     """Initializes the Windows known folders collector object."""
     super(WindowsKnownFoldersCollector, self).__init__()
+    registry_file_reader = collector.CollectorRegistryFileReader(self)
+    self._registry = registry.Registry(registry_file_reader)
+
     self.found_folder_descriptions_key = False
 
   def _GetValueAsStringFromKey(self, key, value_name, default_value=u''):

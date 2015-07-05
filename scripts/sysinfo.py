@@ -6,9 +6,10 @@ import argparse
 import sys
 
 import collector
+import registry
 
 
-class WindowsSystemInfoCollector(collector.WindowsRegistryCollector):
+class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
   """Class that defines a Windows system information collector."""
 
   DEFAULT_VALUE_NAME = u''
@@ -19,6 +20,9 @@ class WindowsSystemInfoCollector(collector.WindowsRegistryCollector):
   def __init__(self):
     """Initializes the Windows system information collector object."""
     super(WindowsSystemInfoCollector, self).__init__()
+    registry_file_reader = collector.CollectorRegistryFileReader(self)
+    self._registry = registry.Registry(registry_file_reader)
+
     self.found_current_version_key = False
 
   def _GetValueAsStringFromKey(self, key, value_name, default_value=u''):

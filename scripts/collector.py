@@ -411,36 +411,3 @@ class CollectorRegistryFileReader(registry.RegistryFileReader):
     registry_file = registry.RegistryFile()
     registry_file.Open(file_object)
     return registry_file
-
-
-class WindowsRegistryCollector(WindowsVolumeCollector):
-  """Class that defines a Windows Registry collector."""
-
-  # TODO: replace by Registry.
-  _REGISTRY_FILENAME_SYSTEM = u'%WinDir%\\System32\\config\\SYSTEM'
-
-  def __init__(self):
-    """Initializes the Windows Registry collector object."""
-    super(WindowsRegistryCollector, self).__init__()
-    registry_file_reader = CollectorRegistryFileReader(self)
-    self._registry = registry.Registry(registry_file_reader)
-
-  # TODO: improve handling Registry mapping of single file.
-
-  # TODO: replace by Registry.
-  def _OpenRegistryFile(self, windows_path):
-    """Opens the Registry file specificed by the Windows path.
-
-    Args:
-      windows_path: the Windows path to the Registry file.
-
-    Returns:
-      The Registry file (instance of RegistryFile) or None.
-    """
-    file_object = self.OpenFile(windows_path)
-    if file_object is None:
-      return None
-
-    registry_file = registry.RegistryFile()
-    registry_file.Open(file_object)
-    return registry_file

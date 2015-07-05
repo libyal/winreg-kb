@@ -6,10 +6,16 @@ import argparse
 import sys
 
 import collector
+import registry
 
 
-class WindowsUsersCollector(collector.WindowsRegistryCollector):
-  """Class that defines a Windows users collector."""
+class WindowsUsersCollector(collector.WindowsVolumeCollector):
+  """Class that defines a Windows users collector.
+
+  Attributes:
+    found_app_compat_cache_key: boolean value to indicate the Profile List
+                                Registry key was found.
+  """
 
   DEFAULT_VALUE_NAME = u''
 
@@ -20,6 +26,9 @@ class WindowsUsersCollector(collector.WindowsRegistryCollector):
   def __init__(self):
     """Initializes the Windows users collector object."""
     super(WindowsUsersCollector, self).__init__()
+    registry_file_reader = collector.CollectorRegistryFileReader(self)
+    self._registry = registry.Registry(registry_file_reader)
+
     self.found_profile_list_key = False
 
   def _GetValueAsStringFromKey(self, key, value_name, default_value=u''):

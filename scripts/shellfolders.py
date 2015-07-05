@@ -10,11 +10,12 @@ import sys
 import sqlite3
 
 import collector
+import registry
 
 
 # pylint: disable=logging-format-interpolation
 
-class ShellFolderIdentifierCollector(collector.WindowsRegistryCollector):
+class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
   """Class that defines a Shell Folder identifier collector."""
 
   _CLASS_IDENTIFIERS_KEY_PATH = u'HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID'
@@ -22,6 +23,9 @@ class ShellFolderIdentifierCollector(collector.WindowsRegistryCollector):
   def __init__(self):
     """Initializes the Shell Folder identifier collector object."""
     super(ShellFolderIdentifierCollector, self).__init__()
+    registry_file_reader = collector.CollectorRegistryFileReader(self)
+    self._registry = registry.Registry(registry_file_reader)
+
     self.found_class_identifiers_key = False
     self.found_shell_folder_identifier_key = False
 
