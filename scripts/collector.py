@@ -377,12 +377,12 @@ class WindowsVolumeCollector(object):
     else:
       path_spec = self._path_resolver.ResolvePath(windows_path)
       if path_spec is None:
-        return None
+        return
 
     return resolver.Resolver.OpenFileObject(path_spec)
 
 
-class CollectorRegistryFileReader(registry.RegistryFileReader):
+class CollectorRegistryFileReader(registry.WinRegistryFileReader):
   """Class that defines the collector-based Windows Registry file reader."""
 
   def __init__(self, collector):
@@ -395,19 +395,26 @@ class CollectorRegistryFileReader(registry.RegistryFileReader):
     super(CollectorRegistryFileReader, self).__init__()
     self._collector = collector
 
-  def Open(self, windows_path):
+  def Open(self, windows_path, ascii_codepage=u'cp1252'):
     """Opens the Registry file specificed by the Windows path.
 
     Args:
       windows_path: the Windows path to the Registry file.
+      ascii_codepage: optional ASCII string codepage. The default is cp1252
+                      (or windows-1252).
 
     Returns:
-      The Registry file (instance of RegistryFile) or None.
+      The Registry file (instance of WinRegistryFile) or None.
     """
     file_object = self._collector.OpenFile(windows_path)
     if file_object is None:
-      return None
+      return
 
-    registry_file = registry.RegistryFile()
-    registry_file.Open(file_object)
+    registry_file = registry.WinRegistryFile(ascii_codepage=ascii_codepage)
+    try:
+      registry_file.Open(file_object)
+    except IOError:
+      file_object.close()
+      return
+
     return registry_file

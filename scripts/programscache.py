@@ -169,7 +169,7 @@ class WindowsProgramsCacheCollector(collector.WindowsVolumeCollector):
     super(WindowsProgramsCacheCollector, self).__init__()
     self._debug = debug
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.Registry(registry_file_reader)
+    self._registry = registry.WinRegistry(registry_file_reader)
 
     self.found_startpage_key = False
 

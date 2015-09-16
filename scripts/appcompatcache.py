@@ -524,7 +524,8 @@ class AppCompatCacheDataParser(object):
 
       if self._debug:
         print(u'Path size\t\t\t\t\t\t\t\t: {0:d}'.format(path_size))
-        print(u'Maximum path size\t\t\t\t\t\t\t: {0:d}'.format(maximum_path_size))
+        print(u'Maximum path size\t\t\t\t\t\t\t: {0:d}'.format(
+            maximum_path_size))
         print(u'Path offset\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(path_offset))
 
     elif format_type in [self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
@@ -696,7 +697,7 @@ class WindowsAppCompatCacheCollector(collector.WindowsVolumeCollector):
     super(WindowsAppCompatCacheCollector, self).__init__()
     self._debug = debug
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.Registry(registry_file_reader)
+    self._registry = registry.WinRegistry(registry_file_reader)
 
     self.found_app_compat_cache_key = False
 
@@ -721,7 +722,9 @@ class WindowsAppCompatCacheCollector(collector.WindowsVolumeCollector):
     value_data = value.data
     value_data_size = len(value.data)
 
-    parser = AppCompatCacheDataParser(debug=self._debug)
+    # TODO: add non debug output
+    # parser = AppCompatCacheDataParser(debug=self._debug)
+    parser = AppCompatCacheDataParser(debug=True)
 
     if self._debug:
       # TODO: replace WriteText by more output specific method e.g.

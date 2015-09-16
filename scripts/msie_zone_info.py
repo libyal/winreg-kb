@@ -5,7 +5,8 @@ from __future__ import print_function
 import argparse
 import sys
 
-import pyregf
+import collector
+import registry
 
 
 DEFAULT_ZONE_NAMES = {
@@ -120,10 +121,60 @@ CONTROL_VALUES_1C00 = {
 }
 
 
-def PrintZonesKey(regf_file, zones_key_path, output_mode=0):
-  zones_key = regf_file.get_key_by_path(zones_key_path)
+class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
+  """Class that defines a MSIE zone information information collector."""
 
-  if zones_key:
+  DEFAULT_VALUE_NAME = u''
+
+  _CURRENT_VERSION_KEY_PATH = (
+      u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')
+
+  def __init__(self):
+    """Initializes the Windows system information collector object."""
+    super(MSIEZoneInfoCollector, self).__init__()
+    registry_file_reader = collector.CollectorRegistryFileReader(self)
+    self._registry = registry.WinRegistry(registry_file_reader)
+
+    self.found_current_version_key = False
+
+  def _PrintLockdownKey(self, lockdown_key_path):
+    """Prints a lockdown key.
+
+    Args:
+      lockdown_key_path: the lockdown key path.
+    """
+    lockdown_key = self._registry.GetKeyByPath(lockdown_key_path)
+    if not lockdown_key:
+      return
+
+    print(u'Key: {0:s}'.format(lockdown_key_path))
+    print(u'')
+
+    program_name = u'iexplore.exe'
+    program_value = lockdown_key.get_value_by_name(program_name)
+
+    if program_value:
+      value = program_value.get_data_as_integer()
+    else:
+      value = 0
+
+    if value == 1:
+      print(u'Local Machine lockdown for {0:s}: True'.format(program_name))
+    else:
+      print(u'Local Machine lockdown for {0:s}: False'.format(program_name))
+    print(u'')
+
+  def _PrintZonesKey(self, zones_key_path, output_mode=0):
+    """Prints a zones key.
+
+    Args:
+      lockdown_key_path: the zones key path.
+      output_mode: optional integer indicating the output mode.
+    """
+    zones_key = self._registry.GetKeyByPath(zones_key_path)
+    if not zones_key:
+      return
+
     print(u'Key: {0:s}'.format(zones_key_path))
     print(u'')
 
@@ -200,27 +251,150 @@ def PrintZonesKey(regf_file, zones_key_path, output_mode=0):
 
       print(u'')
 
+  def Collect(self, output_writer):
+    """Collects the system information.
 
-def PrintLockdownKey(regf_file, lockdown_key_path):
-  lockdown_key = regf_file.get_key_by_path(lockdown_key_path)
+    Args:
+      output_writer: the output writer object.
+    """
+    self.found_current_version_key = False
 
-  if lockdown_key:
-    print(u'Key: {0:s}'.format(lockdown_key_path))
-    print(u'')
+    output_mode = 1
 
-    program_name = u'iexplore.exe'
-    program_value = lockdown_key.get_value_by_name(program_name)
+    # TODO: pass output_writer
+    _ = output_writer
 
-    if program_value:
-      value = program_value.get_data_as_integer()
-    else:
-      value = 0
+    # HKEY_CURRENT_USER
 
-    if value == 1:
-      print(u'Local Machine lockdown for {0:s}: True'.format(program_name))
-    else:
-      print(u'Local Machine lockdown for {0:s}: False'.format(program_name))
-    print(u'')
+    key_path = (
+        u'HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Internet Explorer\\'
+        u'Main\\FeatureControl\\FEATURE_LOCALMACHINE_LOCKDOWN')
+    self._PrintLockdownKey(key_path)
+
+    key_path = (
+        u'HKEY_CURRENT_USER\\Software\\Microsoft\\Internet Explorer\\Main\\'
+        u'FeatureControl\\FEATURE_LOCALMACHINE_LOCKDOWN')
+    self._PrintLockdownKey(key_path)
+
+    # HKEY_LOCAL_MACHINE
+
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Internet Explorer\\'
+        u'Main\\FeatureControl\\FEATURE_LOCALMACHINE_LOCKDOWN')
+    self._PrintLockdownKey(key_path)
+
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Internet Explorer\\Main\\'
+        u'FeatureControl\\FEATURE_LOCALMACHINE_LOCKDOWN')
+    self._PrintLockdownKey(key_path)
+
+    # HKEY_LOCAL_MACHINE WoW64
+
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Policies\\Microsoft\\'
+        u'Internet Explorer\\Main\\FeatureControl\\'
+        u'FEATURE_LOCALMACHINE_LOCKDOWN')
+    self._PrintLockdownKey(key_path)
+
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Microsoft\\'
+        u'Internet Explorer\\Main\\FeatureControl\\'
+        u'FEATURE_LOCALMACHINE_LOCKDOWN')
+    self._PrintLockdownKey(key_path)
+
+    # TODO: check for value Policies\\Microsoft\\Windows\\CurrentVersion\\
+    # Internet Settings\\Security_HKEY_LOCAL_MACHINE_only and its data
+    # if not exists or 0, not enabled if 1 only HKLM policy applies
+
+    # HKEY_CURRENT_USER
+
+    key_path = (
+        u'HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Windows\\'
+        u'CurrentVersion\\Internet Settings\\Zones')
+    self._PrintZonesKey(key_path, output_mode=output_mode)
+
+    key_path = (
+        u'HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Windows\\'
+        u'CurrentVersion\\Internet Settings\\Lockdown_Zones')
+    self._PrintZonesKey(key_path, output_mode=output_mode)
+
+    key_path = (
+        u'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
+        u'Internet Settings\\Zones')
+    self._PrintZonesKey(key_path, output_mode=output_mode)
+
+    key_path = (
+        u'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
+        u'Internet Settings\\Lockdown_Zones')
+    self._PrintZonesKey(key_path, output_mode=output_mode)
+
+    # HKEY_LOCAL_MACHINE
+
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\'
+        u'CurrentVersion\\Internet Settings\\Zones')
+    self._PrintZonesKey(key_path, output_mode=output_mode)
+
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\'
+        u'CurrentVersion\\Internet Settings\\Lockdown_Zones')
+    self._PrintZonesKey(key_path, output_mode=output_mode)
+
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\'
+        u'Internet Settings\\Zones')
+    self._PrintZonesKey(key_path, output_mode=output_mode)
+
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\'
+        u'Internet Settings\\Lockdown_Zones')
+    self._PrintZonesKey(key_path, output_mode=output_mode)
+
+    # HKEY_LOCAL_MACHINE WoW64
+
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Policies\\Microsoft\\'
+        u'Windows\\CurrentVersion\\Internet Settings\\Zones')
+    self._PrintZonesKey(key_path, output_mode=output_mode)
+
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Policies\\Microsoft\\'
+        u'Windows\\CurrentVersion\\Internet Settings\\Lockdown_Zones')
+    self._PrintZonesKey(key_path, output_mode=output_mode)
+
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Microsoft\\Windows\\'
+        u'CurrentVersion\\Internet Settings\\Zones')
+    self._PrintZonesKey(key_path, output_mode=output_mode)
+
+    key_path = (
+        u'HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Microsoft\\Windows\\'
+        u'CurrentVersion\\Internet Settings\\Lockdown_Zones')
+    self._PrintZonesKey(key_path, output_mode=output_mode)
+
+
+class StdoutWriter(object):
+  """Class that defines a stdout output writer."""
+
+  def Close(self):
+    """Closes the output writer object."""
+    return
+
+  def Open(self):
+    """Opens the output writer object.
+
+    Returns:
+      A boolean containing True if successful or False if not.
+    """
+    return True
+
+  def WriteText(self, text):
+    """Writes text to stdout.
+
+    Args:
+      text: the text to write.
+    """
+    print(text)
 
 
 def Main():
@@ -234,127 +408,44 @@ def Main():
       u'Registry File (REGF).'))
 
   argument_parser.add_argument(
-      u'registry_file', nargs=u'?', action=u'store', metavar=u'SOFTWARE',
-      default=None, help=u'path of the SOFTWARE Registry file.')
+      u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,
+      help=(
+          u'path of the volume containing C:\\Windows, the filename of '
+          u'a storage media image containing the C:\\Windows directory,'
+          u'or the path of a SOFTWARE Registry file.'))
 
   options = argument_parser.parse_args()
 
-  if not options.registry_file:
-    print(u'Registry file missing.')
+  if not options.source:
+    print(u'Source value is missing.')
     print(u'')
     argument_parser.print_help()
     print(u'')
     return False
 
-  output_mode = 1
+  output_writer = StdoutWriter()
 
-  regf_file = pyregf.file()
-  regf_file.open(options.registry_file)
+  if not output_writer.Open():
+    print(u'Unable to open output writer.')
+    print(u'')
+    return False
 
-  # HKCU
+  collector_object = MSIEZoneInfoCollector()
 
-  key_path = (
-      u'Software\\Policies\\Microsoft\\Internet Explorer\\Main\\'
-      u'FeatureControl\\FEATURE_LOCALMACHINE_LOCKDOWN')
-  PrintLockdownKey(regf_file, key_path)
+  if not collector_object.GetWindowsVolumePathSpec(options.source):
+    print((
+        u'Unable to retrieve the volume with the Windows directory from: '
+        u'{0:s}.').format(options.source))
+    print(u'')
+    return False
 
-  key_path = (
-      u'Software\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-      u'FEATURE_LOCALMACHINE_LOCKDOWN')
-  PrintLockdownKey(regf_file, key_path)
+  collector_object.Collect(output_writer)
+  output_writer.Close()
 
-  # HKLM
-
-  key_path = (
-      u'Policies\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-      u'FEATURE_LOCALMACHINE_LOCKDOWN')
-  PrintLockdownKey(regf_file, key_path)
-
-  key_path = (
-      u'Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-      u'FEATURE_LOCALMACHINE_LOCKDOWN')
-  PrintLockdownKey(regf_file, key_path)
-
-  # HKLM Wow64
-
-  key_path = (
-      u'Wow6432Node\\Policies\\Microsoft\\Internet Explorer\\Main\\'
-      u'FeatureControl\\FEATURE_LOCALMACHINE_LOCKDOWN')
-  PrintLockdownKey(regf_file, key_path)
-
-  key_path = (
-      u'Wow6432Node\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\'
-      u'FEATURE_LOCALMACHINE_LOCKDOWN')
-  PrintLockdownKey(regf_file, key_path)
-
-  # TODO: check for value Policies\\Microsoft\\Windows\\CurrentVersion\\
-  # Internet Settings\\Security_HKEY_LOCAL_MACHINE_only and its data
-  # if not exists or 0, not enabled if 1 only HKLM policy applies
-
-  # HKCU
-
-  key_path = (
-      u'Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
-      u'Internet Settings\\Zones')
-  PrintZonesKey(regf_file, key_path, output_mode)
-
-  key_path = (
-      u'Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
-      u'Internet Settings\\Lockdown_Zones')
-  PrintZonesKey(regf_file, key_path, output_mode)
-
-  key_path = (
-      u'Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Zones')
-  PrintZonesKey(regf_file, key_path, output_mode)
-
-  key_path = (
-      u'Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-      u'Lockdown_Zones')
-  PrintZonesKey(regf_file, key_path, output_mode)
-
-  # HKLM
-
-  key_path = (
-      u'Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-      u'Zones')
-  PrintZonesKey(regf_file, key_path, output_mode)
-
-  key_path = (
-      u'Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-      u'Lockdown_Zones')
-  PrintZonesKey(regf_file, key_path, output_mode)
-
-  key_path = (
-      u'Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Zones')
-  PrintZonesKey(regf_file, key_path, output_mode)
-
-  key_path = (
-      u'Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Lockdown_Zones')
-  PrintZonesKey(regf_file, key_path, output_mode)
-
-  # HKLM Wow64
-
-  key_path = (
-      u'Wow6432Node\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
-      u'Internet Settings\\Zones')
-  PrintZonesKey(regf_file, key_path, output_mode)
-
-  key_path = (
-      u'Wow6432Node\\Policies\\Microsoft\\Windows\\CurrentVersion\\'
-      u'Internet Settings\\Lockdown_Zones')
-  PrintZonesKey(regf_file, key_path, output_mode)
-
-  key_path = (
-      u'Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-      u'Zones')
-  PrintZonesKey(regf_file, key_path, output_mode)
-
-  key_path = (
-      u'Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\'
-      u'Lockdown_Zones'),
-  PrintZonesKey(regf_file, key_path, output_mode)
-
-  regf_file.close()
+  # TODO: implement.
+  # if (not collector_object.found_lockdown_key and
+  #     not collector_object.found_zones_key):
+  #   print(u'No lockdown and zones key found.')
 
   return True
 

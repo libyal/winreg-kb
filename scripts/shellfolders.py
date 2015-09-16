@@ -24,7 +24,7 @@ class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
     """Initializes the Shell Folder identifier collector object."""
     super(ShellFolderIdentifierCollector, self).__init__()
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.Registry(registry_file_reader)
+    self._registry = registry.WinRegistry(registry_file_reader)
 
     self.found_class_identifiers_key = False
     self.found_shell_folder_identifier_key = False

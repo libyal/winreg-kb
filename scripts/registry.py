@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Class to represent a Windows Registry file."""
+"""Classes to provide a uniform way to access the Windows Registry."""
 
 import abc
 
 import pyregf
 
 # TODO: implement dfvfs_pyregf
+# TODO: wrap key to hide implementation specifics.
 
 
 if pyregf.get_version() < u'20130716':
@@ -27,7 +28,7 @@ REG_RESOURCE_REQUIREMENT_LIST = 10
 REG_QWORD = 11
 
 
-class RegistryFile(object):
+class WinRegistryFile(object):
   """Class that defines a Windows Registry file."""
 
   def __init__(self, ascii_codepage=u'cp1252'):
@@ -37,7 +38,7 @@ class RegistryFile(object):
       ascii_codepage: optional ASCII string codepage. The default is cp1252
                       (or windows-1252).
     """
-    super(RegistryFile, self).__init__()
+    super(WinRegistryFile, self).__init__()
     self._file_object = None
     self._regf_file = pyregf.file()
     self._regf_file.set_ascii_codepage(ascii_codepage)
@@ -55,7 +56,7 @@ class RegistryFile(object):
       key_path: the Registry key path.
 
     Returns:
-      A Registry key (instance of RegistryKey) or None if not available.
+      A Registry key (instance of WinRegistryKey) or None if not available.
     """
     return self._regf_file.get_key_by_path(key_path)
 
@@ -63,7 +64,7 @@ class RegistryFile(object):
     """Retrieves the root keys.
 
     Yields:
-      A Registry key (instance of RegistryKey).
+      A Registry key (instance of WinRegistryKey).
     """
     return self._regf_file.get_root_key()
 
@@ -76,13 +77,19 @@ class RegistryFile(object):
     Returns:
       A boolean containing True if successful or False if not.
     """
+    # TODO: detect file type.
     self._file_object = file_object
     self._regf_file.open_file_object(self._file_object)
     return True
 
 
-class RegistryFileMapping(object):
-  """Class that defines a Windows Registry file mapping."""
+class WinRegistryFileMapping(object):
+  """Class that defines a Windows Registry file mapping.
+
+  Attributes:
+    key_path_prefix: the Registry key path prefix.
+    windows_path: the Windows path to the Registry file.
+  """
 
   def __init__(self, key_path_prefix, windows_path):
     """Initializes the Windows Registry file mapping.
@@ -91,70 +98,72 @@ class RegistryFileMapping(object):
       key_path_prefix: the Registry key path prefix.
       windows_path: the Windows path to the Registry file.
     """
-    super(RegistryFileMapping, self).__init__()
+    super(WinRegistryFileMapping, self).__init__()
     self.key_path_prefix = key_path_prefix.upper()
     self.windows_path = windows_path
 
 
-class RegistryFileReader(object):
+class WinRegistryFileReader(object):
   """Class that defines the Windows Registry file reader interface."""
 
   @abc.abstractmethod
-  def Open(self, windows_path):
+  def Open(self, windows_path, ascii_codepage=u'cp1252'):
     """Opens the Registry file specificed by the Windows path.
 
     Args:
       windows_path: the Windows path to the Registry file.
+      ascii_codepage: optional ASCII string codepage. The default is cp1252
+                      (or windows-1252).
 
     Returns:
-      The Registry file (instance of RegistryFile) or None.
+      The Registry file (instance of WinRegistryFile) or None.
     """
 
 
-class RegistryKey(object):
+class WinRegistryKey(object):
   """Class that defines a Windows Registry key."""
 
   def __init__(self):
     """Initializes the Windows Registry key."""
-    super(RegistryKey, self).__init__()
+    super(WinRegistryKey, self).__init__()
     self._regf_key = None
 
 
-class Registry(object):
+class WinRegistry(object):
   """Class that defines a Windows Registry."""
 
   _PATH_SEPARATOR = u'\\'
 
   _REGISTRY_FILE_MAPPINGS_9X = [
-      RegistryFileMapping(
+      WinRegistryFileMapping(
           u'HKEY_LOCAL_MACHINE',
           u'%SystemRoot%\\SYSTEM.DAT'),
-      RegistryFileMapping(
+      WinRegistryFileMapping(
           u'HKEY_USERS',
           u'%SystemRoot%\\USER.DAT'),
   ]
 
   _REGISTRY_FILE_MAPPINGS_NT = [
-      RegistryFileMapping(
+      WinRegistryFileMapping(
           u'HKEY_CURRENT_USER',
           u'%UserProfile%\\NTUSER.DAT'),
-      RegistryFileMapping(
+      WinRegistryFileMapping(
           u'HKEY_CURRENT_USER\\Software\\Classes',
           u'%UserProfile%\\AppData\\Local\\Microsoft\\Windows\\UsrClass.dat'),
-      RegistryFileMapping(
+      WinRegistryFileMapping(
           u'HKEY_CURRENT_USER\\Software\\Classes',
           (u'%UserProfile%\\Local Settings\\Application Data\\Microsoft\\'
            u'Windows\\UsrClass.dat')),
-      RegistryFileMapping(
+      WinRegistryFileMapping(
           u'HKEY_LOCAL_MACHINE\\SAM',
           u'%SystemRoot%\\System32\\config\\SAM'),
-      RegistryFileMapping(
+      WinRegistryFileMapping(
           u'HKEY_LOCAL_MACHINE\\Security',
           u'%SystemRoot%\\System32\\config\\SECURITY'),
-      RegistryFileMapping(
+      WinRegistryFileMapping(
           u'HKEY_LOCAL_MACHINE\\Software',
           u'%SystemRoot%\\System32\\config\\SOFTWARE'),
-      RegistryFileMapping(
+      WinRegistryFileMapping(
           u'HKEY_LOCAL_MACHINE\\System',
           u'%SystemRoot%\\System32\\config\\SYSTEM'),
   ]
@@ -177,24 +186,28 @@ class Registry(object):
       u'HKEY_USERS',
   ])
 
+  # TODO: add support for HKEY_USERS.
   _VIRTUAL_KEYS = [
       (u'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet',
        u'_GetCurrentControlSet')]
 
-  def __init__(self, registry_file_reader):
+  def __init__(self, registry_file_reader, ascii_codepage=u'cp1252'):
     """Initializes the Windows Registry object.
 
     Args:
       registry_file_reader: the Registry file reader (instance of
-                            RegistryFileReader).
+                            WinRegistryFileReader).
+      ascii_codepage: optional ASCII string codepage. The default is cp1252
+                      (or windows-1252).
     """
-    super(Registry, self).__init__()
+    super(WinRegistry, self).__init__()
+    self._ascii_codepage = ascii_codepage
     self._registry_file_reader = registry_file_reader
     self._registry_files = {}
 
   def __del__(self):
     """Cleans up the Windows Registry object."""
-    for key_path_prefix, registry_file in self._registry_files.iteritems():
+    for key_path_prefix, registry_file in iter(self._registry_files.items()):
       self._registry_files[key_path_prefix] = None
       if registry_file:
         registry_file.Close()
@@ -208,7 +221,7 @@ class Registry(object):
 
     Returns:
       A tuple of the key path prefix and the corresponding Registry file object
-      (instance of RegistryFile) or None if not available.
+      (instance of WinRegistryFile) or None if not available.
     """
     longest_key_path_prefix = u''
     longest_key_path_prefix_length = len(longest_key_path_prefix)
@@ -237,11 +250,13 @@ class Registry(object):
     if not select_key:
       return
 
+    # TODO: wrap key implementation.
     current_value = select_key.get_value_by_name(u'Current')
     # TODO: add support for fallback.
     if not current_value:
       return
 
+    # TODO: wrap value implementation.
     control_set = current_value.get_data_as_integer()
     # TODO: check if control set is 0.
     return u'HKEY_LOCAL_MACHINE\\System\\ControlSet{0:03d}'.format(control_set)
@@ -255,14 +270,15 @@ class Registry(object):
 
     Returns:
       A tuple of the key path prefix and the corresponding Registry file object
-      (instance of RegistryFile) or None if not available.
+      (instance of WinRegistryFile) or None if not available.
     """
     # TODO: handle HKEY_USERS in both 9X and NT.
 
     key_path_prefix, registry_file = self._GetCachedFileByPath(safe_key_path)
     if not registry_file:
       for mapping in self._GetFileMappingsByPath(safe_key_path):
-        registry_file = self._registry_file_reader.Open(mapping.windows_path)
+        registry_file = self._registry_file_reader.Open(
+            mapping.windows_path, ascii_codepage=self._ascii_codepage)
         if registry_file:
           if not key_path_prefix:
             key_path_prefix = mapping.key_path_prefix
@@ -281,7 +297,7 @@ class Registry(object):
                      root key alias.
 
     Yields:
-      Registry file mapping objects (instances of RegistryFileMapping).
+      Registry file mapping objects (instances of WinRegistryFileMapping).
     """
     candidate_mappings = []
     for mapping in self._REGISTRY_FILE_MAPPINGS_NT:
@@ -301,7 +317,7 @@ class Registry(object):
       key_path: the Registry key path.
 
     Returns:
-      A Registry key (instance of RegistryKey) or None if not available.
+      A Registry key (instance of WinRegistryKey) or None if not available.
 
     Raises:
       RuntimeError: if the root key is not supported.

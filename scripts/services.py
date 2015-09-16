@@ -22,7 +22,7 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
     """Initializes the Windows services collector object."""
     super(WindowsServicesCollector, self).__init__()
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.Registry(registry_file_reader)
+    self._registry = registry.WinRegistry(registry_file_reader)
 
     self.found_services_key = False
 

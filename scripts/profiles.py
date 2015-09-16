@@ -27,7 +27,7 @@ class WindowsUsersCollector(collector.WindowsVolumeCollector):
     """Initializes the Windows users collector object."""
     super(WindowsUsersCollector, self).__init__()
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.Registry(registry_file_reader)
+    self._registry = registry.WinRegistry(registry_file_reader)
 
     self.found_profile_list_key = False
 

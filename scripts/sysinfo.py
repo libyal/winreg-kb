@@ -21,7 +21,7 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
     """Initializes the Windows system information collector object."""
     super(WindowsSystemInfoCollector, self).__init__()
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.Registry(registry_file_reader)
+    self._registry = registry.WinRegistry(registry_file_reader)
 
     self.found_current_version_key = False
 

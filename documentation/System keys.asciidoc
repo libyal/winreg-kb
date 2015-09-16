@@ -76,6 +76,29 @@ CurrentControlSet\Control\Session Manager
 | BootExecute | REG_BINARY, REG_MULTI_SZ | The applications, services, and commands executed during start-up.
 |===
 
+== Language and codepage
+=== Codepage
+The codepage settings are stored in the key:
+....
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage
+....
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| # | REG_SZ | The code page file name +
+Where # is the code page number, e.g. 1252 +
+Contains a string with the name of the corresponding file e.g. c_1252.nls
+| ACP | REG_SZ | The default ANSI (extended ASCII) code page +
+Contains a string with the number of the corresponding code page e.g. 1252
+| MACCP | REG_SZ | The default Macintosh code page +
+Contains a string with the number of the corresponding code page e.g. 1252
+| OEMCP | REG_SZ | The default OEM code page +
+Contains a string with the number of the corresponding code page e.g. 1252
+| OEMHAL | REG_SZ | [yellow-background]*Unknown* +
+Contains a string with the name of the corresponding file e.g. vgaoem.fon
+|===
+
 == Environment variables
 The environment variables are stored in the key:
 ....
@@ -366,6 +389,8 @@ HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion
 == External Links
 * http://technet.microsoft.com/en-us/library/cc963230.aspx[MSDN: BootExecute]
 * http://msdn.microsoft.com/en-us/library/aa376977(v=vs.85).aspx[MSDN: Run and RunOnce Registry Keys]
+* https://support.microsoft.com/en-us/kb/102987[kb102987: REG: CurrentControlSet, PART 1]
 * http://support.microsoft.com/kb/103000[kb103000: CurrentControlSet\Services Subkey Entries]
 * http://support.microsoft.com/kb/137367[kb137367: Definition of the RunOnce Keys in the Registry]
 * http://blogs.technet.com/b/mrsnrub/archive/2011/05/25/how-does-last-known-good-work.aspx[Technet: How does Last Known Good work?]
+

@@ -44,7 +44,7 @@ class WindowsKnownFoldersCollector(collector.WindowsVolumeCollector):
     """Initializes the Windows known folders collector object."""
     super(WindowsKnownFoldersCollector, self).__init__()
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.Registry(registry_file_reader)
+    self._registry = registry.WinRegistry(registry_file_reader)
 
     self.found_folder_descriptions_key = False
 
