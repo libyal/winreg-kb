@@ -19,7 +19,10 @@ class ProgramsCacheDataParser(object):
 
   _HEADER_STRUCT = construct.Struct(
       u'programscache_header',
-      construct.ULInt32(u'unknown1'),
+      construct.ULInt32(u'unknown1'))
+
+  _HEADER_9_STRUCT = construct.Struct(
+      u'programscache_header_9',
       construct.ULInt16(u'unknown2'))
 
   _ENTRY_HEADER_STRUCT = construct.Struct(
@@ -51,16 +54,33 @@ class ProgramsCacheDataParser(object):
       TODO
 
     Raises:
-      RuntimeError: TODO
+      RuntimeError: if the format is not supported.
     """
     header_struct = self._HEADER_STRUCT.parse(value_data)
     value_data_offset = self._HEADER_STRUCT.sizeof()
 
+    unknown1 = header_struct.get(u'unknown1')
     if self._debug:
       print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
           header_struct.get(u'unknown1')))
-      print(u'Unknown2\t\t\t\t\t\t\t\t: 0x{0:04x}'.format(
-          header_struct.get(u'unknown2')))
+
+    if unknown1 == 0x01:
+      # TODO: if 4 bytes are 0 then emtpy and should have sentinel
+      # 0e 00 00 00  01 f2 02 00 00
+      pass
+
+    elif unknown1 == 0x09:
+      header_struct = self._HEADER_9_STRUCT.parse(value_data)
+      value_data_offset += self._HEADER_9_STRUCT.sizeof()
+
+      if self._debug:
+        print(u'Unknown2\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            header_struct.get(u'unknown2')))
+
+    else:
+      raise RuntimeError(u'Unsupported format.')
+
+    if self._debug:
       print(u'')
 
     entry_header_struct = self._ENTRY_HEADER_STRUCT.parse(
@@ -196,8 +216,9 @@ class WindowsProgramsCacheCollector(collector.WindowsVolumeCollector):
     self._CollectProgramsCacheFromValue(
         output_writer, self._STARTPAGE_KEY_PATH, u'ProgramsCache')
 
-    self._CollectProgramsCacheFromValue(
-        output_writer, self._STARTPAGE2_KEY_PATH, u'ProgramsCache')
+    # TODO: add format support.
+    # self._CollectProgramsCacheFromValue(
+    #     output_writer, self._STARTPAGE2_KEY_PATH, u'ProgramsCache')
 
     self._CollectProgramsCacheFromValue(
         output_writer, self._STARTPAGE2_KEY_PATH, u'ProgramsCacheSMP')
