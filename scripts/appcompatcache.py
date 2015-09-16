@@ -41,7 +41,7 @@ class AppCompatCacheCachedEntry(object):
     self.path = None
 
 
-class AppCompatCacheKeyParser(object):
+class AppCompatCacheDataParser(object):
   """Class that parses the Application Compatibility Cache data."""
 
   FORMAT_TYPE_2000 = 1
@@ -183,9 +183,15 @@ class AppCompatCacheKeyParser(object):
       construct.ULInt32(u'number_of_cached_entries'),
       construct.Padding(8))
 
-  def __init__(self):
-    """Initializes the parser object."""
-    super(AppCompatCacheKeyParser, self).__init__()
+  def __init__(self, debug=False):
+    """Initializes the parser object.
+
+    Args:
+      debug: optional boolean value to indicate if debug information should
+             be printed. The default is false.
+    """
+    super(AppCompatCacheDataParser, self).__init__()
+    self._debug = debug
 
   def CheckSignature(self, value_data):
     """Parses the signature.
@@ -264,11 +270,13 @@ class AppCompatCacheKeyParser(object):
       header_object.header_size = self._HEADER_10_STRUCT.sizeof()
       header_struct = self._HEADER_10_STRUCT.parse(value_data)
 
-    print(u'Header data:')
-    print(hexdump.Hexdump(value_data[0:header_object.header_size]))
+    if self._debug:
+      print(u'Header data:')
+      print(hexdump.Hexdump(value_data[0:header_object.header_size]))
 
-    print(u'Signature\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-        header_struct.get(u'signature')))
+    if self._debug:
+      print(u'Signature\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+          header_struct.get(u'signature')))
 
     if format_type in [
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
@@ -276,17 +284,19 @@ class AppCompatCacheKeyParser(object):
       header_object.number_of_cached_entries = header_struct.get(
           u'number_of_cached_entries')
 
-      print(u'Number of cached entries\t\t\t\t\t\t: {0:d}'.format(
-          header_object.number_of_cached_entries))
+      if self._debug:
+        print(u'Number of cached entries\t\t\t\t\t\t: {0:d}'.format(
+            header_object.number_of_cached_entries))
 
     if format_type == self.FORMAT_TYPE_XP:
       number_of_lru_entries = header_struct.get(u'number_of_lru_entries')
-      print(u'Number of LRU entries\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          number_of_lru_entries))
-      print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          header_struct.get(u'unknown1')))
+      if self._debug:
+        print(u'Number of LRU entries\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            number_of_lru_entries))
+        print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            header_struct.get(u'unknown1')))
 
-      print(u'LRU entries:')
+        print(u'LRU entries:')
       data_offset = 16
       if number_of_lru_entries > 0 and number_of_lru_entries <= 96:
         for lru_entry_index in range(number_of_lru_entries):
@@ -294,21 +304,26 @@ class AppCompatCacheKeyParser(object):
               value_data[data_offset:data_offset + 4])
           data_offset += 4
 
-          print((
-              u'LRU entry: {0:d}\t\t\t\t\t\t\t\t: {1:d} '
-              u'(offset: 0x{2:08x})').format(
-                  lru_entry_index, lru_entry, 400 + (lru_entry * 552)))
+          if self._debug:
+            print((
+                u'LRU entry: {0:d}\t\t\t\t\t\t\t\t: {1:d} '
+                u'(offset: 0x{2:08x})').format(
+                    lru_entry_index, lru_entry, 400 + (lru_entry * 552)))
 
-        print(u'')
+        if self._debug:
+          print(u'')
 
-      print(u'Unknown data:')
-      print(hexdump.Hexdump(value_data[data_offset:400]))
+      if self._debug:
+        print(u'Unknown data:')
+        print(hexdump.Hexdump(value_data[data_offset:400]))
 
     elif format_type == self.FORMAT_TYPE_8:
-      print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          header_struct.get(u'unknown1')))
+      if self._debug:
+        print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            header_struct.get(u'unknown1')))
 
-    print(u'')
+    if self._debug:
+      print(u'')
 
     return header_object
 
@@ -413,12 +428,14 @@ class AppCompatCacheKeyParser(object):
     if format_type in [
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7]:
-      print(u'Cached entry: {0:d} data:'.format(cached_entry_index))
-      print(hexdump.Hexdump(cached_entry_data))
+      if self._debug:
+        print(u'Cached entry: {0:d} data:'.format(cached_entry_index))
+        print(hexdump.Hexdump(cached_entry_data))
 
     elif format_type in [self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
-      print(u'Cached entry: {0:d} header data:'.format(cached_entry_index))
-      print(hexdump.Hexdump(cached_entry_data[:-2]))
+      if self._debug:
+        print(u'Cached entry: {0:d} header data:'.format(cached_entry_index))
+        print(hexdump.Hexdump(cached_entry_data[:-2]))
 
     cached_entry_struct = None
 
@@ -475,8 +492,9 @@ class AppCompatCacheKeyParser(object):
           cached_entry_size))
 
     if format_type in [self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
-      print(u'Cached entry: {0:d} data:'.format(cached_entry_index))
-      print(hexdump.Hexdump(cached_entry_data))
+      if self._debug:
+        print(u'Cached entry: {0:d} data:'.format(cached_entry_index))
+        print(hexdump.Hexdump(cached_entry_data))
 
     cached_entry_object = AppCompatCacheCachedEntry()
     cached_entry_object.cached_entry_size = cached_entry_size
@@ -495,7 +513,8 @@ class AppCompatCacheKeyParser(object):
       cached_entry_object.path = cached_entry_data[0:string_size].decode(
           u'utf-16-le')
 
-      print(u'Path\t\t\t\t\t\t\t\t\t: {0:s}'.format(cached_entry_object.path))
+      if self._debug:
+        print(u'Path\t\t\t\t\t\t\t\t\t: {0:s}'.format(cached_entry_object.path))
 
     elif format_type in [
         self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA, self.FORMAT_TYPE_7]:
@@ -503,26 +522,29 @@ class AppCompatCacheKeyParser(object):
       maximum_path_size = cached_entry_struct.get(u'maximum_path_size')
       path_offset = cached_entry_struct.get(u'path_offset')
 
-      print(u'Path size\t\t\t\t\t\t\t\t: {0:d}'.format(path_size))
-      print(u'Maximum path size\t\t\t\t\t\t\t: {0:d}'.format(maximum_path_size))
-      print(u'Path offset\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(path_offset))
+      if self._debug:
+        print(u'Path size\t\t\t\t\t\t\t\t: {0:d}'.format(path_size))
+        print(u'Maximum path size\t\t\t\t\t\t\t: {0:d}'.format(maximum_path_size))
+        print(u'Path offset\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(path_offset))
 
     elif format_type in [self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
       path_size = cached_entry_struct.get(u'path_size')
 
-      print(u'Signature\t\t\t\t\t\t\t\t: {0:s}'.format(
-          cached_entry_data[0:4]))
-      print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          cached_entry_struct.get(u'unknown1')))
-      print(u'Cached entry data size\t\t\t\t\t\t\t: {0:d}'.format(
-          cached_entry_data_size))
-      print(u'Path size\t\t\t\t\t\t\t\t: {0:d}'.format(path_size))
+      if self._debug:
+        print(u'Signature\t\t\t\t\t\t\t\t: {0:s}'.format(
+            cached_entry_data[0:4]))
+        print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            cached_entry_struct.get(u'unknown1')))
+        print(u'Cached entry data size\t\t\t\t\t\t\t: {0:d}'.format(
+            cached_entry_data_size))
+        print(u'Path size\t\t\t\t\t\t\t\t: {0:d}'.format(path_size))
 
       cached_entry_data_offset = 14 + path_size
       cached_entry_object.path = cached_entry_data[
           14:cached_entry_data_offset].decode(u'utf-16-le')
 
-      print(u'Path\t\t\t\t\t\t\t\t\t: {0:s}'.format(cached_entry_object.path))
+      if self._debug:
+        print(u'Path\t\t\t\t\t\t\t\t\t: {0:s}'.format(cached_entry_object.path))
 
       if format_type == self.FORMAT_TYPE_8:
         remaining_data = cached_entry_data[cached_entry_data_offset:]
@@ -532,17 +554,19 @@ class AppCompatCacheKeyParser(object):
         cached_entry_object.shim_flags = construct.ULInt32(
             u'shim_flags').parse(remaining_data[4:8])
 
-        print(u'Insertion flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            cached_entry_object.insertion_flags))
-        print(u'Shim flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            cached_entry_object.shim_flags))
+        if self._debug:
+          print(u'Insertion flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+              cached_entry_object.insertion_flags))
+          print(u'Shim flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+              cached_entry_object.shim_flags))
 
         if cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_0:
           cached_entry_data_offset += 8
 
         elif cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_1:
-          print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:04x}'.format(
-              construct.ULInt16(u'unknown1').parse(remaining_data[8:10])))
+          if self._debug:
+            print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:04x}'.format(
+                construct.ULInt16(u'unknown1').parse(remaining_data[8:10])))
 
           cached_entry_data_offset += 10
 
@@ -559,84 +583,96 @@ class AppCompatCacheKeyParser(object):
           u'last_modification_time').parse(remaining_data[0:8])
 
     if not cached_entry_object.last_modification_time:
-      print(u'Last modification time\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          cached_entry_object.last_modification_time))
+      if self._debug:
+        print(u'Last modification time\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            cached_entry_object.last_modification_time))
 
     else:
       timestamp = cached_entry_object.last_modification_time // 10
       date_string = (datetime.datetime(1601, 1, 1) +
                      datetime.timedelta(microseconds=timestamp))
 
-      print(u'Last modification time\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
-          date_string, cached_entry_object.last_modification_time))
+      if self._debug:
+        print(u'Last modification time\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
+            date_string, cached_entry_object.last_modification_time))
 
     if format_type in [self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003]:
       cached_entry_object.file_size = cached_entry_struct.get(u'file_size')
 
-      print(u'File size\t\t\t\t\t\t\t\t: {0:d}'.format(
-          cached_entry_object.file_size))
+      if self._debug:
+        print(u'File size\t\t\t\t\t\t\t\t: {0:d}'.format(
+            cached_entry_object.file_size))
 
     elif format_type in [self.FORMAT_TYPE_VISTA, self.FORMAT_TYPE_7]:
       cached_entry_object.insertion_flags = cached_entry_struct.get(
           u'insertion_flags')
       cached_entry_object.shim_flags = cached_entry_struct.get(u'shim_flags')
 
-      print(u'Insertion flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          cached_entry_object.insertion_flags))
-      print(u'Shim flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          cached_entry_object.shim_flags))
+      if self._debug:
+        print(u'Insertion flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            cached_entry_object.insertion_flags))
+        print(u'Shim flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+            cached_entry_object.shim_flags))
 
     if format_type == self.FORMAT_TYPE_XP:
       cached_entry_object.last_update_time = cached_entry_struct.get(
           u'last_update_time')
 
       if not cached_entry_object.last_update_time:
-        print(u'Last update time\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            cached_entry_object.last_update_time))
+        if self._debug:
+          print(u'Last update time\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+              cached_entry_object.last_update_time))
 
       else:
         timestamp = cached_entry_object.last_update_time // 10
         date_string = (datetime.datetime(1601, 1, 1) +
                        datetime.timedelta(microseconds=timestamp))
 
-        print(u'Last update time\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
-            date_string, cached_entry_object.last_update_time))
+        if self._debug:
+          print(u'Last update time\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
+              date_string, cached_entry_object.last_update_time))
 
     if format_type == self.FORMAT_TYPE_7:
       data_offset = cached_entry_struct.get(u'data_offset')
       data_size = cached_entry_struct.get(u'data_size')
 
-      print(u'Data offset\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(data_offset))
-      print(u'Data size\t\t\t\t\t\t\t\t: {0:d}'.format(data_size))
+      if self._debug:
+        print(u'Data offset\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(data_offset))
+        print(u'Data size\t\t\t\t\t\t\t\t: {0:d}'.format(data_size))
 
     elif format_type in [self.FORMAT_TYPE_8, self.FORMAT_TYPE_10]:
       data_offset = cached_entry_offset + cached_entry_data_offset + 12
       data_size = construct.ULInt32(u'data_size').parse(remaining_data[8:12])
 
-      print(u'Data size\t\t\t\t\t\t\t\t: {0:d}'.format(data_size))
+      if self._debug:
+        print(u'Data size\t\t\t\t\t\t\t\t: {0:d}'.format(data_size))
 
-    print(u'')
+    if self._debug:
+      print(u'')
 
     if path_offset > 0 and path_size > 0:
       path_size += path_offset
       maximum_path_size += path_offset
 
-      print(u'Path data:')
-      print(hexdump.Hexdump(value_data[path_offset:maximum_path_size]))
+      if self._debug:
+        print(u'Path data:')
+        print(hexdump.Hexdump(value_data[path_offset:maximum_path_size]))
 
       cached_entry_object.path = value_data[path_offset:path_size].decode(
           u'utf-16-le')
 
-      print(u'Path\t\t\t\t\t\t\t\t\t: {0:s}'.format(cached_entry_object.path))
-      print(u'')
+      if self._debug:
+        print(u'Path\t\t\t\t\t\t\t\t\t: {0:s}'.format(cached_entry_object.path))
+        print(u'')
 
     if data_size > 0:
       data_size += data_offset
 
       cached_entry_object.data = value_data[data_offset:data_size]
 
-      print(u'Data:')
-      print(hexdump.Hexdump(cached_entry_object.data))
+      if self._debug:
+        print(u'Data:')
+        print(hexdump.Hexdump(cached_entry_object.data))
 
     return cached_entry_object
 
@@ -664,9 +700,8 @@ class WindowsAppCompatCacheCollector(collector.WindowsVolumeCollector):
 
     self.found_app_compat_cache_key = False
 
-  def _CollectAppCompatCacheFromKey(
-      self, output_writer, key_path):
-    """Collects Application Compatibility Cache form a key.
+  def _CollectAppCompatCacheFromKey(self, output_writer, key_path):
+    """Collects Application Compatibility Cache from a Windows Registry key.
 
     Args:
       output_writer: the output writer object.
@@ -686,7 +721,7 @@ class WindowsAppCompatCacheCollector(collector.WindowsVolumeCollector):
     value_data = value.data
     value_data_size = len(value.data)
 
-    parser = AppCompatCacheKeyParser()
+    parser = AppCompatCacheDataParser(debug=self._debug)
 
     if self._debug:
       # TODO: replace WriteText by more output specific method e.g.
