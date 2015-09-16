@@ -5,6 +5,7 @@ from __future__ import print_function
 import argparse
 import logging
 import sys
+import uuid
 
 import construct
 import pyfwsi
@@ -77,6 +78,21 @@ class ProgramsCacheDataParser(object):
         print(u'Unknown2\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
             header_struct.get(u'unknown2')))
 
+    elif unknown1 in [0x0c, 0x13]:
+      uuid_object = uuid.UUID(bytes_le=value_data[4:20])
+      value_data_offset += 16
+
+      if self._debug:
+        print(u'Known folder identifier\t\t\t\t\t\t\t: {0!s}'.format(
+            uuid_object))
+
+      entry_footer_struct = self._ENTRY_FOOTER_STRUCT.parse(
+          value_data[value_data_offset:])
+      value_data_offset += self._ENTRY_FOOTER_STRUCT.sizeof()
+
+      sentinel = entry_footer_struct.get(u'sentinel')
+      if self._debug:
+        print(u'Sentinel\t\t\t\t\t\t\t\t: 0x{0:02x}'.format(sentinel))
     else:
       raise RuntimeError(u'Unsupported format.')
 
@@ -102,7 +118,7 @@ class ProgramsCacheDataParser(object):
       for shell_item in shell_item_list.items:
         if self._debug:
           print(u'Shell item: 0x{0:02x}'.format(shell_item.class_type))
-          print(u'Shell item: {0:s}'.format(shell_item.name))
+          print(u'Shell item: {0:s}'.format(getattr(shell_item, u'name', u'')))
 
       value_data_offset += entry_data_size
 
@@ -216,16 +232,14 @@ class WindowsProgramsCacheCollector(collector.WindowsVolumeCollector):
     self._CollectProgramsCacheFromValue(
         output_writer, self._STARTPAGE_KEY_PATH, u'ProgramsCache')
 
-    # TODO: add format support.
-    # self._CollectProgramsCacheFromValue(
-    #     output_writer, self._STARTPAGE2_KEY_PATH, u'ProgramsCache')
+    self._CollectProgramsCacheFromValue(
+        output_writer, self._STARTPAGE2_KEY_PATH, u'ProgramsCache')
 
     self._CollectProgramsCacheFromValue(
         output_writer, self._STARTPAGE2_KEY_PATH, u'ProgramsCacheSMP')
 
     self._CollectProgramsCacheFromValue(
         output_writer, self._STARTPAGE2_KEY_PATH, u'ProgramsCacheTBP')
-
 
 
 class StdoutWriter(object):
@@ -259,7 +273,8 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      u'Extract the system information from a SOFTWARE Registry File (REGF).'))
+      u'Extract the system information from a NTUSER.DAT Registry File '
+      u'(REGF).'))
 
   argument_parser.add_argument(
       u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,
