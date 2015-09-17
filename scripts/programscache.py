@@ -20,7 +20,7 @@ class ProgramsCacheDataParser(object):
 
   _HEADER_STRUCT = construct.Struct(
       u'programscache_header',
-      construct.ULInt32(u'unknown1'))
+      construct.ULInt32(u'format_version'))
 
   _HEADER_9_STRUCT = construct.Struct(
       u'programscache_header_9',
@@ -60,17 +60,15 @@ class ProgramsCacheDataParser(object):
     header_struct = self._HEADER_STRUCT.parse(value_data)
     value_data_offset = self._HEADER_STRUCT.sizeof()
 
-    unknown1 = header_struct.get(u'unknown1')
+    format_version = header_struct.get(u'format_version')
     if self._debug:
-      print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          header_struct.get(u'unknown1')))
+      print(u'Format version\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
+          format_version))
 
-    if unknown1 == 0x01:
-      # TODO: if 4 bytes are 0 then emtpy and should have sentinel
-      # 0e 00 00 00  01 f2 02 00 00
-      pass
+    if format_version == 0x01:
+      value_data_offset += 4
 
-    elif unknown1 == 0x09:
+    elif format_version == 0x09:
       header_struct = self._HEADER_9_STRUCT.parse(value_data)
       value_data_offset += self._HEADER_9_STRUCT.sizeof()
 
@@ -78,7 +76,7 @@ class ProgramsCacheDataParser(object):
         print(u'Unknown2\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
             header_struct.get(u'unknown2')))
 
-    elif unknown1 in [0x0c, 0x13]:
+    elif format_version in [0x0c, 0x13]:
       uuid_object = uuid.UUID(bytes_le=value_data[4:20])
       value_data_offset += 16
 
@@ -86,6 +84,12 @@ class ProgramsCacheDataParser(object):
         print(u'Known folder identifier\t\t\t\t\t\t\t: {0!s}'.format(
             uuid_object))
 
+    else:
+      raise RuntimeError(u'Unsupported format.')
+
+    if format_version == 0x09:
+      sentinel = 0
+    else:
       entry_footer_struct = self._ENTRY_FOOTER_STRUCT.parse(
           value_data[value_data_offset:])
       value_data_offset += self._ENTRY_FOOTER_STRUCT.sizeof()
@@ -93,19 +97,17 @@ class ProgramsCacheDataParser(object):
       sentinel = entry_footer_struct.get(u'sentinel')
       if self._debug:
         print(u'Sentinel\t\t\t\t\t\t\t\t: 0x{0:02x}'.format(sentinel))
-    else:
-      raise RuntimeError(u'Unsupported format.')
 
     if self._debug:
       print(u'')
 
-    entry_header_struct = self._ENTRY_HEADER_STRUCT.parse(
-        value_data[value_data_offset:])
-    value_data_offset += self._ENTRY_HEADER_STRUCT.sizeof()
+    while sentinel in [0x00, 0x01]:
+      entry_header_struct = self._ENTRY_HEADER_STRUCT.parse(
+          value_data[value_data_offset:])
+      value_data_offset += self._ENTRY_HEADER_STRUCT.sizeof()
 
-    entry_data_size = entry_header_struct.get(u'data_size')
+      entry_data_size = entry_header_struct.get(u'data_size')
 
-    while entry_data_size:
       if self._debug:
         print(u'Entry data offset\t\t\t\t\t\t\t: 0x{0:08x}'.format(
             value_data_offset))
@@ -145,15 +147,6 @@ class ProgramsCacheDataParser(object):
         if self._debug:
           print(u'Sentinel\t\t\t\t\t\t\t\t: 0x{0:02x}'.format(sentinel))
           print(u'')
-
-      if sentinel not in [0x00, 0x01]:
-        break
-
-      entry_header_struct = self._ENTRY_HEADER_STRUCT.parse(
-          value_data[value_data_offset:])
-      value_data_offset += self._ENTRY_HEADER_STRUCT.sizeof()
-
-      entry_data_size = entry_header_struct.get(u'data_size')
 
     if value_data_offset < value_data_size:
       print(u'Trailing data:')
