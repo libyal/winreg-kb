@@ -17,7 +17,7 @@ from dfvfs.path import factory as path_spec_factory
 from dfvfs.resolver import resolver
 from dfvfs.volume import tsk_volume_system
 
-import registry
+from winreg_kb import registry
 
 
 if dfvfs.__version__ < u'20150704':
@@ -39,7 +39,7 @@ class WindowsVolumeCollector(object):
   ])
 
   def __init__(self):
-    """Initializes the Windows volume collector object."""
+    """Initializes the collector object."""
     super(WindowsVolumeCollector, self).__init__()
     self._file_system = None
     self._path_resolver = None
@@ -386,7 +386,7 @@ class CollectorRegistryFileReader(registry.WinRegistryFileReader):
   """Class that defines the collector-based Windows Registry file reader."""
 
   def __init__(self, collector):
-    """Initializes the Windows Registry file reader.
+    """Initializes the Windows Registry file reader object.
 
     Args:
       collector: the Windows volume collector (instance of
