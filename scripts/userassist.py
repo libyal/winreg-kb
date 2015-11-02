@@ -79,6 +79,7 @@ def Main():
 
   collector_object = userassist.UserAssistCollector(debug=options.debug)
 
+  # TODO: add support to select user.
   if not collector_object.GetWindowsVolumePathSpec(options.source):
     print((
         u'Unable to retrieve the volume with the Windows directory from: '

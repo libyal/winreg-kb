@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """Windows known folders collector."""
 
+from dfwinreg import registry
+
 from winreg_kb import collector
-from winreg_kb import registry
 
 
 class KnownFolder(object):
@@ -46,7 +47,8 @@ class KnownFoldersCollector(collector.WindowsVolumeCollector):
     """Initializes the collector object."""
     super(KnownFoldersCollector, self).__init__()
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(registry_file_reader)
+    self._registry = registry.WinRegistry(
+        registry_file_reader=registry_file_reader)
 
     self.found_folder_descriptions_key = False
 
@@ -64,11 +66,11 @@ class KnownFoldersCollector(collector.WindowsVolumeCollector):
     if not key:
       return default_value
 
-    value = key.get_value_by_name(value_name)
+    value = key.GetValueByName(value_name)
     if not value:
       return default_value
 
-    return value.get_data_as_string()
+    return value.GetData()
 
   def Collect(self, output_writer):
     """Collects the known folders.
@@ -85,11 +87,11 @@ class KnownFoldersCollector(collector.WindowsVolumeCollector):
 
     self.found_folder_descriptions_key = True
 
-    for sub_key in folder_descriptions_key.sub_keys:
-      guid = sub_key.name.lower()
-      name = self._GetValueAsStringFromKey(sub_key, u'Name')
+    for subkey in folder_descriptions_key.GetSubkeys():
+      guid = subkey.name.lower()
+      name = self._GetValueAsStringFromKey(subkey, u'Name')
       localized_name = self._GetValueAsStringFromKey(
-          sub_key, u'LocalizedName')
+          subkey, u'LocalizedName')
 
       known_folder = KnownFolder(guid, name, localized_name)
       output_writer.WriteKnownFolder(known_folder)

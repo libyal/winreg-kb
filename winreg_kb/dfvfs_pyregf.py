@@ -142,7 +142,7 @@ class RegfDirectory(file_entry.Directory):
     if value_name is None:
       regf_key = self._file_system.GetRegfKey(key_path)
 
-      for regf_sub_key in regf_key.sub_keys:
+      for regf_sub_key in regf_key.GetSubkeys():
         if key_path == self._file_system.PATH_SEPARATOR:
           sub_key_path = self._file_system.JoinPath([regf_sub_key.name])
         else:
@@ -380,7 +380,7 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
     if value_name is None:
       return True
 
-    regf_value = regf_key.get_value_by_name(value_name)
+    regf_value = regf_key.GetValueByName(value_name)
     return regf_value is not None
 
   def GetFileEntryByPathSpec(self, path_spec):
@@ -415,7 +415,7 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
       return RegfFileEntry(
           self._resolver_context, self, path_spec, regf_key=regf_key)
 
-    regf_value = regf_key.get_value_by_name(value_name)
+    regf_value = regf_key.GetValueByName(value_name)
     if not regf_value:
       return
 

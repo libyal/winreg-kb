@@ -8,9 +8,10 @@ import uuid
 import construct
 import pyfwsi
 
+from dfwinreg import registry
+
 from winreg_kb import collector
 from winreg_kb import hexdump
-from winreg_kb import registry
 
 
 class ProgramsCacheDataParser(object):
@@ -176,7 +177,8 @@ class ProgramsCacheCollector(collector.WindowsVolumeCollector):
     super(ProgramsCacheCollector, self).__init__()
     self._debug = debug
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(registry_file_reader)
+    self._registry = registry.WinRegistry(
+        registry_file_reader=registry_file_reader)
 
     self.found_startpage_key = False
 
@@ -193,7 +195,7 @@ class ProgramsCacheCollector(collector.WindowsVolumeCollector):
       return
 
     self.found_startpage_key = True
-    value = startpage_key.get_value_by_name(value_name)
+    value = startpage_key.GetValueByName(value_name)
     if not value:
       logging.warning(u'Missing {0:s} value in key: {1:s}'.format(
           value_name, key_path))

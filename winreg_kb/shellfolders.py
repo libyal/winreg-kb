@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import logging
-import os
 
-import sqlite3
+from dfwinreg import registry
 
 from winreg_kb import collector
-from winreg_kb import registry
 
-
-# pylint: disable=logging-format-interpolation
 
 class ShellFolder(object):
   """Class that defines a shell folder."""
@@ -38,7 +33,8 @@ class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
     """Initializes the Shell Folder identifier collector object."""
     super(ShellFolderIdentifierCollector, self).__init__()
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(registry_file_reader)
+    self._registry = registry.WinRegistry(
+        registry_file_reader=registry_file_reader)
 
     self.found_class_identifiers_key = False
     self.found_shell_folder_identifier_key = False
@@ -56,15 +52,14 @@ class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
       return
 
     self.found_class_identifiers_key = True
-    for class_identifier_key in class_identifiers_key.sub_keys:
+    for class_identifier_key in class_identifiers_key.GetSubkeys():
       guid = class_identifier_key.name.lower()
 
-      shell_folder_key = class_identifier_key.get_sub_key_by_name(
-          u'ShellFolder')
+      shell_folder_key = class_identifier_key.GetSubkeyByName(u'ShellFolder')
       if shell_folder_key:
         self.found_shell_folder_identifier_key = True
 
-        value = class_identifier_key.get_value_by_name(u'')
+        value = class_identifier_key.GetValueByName(u'')
         if value:
           # The value data type does not have to be a string therefore try to
           # decode the data as an UTF-16 little-endian string and strip
@@ -73,7 +68,7 @@ class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
         else:
           name = u''
 
-        value = class_identifier_key.get_value_by_name(u'LocalizedString')
+        value = class_identifier_key.GetValueByName(u'LocalizedString')
         if value:
           # The value data type does not have to be a string therefore try to
           # decode the data as an UTF-16 little-endian string and strip

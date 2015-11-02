@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """Windows user profiles collector."""
 
+from dfwinreg import registry
+
 from winreg_kb import collector
-from winreg_kb import registry
 
 
 class UserProfilesCollector(collector.WindowsVolumeCollector):
@@ -23,7 +24,8 @@ class UserProfilesCollector(collector.WindowsVolumeCollector):
     """Initializes the collector object."""
     super(UserProfilesCollector, self).__init__()
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(registry_file_reader)
+    self._registry = registry.WinRegistry(
+        registry_file_reader=registry_file_reader)
 
     self.found_profile_list_key = False
 
@@ -41,11 +43,11 @@ class UserProfilesCollector(collector.WindowsVolumeCollector):
     if not key:
       return default_value
 
-    value = key.get_value_by_name(value_name)
+    value = key.GetValueByName(value_name)
     if not value:
       return default_value
 
-    return value.get_data_as_string()
+    return value.GetData()
 
   def Collect(self, output_writer):
     """Collects the system information.
@@ -62,7 +64,7 @@ class UserProfilesCollector(collector.WindowsVolumeCollector):
 
     self.found_profile_list_key = True
 
-    for sub_key in profile_list_key.sub_keys:
+    for sub_key in profile_list_key.GetSubkeys():
       profile_image_path = self._GetValueAsStringFromKey(
           sub_key, u'ProfileImagePath')
 

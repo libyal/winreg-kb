@@ -3,8 +3,9 @@
 
 from __future__ import print_function
 
+from dfwinreg import registry
+
 from winreg_kb import collector
-from winreg_kb import registry
 
 
 class WindowsService(object):
@@ -93,7 +94,8 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
     """Initializes the collector object."""
     super(WindowsServicesCollector, self).__init__()
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(registry_file_reader)
+    self._registry = registry.WinRegistry(
+        registry_file_reader=registry_file_reader)
 
     self.found_services_key = False
 
@@ -105,37 +107,36 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
       services_key: the services Registry key (instance of pyregf.key).
     """
     print(u'\tNumber of entries\t: {0:d}'.format(
-        services_key.number_of_sub_keys))
+        services_key.number_of_subkeys))
     print(u'')
 
-    for service_key in services_key.sub_keys:
-      type_value = service_key.get_value_by_name(u'Type')
+    for service_key in services_key.GetSubkeys():
+      type_value = service_key.GetValueByName(u'Type')
       if type_value:
-        type_value = type_value.data_as_integer
+        type_value = type_value.GetData()
 
-      display_name_value = service_key.get_value_by_name(u'DisplayName')
+      display_name_value = service_key.GetValueByName(u'DisplayName')
       if display_name_value:
-        if display_name_value.type in [
-            registry.REG_SZ, registry.REG_EXPAND_SZ]:
-          display_name_value = display_name_value.data_as_string
+        if display_name_value.DataIsString():
+          display_name_value = display_name_value.GetData()
         else:
           display_name_value = None
 
-      description_value = service_key.get_value_by_name(u'Description')
+      description_value = service_key.GetValueByName(u'Description')
       if description_value:
-        description_value = description_value.data_as_string
+        description_value = description_value.GetData()
 
-      image_path_value = service_key.get_value_by_name(u'ImagePath')
+      image_path_value = service_key.GetValueByName(u'ImagePath')
       if image_path_value:
-        image_path_value = image_path_value.data_as_string
+        image_path_value = image_path_value.GetData()
 
-      object_name_value = service_key.get_value_by_name(u'ObjectName')
+      object_name_value = service_key.GetValueByName(u'ObjectName')
       if object_name_value:
-        object_name_value = object_name_value.data_as_string
+        object_name_value = object_name_value.GetData()
 
-      start_value = service_key.get_value_by_name(u'Start')
+      start_value = service_key.GetValueByName(u'Start')
       if start_value:
-        start_value = start_value.data_as_integer
+        start_value = start_value.GetData()
 
       windows_service = WindowsService(
           service_key.name, type_value, display_name_value, description_value,
@@ -158,9 +159,9 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
       if not system_key:
         return
 
-      for control_set_key in system_key.sub_keys:
+      for control_set_key in system_key.GetSubkeys():
         if control_set_key.name.startswith(u'ControlSet'):
-          services_key = control_set_key.get_sub_key_by_name(u'Services')
+          services_key = control_set_key.GetSubkeyByName(u'Services')
           if services_key:
             self.found_services_key = True
 

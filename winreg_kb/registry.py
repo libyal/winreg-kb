@@ -251,7 +251,7 @@ class WinRegistry(object):
       return
 
     # TODO: wrap key implementation.
-    current_value = select_key.get_value_by_name(u'Current')
+    current_value = select_key.GetValueByName(u'Current')
     # TODO: add support for fallback.
     if not current_value:
       return

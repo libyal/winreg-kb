@@ -7,9 +7,10 @@ import logging
 
 import construct
 
+from dfwinreg import registry
+
 from winreg_kb import collector
 from winreg_kb import hexdump
-from winreg_kb import registry
 
 
 # pylint: disable=logging-format-interpolation
@@ -59,24 +60,26 @@ class UserAssistCollector(collector.WindowsVolumeCollector):
     super(UserAssistCollector, self).__init__()
     self._debug = debug
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(registry_file_reader)
+    self._registry = registry.WinRegistry(
+        registry_file_reader=registry_file_reader)
 
     self.found_user_assist_key = False
 
-  def _CollectUserAssistFromKey(self, output_writer, guid_sub_key):
+   # TODO: replace print by output_writer.
+  def _CollectUserAssistFromKey(self, unused_output_writer, guid_sub_key):
     """Collects the User Assist information from a GUID sub key.
 
     Args:
       output_writer: the output writer object.
       guid_sub_key: the User Assist GUID key (instance of pyregf.key).
     """
-    version_value = guid_sub_key.get_value_by_name(u'Version')
+    version_value = guid_sub_key.GetValueByName(u'Version')
     if not version_value:
       logging.warning(u'Missing Version value in sub key: {0:s}'.format(
           guid_sub_key.name))
       return
 
-    format_version = version_value.data_as_integer
+    format_version = version_value.GetData()
     if format_version == 3:
       value_data_size = self._USER_ASSIST_V3_STRUCT.sizeof()
     elif format_version == 5:
@@ -86,8 +89,8 @@ class UserAssistCollector(collector.WindowsVolumeCollector):
     print(u'Format version\t: {0:d}'.format(format_version))
     print(u'')
 
-    count_sub_key = guid_sub_key.get_sub_key_by_name(u'Count')
-    for value in count_sub_key.values:
+    count_sub_key = guid_sub_key.GetSubkeyByName(u'Count')
+    for value in count_sub_key.GetValues():
       output_string = u'Original name\t: {0:s}'.format(value.name)
       print(output_string.encode(u'utf-8'))
 
@@ -205,5 +208,5 @@ class UserAssistCollector(collector.WindowsVolumeCollector):
     print(u'Key: {0:s}'.format(self._USER_ASSIST_KEY))
     print(u'')
 
-    for guid_sub_key in user_assist_key.sub_keys:
+    for guid_sub_key in user_assist_key.GetSubkeys():
       self._CollectUserAssistFromKey(output_writer, guid_sub_key)

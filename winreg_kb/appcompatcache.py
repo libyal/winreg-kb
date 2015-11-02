@@ -7,9 +7,10 @@ import logging
 
 import construct
 
+from dfwinreg import registry
+
 from winreg_kb import collector
 from winreg_kb import hexdump
-from winreg_kb import registry
 
 
 # pylint: disable=logging-format-interpolation
@@ -696,7 +697,8 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
     super(AppCompatCacheCollector, self).__init__()
     self._debug = debug
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(registry_file_reader)
+    self._registry = registry.WinRegistry(
+        registry_file_reader=registry_file_reader)
 
     self.found_app_compat_cache_key = False
 
@@ -712,7 +714,7 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
       return
 
     self.found_app_compat_cache_key = True
-    value = app_compat_cache_key.get_value_by_name(u'AppCompatCache')
+    value = app_compat_cache_key.GetValueByName(u'AppCompatCache')
     if not value:
       logging.warning(u'Missing AppCompatCache value in key: {0:s}'.format(
           key_path))

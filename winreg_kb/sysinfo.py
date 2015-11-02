@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from dfwinreg import registry
+
 from winreg_kb import collector
-from winreg_kb import registry
 
 
 class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
@@ -16,7 +17,8 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
     """Initializes the collector object."""
     super(WindowsSystemInfoCollector, self).__init__()
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(registry_file_reader)
+    self._registry = registry.WinRegistry(
+        registry_file_reader=registry_file_reader)
 
     self.found_current_version_key = False
 
@@ -34,11 +36,11 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
     if not key:
       return default_value
 
-    value = key.get_value_by_name(value_name)
+    value = key.GetValueByName(value_name)
     if not value:
       return default_value
 
-    return value.get_data_as_string()
+    return value.GetData()
 
   def Collect(self, output_writer):
     """Collects the system information.
@@ -73,7 +75,6 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
           current_version_key, value_name)
       output_writer.WriteText(u'{0:s}: {1:s}'.format(value_name, value_string))
 
-    value = current_version_key.get_value_by_name(u'InstallDate')
+    value = current_version_key.GetValueByName(u'InstallDate')
     if value:
-      output_writer.WriteText(u'InstallDate: {0:d}'.format(
-          value.get_data_as_integer()))
+      output_writer.WriteText(u'InstallDate: {0:d}'.format(value.GetData()))

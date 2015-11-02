@@ -9,7 +9,7 @@ import sys
 
 import sqlite3
 
-from winreg_kb import shellfolder
+from winreg_kb import shellfolders
 
 
 class Sqlite3Writer(object):
@@ -201,7 +201,7 @@ def Main():
     print(u'')
     return False
 
-  collector_object = shellfolder.ShellFolderIdentifierCollector()
+  collector_object = shellfolders.ShellFolderIdentifierCollector()
 
   if not collector_object.GetWindowsVolumePathSpec(options.source):
     print((

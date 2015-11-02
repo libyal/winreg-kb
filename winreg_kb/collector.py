@@ -7,21 +7,26 @@ import os
 import sys
 
 import dfvfs
+import dfwinreg
 
-from dfvfs.credentials import manager as credentials_manager
-from dfvfs.lib import definitions
+from dfvfs.credentials import manager as dfvfs_credentials_manager
+from dfvfs.lib import definitions as dfvfs_definitions
 from dfvfs.lib import errors
-from dfvfs.helpers import source_scanner
-from dfvfs.helpers import windows_path_resolver
-from dfvfs.path import factory as path_spec_factory
+from dfvfs.helpers import source_scanner as dfvfs_source_scanner
+from dfvfs.helpers import windows_path_resolver as dfvfs_windows_path_resolver
+from dfvfs.path import factory as dfvfs_path_spec_factory
 from dfvfs.resolver import resolver
 from dfvfs.volume import tsk_volume_system
 
-from winreg_kb import registry
+from dfwinreg import interface as dfwinreg_interface
+from dfwinreg import regf as dfwinreg_regf
 
 
 if dfvfs.__version__ < u'20150704':
   raise ImportWarning(u'collector.py requires dfvfs 20150704 or later.')
+
+if dfwinreg.__version__ < u'20151026':
+  raise ImportWarning(u'collector.py requires dfwinreg 20151026 or later.')
 
 
 class CollectorError(Exception):
@@ -43,7 +48,7 @@ class WindowsVolumeCollector(object):
     super(WindowsVolumeCollector, self).__init__()
     self._file_system = None
     self._path_resolver = None
-    self._source_scanner = source_scanner.SourceScanner()
+    self._source_scanner = dfvfs_source_scanner.SourceScanner()
     self._single_file = False
     self._source_path = None
     self._windows_directory = None
@@ -91,7 +96,7 @@ class WindowsVolumeCollector(object):
       A boolean value indicating whether the volume was unlocked.
     """
     # TODO: print volume description.
-    if locked_scan_node.type_indicator == definitions.TYPE_INDICATOR_BDE:
+    if locked_scan_node.type_indicator == dfvfs_definitions.TYPE_INDICATOR_BDE:
       print(u'Found a BitLocker encrypted volume.')
     else:
       print(u'Found an encrypted volume.')
@@ -222,19 +227,21 @@ class WindowsVolumeCollector(object):
 
     # The source scanner found an encrypted volume and we need
     # a credential to unlock the volume.
-    if scan_node.type_indicator in definitions.ENCRYPTED_VOLUME_TYPE_INDICATORS:
+    if scan_node.type_indicator in (
+        dfvfs_definitions.ENCRYPTED_VOLUME_TYPE_INDICATORS):
       self._ScanVolumeScanNodeEncrypted(
           scan_context, scan_node, windows_path_specs)
 
     # The source scanner found Volume Shadow Snapshot which is ignored.
-    elif scan_node.type_indicator == definitions.TYPE_INDICATOR_VSHADOW:
+    elif scan_node.type_indicator == dfvfs_definitions.TYPE_INDICATOR_VSHADOW:
       pass
 
-    elif scan_node.type_indicator in definitions.FILE_SYSTEM_TYPE_INDICATORS:
+    elif scan_node.type_indicator in (
+        dfvfs_definitions.FILE_SYSTEM_TYPE_INDICATORS):
       file_system = resolver.Resolver.OpenFileSystem(scan_node.path_spec)
       if file_system:
         try:
-          path_resolver = windows_path_resolver.WindowsPathResolver(
+          path_resolver = dfvfs_windows_path_resolver.WindowsPathResolver(
               file_system, scan_node.path_spec.parent)
 
           result = self._ScanFileSystem(path_resolver)
@@ -257,7 +264,7 @@ class WindowsVolumeCollector(object):
     """
     result = not scan_context.IsLockedScanNode(volume_scan_node.path_spec)
     if not result:
-      credentials = credentials_manager.CredentialsManager.GetCredentials(
+      credentials = dfvfs_credentials_manager.CredentialsManager.GetCredentials(
           volume_scan_node.path_spec)
 
       result = self._PromptUserForEncryptedVolumeCredential(
@@ -289,7 +296,7 @@ class WindowsVolumeCollector(object):
           u'No such device, file or directory: {0:s}.'.format(source_path))
 
     self._source_path = source_path
-    scan_context = source_scanner.SourceScannerContext()
+    scan_context = dfvfs_source_scanner.SourceScannerContext()
     scan_context.OpenSourcePath(source_path)
 
     try:
@@ -299,13 +306,13 @@ class WindowsVolumeCollector(object):
           u'Unable to scan source with error: {0:s}.'.format(exception))
 
     self._single_file = False
-    if scan_context.source_type == definitions.SOURCE_TYPE_FILE:
+    if scan_context.source_type == dfvfs_definitions.SOURCE_TYPE_FILE:
       self._single_file = True
       return True
 
     windows_path_specs = []
     scan_node = scan_context.GetRootScanNode()
-    if scan_context.source_type == definitions.SOURCE_TYPE_DIRECTORY:
+    if scan_context.source_type == dfvfs_definitions.SOURCE_TYPE_DIRECTORY:
       windows_path_specs.append(scan_node.path_spec)
 
     else:
@@ -315,7 +322,8 @@ class WindowsVolumeCollector(object):
 
       # The source scanner found a partition table and we need to determine
       # which partition needs to be processed.
-      if scan_node.type_indicator != definitions.TYPE_INDICATOR_TSK_PARTITION:
+      if scan_node.type_indicator != (
+          dfvfs_definitions.TYPE_INDICATOR_TSK_PARTITION):
         partition_identifiers = None
 
       else:
@@ -337,12 +345,13 @@ class WindowsVolumeCollector(object):
     file_system_path_spec = windows_path_specs[0]
     self._file_system = resolver.Resolver.OpenFileSystem(file_system_path_spec)
 
-    if file_system_path_spec.type_indicator == definitions.TYPE_INDICATOR_OS:
+    if file_system_path_spec.type_indicator == (
+        dfvfs_definitions.TYPE_INDICATOR_OS):
       mount_point = file_system_path_spec
     else:
       mount_point = file_system_path_spec.parent
 
-    self._path_resolver = windows_path_resolver.WindowsPathResolver(
+    self._path_resolver = dfvfs_windows_path_resolver.WindowsPathResolver(
         self._file_system, mount_point)
 
     # The source is a directory or single volume storage media image.
@@ -372,8 +381,8 @@ class WindowsVolumeCollector(object):
     """
     if self._single_file:
       # TODO: check name or move this into WindowsRegistryCollector.
-      path_spec = path_spec_factory.Factory.NewPathSpec(
-          definitions.TYPE_INDICATOR_OS, location=self._source_path)
+      path_spec = dfvfs_path_spec_factory.Factory.NewPathSpec(
+          dfvfs_definitions.TYPE_INDICATOR_OS, location=self._source_path)
     else:
       path_spec = self._path_resolver.ResolvePath(windows_path)
       if path_spec is None:
@@ -382,7 +391,7 @@ class WindowsVolumeCollector(object):
     return resolver.Resolver.OpenFileObject(path_spec)
 
 
-class CollectorRegistryFileReader(registry.WinRegistryFileReader):
+class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
   """Class that defines the collector-based Windows Registry file reader."""
 
   def __init__(self, collector):
@@ -395,22 +404,27 @@ class CollectorRegistryFileReader(registry.WinRegistryFileReader):
     super(CollectorRegistryFileReader, self).__init__()
     self._collector = collector
 
-  def Open(self, windows_path, ascii_codepage=u'cp1252'):
-    """Opens the Registry file specificed by the Windows path.
+  def Open(self, path, ascii_codepage=u'cp1252'):
+    """Opens the Windows Registry file specificed by the path.
 
     Args:
-      windows_path: the Windows path to the Registry file.
+      path: string containing the path of the Windows Registry file. The path
+            is a Windows path relative to the root of the file system that
+            contains the specfic Windows Registry file. E.g.
+            C:\\Windows\\System32\\config\\SYSTEM
       ascii_codepage: optional ASCII string codepage. The default is cp1252
                       (or windows-1252).
 
     Returns:
-      The Registry file (instance of WinRegistryFile) or None.
+      The Windows Registry file (instance of WinRegistryFile) or None.
     """
-    file_object = self._collector.OpenFile(windows_path)
+    file_object = self._collector.OpenFile(path)
     if file_object is None:
       return
 
-    registry_file = registry.WinRegistryFile(ascii_codepage=ascii_codepage)
+    registry_file = dfwinreg_regf.REGFWinRegistryFile(
+        ascii_codepage=ascii_codepage)
+
     try:
       registry_file.Open(file_object)
     except IOError:

@@ -3,8 +3,9 @@
 
 from __future__ import print_function
 
+from dfwinreg import registry
+
 from winreg_kb import collector
-from winreg_kb import registry
 
 
 DEFAULT_ZONE_NAMES = {
@@ -131,7 +132,8 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
     """Initializes the Windows system information collector object."""
     super(MSIEZoneInfoCollector, self).__init__()
     registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(registry_file_reader)
+    self._registry = registry.WinRegistry(
+        registry_file_reader=registry_file_reader)
 
     self.found_current_version_key = False
 
@@ -149,10 +151,10 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
     print(u'')
 
     program_name = u'iexplore.exe'
-    program_value = lockdown_key.get_value_by_name(program_name)
+    program_value = lockdown_key.GetValueByName(program_name)
 
     if program_value:
-      value = program_value.get_data_as_integer()
+      value = program_value.GetData()
     else:
       value = 0
 
@@ -176,7 +178,7 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
     print(u'Key: {0:s}'.format(zones_key_path))
     print(u'')
 
-    for zone_key in zones_key.sub_keys:
+    for zone_key in zones_key.GetSubkeys():
       # TODO: the zone names are defined in another key.
       if zone_key.name in DEFAULT_ZONE_NAMES:
         print(u'Zone: {0:s}: {1:s}'.format(
@@ -184,7 +186,7 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
       else:
         print(u'Zone: {0:s}'.format(zone_key.name))
 
-      for setting_value in zone_key.values:
+      for setting_value in zone_key.GetValues():
         if not setting_value.name:
           continue
 
@@ -192,7 +194,7 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
             u'Description', u'DisplayName', u'PMDisplayName']:
           if output_mode == 0:
             print(u'{0:s}: {1:s}'.format(
-                setting_value.name, setting_value.data_as_string))
+                setting_value.name, setting_value.GetData()))
 
         elif len(setting_value.name) == 4 and setting_value.name != u'Icon':
           if len(setting_value.data) != 4:
@@ -200,7 +202,7 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
               print(u'Value: {0:s}'.format(setting_value.data.encode(u'hex')))
 
           else:
-            value = setting_value.get_data_as_integer()
+            value = setting_value.GetData()
             value_desc = u''
 
             if setting_value.name in [
