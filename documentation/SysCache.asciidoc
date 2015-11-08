@@ -1,0 +1,181 @@
+*NOTE this page largely contains some notes for now*
+
+:toc:
+:toclevels: 4
+
+== SysCache.hve
+The Syscache.hve Registry file seems to have been introduced in Windows 7.
+
+It can be found in the following location:
+....
+\System Volume Information\Syscache.hve
+....
+
+*TODO GUID of root key?*
+
+=== Default Object Store key
+The Default Object Store key is stored in the Syscache.hve Registry as:
+....
+<RootKey>\DefaultObjectStore
+....
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| IndexTable |
+| LruList |
+| ObjectTable |
+|===
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| `_CurrentObjectId_` | REG_QWORD |
+|===
+
+=== Index Table key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| FileIdIndex-{%GUID%} |
+|===
+
+Note that the Index Table key can contain multiple File Index sub keys.
+
+=== File Index key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| %HEXADECIMAL% |
+|===
+
+Where %HEXADECIMAL% represents a string in the for like 1000000000024.
+
+Note that the File Index key can contain multiple %HEXADECIMAL% sub keys.
+
+*TODO What do these sub keys symbolize ? an NTFS file reference ?*
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| `_IndexName_` | REG_SZ |
+|===
+
+==== File Index hexadecimal sub key
+*TODO add some description*
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| %HEXADECIMAL% | REG_QWORD |
+|===
+
+Where %HEXADECIMAL% represents a string in the for like 173E.
+
+The hexadecimal representation in upper case of the value data of %HEXADECIMAL% corresponds with the name. E.g. a value named 173E would contain 5950 or 0x173e in hexadecimal notation. 
+
+=== LRU List
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| %HEXADECIMAL% |
+|===
+
+Where %HEXADECIMAL% represents a string in the for like 00000000000416DC.
+
+Note that the LRU List key can contain multiple %HEXADECIMAL% sub keys.
+
+*TODO What do these sub keys symbolize ?*
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| CurrentLru | REG_QWORD | Numeric value containing the current LRU. +
+The hexadecimal representation in upper case of the value data corresponds with one of the names of the LRU List hexadecimal sub keys.
+|===
+
+==== LRU List hexadecimal sub key
+*TODO add some description*
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| ObjectId | REG_QWORD | The hexadecimal representation in upper case of the value data corresponds with an Object Table hexadecimal sub key.
+| ObjectLru | REG_QWORD | The hexadecimal representation in upper case of the value data corresponds with the name of the LRU List hexadecimal sub key.
+|===
+
+=== Object Table key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| %HEXADECIMAL% |
+|===
+
+Where %HEXADECIMAL% represents a string in the for like 1 or FFF.
+
+==== Object Table hexadecimal sub key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| Indexes |
+|===
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| `_FileId_` | REG_QWORD | The hexadecimal representation in upper case of the value data corresponds with the name of the File Index hexadecimal sub key.
+| `_ObjectId_` | REG_QWORD | The hexadecimal representation in upper case of the value data corresponds with the name of the Object Table hexadecimal sub key.
+| `_ObjectLru_` | REG_QWORD | The hexadecimal representation in upper case of the value data corresponds with an LRU List hexadecimal sub key.
+| `_Usn_` | REG_QWORD | *TODO does this correspond to an offset in a specific instance of $UsnJrnl:$J ?*
+| `_UsnJournalId_` | REG_QWORD | Contains a 64-bit representation of a FILETIME *TODO does this correspond to a specific instance of $UsnJrnl:$J ?*
+| AeFileId | REG_BINARY | Contains UTF-16 little-endian string data
+| AeProgramId | REG_BINARY | Contains UTF-16 little-endian string data 
+|===
+
+===== Indexes sub key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| FileIdIndex-{%GUID%} |
+|===
+
+Note that the Index Table key can contain multiple File Index sub keys.
+
+For now it is assumed that these File Index sub keys contain similar values as those in the Index Table key.
+
