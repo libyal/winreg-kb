@@ -1,0 +1,143 @@
+*NOTE this page largely contains some notes for now*
+
+:toc:
+:toclevels: 4
+
+== Microsoft Internet Explorer (MSIE) keys
+
+=== Feature Controls
+Order of application:
+
+1. HKEY_LOCAL_MACHINE policy key (Administrative override)
+2. HKEY_CURRENT_USER policy key
+3. HKEY_CURRENT_USER preference key
+4. HKEY_LOCAL_MACHINE preference key (System default settings)
+
+[NOTE]
+The location of the HKEY_LOCAL_MACHINE policy and preference key is dependent 
+on the usage of WoW64 (Windows 32-bit on Windows 64-bit).
+
+Normal:
+....
+1. HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Internet Explorer\Main\FeatureControl
+2. HKEY_CURRENT_USER\Software\Policies\Microsoft\Internet Explorer\Main\FeatureControl
+3. HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\Main\FeatureControl
+4. HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer\Main\FeatureControl
+....
+
+WoW64:
+....
+1. HKEY_LOCAL_MACHINE\Wow6432Node\Software\Policies\Microsoft\Internet Explorer\Main\FeatureControl
+2. HKEY_CURRENT_USER\Software\Policies\Microsoft\Internet Explorer\Main\FeatureControl
+3. HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\Main\FeatureControl
+4. HKEY_LOCAL_MACHINE\Wow6432Node\Software\Microsoft\Internet Explorer\Main\FeatureControl
+....
+
+=== Security Zones
+
+[cols="1,5",options="header"]
+|===
+| Value | Description
+| 0 | My Computer
+| 1 | Local Intranet Zone
+| 2 | Trusted sites Zone
+| 3 | Internet Zone
+| 4 | Restricted Sites Zone
+|===
+
+Also stored in "Description" Registry value in zone-specific Registry key.
+
+=== Local Machine Zone Lockdown
+*TODO add some description*
+Applies the Lockdown Zones instead of the Zones.
+
+....
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_LOCALMACHINE_LOCKDOWN\
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_LOCALMACHINE_LOCKDOWN\
+
+HKEY_CURRENT_USER\SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_LOCALMACHINE_LOCKDOWN\
+....
+
+Add a REG_DWORD value to this key named for your application (for example, 
+MyApplication.exe) and set it to 1. Any other setting for this value will 
+disable Local Machine Zone Lockdown for the application.
+
+=== Network Protocol Lockdown
+*TODO add some description*
+
+....
+HKEY_LOCAL_MACHINE\Software\(Policies)\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_PROTOCOL_LOCKDOWN 
+
+HKEY_CURRENT_USER\Software\(Policies)\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_PROTOCOL_LOCKDOWN
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_PROTOCOL_LOCKDOWN
+....
+
+=== HTML from CD
+*TODO add some description*
+
+....
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_LOCALMACHINE_LOCKDOWN\Settings\LOCALMACHINE_CD_UNLOCK
+....
+
+=== Typed URLs
+*TODO*
+
+....
+HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\TypedURLs
+....
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| %ITEM% | REG_SZ | Where %ITEM% is a string in the form: "url[0-9]+"
+|===
+
+=== Browser Helper Objects (BHO)
+*TODO*
+
+....
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects
+....
+
+=== Notes
+....
+HKEY_CURRENT_USER\Software\Policies\Microsoft\Internet Explorer
+....
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| Download Directory | REG_SZ | The user specific download directory
+|===
+
+....
+HKEY_CURRENT_USER\Software\Policies\Microsoft\Internet Explorer\Download
+....
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| CheckExeSignatures | REG_SZ |
+| RunInvalidSignatures | REG_DOWRD |
+|===
+
+....
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy
+HKEY_CURRENT_USER\SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy
+....
+
+=== External Links
+* http://msdn.microsoft.com/en-us/library/ms537184(v=vs.85).aspx[MSDN: Introduction to Feature Controls]
+* http://msdn.microsoft.com/en-us/library/ee330720(v=vs.85).aspx[MSDN: Internet Feature Controls]
+* http://msdn.microsoft.com/en-us/library/ms537183.aspx[MSDN: About URL Security Zones]
+* http://msdn.microsoft.com/en-us/library/cc232625.aspx[MSDN: InternetSettings]
+* http://msdn.microsoft.com/en-us/library/ms537503(v=vs.85).aspx#UARegistry[MSDN: Understanding user-agent strings - User-agent registry keys]
+* http://msdn.microsoft.com/en-us/library/bb250462(v=vs.85).aspx[MSDN: Understanding and Working in Protected Mode Internet Explorer]
+* http://support.microsoft.com/kb/182569[kb182569: Internet Explorer security zones registry entries for advanced users]
+* http://support.microsoft.com/kb/833633[kb833633: How to strengthen the security settings for the Local Machine zone in Internet Explorer]
+* http://support.microsoft.com/kb/922704[kb922704: Information about some new Group Policy settings for Internet Explorer Security Zones in Microsoft Windows XP SP2 and in Microsoft Windows Server 2003 SP1]
+* http://technet.microsoft.com/en-us/library/cc782928(v=ws.10).aspx[Technet: Internet Explorer Local Machine Zone Lockdown]
+* http://technet.microsoft.com/en-us/library/cc737488(v=ws.10).aspx[Technet: Internet Explorer Network Protocol Lockdown]
+* http://blogs.technet.com/b/juanand/archive/2010/10/29/internet-explorer-protected-mode-elevation-policy-and-administrative-templates.aspx[Technet: Internet Explorer Protected Mode Elevation Policy and Administrative Templates]
