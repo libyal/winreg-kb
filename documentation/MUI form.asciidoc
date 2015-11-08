@@ -1,11 +1,5 @@
 :toc:
-:toc-placement: manual
-:toc-title: 
 :toclevels: 4
-
-[preface]
-== Table of contents
-toc::[]
 
 == Multilingual User Interface (MUI) form
 The Multilingual User Interface (MUI) form is used to store strings in multiple 

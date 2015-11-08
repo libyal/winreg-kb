@@ -1,11 +1,5 @@
 :toc:
-:toc-placement: manual
-:toc-title: 
 :toclevels: 4
-
-[preface]
-== Table of contents
-toc::[]
 
 == Application Compatibility Cache Key
 [yellow-background]*TODO add some description*
@@ -268,8 +262,8 @@ The Windows Vista 64-bit application compat cache entry is 32 bytes of size and 
 The offset value is relative to the start of the header
 | 16 | 8 | | Last modification time +
 Contains a FILETIME
-| 16 | 4 | | Insertion flags
-| 20 | 4 | | Shim flags
+| 24 | 4 | | Insertion flags
+| 28 | 4 | | Shim flags
 |===
 
 [NOTE]

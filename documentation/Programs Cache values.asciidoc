@@ -1,11 +1,5 @@
 :toc:
-:toc-placement: manual
-:toc-title: 
 :toclevels: 4
-
-[preface]
-== Table of contents
-toc::[]
 
 == Explorer ProgramsCache Registry values
 The Explorer ProgramsCache Registry values can be stored in the following 

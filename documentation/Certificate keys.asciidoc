@@ -1,0 +1,14 @@
+*NOTE this page largely contains some notes for now*
+
+:toc:
+:toclevels: 4
+
+== Certificates
+....
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\SystemCertificates\AuthRoot\Certificates
+....
+
+== External Links
+
+* http://technet.microsoft.com/en-us/library/cc787544(v=ws.10).aspx[Certificates Tools and Settings]
+

@@ -1,0 +1,24 @@
+*NOTE this page largely contains some notes for now*
+
+:toc:
+:toclevels: 4
+
+== Terminal Server Client keys
+MRU Connnections:
+....
+HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Default
+....
+
+Values:
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| MRU# | REG_SZ | The Most Recently Used Connection. +
+Where # is a string in the form: "[0-9]+"
+|===
+
+The contents of MRU# is either an IP address, e.g. 192.168.16.60, or a hostname, e.g. computer.domain.com.
+
+== External Links
+* http://support.microsoft.com/kb/312169[kb312169: How to Remove Entries from the Remote Desktop Connection Computer Box]
+

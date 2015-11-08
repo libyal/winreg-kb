@@ -1,11 +1,5 @@
 :toc:
-:toc-placement: manual
-:toc-title: 
 :toclevels: 4
-
-[preface]
-== Table of contents
-toc::[]
 
 == User Assist key
 *TODO add some description*

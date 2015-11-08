@@ -1,19 +1,13 @@
 :toc:
-:toc-placement: manual
-:toc-title: 
 :toclevels: 4
-
-[preface]
-== Table of contents
-toc::[]
 
 == Registry Files
 === Formats
 There are multiple types of Registry File formats:
 
-  * SHCC used by Windows 3.1
-  * CREG used by Windows 9x/Me
-  * https://github.com/libyal/libregf/blob/master/documentation/Windows%20NT%20Registry%20File%20(REGF)%20format.asciidoc[REGF] used by Windows NT 4 and later
+* SHCC used by Windows 3.1
+* CREG used by Windows 9x/Me
+* https://github.com/libyal/libregf/blob/master/documentation/Windows%20NT%20Registry%20File%20(REGF)%20format.asciidoc[REGF] used by Windows NT 4 and later
 
 *TODO what about earlier versions of Windows?*
 
