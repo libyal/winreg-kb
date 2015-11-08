@@ -11,6 +11,7 @@ HKEY_CURRENT_USER\Software\7-Zip
 ....
 
 Sub keys:
+
 [cols="1,5",options="header"]
 |===
 | Name | Description
@@ -18,6 +19,7 @@ Sub keys:
 |===
 
 Values:
+
 [cols="1,1,5",options="header"]
 |===
 | Value | Data type | Description
@@ -25,8 +27,8 @@ Values:
 |===
 
 === 7-Zip FM sub key
-
 Sub keys:
+
 [cols="1,5",options="header"]
 |===
 | Name | Description
@@ -34,6 +36,7 @@ Sub keys:
 |===
 
 Values:
+
 [cols="1,1,5",options="header"]
 |===
 | Value | Data type | Description

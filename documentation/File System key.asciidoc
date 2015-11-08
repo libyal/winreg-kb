@@ -1,0 +1,72 @@
+*NOTE this page largely contains some notes for now*
+
+:toc:
+:toclevels: 4
+
+== File System key
+....
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\FileSystem
+....
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| NtfsAllowExtendedCharacterIn8dot3Name | REG_DWORD |
+| NtfsDisable8dot3NameCreation | REG_DWORD |
+| NtfsDisableLastAccessUpdate | REG_DWORD |
+| NtfsEncryptionService | REG_SZ |
+| Win31FileSystem | REG_DWORD |
+| Win95TruncatedExtensions | REG_DWORD |
+|===
+
+=== NTFS Disable Short (8.3) Filename Creation value
+
+[cols="1,5",options="header"]
+|===
+| Value | Description
+| 0 | For NTFS short (8.3) filenames are created
+| 1 | For NTFS short (8.3) filenames are *not* created
+|===
+
+== NTFS Disable Last Access Time value ==
+
+[cols="1,5",options="header"]
+|===
+| Value | Description
+| 0 | For NTFS the last-accessed timestamp of a file is updated whenever the file is opened.
+| 1 | For NTFS the last-accessed timestamp of a file is *not* updated whenever the file is opened.
+|===
+
+*TODO the explanation of the values differs between versions of Windows*
+
+The meaning of the value 0 for Windows 2000 according to http://technet.microsoft.com/en-us/library/cc959914.aspx[MSDN]:
+[quote]
+____
+When listing directories, NTFS updates the last-access timestamp on each directory it detects, and it records each time change in the NTFS log.
+____
+
+In contrast to the meaning of the value 0 for Windows 2003 according to http://technet.microsoft.com/en-us/library/cc758569(WS.10).aspx[MSDN]:
+[quote]
+____
+NTFS updates the last-accessed timestamp of a file whenever that file is opened.
+____
+
+*TODO value does not exist by default until Windows XP SP3/Vista*
+
+== External Links
+=== Windows 2000
+* http://technet.microsoft.com/en-us/library/cc959352.aspx[MSDN: NtfsDisable8dot3NameCreation]
+* http://technet.microsoft.com/en-us/library/cc959914.aspx[MSDN: NtfsDisableLastAccessUpdate]
+* http://technet.microsoft.com/en-us/library/cc976058.aspx[MSDN: Win31FileSystem]
+* http://technet.microsoft.com/en-us/library/cc976057.aspx[MSDN: NtfsEncryptionService]
+* http://technet.microsoft.com/en-us/library/cc963196.aspx[MSDN: NtfsAllowExtendedCharacterIn8dot3Name]
+
+=== Windows 2003
+* http://technet.microsoft.com/en-us/library/cc781607(v=ws.10).aspx[MSDN: NtfsAllowExtendedCharacterIn8dot3Name]
+* http://technet.microsoft.com/en-us/library/cc778996(v=ws.10).aspx[MSDN: NtfsDisable8dot3NameCreation]
+* http://technet.microsoft.com/en-us/library/cc758569(WS.10).aspx[MSDN: NtfsDisableLastAccessUpdate]
+* http://technet.microsoft.com/en-us/library/cc739602(v=ws.10).aspx[MSDN: NtfsEncryptionService]
+* http://technet.microsoft.com/en-us/library/cc756733(v=ws.10).aspx[MSDN: Win95TruncatedExtensions]
+

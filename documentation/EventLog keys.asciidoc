@@ -1,0 +1,70 @@
+:toc:
+:toclevels: 4
+
+== EventLog keys
+*TODO sync with libevt/libevtx data*
+
+Event Log key:
+....
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\EventLog
+....
+
+It can be found in the NTUSER.DAT Registry file.
+
+The Event Log key contains a per Event Log Type sub key, e.g. for the System log type:
+....
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\EventLog\System\
+....
+
+Common Event Log type sub key are:
+
+* Application
+* Security
+* System
+
+The Event Log type sub key contains a per Event Log Source sub key, e.g. for the Workstation log source:
+....
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\EventLog\System\Workstation\
+....
+
+=== EventLog type sub key
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| Sources | | Array of NUL-terminated strings containing the names of the event log sources
+|===
+
+=== Event Log Source sub key
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| CategoryCount | | Number of event categories supported
+| CategoryMessageFile | | Path to the category message file. +
+A category message file contains language-dependent strings that describe the categories.
+| EventMessageFile | | Path to event message files. +
+An event message file contains language-dependent strings that describe the events. +
+Note that this value can contain multiple filenames, e.g. C:\WINDOWS\system32\COMRES.DLL;C:\WINDOWS\system32\xpsp2res.dll +
+Multiple files are delimited using a semicolon.
+| ParameterMessageFile | | Path to the parameter message file. +
+A parameter message file contains language-independent strings that are to be inserted into the event description strings.
+| TypesSupported | | Bitmask of supported types
+|===
+
+==== TypesSupported value data
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x0001 | EVENTLOG_ERROR_TYPE |
+| 0x0002 | EVENTLOG_WARNING_TYPE |
+| 0x0004 | EVENTLOG_INFORMATION_TYPE |
+| 0x0008 | EVENTLOG_AUDIT_SUCCESS |
+| 0x0010 | EVENTLOG_AUDIT_FAILURE |
+|===
+
+== External Links
+* http://msdn.microsoft.com/en-us/library/windows/desktop/aa363648(v=vs.85).aspx[MSDN: Eventlog Key]
