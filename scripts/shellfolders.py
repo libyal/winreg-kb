@@ -7,7 +7,10 @@ import logging
 import os
 import sys
 
-import sqlite3
+try:
+  from pysqlite2 import dbapi2 as sqlite3
+except ImportError:
+  import sqlite3
 
 from winreg_kb import shellfolders
 
