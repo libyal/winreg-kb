@@ -70,7 +70,7 @@ class KnownFoldersCollector(collector.WindowsVolumeCollector):
     if not value:
       return default_value
 
-    return value.GetData()
+    return value.GetDataAsObject()
 
   def Collect(self, output_writer):
     """Collects the known folders.

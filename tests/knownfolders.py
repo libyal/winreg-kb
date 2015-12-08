@@ -48,9 +48,11 @@ class KnownFoldersCollectorTest(unittest.TestCase):
 
   def testCollect(self):
     """Tests the Collect function."""
+    test_path = u''
     output_writer = TestOutputWriter()
 
     collector_object = knownfolders.KnownFoldersCollector()
+    collector_object.GetWindowsVolumePathSpec(test_path)
     collector_object.Collect(output_writer)
     collector_object.Close()
 

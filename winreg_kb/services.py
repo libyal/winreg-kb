@@ -113,30 +113,30 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
     for service_key in services_key.GetSubkeys():
       type_value = service_key.GetValueByName(u'Type')
       if type_value:
-        type_value = type_value.GetData()
+        type_value = type_value.GetDataAsObject()
 
       display_name_value = service_key.GetValueByName(u'DisplayName')
       if display_name_value:
         if display_name_value.DataIsString():
-          display_name_value = display_name_value.GetData()
+          display_name_value = display_name_value.GetDataAsObject()
         else:
           display_name_value = None
 
       description_value = service_key.GetValueByName(u'Description')
       if description_value:
-        description_value = description_value.GetData()
+        description_value = description_value.GetDataAsObject()
 
       image_path_value = service_key.GetValueByName(u'ImagePath')
       if image_path_value:
-        image_path_value = image_path_value.GetData()
+        image_path_value = image_path_value.GetDataAsObject()
 
       object_name_value = service_key.GetValueByName(u'ObjectName')
       if object_name_value:
-        object_name_value = object_name_value.GetData()
+        object_name_value = object_name_value.GetDataAsObject()
 
       start_value = service_key.GetValueByName(u'Start')
       if start_value:
-        start_value = start_value.GetData()
+        start_value = start_value.GetDataAsObject()
 
       windows_service = WindowsService(
           service_key.name, type_value, display_name_value, description_value,

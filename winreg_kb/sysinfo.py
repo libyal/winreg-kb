@@ -40,7 +40,7 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
     if not value:
       return default_value
 
-    return value.GetData()
+    return value.GetDataAsObject()
 
   def Collect(self, output_writer):
     """Collects the system information.
@@ -77,4 +77,5 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
 
     value = current_version_key.GetValueByName(u'InstallDate')
     if value:
-      output_writer.WriteText(u'InstallDate: {0:d}'.format(value.GetData()))
+      output_writer.WriteText(
+          u'InstallDate: {0:d}'.format(value.GetDataAsObject()))

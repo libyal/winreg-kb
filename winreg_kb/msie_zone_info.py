@@ -154,7 +154,7 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
     program_value = lockdown_key.GetValueByName(program_name)
 
     if program_value:
-      value = program_value.GetData()
+      value = program_value.GetDataAsObject()
     else:
       value = 0
 
@@ -194,7 +194,7 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
             u'Description', u'DisplayName', u'PMDisplayName']:
           if output_mode == 0:
             print(u'{0:s}: {1:s}'.format(
-                setting_value.name, setting_value.GetData()))
+                setting_value.name, setting_value.GetDataAsObject()))
 
         elif len(setting_value.name) == 4 and setting_value.name != u'Icon':
           if len(setting_value.data) != 4:
@@ -202,7 +202,7 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
               print(u'Value: {0:s}'.format(setting_value.data.encode(u'hex')))
 
           else:
-            value = setting_value.GetData()
+            value = setting_value.GetDataAsObject()
             value_desc = u''
 
             if setting_value.name in [

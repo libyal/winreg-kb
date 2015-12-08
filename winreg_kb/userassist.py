@@ -79,7 +79,7 @@ class UserAssistCollector(collector.WindowsVolumeCollector):
           guid_sub_key.name))
       return
 
-    format_version = version_value.GetData()
+    format_version = version_value.GetDataAsObject()
     if format_version == 3:
       value_data_size = self._USER_ASSIST_V3_STRUCT.sizeof()
     elif format_version == 5:
