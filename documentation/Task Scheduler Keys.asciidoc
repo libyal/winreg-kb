@@ -1,0 +1,187 @@
+:toc:
+:toclevels: 4
+
+[yellow-background]*TODO this page contains just some notes for now*
+
+== Scheduling agent key
+[yellow-background]*TODO add some description*
+
+In Windows XP:
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\SchedulingAgent
+....
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| DataVersion | |
+| LastTaskRun | |
+| LogPath | |
+| MaxLogSizeKB | |
+| MinutesBeforeIdle | |
+| OldName | |
+| PriorDataVersion | |
+| TasksFolder | |
+|===
+
+=== Last task run
+[yellow-background]*TODO complete this section*
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| | | |
+|===
+
+== Schedule key
+[yellow-background]*TODO add some description*
+
+In Windows Vista, 7:
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Schedule
+....
+
+Sub keys:
+
+[options="header"]
+|===
+| Name | Description
+| Aliases |
+| CompatibilityAdapter |
+| Configuration |
+| CredWom |
+| Handlers |
+| Handshake |
+| TaskCache |
+|===
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| DomainJoinDetected | |
+| HashingCompleted | |
+| MigrationCleanupCompleted | |
+|===
+
+=== Task cache sub key
+Task cache:
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache
+....
+
+Sub keys:
+
+[options="header"]
+|===
+| Name | Description
+| Boot |
+| Logon |
+| Plain |
+| Tasks |
+| Tree |
+|===
+
+Task cache:
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree
+....
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| Id | | Contains a GUID that corresponds to an entry in the Task Cache
+| Index | |
+|===
+
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tasks\%GUID%
+....
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| DynamicInfo | |
+| Hash | |
+| Path | | Path of the corresponding Registry key in the TaskCache Tree sub key
+| Triggers | |
+|===
+
+==== DynamicInfo
+Seen in Windows Vista, Windows 2008 and Windows 7:
+
+The dynamic information entry is 28 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | 3 | [yellow-background]*Unknown*
+| 4 | 8 | | [yellow-background]*Unknown timestamp (last registered or update time?)* +
+Contains a FILETIME or 0 if not set
+| 12 | 8 | | [yellow-background]*Unknown timestamp (launch time?)* +
+Contains a FILETIME or 0 if not set
+| 20 | 4 | | [yellow-background]*Unknown (flags?)*
+| 24 | 4 | | [yellow-background]*Unknown (empty values)*
+|===
+
+....
+0x00000000  03 00 00 00 1c ec 45 16  3f 04 ca 01 00 00 00 00  ......E.?.......
+0x00000010  00 00 00 00 00 00 00 00  00 00 00 00              ............
+
+0x00000000  03 00 00 00 16 6f 4a 0f  7f fe c6 01 66 b7 6c 0d  .....oJ.....f.l.
+0x00000010  6b 4c c9 01 2b 04 07 80  00 00 00 00              kL..+.......
+....
+
+Seen in Windows 8 and Windows 10:
+
+[yellow-background]*TODO: check Windows 2012*
+
+The dynamic information entry is 36 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | 3 | [yellow-background]*Unknown*
+| 4 | 8 | | [yellow-background]*Unknown timestamp (last registered or update time?)* +
+Contains a FILETIME or 0 if not set
+| 12 | 8 | | [yellow-background]*Unknown timestamp (launch time?)* +
+Contains a FILETIME or 0 if not set
+| 20 | 4 | | [yellow-background]*Unknown (flags?)*
+| 24 | 4 | | [yellow-background]*Unknown (empty values)*
+| 28 | 8 | | [yellow-background]*Unknown timestamp* +
+Contains a FILETIME or 0 if not set
+|===
+
+....
+0x00000000  03 00 00 00 4b 5a 0b 60  ff 6a cd 01 5c 32 e7 45  ....KZ.`.j..\2.E
+0x00000010  1b b6 ce 01 20 04 07 80  00 00 00 00 a2 b1 86 4f  .... ..........O
+0x00000020  1b b6 ce 01                                       ....
+....
+
+==== Path
+The path is relative from:
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree
+....
+
+E.g. the path:
+....
+\Microsoft\Windows\Media Center\ehDRMInit
+....
+
+Corresponds to:
+....
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree\Microsoft\Windows\Media Center\ehDRMInit
+....
+
+==== Triggers
+[NOTE]
+The FILETIME values appear to be in local time.
+
