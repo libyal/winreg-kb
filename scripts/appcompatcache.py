@@ -40,8 +40,8 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      u'Extracts the Application Compatibility Cache information from a SYSTEM '
-      u'Registry File (REGF).'))
+      u'Extracts Application Compatibility Cache information from '
+      u'a SYSTEM Registry File (REGF).'))
 
   argument_parser.add_argument(
       u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,
@@ -85,7 +85,7 @@ def Main():
   collector_object.Collect(output_writer)
   output_writer.Close()
 
-  if not collector_object.found_app_compat_cache_key:
+  if not collector_object.key_found:
     print(u'No Application Compatibility Cache key found.')
 
   return True

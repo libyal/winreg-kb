@@ -10,11 +10,8 @@ class UserProfilesCollector(collector.WindowsVolumeCollector):
   """Class that defines a Windows user profiles collector.
 
   Attributes:
-    found_app_compat_cache_key: boolean value to indicate the Profile List
-                                Registry key was found.
+    key_found: boolean value to indicate the Windows Registry key was found.
   """
-
-  DEFAULT_VALUE_NAME = u''
 
   _PROFILE_LIST_KEY_PATH = (
       u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
@@ -27,7 +24,7 @@ class UserProfilesCollector(collector.WindowsVolumeCollector):
     self._registry = registry.WinRegistry(
         registry_file_reader=registry_file_reader)
 
-    self.found_profile_list_key = False
+    self.key_found = False
 
   def _GetValueAsStringFromKey(self, key, value_name, default_value=u''):
     """Retrieves a value as a string from the key.
@@ -35,7 +32,7 @@ class UserProfilesCollector(collector.WindowsVolumeCollector):
     Args:
       key: the key object (instance of pyregf.key).
       value_name: string containing the name of the value.
-      default_value: optional default value. The default is an empty string.
+      default_value: optional string value containing the default value.
 
     Returns:
       The value as a string or the default value if not available.
@@ -55,14 +52,14 @@ class UserProfilesCollector(collector.WindowsVolumeCollector):
     Args:
       output_writer: the output writer object.
     """
-    self.found_profile_list_key = False
+    self.key_found = False
 
     profile_list_key = self._registry.GetKeyByPath(
         self._PROFILE_LIST_KEY_PATH)
     if not profile_list_key:
       return
 
-    self.found_profile_list_key = True
+    self.key_found = True
 
     for sub_key in profile_list_key.GetSubkeys():
       profile_image_path = self._GetValueAsStringFromKey(

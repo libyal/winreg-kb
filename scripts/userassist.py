@@ -90,7 +90,7 @@ def Main():
   collector_object.Collect(output_writer)
   output_writer.Close()
 
-  if not collector_object.found_user_assist_key:
+  if not collector_object.key_found:
     print(u'No User Assist key found.')
 
   return True

@@ -6,15 +6,11 @@ import argparse
 import logging
 import sys
 
-from winreg_kb import knownfolders
+from winreg_kb import task_cache
 
 
 class StdoutWriter(object):
   """Class that defines a stdout output writer."""
-
-  def Close(self):
-    """Closes the output writer object."""
-    return
 
   def Open(self):
     """Opens the output writer object.
@@ -24,14 +20,17 @@ class StdoutWriter(object):
     """
     return True
 
-  def WriteKnownFolder(self, known_folder):
-    """Writes a known folder to the output.
+  def Close(self):
+    """Closes the output writer object."""
+    pass
+
+  def WriteText(self, text):
+    """Writes text to stdout.
 
     Args:
-      known_folder: a known folder (instance KnownFolder).
+      text: the text to write.
     """
-    print(u'{0:s}\t{1:s}\t{2:s}'.format(
-        known_folder.guid, known_folder.name, known_folder.localized_name))
+    print(text)
 
 
 def Main():
@@ -41,7 +40,12 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      u'Extracts the known folders from a SOFTWARE Registry File (REGF).'))
+      u'Extracts Task Scheduler Task Cache information from '
+      u'a SOFTWARE Registry File (REGF).'))
+
+  argument_parser.add_argument(
+      u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,
+      help=u'enable debug output.')
 
   argument_parser.add_argument(
       u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,
@@ -69,7 +73,7 @@ def Main():
     print(u'')
     return False
 
-  collector_object = knownfolders.KnownFoldersCollector()
+  collector_object = task_cache.TaskCacheCollector(debug=options.debug)
 
   if not collector_object.GetWindowsVolumePathSpec(options.source):
     print((
@@ -82,7 +86,7 @@ def Main():
   output_writer.Close()
 
   if not collector_object.key_found:
-    print(u'No Folder Descriptions key found.')
+    print(u'No Task Cache key found.')
 
   return True
 

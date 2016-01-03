@@ -216,10 +216,8 @@ def Main():
   collector_object.Collect(output_writer)
   output_writer.Close()
 
-  if not collector_object.found_class_identifiers_key:
-    print(u'No class identifiers key found.')
-  elif not collector_object.found_shell_folder_identifier_key:
-    print(u'No shell folder identifier key found.')
+  if not collector_object.key_found:
+    print(u'No shell folder identifier keys found.')
 
   return True
 

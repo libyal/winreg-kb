@@ -25,7 +25,11 @@ class ShellFolder(object):
 
 
 class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
-  """Class that defines a Shell Folder identifier collector."""
+  """Class that defines a Shell Folder identifier collector.
+
+  Attributes:
+    key_found: boolean value to indicate the Windows Registry key was found.
+  """
 
   _CLASS_IDENTIFIERS_KEY_PATH = u'HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID'
 
@@ -36,8 +40,7 @@ class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
     self._registry = registry.WinRegistry(
         registry_file_reader=registry_file_reader)
 
-    self.found_class_identifiers_key = False
-    self.found_shell_folder_identifier_key = False
+    self.key_found = False
 
   def Collect(self, output_writer):
     """Collects the Shell Folder identifiers.
@@ -45,19 +48,18 @@ class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
     Args:
       output_writer: the output writer object.
     """
-    self.found_class_identifiers_key = False
+    self.key_found = False
     class_identifiers_key = self._registry.GetKeyByPath(
         self._CLASS_IDENTIFIERS_KEY_PATH)
     if not class_identifiers_key:
       return
 
-    self.found_class_identifiers_key = True
     for class_identifier_key in class_identifiers_key.GetSubkeys():
       guid = class_identifier_key.name.lower()
 
       shell_folder_key = class_identifier_key.GetSubkeyByName(u'ShellFolder')
       if shell_folder_key:
-        self.found_shell_folder_identifier_key = True
+        self.key_found = True
 
         value = class_identifier_key.GetValueByName(u'')
         if value:

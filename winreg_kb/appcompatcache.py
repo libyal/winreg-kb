@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Windows Application Compatibility Cache collector."""
+"""Application Compatibility Cache collector."""
 
 from __future__ import print_function
 import datetime
@@ -188,7 +188,7 @@ class AppCompatCacheDataParser(object):
 
     Args:
       debug: optional boolean value to indicate if debug information should
-             be printed. The default is false.
+             be printed.
     """
     super(AppCompatCacheDataParser, self).__init__()
     self._debug = debug
@@ -679,12 +679,10 @@ class AppCompatCacheDataParser(object):
 
 
 class AppCompatCacheCollector(collector.WindowsVolumeCollector):
-  """Class that defines a Windows Application Compatibility Cache collector.
+  """Class that defines an Application Compatibility Cache collector.
 
   Attributes:
-    found_app_compat_cache_key: boolean value to indicate the Windows
-                                Application Compatibility Cache Registry
-                                key was found.
+    key_found: boolean value to indicate the Windows Registry key was found.
   """
 
   def __init__(self, debug=False):
@@ -692,7 +690,7 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
 
     Args:
       debug: optional boolean value to indicate if debug information should
-             be printed. The default is false.
+             be printed.
     """
     super(AppCompatCacheCollector, self).__init__()
     self._debug = debug
@@ -700,7 +698,7 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
     self._registry = registry.WinRegistry(
         registry_file_reader=registry_file_reader)
 
-    self.found_app_compat_cache_key = False
+    self.key_found = False
 
   def _CollectAppCompatCacheFromKey(self, output_writer, key_path):
     """Collects Application Compatibility Cache from a Windows Registry key.
@@ -713,7 +711,7 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
     if not app_compat_cache_key:
       return
 
-    self.found_app_compat_cache_key = True
+    self.key_found = True
     value = app_compat_cache_key.GetValueByName(u'AppCompatCache')
     if not value:
       logging.warning(u'Missing AppCompatCache value in key: {0:s}'.format(
@@ -771,7 +769,7 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
     Args:
       output_writer: the output writer object.
     """
-    self.found_app_compat_cache_key = False
+    self.key_found = False
 
     # Windows XP
     key_path = (

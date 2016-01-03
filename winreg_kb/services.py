@@ -86,8 +86,7 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
   """Class that defines a Windows services collector.
 
   Attributes:
-    found_services_key: boolean value to indicate the Services
-                        Registry key was found.
+    key_found: boolean value to indicate the Windows Registry key was found.
   """
 
   def __init__(self):
@@ -97,7 +96,7 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
     self._registry = registry.WinRegistry(
         registry_file_reader=registry_file_reader)
 
-    self.found_services_key = False
+    self.key_found = False
 
   def _CollectWindowsServicesFromKey(self, output_writer, services_key):
     """Collects the Windows services from a services Registry key.
@@ -150,9 +149,9 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
       output_writer: the output writer object.
       all_control_sets: optional value to indicate that services should be
                         collected from all control sets instead of only the
-                        current control set. The default is false.
+                        current control set.
     """
-    self.found_services_key = False
+    self.key_found = False
 
     if all_control_sets:
       system_key = self._registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
@@ -163,7 +162,7 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
         if control_set_key.name.startswith(u'ControlSet'):
           services_key = control_set_key.GetSubkeyByName(u'Services')
           if services_key:
-            self.found_services_key = True
+            self.key_found = True
 
             print(u'Control set: {0:s}'.format(control_set_key.name))
             self._CollectWindowsServicesFromKey(output_writer, services_key)
@@ -172,7 +171,7 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
       services_key = self._registry.GetKeyByPath(
           u'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services')
       if services_key:
-        self.found_services_key = True
+        self.key_found = True
 
         print(u'Current control set')
         self._CollectWindowsServicesFromKey(output_writer, services_key)

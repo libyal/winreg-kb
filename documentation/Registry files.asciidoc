@@ -43,6 +43,7 @@ There are multiple types of Registry File formats:
 *TODO BCD check Windows 8 and 10*
 *TODO userdiff no longer present in Windows 10 ?*
 *TODO what about \Windows\profiles\user profile\user.dat ?*
+*TODO what about \Windows\System32\SMI\Store\Machine\SCHEMA.DAT (Windows 7)*
 
 === Root key
 The root key varies for different Registry files and versions of Windows.

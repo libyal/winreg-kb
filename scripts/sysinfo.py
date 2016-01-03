@@ -80,8 +80,8 @@ def Main():
   collector_object.Collect(output_writer)
   output_writer.Close()
 
-  if not collector_object.found_current_version_key:
-    print(u'No current version key found.')
+  if not collector_object.key_found:
+    print(u'No Current Version key found.')
 
   return True
 

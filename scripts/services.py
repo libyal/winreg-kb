@@ -107,8 +107,8 @@ def Main():
       output_writer, all_control_sets=options.all_control_sets)
   output_writer.Close()
 
-  if not collector_object.found_services_key:
-    print(u'No services key found.')
+  if not collector_object.key_found:
+    print(u'No Services key found.')
 
   return True
 

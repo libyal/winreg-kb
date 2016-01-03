@@ -38,7 +38,7 @@ class ProgramsCacheDataParser(object):
 
     Args:
       debug: optional boolean value to indicate if debug information should
-             be printed. The default is false.
+             be printed.
     """
     super(ProgramsCacheDataParser, self).__init__()
     self._debug = debug
@@ -155,9 +155,11 @@ class ProgramsCacheDataParser(object):
 
 
 class ProgramsCacheCollector(collector.WindowsVolumeCollector):
-  """Class that defines a Windows program cache collector."""
+  """Class that defines a Windows program cache collector.
 
-  DEFAULT_VALUE_NAME = u''
+  Attributes:
+    key_found: boolean value to indicate the Windows Registry key was found.
+  """
 
   _STARTPAGE_KEY_PATH = (
       u'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
@@ -172,7 +174,7 @@ class ProgramsCacheCollector(collector.WindowsVolumeCollector):
 
     Args:
       debug: optional boolean value to indicate if debug information should
-             be printed. The default is false.
+             be printed.
     """
     super(ProgramsCacheCollector, self).__init__()
     self._debug = debug
@@ -180,7 +182,7 @@ class ProgramsCacheCollector(collector.WindowsVolumeCollector):
     self._registry = registry.WinRegistry(
         registry_file_reader=registry_file_reader)
 
-    self.found_startpage_key = False
+    self.key_found = False
 
   def _CollectProgramsCacheFromValue(self, output_writer, key_path, value_name):
     """Collects Programs Cache from a Windows Registry value.
@@ -194,7 +196,7 @@ class ProgramsCacheCollector(collector.WindowsVolumeCollector):
     if not startpage_key:
       return
 
-    self.found_startpage_key = True
+    self.key_found = True
     value = startpage_key.GetValueByName(value_name)
     if not value:
       logging.warning(u'Missing {0:s} value in key: {1:s}'.format(
@@ -220,7 +222,7 @@ class ProgramsCacheCollector(collector.WindowsVolumeCollector):
     Args:
       output_writer: the output writer object.
     """
-    self.found_startpage_key = False
+    self.key_found = False
 
     self._CollectProgramsCacheFromValue(
         output_writer, self._STARTPAGE_KEY_PATH, u'ProgramsCache')

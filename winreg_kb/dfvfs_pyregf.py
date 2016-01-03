@@ -65,10 +65,9 @@ class RegfPathSpec(dfvfs_path_spec.PathSpec):
        Note that the REGF path specification must have a parent.
 
     Args:
-      key_path: optional Registry key path. The default is None.
-      value_name: optional Registry value name. The default is None.
+      key_path: optional Registry key path.
+      value_name: optional Registry value name.
       parent: optional parent path specification (instance of PathSpec).
-              The default None.
       kwargs: a dictionary of keyword arguments dependending on the path
               specification
 
@@ -174,14 +173,11 @@ class RegfFileEntry(file_entry.FileEntry):
       path_spec: the path specification (instance of path.PathSpec).
       is_root: optional boolean value to indicate if the file entry is
                the root file entry of the corresponding file system.
-               The default is False.
       is_virtual: optional boolean value to indicate if the file entry is
                   a virtual file entry emulated by the corresponding file
-                  system. The default is False.
+                  system.
       regf_key: optional key object (instance of pyregf.key).
-                The default is None.
       regf_value: optional value object (instance of pyregf.value).
-                  The default is None.
     """
     super(RegfFileEntry, self).__init__(
         resolver_context, file_system, path_spec, is_root=is_root,
@@ -331,7 +327,6 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
 
     Args:
       path_spec: optional path specification (instance of path.PathSpec).
-                 The default is None.
       mode: optional file access mode. The default is 'rb' read-only binary.
 
     Raises:

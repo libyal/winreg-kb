@@ -55,7 +55,7 @@ class UserAssistCollector(collector.WindowsVolumeCollector):
 
     Args:
       debug: optional boolean value to indicate if debug information should
-             be printed. The default is false.
+             be printed.
     """
     super(UserAssistCollector, self).__init__()
     self._debug = debug

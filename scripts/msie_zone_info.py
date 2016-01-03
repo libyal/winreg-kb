@@ -82,8 +82,7 @@ def Main():
   output_writer.Close()
 
   # TODO: implement.
-  # if (not collector_object.found_lockdown_key and
-  #     not collector_object.found_zones_key):
+  # if not collector_object.key_found:
   #   print(u'No lockdown and zones key found.')
 
   return True

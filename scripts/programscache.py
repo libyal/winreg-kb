@@ -86,8 +86,8 @@ def Main():
   collector_object.Collect(output_writer)
   output_writer.Close()
 
-  if not collector_object.found_startpage_key:
-    print(u'No Explorer StartPage or StartPage2 key found.')
+  if not collector_object.key_found:
+    print(u'No Explorer StartPage or StartPage2 keys found.')
 
   return True
 

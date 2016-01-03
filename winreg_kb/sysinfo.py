@@ -6,9 +6,11 @@ from winreg_kb import collector
 
 
 class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
-  """Class that defines a Windows system information collector."""
+  """Class that defines a Windows system information collector.
 
-  DEFAULT_VALUE_NAME = u''
+  Attributes:
+    key_found: boolean value to indicate the Windows Registry key was found.
+  """
 
   _CURRENT_VERSION_KEY_PATH = (
       u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')
@@ -20,7 +22,7 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
     self._registry = registry.WinRegistry(
         registry_file_reader=registry_file_reader)
 
-    self.found_current_version_key = False
+    self.key_found = False
 
   def _GetValueAsStringFromKey(self, key, value_name, default_value=u''):
     """Retrieves a value as a string from the key.
@@ -28,7 +30,7 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
     Args:
       key: the key object (instance of pyregf.key).
       value_name: string containing the name of the value.
-      default_value: optional default value. The default is an empty string.
+      default_value: optional string value containing the default value.
 
     Returns:
       The value as a string or the default value if not available.
@@ -48,14 +50,14 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
     Args:
       output_writer: the output writer object.
     """
-    self.found_current_version_key = False
+    self.key_found = False
 
     current_version_key = self._registry.GetKeyByPath(
         self._CURRENT_VERSION_KEY_PATH)
     if not current_version_key:
       return
 
-    self.found_current_version_key = True
+    self.key_found = True
 
     value_names = [
         u'ProductName',

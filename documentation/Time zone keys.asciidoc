@@ -69,6 +69,7 @@ This key is stored in the SOFTWARE Registry file as:
 ----
 
 Sub keys:
+
 [options="header"]
 |===
 | Name | Description

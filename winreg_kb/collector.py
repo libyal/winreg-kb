@@ -412,8 +412,7 @@ class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
             is a Windows path relative to the root of the file system that
             contains the specfic Windows Registry file. E.g.
             C:\\Windows\\System32\\config\\SYSTEM
-      ascii_codepage: optional ASCII string codepage. The default is cp1252
-                      (or windows-1252).
+      ascii_codepage: optional ASCII string codepage.
 
     Returns:
       The Windows Registry file (instance of WinRegistryFile) or None.

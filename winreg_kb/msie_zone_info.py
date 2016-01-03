@@ -121,9 +121,11 @@ CONTROL_VALUES_1C00 = {
 
 
 class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
-  """Class that defines a MSIE zone information information collector."""
+  """Class that defines a MSIE zone information information collector.
 
-  DEFAULT_VALUE_NAME = u''
+  Attributes:
+    key_found: boolean value to indicate the Windows Registry key was found.
+  """
 
   _CURRENT_VERSION_KEY_PATH = (
       u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')
@@ -135,7 +137,7 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
     self._registry = registry.WinRegistry(
         registry_file_reader=registry_file_reader)
 
-    self.found_current_version_key = False
+    self.key_found = False
 
   def _PrintLockdownKey(self, lockdown_key_path):
     """Prints a lockdown key.
@@ -257,7 +259,7 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
     Args:
       output_writer: the output writer object.
     """
-    self.found_current_version_key = False
+    self.key_found = False
 
     output_mode = 1
 
