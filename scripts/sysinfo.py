@@ -43,6 +43,10 @@ def Main():
       u'Extracts the system information from a SOFTWARE Registry File (REGF).'))
 
   argument_parser.add_argument(
+      u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,
+      help=u'enable debug output.')
+
+  argument_parser.add_argument(
       u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,
       help=(
           u'path of the volume containing C:\\Windows, the filename of '
@@ -68,9 +72,10 @@ def Main():
     print(u'')
     return False
 
-  collector_object = sysinfo.WindowsSystemInfoCollector()
+  collector_object = sysinfo.WindowsSystemInfoCollector(
+      debug=options.debug)
 
-  if not collector_object.GetWindowsVolumePathSpec(options.source):
+  if not collector_object.ScanForWindowsVolume(options.source):
     print((
         u'Unable to retrieve the volume with the Windows directory from: '
         u'{0:s}.').format(options.source))

@@ -169,14 +169,16 @@ class ProgramsCacheCollector(collector.WindowsVolumeCollector):
       u'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
       u'Explorer\\StartPage2')
 
-  def __init__(self, debug=False):
+  def __init__(self, debug=False, mediator=None):
     """Initializes the collector object.
 
     Args:
       debug: optional boolean value to indicate if debug information should
              be printed.
+      mediator: a volume scanner mediator (instance of
+                dfvfs.VolumeScannerMediator) or None.
     """
-    super(ProgramsCacheCollector, self).__init__()
+    super(ProgramsCacheCollector, self).__init__(mediator=mediator)
     self._debug = debug
     registry_file_reader = collector.CollectorRegistryFileReader(self)
     self._registry = registry.WinRegistry(

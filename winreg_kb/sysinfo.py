@@ -15,9 +15,17 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
   _CURRENT_VERSION_KEY_PATH = (
       u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')
 
-  def __init__(self):
-    """Initializes the collector object."""
-    super(WindowsSystemInfoCollector, self).__init__()
+  def __init__(self, debug=False, mediator=None):
+    """Initializes the collector object.
+
+    Args:
+      debug: optional boolean value to indicate if debug information should
+             be printed.
+      mediator: a volume scanner mediator (instance of
+                dfvfs.VolumeScannerMediator) or None.
+    """
+    super(WindowsSystemInfoCollector, self).__init__(mediator=mediator)
+    self._debug = debug
     registry_file_reader = collector.CollectorRegistryFileReader(self)
     self._registry = registry.WinRegistry(
         registry_file_reader=registry_file_reader)
@@ -28,7 +36,7 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
     """Retrieves a value as a string from the key.
 
     Args:
-      key: the key object (instance of pyregf.key).
+      key: the key object (instance of dfwinreg.WinRegistryKey).
       value_name: string containing the name of the value.
       default_value: optional string value containing the default value.
 

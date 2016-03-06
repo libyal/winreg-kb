@@ -160,11 +160,8 @@ def Main():
       u'File (REGF).'))
 
   argument_parser.add_argument(
-      u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,
-      help=(
-          u'path of the volume containing C:\\Windows, the filename of '
-          u'a storage media image containing the C:\\Windows directory,'
-          u'or the path of a SOFTWARE Registry file.'))
+      u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,
+      help=u'enable debug output.')
 
   argument_parser.add_argument(
       u'--db', dest=u'database', action=u'store', metavar=u'shellitems.db',
@@ -174,6 +171,13 @@ def Main():
       u'--winver', dest=u'windows_version', action=u'store', metavar=u'xp',
       default=None, help=(
           u'string that identifies the Windows version in the database.'))
+
+  argument_parser.add_argument(
+      u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,
+      help=(
+          u'path of the volume containing C:\\Windows, the filename of '
+          u'a storage media image containing the C:\\Windows directory,'
+          u'or the path of a SOFTWARE Registry file.'))
 
   options = argument_parser.parse_args()
 
@@ -204,9 +208,10 @@ def Main():
     print(u'')
     return False
 
-  collector_object = shellfolders.ShellFolderIdentifierCollector()
+  collector_object = shellfolders.ShellFolderIdentifierCollector(
+      debug=options.debug)
 
-  if not collector_object.GetWindowsVolumePathSpec(options.source):
+  if not collector_object.ScanForWindowsVolume(options.source):
     print((
         u'Unable to retrieve the volume with the Windows directory from: '
         u'{0:s}.').format(options.source))

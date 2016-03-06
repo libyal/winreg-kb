@@ -685,14 +685,16 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
     key_found: boolean value to indicate the Windows Registry key was found.
   """
 
-  def __init__(self, debug=False):
+  def __init__(self, debug=False, mediator=None):
     """Initializes the collector object.
 
     Args:
       debug: optional boolean value to indicate if debug information should
              be printed.
+      mediator: a volume scanner mediator (instance of
+                dfvfs.VolumeScannerMediator) or None.
     """
-    super(AppCompatCacheCollector, self).__init__()
+    super(AppCompatCacheCollector, self).__init__(mediator=mediator)
     self._debug = debug
     registry_file_reader = collector.CollectorRegistryFileReader(self)
     self._registry = registry.WinRegistry(

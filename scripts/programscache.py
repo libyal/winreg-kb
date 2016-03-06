@@ -73,10 +73,11 @@ def Main():
     print(u'')
     return False
 
-  collector_object = programscache.ProgramsCacheCollector(debug=options.debug)
+  collector_object = programscache.ProgramsCacheCollector(
+      debug=options.debug)
 
   # TODO: add support to select user.
-  if not collector_object.GetWindowsVolumePathSpec(options.source):
+  if not collector_object.ScanForWindowsVolume(options.source):
     print((
         u'Unable to retrieve the volume with the Windows directory from: '
         u'{0:s}.').format(options.source))

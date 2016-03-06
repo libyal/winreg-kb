@@ -73,9 +73,10 @@ def Main():
     print(u'')
     return False
 
-  collector_object = appcompatcache.AppCompatCacheCollector(debug=options.debug)
+  collector_object = appcompatcache.AppCompatCacheCollector(
+      debug=options.debug)
 
-  if not collector_object.GetWindowsVolumePathSpec(options.source):
+  if not collector_object.ScanForWindowsVolume(options.source):
     print((
         u'Unable to retrieve the volume with the Windows directory from: '
         u'{0:s}.').format(options.source))

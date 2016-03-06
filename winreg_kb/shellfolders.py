@@ -33,9 +33,17 @@ class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
 
   _CLASS_IDENTIFIERS_KEY_PATH = u'HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID'
 
-  def __init__(self):
-    """Initializes the Shell Folder identifier collector object."""
-    super(ShellFolderIdentifierCollector, self).__init__()
+  def __init__(self, debug=False, mediator=None):
+    """Initializes the collector object.
+
+    Args:
+      debug: optional boolean value to indicate if debug information should
+             be printed.
+      mediator: a volume scanner mediator (instance of
+                dfvfs.VolumeScannerMediator) or None.
+    """
+    super(ShellFolderIdentifierCollector, self).__init__(mediator=mediator)
+    self._debug = debug
     registry_file_reader = collector.CollectorRegistryFileReader(self)
     self._registry = registry.WinRegistry(
         registry_file_reader=registry_file_reader)
