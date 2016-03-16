@@ -4,9 +4,6 @@
 
 import unittest
 
-from dfwinreg import definitions as dfwinreg_definitions
-from dfwinreg import fake as dfwinreg_fake
-
 from winreg_kb import knownfolders
 
 

@@ -6,7 +6,7 @@ import logging
 import uuid
 
 import construct
-import pyfwsi
+import pyfwsi  # pylint: disable=wrong-import-order
 
 from dfwinreg import registry
 
@@ -116,7 +116,7 @@ class ProgramsCacheDataParser(object):
       shell_item_list = pyfwsi.item_list()
       shell_item_list.copy_from_byte_stream(value_data[value_data_offset:])
 
-      for shell_item in shell_item_list.items:
+      for shell_item in iter(shell_item_list.items):
         if self._debug:
           print(u'Shell item: 0x{0:02x}'.format(shell_item.class_type))
           print(u'Shell item: {0:s}'.format(getattr(shell_item, u'name', u'')))

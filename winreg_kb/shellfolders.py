@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Shell Folder identifier collector."""
 
 from __future__ import print_function
 

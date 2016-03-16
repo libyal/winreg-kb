@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""Script to extract the program cache."""
 
 from __future__ import print_function
 import argparse
@@ -40,8 +41,7 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      u'Extracts the program cache from a NTUSER.DAT Registry File '
-      u'(REGF).'))
+      u'Extracts the program cache from a NTUSER.DAT Registry file.'))
 
   argument_parser.add_argument(
       u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,

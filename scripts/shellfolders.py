@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""Script to extract shell folder class identifiers."""
 
 from __future__ import print_function
 import argparse
@@ -157,7 +158,7 @@ def Main():
   """
   argument_parser = argparse.ArgumentParser(description=(
       u'Extracts the shell folder class identifiers from a SOFTWARE Registry '
-      u'File (REGF).'))
+      u'file.'))
 
   argument_parser.add_argument(
       u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,

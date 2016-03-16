@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""Script to extract MSIE zone information."""
 
 from __future__ import print_function
 import argparse
@@ -41,7 +42,7 @@ def Main():
   """
   argument_parser = argparse.ArgumentParser(description=(
       u'Extracts the MSIE zone information from a NTUSER.DAT or SYSTEM '
-      u'Registry File (REGF).'))
+      u'Registry file.'))
 
   argument_parser.add_argument(
       u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,

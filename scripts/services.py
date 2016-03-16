@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""Script to extract services information."""
 
 from __future__ import print_function
 import argparse
@@ -61,7 +62,7 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      u'Extracts the services information from a SYSTEM Registry File (REGF).'))
+      u'Extracts the services information from a SYSTEM Registry file.'))
 
   argument_parser.add_argument(
       u'--all', dest=u'all_control_sets', action=u'store_true', default=False,

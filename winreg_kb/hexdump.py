@@ -1,10 +1,19 @@
 # -*- coding: utf-8 -*-
+"""Function to provide hexadecimal represenation of data."""
 
-HEXDUMP_CHARACTER_MAP = [
+_HEXDUMP_CHARACTER_MAP = [
     '.' if byte < 0x20 or byte > 0x7e else chr(byte) for byte in range(256)]
 
 
 def Hexdump(data):
+  """Formats data in a hexadecimal represenation.
+
+  Args:
+    data: a binary string containing the data.
+
+  Returns:
+    A string containing the hexadecimal represenation of the data.
+  """
   in_group = False
   previous_hexadecimal_string = None
 
@@ -19,7 +28,7 @@ def Hexdump(data):
         u'{0:02x}'.format(ord(byte_value)) for byte_value in data_string[8:16]])
 
     printable_string = u''.join([
-        HEXDUMP_CHARACTER_MAP[ord(byte_value)] for byte_value in data_string])
+        _HEXDUMP_CHARACTER_MAP[ord(byte_value)] for byte_value in data_string])
 
     remaining_size = 16 - len(data_string)
     if remaining_size == 0:

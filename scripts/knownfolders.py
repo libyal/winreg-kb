@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""Script to extract known folder identifiers."""
 
 from __future__ import print_function
 import argparse
@@ -41,7 +42,7 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      u'Extracts the known folders from a SOFTWARE Registry File (REGF).'))
+      u'Extracts the known folder identifiers from a SOFTWARE Registry file.'))
 
   argument_parser.add_argument(
       u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Windows system information collector."""
 
 from dfwinreg import registry
 

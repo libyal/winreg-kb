@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""Script to extract Application Compatibility Cache information."""
 
 from __future__ import print_function
 import argparse
@@ -41,7 +42,7 @@ def Main():
   """
   argument_parser = argparse.ArgumentParser(description=(
       u'Extracts Application Compatibility Cache information from '
-      u'a SYSTEM Registry File (REGF).'))
+      u'a SYSTEM Registry file.'))
 
   argument_parser.add_argument(
       u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,

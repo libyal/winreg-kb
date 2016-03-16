@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""Script to extract User Assist information."""
 
 from __future__ import print_function
 import argparse
@@ -40,8 +41,7 @@ def Main():
     A boolean containing True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      u'Extracts the User Assist information from a NTUSER.DAT Registry File '
-      u'(REGF).'))
+      u'Extracts the User Assist information from a NTUSER.DAT Registry file.'))
 
   argument_parser.add_argument(
       u'--codepage', dest=u'codepage', action=u'store', metavar=u'CODEPAGE',
