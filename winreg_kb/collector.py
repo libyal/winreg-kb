@@ -69,13 +69,12 @@ class WindowsVolumeCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
     """
     result = super(WindowsVolumeCollector, self).ScanForWindowsVolume(
         source_path)
-    if not result:
-      return False
 
     if self._source_type == dfvfs_definitions.SOURCE_TYPE_FILE:
       self._single_file = True
+      return True
 
-    return True
+    return result
 
 
 class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
