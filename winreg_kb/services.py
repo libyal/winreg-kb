@@ -12,13 +12,13 @@ class WindowsService(object):
   """Class that defines a Windows service.
 
   Attributes:
-    description: string containing the service description.
-    display_name: string containing the display name.
-    image_path: string containing the image path.
-    name: string containing the name.
-    object_name: string containing the object name
-    service_type: string containing the service type.
-    start_value: string containing the start value.
+    description (str): service description.
+    display_name (str): display name.
+    image_path (str): image path.
+    name (str): name.
+    object_name (str): object name
+    service_type (str): service type.
+    start_value (str): start value.
   """
 
   _OBJECT_NAME_DESCRIPTIONS = {
@@ -46,16 +46,16 @@ class WindowsService(object):
   def __init__(
       self, name, service_type, display_name, description, image_path,
       object_name, start_value):
-    """Initializes the Windows service object.
+    """Initializes a Windows service.
 
     Args:
-      name: string containing the name.
-      service_type: string containing the service type.
-      display_name: string containing the display name.
-      description: string containing the service description.
-      image_path: string containing the image path.
-      object_name: string containing the object name
-      start_value: string containing the start value.
+      name (str): name.
+      service_type (str): service type.
+      display_name (str): display name.
+      description (str): service description.
+      image_path (str): image path.
+      object_name (str): object name
+      start_value (str): start value.
     """
     super(WindowsService, self).__init__()
     self.description = description
@@ -67,17 +67,29 @@ class WindowsService(object):
     self.start_value = start_value
 
   def GetObjectNameDescription(self):
-    """Retrieves the object name as a descriptive string."""
+    """Retrieves the object name description.
+
+    Return:
+      str: object name description.
+    """
     return(self._OBJECT_NAME_DESCRIPTIONS.get(
         self.service_type, u'Object name'))
 
   def GetServiceTypeDescription(self):
-    """Retrieves the service type as a descriptive string."""
+    """Retrieves the service type description.
+
+    Return:
+      str: service type description.
+    """
     return(self._SERVICE_TYPE_DESCRIPTIONS.get(
         self.service_type, u'Unknown 0x{0:08x}'.format(self.service_type)))
 
   def GetStartValueDescription(self):
-    """Retrieves the start value as a descriptive string."""
+    """Retrieves the start value description.
+
+    Return:
+      str: start value description.
+    """
     return(self._START_VALUE_DESCRIPTIONS.get(
         self.start_value, u'Unknown 0x{0:08x}'.format(self.start_value)))
 
@@ -86,17 +98,16 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
   """Class that defines a Windows services collector.
 
   Attributes:
-    key_found: boolean value to indicate the Windows Registry key was found.
+    key_found (bool): True if the Windows Registry key was found.
   """
 
   def __init__(self, debug=False, mediator=None):
     """Initializes the collector object.
 
     Args:
-      debug: optional boolean value to indicate if debug information should
-             be printed.
-      mediator: a volume scanner mediator (instance of
-                dfvfs.VolumeScannerMediator) or None.
+      debug (Optional[bool]): True if debug information should be printed.
+      mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
+          mediator.
     """
     super(WindowsServicesCollector, self).__init__(mediator=mediator)
     self._debug = debug
@@ -110,9 +121,8 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
     """Collects the Windows services from a services Registry key.
 
     Args:
-      output_writer: the output writer object.
-      services_key: the services Registry key (instance of
-                    dfwinreg.WinRegistryKey).
+      output_writer (OutputWriter): output writer.
+      services_key (dfwinreg.WinRegistryKey): services Registry key.
     """
     print(u'\tNumber of entries\t: {0:d}'.format(
         services_key.number_of_subkeys))
@@ -155,10 +165,10 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
     """Collects the services.
 
     Args:
-      output_writer: the output writer object.
-      all_control_sets: optional value to indicate that services should be
-                        collected from all control sets instead of only the
-                        current control set.
+      output_writer (OutputWriter): output writer.
+      all_control_sets (Optional[bool]): True if the services should be
+          collected from all control sets instead of only the current control
+          set.
     """
     self.key_found = False
 

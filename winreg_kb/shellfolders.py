@@ -12,12 +12,12 @@ class ShellFolder(object):
   """Class that defines a shell folder."""
 
   def __init__(self, guid, name, localized_string):
-    """Initializes the shell folder object.
+    """Initializes a shell folder.
 
     Args:
-      guid: the GUID.
-      name: the name.
-      localized_string: localized string of the name.
+      guid (str): GUID.
+      name (str): name.
+      localized_string (str): localized string of the name.
     """
     super(ShellFolder, self).__init__()
     self.guid = guid
@@ -29,7 +29,7 @@ class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
   """Class that defines a Shell Folder identifier collector.
 
   Attributes:
-    key_found: boolean value to indicate the Windows Registry key was found.
+    key_found (bool): True if the Windows Registry key was found.
   """
 
   _CLASS_IDENTIFIERS_KEY_PATH = u'HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID'
@@ -38,10 +38,9 @@ class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
     """Initializes the collector object.
 
     Args:
-      debug: optional boolean value to indicate if debug information should
-             be printed.
-      mediator: a volume scanner mediator (instance of
-                dfvfs.VolumeScannerMediator) or None.
+      debug (Optional[bool]): True if debug information should be printed.
+      mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
+          mediator.
     """
     super(ShellFolderIdentifierCollector, self).__init__(mediator=mediator)
     self._debug = debug
@@ -55,7 +54,7 @@ class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
     """Collects the Shell Folder identifiers.
 
     Args:
-      output_writer: the output writer object.
+      output_writer (OutputWriter): output writer.
     """
     self.key_found = False
     class_identifiers_key = self._registry.GetKeyByPath(

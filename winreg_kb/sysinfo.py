@@ -10,7 +10,7 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
   """Class that defines a Windows system information collector.
 
   Attributes:
-    key_found: boolean value to indicate the Windows Registry key was found.
+    key_found (bool): True if the Windows Registry key was found.
   """
 
   _CURRENT_VERSION_KEY_PATH = (
@@ -20,10 +20,9 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
     """Initializes the collector object.
 
     Args:
-      debug: optional boolean value to indicate if debug information should
-             be printed.
-      mediator: a volume scanner mediator (instance of
-                dfvfs.VolumeScannerMediator) or None.
+      debug (Optional[bool]): True if debug information should be printed.
+      mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
+          mediator.
     """
     super(WindowsSystemInfoCollector, self).__init__(mediator=mediator)
     self._debug = debug
@@ -37,12 +36,12 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
     """Retrieves a value as a string from the key.
 
     Args:
-      key: the key object (instance of dfwinreg.WinRegistryKey).
-      value_name: string containing the name of the value.
-      default_value: optional string value containing the default value.
+      key (dfwinreg.WinRegistryKey): Registry key.
+      value_name (str): name of the value.
+      default_value (Optional[str]): default value.
 
     Returns:
-      The value as a string or the default value if not available.
+      str: value or the default value if not available.
     """
     if not key:
       return default_value
@@ -57,7 +56,7 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
     """Collects the system information.
 
     Args:
-      output_writer: the output writer object.
+      output_writer (OutputWriter): output writer.
     """
     self.key_found = False
 
