@@ -124,7 +124,7 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
   """Class that defines a MSIE zone information information collector.
 
   Attributes:
-    key_found: boolean value to indicate the Windows Registry key was found.
+    key_found (bool): True if the Windows Registry key was found.
   """
 
   _CURRENT_VERSION_KEY_PATH = (
@@ -134,10 +134,9 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
     """Initializes the collector object.
 
     Args:
-      debug: optional boolean value to indicate if debug information should
-             be printed.
-      mediator: a volume scanner mediator (instance of
-                dfvfs.VolumeScannerMediator) or None.
+      debug (Optional[bool]): True if debug information should be printed.
+      mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
+          mediator.
     """
     super(MSIEZoneInfoCollector, self).__init__(mediator=mediator)
     self._debug = debug
@@ -151,7 +150,7 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
     """Prints a lockdown key.
 
     Args:
-      lockdown_key_path: the lockdown key path.
+      lockdown_key_path (str): lockdown Registry key path.
     """
     lockdown_key = self._registry.GetKeyByPath(lockdown_key_path)
     if not lockdown_key:
@@ -178,8 +177,8 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
     """Prints a zones key.
 
     Args:
-      lockdown_key_path: the zones key path.
-      output_mode: optional integer indicating the output mode.
+      lockdown_key_path (str): zones Registry key path.
+      output_mode (Optional[int]): output mode.
     """
     zones_key = self._registry.GetKeyByPath(zones_key_path)
     if not zones_key:
@@ -265,7 +264,7 @@ class MSIEZoneInfoCollector(collector.WindowsVolumeCollector):
     """Collects the system information.
 
     Args:
-      output_writer: the output writer object.
+      output_writer (OutputWriter): output writer.
     """
     self.key_found = False
 

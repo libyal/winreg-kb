@@ -703,7 +703,7 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
 
     Args:
       output_writer (OutputWriter): output writer.
-      key_path (str): path of the Application Compatibility Cache key.
+      key_path (str): path of the Application Compatibility Cache Registry key.
     """
     app_compat_cache_key = self._registry.GetKeyByPath(key_path)
     if not app_compat_cache_key:

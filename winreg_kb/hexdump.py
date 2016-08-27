@@ -9,10 +9,10 @@ def Hexdump(data):
   """Formats data in a hexadecimal represenation.
 
   Args:
-    data: a binary string containing the data.
+    data (byte): data.
 
   Returns:
-    A string containing the hexadecimal represenation of the data.
+    str: hexadecimal represenation of the data.
   """
   in_group = False
   previous_hexadecimal_string = None

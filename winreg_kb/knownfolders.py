@@ -10,18 +10,18 @@ class KnownFolder(object):
   """Class that defines a known folder.
 
   Attributes:
-    guid: string containing the identifier.
-    localized_name: string containing the localized name.
-    name: string containing the name.
+    guid (str): identifier.
+    localized_name (str): localized name.
+    name (str): name.
   """
 
   def __init__(self, guid, name, localized_name):
-    """Initializes a known folder object.
+    """Initializes a known folder.
 
     Args:
-      guid: string containing the identifier.
-      name: string containing the name.
-      localized_name: string containing the localized name.
+      guid (str): identifier.
+      name (str): name.
+      localized_name (str): localized name.
     """
     super(KnownFolder, self).__init__()
     self.guid = guid
@@ -33,7 +33,7 @@ class KnownFoldersCollector(collector.WindowsVolumeCollector):
   """Class that defines a Windows known folders collector.
 
   Attributes:
-    key_found: boolean value to indicate the Windows Registry key was found.
+    key_found (bool): True if the Windows Registry key was found.
   """
 
   _FOLDER_DESCRIPTIONS_KEY_PATH = (
@@ -41,13 +41,12 @@ class KnownFoldersCollector(collector.WindowsVolumeCollector):
       u'Explorer\\FolderDescriptions')
 
   def __init__(self, debug=False, mediator=None):
-    """Initializes the collector object.
+    """Initializes a Windows known folders collector.
 
     Args:
-      debug: optional boolean value to indicate if debug information should
-             be printed.
-      mediator: a volume scanner mediator (instance of
-                dfvfs.VolumeScannerMediator) or None.
+      debug (Optional[bool]): True if debug information should be printed.
+      mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
+          mediator.
     """
     super(KnownFoldersCollector, self).__init__(mediator=mediator)
     self._debug = debug
@@ -61,12 +60,12 @@ class KnownFoldersCollector(collector.WindowsVolumeCollector):
     """Retrieves a value as a string from the key.
 
     Args:
-      key: the key object (instance of dfwinreg.WinRegistryKey).
-      value_name: string containing the name of the value.
-      default_value: optional string value containing the default value.
+      key (dfwinreg.WinRegistryKey): Registry key.
+      value_name (str): name of the value.
+      default_value (Optional[str]): default value.
 
     Returns:
-      The value as a string or the default value if not available.
+      str: value or the default value if not available.
     """
     if not key:
       return default_value
@@ -81,7 +80,7 @@ class KnownFoldersCollector(collector.WindowsVolumeCollector):
     """Collects the known folders.
 
     Args:
-      output_writer: the output writer object.
+      output_writer (OutputWriter): output writer.
     """
     self.key_found = False
 

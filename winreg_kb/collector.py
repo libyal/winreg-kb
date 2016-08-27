@@ -26,8 +26,7 @@ class WindowsVolumeCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
     """Initializes the collector object.
 
     Args:
-      mediator: a volume scanner mediator (instance of
-                VolumeScannerMediator) or None.
+      mediator (VolumeScannerMediator): volume scanner mediator.
     """
     super(WindowsVolumeCollector, self).__init__(mediator=mediator)
     self._single_file = False
@@ -36,11 +35,10 @@ class WindowsVolumeCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
     """Opens the file specificed by the Windows path.
 
     Args:
-      windows_path: the Windows path to the file.
+      windows_path (str): Windows path to the file.
 
     Returns:
-      The file-like object (instance of dfvfs.FileIO) or None if
-      the file does not exist.
+      dfvfs.FileIO: file-like object or None if the file does not exist.
     """
     if not self._single_file:
       return super(WindowsVolumeCollector, self).OpenFile(windows_path)
@@ -57,10 +55,10 @@ class WindowsVolumeCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
     """Scans for a Windows volume.
 
     Args:
-      source_path: a string containing the source path.
+      source_path (str): source path.
 
     Returns:
-      A boolean value indicating if a Windows volume was found.
+      bool: True if a Windows volume was found.
 
     Raises:
       ScannerError: if the source path does not exists, or if the source path
@@ -84,8 +82,7 @@ class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
     """Initializes the Windows Registry file reader object.
 
     Args:
-      volume_scanner: the Windows volume scanner (instance of
-                      WindowsVolumeCollector).
+      volume_scanner (WindowsVolumeCollector): Windows volume scanner.
     """
     super(CollectorRegistryFileReader, self).__init__()
     self._volume_scanner = volume_scanner
@@ -94,14 +91,14 @@ class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
     """Opens the Windows Registry file specificed by the path.
 
     Args:
-      path: string containing the path of the Windows Registry file. The path
-            is a Windows path relative to the root of the file system that
-            contains the specfic Windows Registry file. E.g.
-            C:\\Windows\\System32\\config\\SYSTEM
-      ascii_codepage: optional ASCII string codepage.
+      path (str): path of the Windows Registry file. The path is a Windows
+          path relative to the root of the file system that contains the
+          specfic Windows Registry file, such as:
+          C:\\Windows\\System32\\config\\SYSTEM
+      ascii_codepage (Optional[str]): ASCII string codepage.
 
     Returns:
-      The Windows Registry file (instance of WinRegistryFile) or None.
+      WinRegistryFile: Windows Registry file or None.
     """
     file_object = self._volume_scanner.OpenFile(path)
     if file_object is None:
