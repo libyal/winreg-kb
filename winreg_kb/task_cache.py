@@ -17,7 +17,7 @@ class TaskCacheCollector(collector.WindowsVolumeCollector):
   """Class that defines a Task Cache collector.
 
   Attributes:
-    key_found: boolean value to indicate the Windows Registry key was found.
+    key_found (bool): True if the Windows Registry key was found.
   """
 
   _DYNAMIC_INFO_STRUCT = construct.Struct(
@@ -49,10 +49,9 @@ class TaskCacheCollector(collector.WindowsVolumeCollector):
     """Initializes the collector object.
 
     Args:
-      debug: optional boolean value to indicate if debug information should
-             be printed.
-      mediator: a volume scanner mediator (instance of
-                dfvfs.VolumeScannerMediator) or None.
+      debug (Optional[bool]): True if debug information should be printed.
+      mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
+          mediator.
     """
     super(TaskCacheCollector, self).__init__(mediator=mediator)
     self._debug = debug
@@ -66,13 +65,11 @@ class TaskCacheCollector(collector.WindowsVolumeCollector):
     """Retrieves the Id value from Task Cache Tree key.
 
     Args:
-      registry_key: A Windows Registry key (instance of
-                    dfwinreg.WinRegistryKey).
+      registry_key (dfwinreg.WinRegistryKey): Windows Registry key.
 
     Yields:
-      A tuple containing a Windows Registry Key (instance of
-      dfwinreg.WinRegistryKey) and a Windows Registry value (instance of
-      dfwinreg.WinRegistryValue).
+      tuple[dfwinreg.WinRegistryKey, dfwinreg.WinRegistryValue]: Windows
+          Registry key and value.
     """
     id_value = registry_key.GetValueByName(u'Id')
     if id_value:
@@ -86,7 +83,7 @@ class TaskCacheCollector(collector.WindowsVolumeCollector):
     """Collects the Task Cache.
 
     Args:
-      output_writer: the output writer object.
+      output_writer (OutputWriter): output writer.
     """
     dynamic_info_size_error_reported = False
 

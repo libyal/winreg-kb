@@ -16,7 +16,11 @@ from winreg_kb import hexdump
 # pylint: disable=logging-format-interpolation
 
 class UserAssistCollector(collector.WindowsVolumeCollector):
-  """Class that defines a Windows User Assist information collector."""
+  """Class that defines a Windows User Assist information collector.
+
+  Attributes:
+    key_found (bool): True if the Windows Registry key was found.
+  """
 
   _USER_ASSIST_KEY = (
       u'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
@@ -51,13 +55,12 @@ class UserAssistCollector(collector.WindowsVolumeCollector):
       construct.ULInt32(u'unknown13'))
 
   def __init__(self, debug=False, mediator=None):
-    """Initializes the collector object.
+    """Initializes a Windows User Assist information collector.
 
     Args:
-      debug: optional boolean value to indicate if debug information should
-             be printed.
-      mediator: a volume scanner mediator (instance of
-                dfvfs.VolumeScannerMediator) or None.
+      debug (Optional[bool]): True if debug information should be printed.
+      mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
+          mediator.
     """
     super(UserAssistCollector, self).__init__(mediator=mediator)
     self._debug = debug
@@ -65,16 +68,15 @@ class UserAssistCollector(collector.WindowsVolumeCollector):
     self._registry = registry.WinRegistry(
         registry_file_reader=registry_file_reader)
 
-    self.found_user_assist_key = False
+    self.key_found = False
 
    # TODO: replace print by output_writer.
   def _CollectUserAssistFromKey(self, unused_output_writer, guid_sub_key):
     """Collects the User Assist information from a GUID sub key.
 
     Args:
-      output_writer: the output writer object.
-      guid_sub_key: the User Assist GUID Registry key (instance of
-                    dfwinreg.WinRegistryKey).
+      output_writer (OutputWriter): output writer.
+      guid_sub_key (dfwinreg.WinRegistryKey): User Assist GUID Registry key.
     """
     version_value = guid_sub_key.GetValueByName(u'Version')
     if not version_value:
@@ -198,15 +200,15 @@ class UserAssistCollector(collector.WindowsVolumeCollector):
     """Collects the User Assist information.
 
     Args:
-      output_writer: the output writer object.
+      output_writer (OutputWriter): output writer.
     """
-    self.found_user_assist_key = False
+    self.key_found = False
 
     user_assist_key = self._registry.GetKeyByPath(self._USER_ASSIST_KEY)
     if not user_assist_key:
       return
 
-    self.found_user_assist_key = True
+    self.key_found = True
 
     print(u'Key: {0:s}'.format(self._USER_ASSIST_KEY))
     print(u'')
