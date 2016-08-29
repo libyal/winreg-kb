@@ -58,7 +58,88 @@ Contains a resource identifier
 | VersionIndependentProgID | REG_SZ | Version independent associated program identifier
 |===
 
+== Type libraries key
+The type libraries (typelib or tlb) key can be found in:
+
+....
+HKEY_CLASSES_ROOT\TypeLib\{%GUID%}
+HKEY_CLASSES_ROOT\Wow6432Node\TypeLib\{%GUID%}
+....
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| %GUID% | Type library identifier
+|===
+
+=== Type library identifier subkey
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| %VERSION% | Type library version in the format: "major.minor"
+|===
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| (Default) | REG_SZ | Type library description
+|===
+
+==== Type library version subkey
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| %LCID% | Locale identifier such as: "409", where "0" is the system default language (LANG_SYSTEM_DEFAULT).
+| FLAGS | 
+| HELPDIR | 
+|===
+
+[NOTE]
+Determine what MSDN means with the LCID may have a neutral sublanguage ID. Is 0 the neutral sublanguage ID?
+
+===== Type library locale subkey
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| %PLATFORM% | Platform identifier such as: "win32"
+|===
+
+====== Type library platform subkey
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| (Default) | REG_SZ | Path to the type library file. +
+This can be a stand-alone .tlb file or the "typelib" resource inside a PE/COFF file.
+|===
+
+===== Type library help directory subkey
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| (Default) | REG_SZ | Path of the directory where the Help file for type library is located
+|===
+
 == External Links
 * http://msdn.microsoft.com/en-us/library/windows/desktop/ms691424(v=vs.85).aspx[MSDN: CLSID Key]
 * http://msdn.microsoft.com/en-us/library/windows/desktop/ms678473(v=vs.85).aspx[MSDN: ProxyStubClsid]
+* https://msdn.microsoft.com/en-us/library/windows/desktop/ms221610(v=vs.85).aspx[MSDN: Registering a Type Library]
 
