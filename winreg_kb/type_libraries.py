@@ -97,6 +97,9 @@ class TypeLibrariesCollector(collector.WindowsVolumeCollector):
       guid = type_library_key.name.lower()
 
       for subkey in type_library_key.GetSubkeys():
+        if subkey.name in (u'FLAGS', u'HELPDIR'):
+          continue
+
         description = self._GetValueAsStringFromKey(
             subkey, u'')
 
