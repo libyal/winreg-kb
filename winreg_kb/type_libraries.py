@@ -112,13 +112,14 @@ class TypeLibrariesCollector(collector.WindowsVolumeCollector):
               break
 
         platform_key = None
-        for platform in (u'win32', ):
-          platform_key = language_key.GetSubkeyByName(platform)
-          if platform_key:
-            break
+        if language_key:
+          for platform in (u'win32', ):
+            platform_key = language_key.GetSubkeyByName(platform)
+            if platform_key:
+              break
 
-        if not platform_key:
-          platform_key = language_key.GetSubkeyByIndex(0)
+          if not platform_key:
+            platform_key = language_key.GetSubkeyByIndex(0)
 
         typelib_filename = self._GetValueAsStringFromKey(
             platform_key, u'')
