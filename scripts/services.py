@@ -13,11 +13,21 @@ from winreg_kb import services
 class StdoutWriter(object):
   """Class that defines a stdout output writer."""
 
+  def __init__(self, use_tsv=False):
+    """Initializes a stdout output writer.
+
+    Args:
+      use_tsv (bool): True if the output should in tab separated values.
+    """
+    super(StdoutWriter, self).__init__()
+    self._printed_header = False
+    self._use_tsv = use_tsv
+
   def Open(self):
     """Opens the output writer object.
 
     Returns:
-      A boolean containing True if successful or False if not.
+      bool: True if successful or False if not.
     """
     return True
 
@@ -29,37 +39,55 @@ class StdoutWriter(object):
     """Writes the Windows service to stdout.
 
     Args:
-      service: the Windows service (instance of WindowsService).
+      service (WindowsService): Windows service.
     """
-    print(u'{0:s}'.format(service.name))
-
+    service_type_description = u''
     if service.service_type:
-      print(u'\tType\t\t\t: {0:s}'.format(service.GetServiceTypeDescription()))
+      service_type_description = service.GetServiceTypeDescription()
 
-    if service.display_name:
-      print(u'\tDisplay name\t\t: {0:s}'.format(service.display_name))
-
-    if service.description:
-      print(u'\tDescription\t\t: {0:s}'.format(service.description))
-
-    if service.image_path:
-      print(u'\tExecutable\t\t: {0:s}'.format(service.image_path))
-
-    if service.object_name:
-      print(u'\t{0:s}\t\t: {1:s}'.format(
-          service.GetObjectNameDescription(), service.object_name))
-
+    start_value_description = u''
     if service.start_value is not None:
-      print(u'\tStart\t\t\t: {0:s}'.format(service.GetStartValueDescription()))
+      start_value_description = service.GetStartValueDescription()
 
-    print(u'')
+    if self._use_tsv:
+      if not self._printed_header:
+        print(u'Service\tType\tDisplay name\tDescription\tExecutable\tStart')
+        self._printed_header = True
+
+      print(u'{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\t{5:s}'.format(
+          service.name, service_type_description, service.display_name,
+          service.description, service.image_path, start_value_description))
+
+    else:
+      print(u'{0:s}'.format(service.name))
+
+      if service.service_type:
+        print(u'\tType\t\t\t: {0:s}'.format(service_type_description))
+
+      if service.display_name:
+        print(u'\tDisplay name\t\t: {0:s}'.format(service.display_name))
+
+      if service.description:
+        print(u'\tDescription\t\t: {0:s}'.format(service.description))
+
+      if service.image_path:
+        print(u'\tExecutable\t\t: {0:s}'.format(service.image_path))
+
+      if service.object_name:
+        print(u'\t{0:s}\t\t: {1:s}'.format(
+            service.GetObjectNameDescription(), service.object_name))
+
+      if service.start_value is not None:
+        print(u'\tStart\t\t\t: {0:s}'.format(start_value_description))
+
+      print(u'')
 
 
 def Main():
   """The main program function.
 
   Returns:
-    A boolean containing True if successful or False if not.
+    bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
       u'Extracts the services information from a SYSTEM Registry file.'))
@@ -68,6 +96,12 @@ def Main():
       u'--all', dest=u'all_control_sets', action=u'store_true', default=False,
       help=(
           u'Process all control sets instead of only the current control set.'))
+
+  # TODO: add diff mode to compare control sets.
+
+  argument_parser.add_argument(
+      u'--tsv', dest=u'use_tsv', action=u'store_true', default=False,
+      help=u'Use tab separated value (TSV) output.')
 
   argument_parser.add_argument(
       u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,
@@ -92,7 +126,7 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format=u'[%(levelname)s] %(message)s')
 
-  output_writer = StdoutWriter()
+  output_writer = StdoutWriter(use_tsv=options.use_tsv)
 
   if not output_writer.Open():
     print(u'Unable to open output writer.')
