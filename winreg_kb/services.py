@@ -66,6 +66,38 @@ class WindowsService(object):
     self.service_type = service_type
     self.start_value = start_value
 
+  def __eq__(self, other):
+    """Determines the current Windows service is equal to the other.
+
+    Returns:
+      bool: True if equal.
+    """
+    return (
+        other is not None and
+        self.description == other.description and
+        self.display_name == other.display_name and
+        self.image_path == other.image_path and
+        self.name == other.name and
+        self.object_name == other.object_name and
+        self.service_type == other.service_type and
+        self.start_value == other.start_value)
+
+  def __ne__(self, other):
+    """Determines the current Windows service is not equal to the other.
+
+    Returns:
+      bool: True if not equal.
+    """
+    return (
+        other is None or
+        self.description != other.description or
+        self.display_name != other.display_name or
+        self.image_path != other.image_path or
+        self.name != other.name or
+        self.object_name != other.object_name or
+        self.service_type != other.service_type or
+        self.start_value != other.start_value)
+
   def GetObjectNameDescription(self):
     """Retrieves the object name description.
 
@@ -117,17 +149,15 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
 
     self.key_found = False
 
-  def _CollectWindowsServicesFromKey(self, output_writer, services_key):
+  def _CollectWindowsServicesFromKey(self, services_key):
     """Collects the Windows services from a services Registry key.
 
     Args:
-      output_writer (OutputWriter): output writer.
       services_key (dfwinreg.WinRegistryKey): services Registry key.
-    """
-    print(u'\tNumber of entries\t: {0:d}'.format(
-        services_key.number_of_subkeys))
-    print(u'')
 
+    Yields:
+      WindowsService: Windows service.
+    """
     for service_key in services_key.GetSubkeys():
       type_value = service_key.GetValueByName(u'Type')
       if type_value:
@@ -156,13 +186,12 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
       if start_value:
         start_value = start_value.GetDataAsObject()
 
-      windows_service = WindowsService(
+      yield WindowsService(
           service_key.name, type_value, display_name_value, description_value,
           image_path_value, object_name_value, start_value)
-      output_writer.WriteWindowsService(windows_service)
 
   def Collect(self, output_writer, all_control_sets=False):
-    """Collects the services.
+    """Collects services.
 
     Args:
       output_writer (OutputWriter): output writer.
@@ -184,7 +213,13 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
             self.key_found = True
 
             print(u'Control set: {0:s}'.format(control_set_key.name))
-            self._CollectWindowsServicesFromKey(output_writer, services_key)
+            print(u'\tNumber of entries\t: {0:d}'.format(
+                services_key.number_of_subkeys))
+            print(u'')
+
+            for windows_service in self._CollectWindowsServicesFromKey(
+                services_key):
+              output_writer.WriteWindowsService(windows_service)
 
     else:
       services_key = self._registry.GetKeyByPath(
@@ -193,4 +228,64 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
         self.key_found = True
 
         print(u'Current control set')
-        self._CollectWindowsServicesFromKey(output_writer, services_key)
+        print(u'\tNumber of entries\t: {0:d}'.format(
+            services_key.number_of_subkeys))
+        print(u'')
+
+        for windows_service in self._CollectWindowsServicesFromKey(
+            services_key):
+          output_writer.WriteWindowsService(windows_service)
+
+  def Compare(self, output_writer):
+    """Compares services in the different control sets.
+
+    Args:
+      output_writer (OutputWriter): output writer.
+    """
+    self.key_found = False
+
+    system_key = self._registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
+    if not system_key:
+      return
+
+    control_sets = []
+    service_names = set()
+    for control_set_key in system_key.GetSubkeys():
+      if control_set_key.name.startswith(u'ControlSet'):
+        services_key = control_set_key.GetSubkeyByName(u'Services')
+        if not services_key:
+          continue
+
+        self.key_found = True
+
+        services = {}
+        for windows_service in self._CollectWindowsServicesFromKey(
+            services_key):
+          if windows_service.name in services:
+            # TODO: print warning.
+            continue
+
+          windows_service_name = windows_service.name.lower()
+          service_names.add(windows_service_name)
+          services[windows_service_name] = windows_service
+
+        control_sets.append(services)
+
+    number_of_control_sets = len(control_sets)
+    for name in service_names:
+      services_diff = set()
+
+      windows_service = control_sets[0].get(name, None)
+      for control_set_index in range(1, number_of_control_sets):
+        control_set = control_sets[control_set_index]
+
+        compare_windows_service = control_set.get(name, None)
+        if windows_service != compare_windows_service:
+          services_diff.add(windows_service)
+          services_diff.add(compare_windows_service)
+
+      for windows_service in services_diff:
+        if not windows_service:
+          print(u'Not defined')
+        else:
+          output_writer.WriteWindowsService(windows_service)

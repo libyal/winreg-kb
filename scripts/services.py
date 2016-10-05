@@ -54,9 +54,13 @@ class StdoutWriter(object):
         print(u'Service\tType\tDisplay name\tDescription\tExecutable\tStart')
         self._printed_header = True
 
+      service_display_name = service.display_name or u''
+      service_description = service.description or u''
+      service_image_path = service.image_path or u''
+
       print(u'{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\t{5:s}'.format(
-          service.name, service_type_description, service.display_name,
-          service.description, service.image_path, start_value_description))
+          service.name, service_type_description, service_display_name,
+          service_description, service_image_path, start_value_description))
 
     else:
       print(u'{0:s}'.format(service.name))
@@ -97,7 +101,9 @@ def Main():
       help=(
           u'Process all control sets instead of only the current control set.'))
 
-  # TODO: add diff mode to compare control sets.
+  argument_parser.add_argument(
+      u'--diff', dest=u'diff_control_sets', action=u'store_true', default=False,
+      help=u'Only list differences between control sets.')
 
   argument_parser.add_argument(
       u'--tsv', dest=u'use_tsv', action=u'store_true', default=False,
@@ -143,8 +149,12 @@ def Main():
     print(u'')
     return False
 
-  collector_object.Collect(
-      output_writer, all_control_sets=options.all_control_sets)
+  if options.diff_control_sets:
+    collector_object.Compare(output_writer)
+  else:
+    collector_object.Collect(
+        output_writer, all_control_sets=options.all_control_sets)
+
   output_writer.Close()
 
   if not collector_object.key_found:
