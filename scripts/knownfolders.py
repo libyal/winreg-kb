@@ -21,7 +21,7 @@ class StdoutWriter(object):
     """Opens the output writer object.
 
     Returns:
-      A boolean containing True if successful or False if not.
+      bool: True if successful or False if not.
     """
     return True
 
@@ -29,7 +29,7 @@ class StdoutWriter(object):
     """Writes a known folder to the output.
 
     Args:
-      known_folder: a known folder (instance KnownFolder).
+      known_folder (KnownFolder): known folder.
     """
     print(u'{0:s}\t{1:s}\t{2:s}'.format(
         known_folder.guid, known_folder.name, known_folder.localized_name))
@@ -39,7 +39,7 @@ def Main():
   """The main program function.
 
   Returns:
-    A boolean containing True if successful or False if not.
+    bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
       u'Extracts the known folder identifiers from a SOFTWARE Registry file.'))
