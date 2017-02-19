@@ -61,6 +61,9 @@ class SecurityAccountManagerDataParser(object):
     f_value_struct = self._F_VALUE_STRUCT.parse(value_data)
 
     if self._debug:
+      self._output_writer.WriteDebugData(u'F value data:', value_data)
+
+    if self._debug:
       value_string = u'{0:d}'.format(f_value_struct.major_version)
       self._output_writer.WriteDebugValue(u'Major version', value_string)
 
