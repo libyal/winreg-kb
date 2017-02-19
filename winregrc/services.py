@@ -3,9 +3,7 @@
 
 from __future__ import print_function
 
-from dfwinreg import registry
-
-from winregrc import collector
+from winregrc import interface
 
 
 class WindowsService(object):
@@ -126,28 +124,8 @@ class WindowsService(object):
         self.start_value, u'Unknown 0x{0:08x}'.format(self.start_value)))
 
 
-class WindowsServicesCollector(collector.WindowsVolumeCollector):
-  """Class that defines a Windows services collector.
-
-  Attributes:
-    key_found (bool): True if the Windows Registry key was found.
-  """
-
-  def __init__(self, debug=False, mediator=None):
-    """Initializes the collector object.
-
-    Args:
-      debug (Optional[bool]): True if debug information should be printed.
-      mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
-          mediator.
-    """
-    super(WindowsServicesCollector, self).__init__(mediator=mediator)
-    self._debug = debug
-    registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(
-        registry_file_reader=registry_file_reader)
-
-    self.key_found = False
+class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
+  """Class that defines a Windows services collector."""
 
   def _CollectWindowsServicesFromKey(self, services_key):
     """Collects the Windows services from a services Registry key.
@@ -190,19 +168,23 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
           service_key.name, type_value, display_name_value, description_value,
           image_path_value, object_name_value, start_value)
 
-  def Collect(self, output_writer, all_control_sets=False):
-    """Collects services.
+  def Collect(self, registry, output_writer, all_control_sets=False):
+    """Collects the services.
 
     Args:
+      registry (dfwinreg.WinRegistry): Windows Registry.
       output_writer (OutputWriter): output writer.
       all_control_sets (Optional[bool]): True if the services should be
           collected from all control sets instead of only the current control
           set.
+
+    Returns:
+      bool: True if the services key was found, False if not.
     """
     self.key_found = False
 
     if all_control_sets:
-      system_key = self._registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
+      system_key = registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
       if not system_key:
         return
 
@@ -222,7 +204,7 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
               output_writer.WriteWindowsService(windows_service)
 
     else:
-      services_key = self._registry.GetKeyByPath(
+      services_key = registry.GetKeyByPath(
           u'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services')
       if services_key:
         self.key_found = True
@@ -236,15 +218,16 @@ class WindowsServicesCollector(collector.WindowsVolumeCollector):
             services_key):
           output_writer.WriteWindowsService(windows_service)
 
-  def Compare(self, output_writer):
+  def Compare(self, registry, output_writer):
     """Compares services in the different control sets.
 
     Args:
+      registry (dfwinreg.WinRegistry): Windows Registry.
       output_writer (OutputWriter): output writer.
     """
     self.key_found = False
 
-    system_key = self._registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
+    system_key = registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
     if not system_key:
       return
 

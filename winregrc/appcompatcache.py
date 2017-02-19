@@ -7,8 +7,6 @@ import logging
 
 import construct
 
-from dfwinreg import registry
-
 from winregrc import collector
 from winregrc import interface
 
@@ -681,12 +679,13 @@ class AppCompatCacheDataParser(object):
 class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
   """Class that defines an Application Compatibility Cache collector."""
 
-  def _CollectAppCompatCacheFromKey(self, output_writer, key_path):
+  def _CollectAppCompatCacheFromKey(self, registry, key_path, output_writer):
     """Collects Application Compatibility Cache from a Windows Registry key.
 
     Args:
-      output_writer (OutputWriter): output writer.
+      registry (dfwinreg.WinRegistry): Windows Registry.
       key_path (str): path of the Application Compatibility Cache Registry key.
+      output_writer (OutputWriter): output writer.
 
     Returns:
       bool: True if the Application Compatibility Cache key was found,
@@ -748,10 +747,11 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
 
     return True
 
-  def Collect(self, output_writer):
+  def Collect(self, registry, output_writer):
     """Collects the Application Compatibility Cache.
 
     Args:
+      registry (dfwinreg.WinRegistry): Windows Registry.
       output_writer (OutputWriter): output writer.
 
     Returns:
@@ -764,14 +764,14 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
     key_path = (
         u'HKEY_LOCAL_MACHINE\\System\\ControlSet001\\Control\\Session Manager\\'
         u'AppCompatibility')
-    if self._CollectAppCompatCacheFromKey(output_writer, key_path):
+    if self._CollectAppCompatCacheFromKey(registry, key_path, output_writer):
       result = True
 
     # Windows 2003 and later
     key_path = (
         u'HKEY_LOCAL_MACHINE\\System\\ControlSet001\\Control\\Session Manager\\'
         u'AppCompatCache')
-    if self._CollectAppCompatCacheFromKey(output_writer, key_path):
+    if self._CollectAppCompatCacheFromKey(registry, key_path, output_writer):
       result = True
 
     # TODO: handle multiple control sets.

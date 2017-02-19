@@ -10,6 +10,7 @@ libewf-python >= 20131210
 libfsntfs-python >= 20151130
 libfvde-python >= 20160719
 libfwnt-python >= 20160418
+libfwsi-python >= 20150606
 libqcow-python >= 20131204
 libregf-python >= 20150315
 libsigscan-python >= 20150627

@@ -7,10 +7,12 @@ import argparse
 import logging
 import sys
 
+from winregrc import collector
+from winregrc import output_writer
 from winregrc import services
 
 
-class StdoutWriter(object):
+class StdoutWriter(output_writer.StdoutOutputWriter):
   """Class that defines a stdout output writer."""
 
   def __init__(self, use_tsv=False):
@@ -22,18 +24,6 @@ class StdoutWriter(object):
     super(StdoutWriter, self).__init__()
     self._printed_header = False
     self._use_tsv = use_tsv
-
-  def Open(self):
-    """Opens the output writer object.
-
-    Returns:
-      bool: True if successful or False if not.
-    """
-    return True
-
-  def Close(self):
-    """Closes the output writer object."""
-    pass
 
   def WriteWindowsService(self, service):
     """Writes the Windows service to stdout.
@@ -139,26 +129,28 @@ def Main():
     print(u'')
     return False
 
-  collector_object = services.WindowsServicesCollector(
-      debug=options.debug)
-
-  if not collector_object.ScanForWindowsVolume(options.source):
-    print((
-        u'Unable to retrieve the volume with the Windows directory from: '
-        u'{0:s}.').format(options.source))
+  registry_collector = collector.WindowsRegistryCollector()
+  if not registry_collector.ScanForWindowsVolume(options.source):
+    print(u'Unable to retrieve the Windows Registry from: {0:s}.'.format(
+        options.source))
     print(u'')
     return False
 
+  # TODO: map collector to available Registry keys.
+  collector_object = services.WindowsServicesCollector(
+      debug=options.debug)
+
   if options.diff_control_sets:
-    collector_object.Compare(output_writer)
+    result = collector_object.Compare(output_writer)
   else:
-    collector_object.Collect(
-        output_writer, all_control_sets=options.all_control_sets)
+    result = collector_object.Collect(
+        registry_collector.registry, output_writer,
+        all_control_sets=options.all_control_sets)
+
+  if not result:
+    print(u'No Services key found.')
 
   output_writer.Close()
-
-  if not collector_object.key_found:
-    print(u'No Services key found.')
 
   return True
 
