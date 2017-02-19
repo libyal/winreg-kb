@@ -5,7 +5,7 @@ python:
   - "2.7"
   - "3.4"
 before_install:
-  - if test `uname -s` = 'Linux'; then sudo add-apt-repository ppa:gift/dev -y && sudo apt-get update -q && sudo apt-get install -y libexe-python libwrc-python python-coverage python-coveralls python-dfvfs pythondfwinreg python-docopt libexe-python3 libwrc-python3 python3-dfvfs python3-dfwinreg; fi
+  - if test `uname -s` = 'Linux'; then sudo add-apt-repository ppa:gift/dev -y && sudo apt-get update -q && sudo apt-get install -y libregf-python python-coverage python-coveralls python-dfvfs python-dfwinreg python-docopt libregf-python3 python3-dfvfs python3-dfwinreg; fi
 script:
   - if test `uname -s` = 'Linux' && test ${TRAVIS_PYTHON_VERSION} = "2.7"; then coverage run --source=winreg-kb --omit="*_test*,*__init__*,*test_lib*" ./run_tests.py; else ./run_tests.py; fi
   - python setup.py build

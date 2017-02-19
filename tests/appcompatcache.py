@@ -297,7 +297,7 @@ class AppCompatCacheCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object.Collect(registry_collector.registry, output_writer)
 
-    self.assertNotEqual(output_writer.known_folders, [])
+    self.assertNotEqual(output_writer.text, [])
 
     output_writer.Close()
 
