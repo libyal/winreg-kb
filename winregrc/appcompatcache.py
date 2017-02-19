@@ -10,6 +10,7 @@ import construct
 from dfwinreg import registry
 
 from winregrc import collector
+from winregrc import interface
 
 
 # pylint: disable=logging-format-interpolation
@@ -677,29 +678,8 @@ class AppCompatCacheDataParser(object):
     return cached_entry_object
 
 
-class AppCompatCacheCollector(collector.WindowsVolumeCollector):
-  """Class that defines an Application Compatibility Cache collector.
-
-  Attributes:
-    key_found (bool): True if the Windows Registry key was found.
-  """
-
-  def __init__(self, debug=False, mediator=None):
-    """Initializes an Application Compatibility Cache collector.
-
-    Args:
-      debug (Optional[bool]): True if debug information should be printed.
-      mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
-          mediator.
-    """
-    registry_file_reader = collector.CollectorRegistryFileReader(self)
-
-    super(AppCompatCacheCollector, self).__init__(mediator=mediator)
-    self._debug = debug
-    self._registry = registry.WinRegistry(
-        registry_file_reader=registry_file_reader)
-
-    self.key_found = False
+class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
+  """Class that defines an Application Compatibility Cache collector."""
 
   def _CollectAppCompatCacheFromKey(self, output_writer, key_path):
     """Collects Application Compatibility Cache from a Windows Registry key.
@@ -707,24 +687,26 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
     Args:
       output_writer (OutputWriter): output writer.
       key_path (str): path of the Application Compatibility Cache Registry key.
-    """
-    app_compat_cache_key = self._registry.GetKeyByPath(key_path)
-    if not app_compat_cache_key:
-      return
 
-    self.key_found = True
+    Returns:
+      bool: True if the Application Compatibility Cache key was found,
+          False if not.
+    """
+    app_compat_cache_key = registry.GetKeyByPath(key_path)
+    if not app_compat_cache_key:
+      return False
+
     value = app_compat_cache_key.GetValueByName(u'AppCompatCache')
     if not value:
       logging.warning(u'Missing AppCompatCache value in key: {0:s}'.format(
           key_path))
-      return
+      return True
 
     value_data = value.data
     value_data_size = len(value.data)
 
     # TODO: add non debug output
-    # parser = AppCompatCacheDataParser(debug=self._debug)
-    parser = AppCompatCacheDataParser(debug=True)
+    parser = AppCompatCacheDataParser(debug=self._debug)
 
     if self._debug:
       # TODO: replace WriteText by more output specific method e.g.
@@ -735,14 +717,14 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
     format_type = parser.CheckSignature(value_data)
     if not format_type:
       logging.warning(u'Unsupported signature.')
-      return
+      return True
 
     header_object = parser.ParseHeader(format_type, value_data)
 
     # On Windows Vista and 2008 when the cache is empty it will
     # only consist of the header.
     if value_data_size <= header_object.header_size:
-      return
+      return True
 
     cached_entry_offset = header_object.header_size
     cached_entry_size = parser.DetermineCacheEntrySize(
@@ -750,7 +732,7 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
 
     if not cached_entry_size:
       logging.warning(u'Unsupported cached entry size.')
-      return
+      return True
 
     cached_entry_index = 0
     while cached_entry_offset < value_data_size:
@@ -764,24 +746,34 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
           cached_entry_index >= header_object.number_of_cached_entries):
         break
 
+    return True
+
   def Collect(self, output_writer):
     """Collects the Application Compatibility Cache.
 
     Args:
       output_writer (OutputWriter): output writer.
+
+    Returns:
+      bool: True if the Application Compatibility Cache key was found,
+          False if not.
     """
-    self.key_found = False
+    result = False
 
     # Windows XP
     key_path = (
         u'HKEY_LOCAL_MACHINE\\System\\ControlSet001\\Control\\Session Manager\\'
         u'AppCompatibility')
-    self._CollectAppCompatCacheFromKey(output_writer, key_path)
+    if self._CollectAppCompatCacheFromKey(output_writer, key_path):
+      result = True
 
     # Windows 2003 and later
     key_path = (
         u'HKEY_LOCAL_MACHINE\\System\\ControlSet001\\Control\\Session Manager\\'
         u'AppCompatCache')
-    self._CollectAppCompatCacheFromKey(output_writer, key_path)
+    if self._CollectAppCompatCacheFromKey(output_writer, key_path):
+      result = True
 
     # TODO: handle multiple control sets.
+
+    return result

@@ -8,45 +8,13 @@ import logging
 import sys
 
 from winregrc import appcompatcache
+from winregrc import collector
 from winregrc import hexdump
+from winregrc import output_writer
 
 
-class StdoutWriter(object):
+class StdoutWriter(output_writer.StdoutOutputWriter):
   """Class that defines a stdout output writer."""
-
-  def Open(self):
-    """Opens the output writer object.
-
-    Returns:
-      bool: True if successful or False if not.
-    """
-    return True
-
-  def Close(self):
-    """Closes the output writer object."""
-    pass
-
-  def WriteDebugData(self, description, data):
-    """Writes data for debugging.
-
-    Args:
-      description (str): description to write.
-      data (bytes): data to write.
-    """
-    print(description.encode(u'utf8'))
-    print(hexdump.Hexdump(data))
-
-  def WriteDebugValue(self, description, value):
-    """Writes a value for debugging.
-
-    Args:
-      description (str): description to write.
-      value (str): value to write.
-    """
-    alignment = 8 - (len(description) / 8)
-
-    text = u'{0:s}{1:s}{2:s}'.format(description, u'\t' * alignment, value)
-    print(text.encode(u'utf8'))
 
   def WriteText(self, text):
     """Writes text to stdout.
@@ -97,21 +65,22 @@ def Main():
     print(u'')
     return False
 
-  collector_object = appcompatcache.AppCompatCacheCollector(
-      debug=options.debug)
-
-  if not collector_object.ScanForWindowsVolume(options.source):
-    print((
-        u'Unable to retrieve the volume with the Windows directory from: '
-        u'{0:s}.').format(options.source))
+  registry_collector = collector.WindowsRegistryCollector()
+  if not registry_collector.ScanForWindowsVolume(options.source):
+    print(u'Unable to retrieve the Windows Registry from: {0:s}.'.format(
+        options.source))
     print(u'')
     return False
 
-  collector_object.Collect(output_writer)
-  output_writer.Close()
+  # TODO: map collector to available Registry keys.
+  collector_object = appcompatcache.AppCompatCacheCollector(
+      debug=options.debug)
 
-  if not collector_object.key_found:
+  result = collector_object.Collect(registry_collector.registry, output_writer)
+  if not result:
     print(u'No Application Compatibility Cache key found.')
+
+  output_writer.Close()
 
   return True
 

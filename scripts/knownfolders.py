@@ -1,12 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""Script to extract known folder identifiers."""
+"""Script to extract information from the Windows Registry."""
 
 from __future__ import print_function
 import argparse
 import logging
 import sys
 
+from winregrc import collector
 from winregrc import knownfolders
 from winregrc import output_writer
 
@@ -31,7 +32,7 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      u'Extracts the known folder identifiers from a SOFTWARE Registry file.'))
+      u'Extracts information for the Windows Registry.'))
 
   argument_parser.add_argument(
       u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,
@@ -42,7 +43,7 @@ def Main():
       help=(
           u'path of the volume containing C:\\Windows, the filename of '
           u'a storage media image containing the C:\\Windows directory,'
-          u'or the path of a SOFTWARE Registry file.'))
+          u'or the path of a Windows Registry file.'))
 
   options = argument_parser.parse_args()
 
@@ -63,21 +64,21 @@ def Main():
     print(u'')
     return False
 
-  collector_object = knownfolders.KnownFoldersCollector(
-      debug=options.debug)
-
-  if not collector_object.ScanForWindowsVolume(options.source):
-    print((
-        u'Unable to retrieve the volume with the Windows directory from: '
-        u'{0:s}.').format(options.source))
+  registry_collector = collector.WindowsRegistryCollector()
+  if not registry_collector.ScanForWindowsVolume(options.source):
+    print(u'Unable to retrieve the Windows Registry from: {0:s}.'.format(
+        options.source))
     print(u'')
     return False
 
-  collector_object.Collect(output_writer)
-  output_writer.Close()
+  # TODO: map collector to available Registry keys.
+  collector_object = knownfolders.KnownFoldersCollector(debug=options.debug)
 
-  if not collector_object.key_found:
+  result = collector_object.Collect(registry_collector.registry, output_writer)
+  if not result:
     print(u'No Folder Descriptions key found.')
+
+  output_writer.Close()
 
   return True
 

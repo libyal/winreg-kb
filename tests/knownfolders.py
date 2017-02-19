@@ -4,6 +4,7 @@
 
 import unittest
 
+from winregrc import collector
 from winregrc import knownfolders
 from winregrc import output_writer
 
@@ -37,15 +38,21 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
   @shared_test_lib.skipUnlessHasTestFile([u'SOFTWARE'])
   def testCollect(self):
     """Tests the Collect function."""
-    collector_object = knownfolders.KnownFoldersCollector()
+    registry_collector = collector.WindowsRegistryCollector()
 
     test_path = self._GetTestFilePath([u'SOFTWARE'])
-    collector_object.ScanForWindowsVolume(test_path)
+    registry_collector.ScanForWindowsVolume(test_path)
 
+    self.assertIsNotNone(registry_collector.registry)
+
+    collector_object = knownfolders.KnownFoldersCollector()
     output_writer = TestOutputWriter()
-    collector_object.Collect(output_writer)
+
+    collector_object.Collect(registry_collector.registry, output_writer)
 
     self.assertNotEqual(output_writer.known_folders, [])
+
+    output_writer.Close()
 
 
 if __name__ == '__main__':

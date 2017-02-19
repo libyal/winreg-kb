@@ -7,23 +7,13 @@ import argparse
 import logging
 import sys
 
+from winregrc import collector
+from winregrc import output_writer
 from winregrc import profiles
 
 
-class StdoutWriter(object):
+class StdoutWriter(output_writer.StdoutOutputWriter):
   """Class that defines a stdout output writer."""
-
-  def Close(self):
-    """Closes the output writer object."""
-    return
-
-  def Open(self):
-    """Opens the output writer object.
-
-    Returns:
-      A boolean containing True if successful or False if not.
-    """
-    return True
 
   def WriteText(self, text):
     """Writes text to stdout.
@@ -73,21 +63,22 @@ def Main():
     print(u'')
     return False
 
-  collector_object = profiles.UserProfilesCollector(
-      debug=options.debug)
-
-  if not collector_object.ScanForWindowsVolume(options.source):
-    print((
-        u'Unable to retrieve the volume with the Windows directory from: '
-        u'{0:s}.').format(options.source))
+  registry_collector = collector.WindowsRegistryCollector()
+  if not registry_collector.ScanForWindowsVolume(options.source):
+    print(u'Unable to retrieve the Windows Registry from: {0:s}.'.format(
+        options.source))
     print(u'')
     return False
 
-  collector_object.Collect(output_writer)
-  output_writer.Close()
+  # TODO: map collector to available Registry keys.
+  collector_object = profiles.UserProfilesCollector(
+      debug=options.debug)
 
-  if not collector_object.key_found:
+  result = collector_object.Collect(registry_collector.registry, output_writer)
+  if not result:
     print(u'No Profile List key found.')
+
+  output_writer.Close()
 
   return True
 
