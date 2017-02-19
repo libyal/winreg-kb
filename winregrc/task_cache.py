@@ -59,8 +59,8 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
     if id_value:
       yield registry_key, id_value
 
-    for sub_key in registry_key.GetSubkeys():
-      for value_key, id_value in self._GetIdValue(sub_key):
+    for subkey in registry_key.GetSubkeys():
+      for value_key, id_value in self._GetIdValue(subkey):
         yield value_key, id_value
 
   def Collect(self, registry, output_writer):
@@ -86,8 +86,8 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
       return False
 
     task_guids = {}
-    for sub_key in tree_key.GetSubkeys():
-      for value_key, id_value in self._GetIdValue(sub_key):
+    for subkey in tree_key.GetSubkeys():
+      for value_key, id_value in self._GetIdValue(subkey):
         # TODO: improve this check to a regex.
         # The GUID is in the form {%GUID%} and stored an UTF-16 little-endian
         # string and should be 78 bytes in size.
@@ -100,8 +100,8 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
         guid_string = id_value.GetDataAsObject()
         task_guids[guid_string] = value_key.name
 
-    for sub_key in tasks_key.GetSubkeys():
-      dynamic_info_value = sub_key.GetValueByName(u'DynamicInfo')
+    for subkey in tasks_key.GetSubkeys():
+      dynamic_info_value = subkey.GetValueByName(u'DynamicInfo')
       if not dynamic_info_value:
         continue
 
@@ -165,10 +165,10 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
 
         print(u'')
 
-      name = task_guids.get(sub_key.name, sub_key.name)
+      name = task_guids.get(subkey.name, subkey.name)
 
       output_writer.WriteText(u'Task: {0:s}'.format(name))
-      output_writer.WriteText(u'ID: {0:s}'.format(sub_key.name))
+      output_writer.WriteText(u'ID: {0:s}'.format(subkey.name))
 
       timestamp = task_cache_key.last_written_time // 10
       date_string = (datetime.datetime(1601, 1, 1) +

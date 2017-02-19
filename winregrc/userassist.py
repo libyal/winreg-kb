@@ -151,28 +151,28 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
       u'Explorer\\UserAssist')
 
   # TODO: replace print by output_writer.
-  def _CollectUserAssistFromKey(self, unused_output_writer, guid_sub_key):
+  def _CollectUserAssistFromKey(self, unused_output_writer, guid_subkey):
     """Collects the User Assist information from a GUID sub key.
 
     Args:
       output_writer (OutputWriter): output writer.
-      guid_sub_key (dfwinreg.WinRegistryKey): User Assist GUID Registry key.
+      guid_subkey (dfwinreg.WinRegistryKey): User Assist GUID Registry key.
     """
-    version_value = guid_sub_key.GetValueByName(u'Version')
+    version_value = guid_subkey.GetValueByName(u'Version')
     if not version_value:
       logging.warning(u'Missing Version value in sub key: {0:s}'.format(
-          guid_sub_key.name))
+          guid_subkey.name))
       return
 
     format_version = version_value.GetDataAsObject()
 
     if self._debug:
-      print(u'GUID\t\t: {0:s}'.format(guid_sub_key.name))
+      print(u'GUID\t\t: {0:s}'.format(guid_subkey.name))
       print(u'Format version\t: {0:d}'.format(format_version))
       print(u'')
 
-    count_sub_key = guid_sub_key.GetSubkeyByName(u'Count')
-    for value in count_sub_key.GetValues():
+    count_subkey = guid_subkey.GetSubkeyByName(u'Count')
+    for value in count_subkey.GetValues():
       output_string = u'Original name\t: {0:s}'.format(value.name)
 
       if self._debug:
@@ -228,7 +228,7 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
       print(u'Key: {0:s}'.format(self._USER_ASSIST_KEY))
       print(u'')
 
-    for guid_sub_key in user_assist_key.GetSubkeys():
-      self._CollectUserAssistFromKey(output_writer, guid_sub_key)
+    for guid_subkey in user_assist_key.GetSubkeys():
+      self._CollectUserAssistFromKey(output_writer, guid_subkey)
 
     return True

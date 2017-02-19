@@ -141,15 +141,15 @@ class RegfDirectory(file_entry.Directory):
     if value_name is None:
       regf_key = self._file_system.GetRegfKey(key_path)
 
-      for regf_sub_key in regf_key.GetSubkeys():
+      for regf_subkey in regf_key.GetSubkeys():
         if key_path == self._file_system.PATH_SEPARATOR:
-          sub_key_path = self._file_system.JoinPath([regf_sub_key.name])
+          subkey_path = self._file_system.JoinPath([regf_subkey.name])
         else:
-          sub_key_path = self._file_system.JoinPath([
-              key_path, regf_sub_key.name])
+          subkey_path = self._file_system.JoinPath([
+              key_path, regf_subkey.name])
 
         yield RegfPathSpec(
-            key_path=sub_key_path, parent=self.path_spec.parent)
+            key_path=subkey_path, parent=self.path_spec.parent)
 
       for regf_value in regf_key.values:
         yield RegfPathSpec(
@@ -428,7 +428,7 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
       The key object (instance of pyregf.key) or None.
     """
     try:
-      return self._regf_base_key.get_sub_key_by_path(key_path)
+      return self._regf_base_key.get_subkey_by_path(key_path)
     except IOError:
       pass
 

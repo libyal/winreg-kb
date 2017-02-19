@@ -220,60 +220,60 @@ class AppCompatCacheDataParserTest(shared_test_lib.BaseTestCase):
 
   def testCheckSignature(self):
     """Tests the CheckSignature function."""
-    parser_object = appcompatcache.AppCompatCacheDataParser()
+    parser = appcompatcache.AppCompatCacheDataParser()
 
-    format_type = parser_object.CheckSignature(self._CACHE_DATA_WINDOWS_XP)
-    self.assertEqual(format_type, parser_object.FORMAT_TYPE_XP)
+    format_type = parser.CheckSignature(self._CACHE_DATA_WINDOWS_XP)
+    self.assertEqual(format_type, parser.FORMAT_TYPE_XP)
 
-    format_type = parser_object.CheckSignature(self._CACHE_DATA_WINDOWS_2003)
-    self.assertEqual(format_type, parser_object.FORMAT_TYPE_2003)
+    format_type = parser.CheckSignature(self._CACHE_DATA_WINDOWS_2003)
+    self.assertEqual(format_type, parser.FORMAT_TYPE_2003)
 
-    format_type = parser_object.CheckSignature(self._CACHE_DATA_WINDOWS_VISTA)
+    format_type = parser.CheckSignature(self._CACHE_DATA_WINDOWS_VISTA)
     # TODO: add support to detect Vista format.
-    self.assertEqual(format_type, parser_object.FORMAT_TYPE_2003)
+    self.assertEqual(format_type, parser.FORMAT_TYPE_2003)
 
     # TODO: add Windows 7 test.
 
-    format_type = parser_object.CheckSignature(self._CACHE_DATA_WINDOWS_8_0)
-    self.assertEqual(format_type, parser_object.FORMAT_TYPE_8)
+    format_type = parser.CheckSignature(self._CACHE_DATA_WINDOWS_8_0)
+    self.assertEqual(format_type, parser.FORMAT_TYPE_8)
 
-    format_type = parser_object.CheckSignature(self._CACHE_DATA_WINDOWS_8_1)
-    self.assertEqual(format_type, parser_object.FORMAT_TYPE_8)
+    format_type = parser.CheckSignature(self._CACHE_DATA_WINDOWS_8_1)
+    self.assertEqual(format_type, parser.FORMAT_TYPE_8)
 
-    format_type = parser_object.CheckSignature(self._CACHE_DATA_WINDOWS_10)
-    self.assertEqual(format_type, parser_object.FORMAT_TYPE_10)
+    format_type = parser.CheckSignature(self._CACHE_DATA_WINDOWS_10)
+    self.assertEqual(format_type, parser.FORMAT_TYPE_10)
 
     # TODO: add bogus data tests.
 
   def testParseHeader(self):
     """Tests the ParseHeader function."""
-    parser_object = appcompatcache.AppCompatCacheDataParser()
+    parser = appcompatcache.AppCompatCacheDataParser()
 
-    header_object = parser_object.ParseHeader(
-        parser_object.FORMAT_TYPE_XP, self._CACHE_DATA_WINDOWS_XP)
+    header_object = parser.ParseHeader(
+        parser.FORMAT_TYPE_XP, self._CACHE_DATA_WINDOWS_XP)
     self.assertIsNotNone(header_object)
 
-    header_object = parser_object.ParseHeader(
-        parser_object.FORMAT_TYPE_2003, self._CACHE_DATA_WINDOWS_2003)
+    header_object = parser.ParseHeader(
+        parser.FORMAT_TYPE_2003, self._CACHE_DATA_WINDOWS_2003)
     self.assertIsNotNone(header_object)
 
     # TODO: fix Vista support.
-    # header_object = parser_object.ParseHeader(
-    #     parser_object.FORMAT_TYPE_VISTA, self._CACHE_DATA_WINDOWS_VISTA)
+    # header_object = parser.ParseHeader(
+    #     parser.FORMAT_TYPE_VISTA, self._CACHE_DATA_WINDOWS_VISTA)
     # self.assertIsNotNone(header_object)
 
     # TODO: add Windows 7 test.
 
-    header_object = parser_object.ParseHeader(
-        parser_object.FORMAT_TYPE_8, self._CACHE_DATA_WINDOWS_8_0)
+    header_object = parser.ParseHeader(
+        parser.FORMAT_TYPE_8, self._CACHE_DATA_WINDOWS_8_0)
     self.assertIsNotNone(header_object)
 
-    header_object = parser_object.ParseHeader(
-        parser_object.FORMAT_TYPE_8, self._CACHE_DATA_WINDOWS_8_1)
+    header_object = parser.ParseHeader(
+        parser.FORMAT_TYPE_8, self._CACHE_DATA_WINDOWS_8_1)
     self.assertIsNotNone(header_object)
 
-    header_object = parser_object.ParseHeader(
-        parser_object.FORMAT_TYPE_10, self._CACHE_DATA_WINDOWS_10)
+    header_object = parser.ParseHeader(
+        parser.FORMAT_TYPE_10, self._CACHE_DATA_WINDOWS_10)
     self.assertIsNotNone(header_object)
 
     # TODO: add bogus data tests.

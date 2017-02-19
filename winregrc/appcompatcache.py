@@ -181,11 +181,11 @@ class AppCompatCacheDataParser(object):
       construct.Padding(8))
 
   def __init__(self, debug=False, output_writer=None):
-    """Initializes a parser object.
+    """Initializes an Application Compatibility Cache parser.
 
     Args:
       debug (Optional[bool]): True if debug information should be printed.
-      output_writer (OutputWriter): output writer.
+      output_writer (Optional[OutputWriter]): output writer.
     """
     super(AppCompatCacheDataParser, self).__init__()
     self._debug = debug

@@ -128,20 +128,20 @@ Values:
 |===
 | Offset | Size | Value | Description
 | 0 | 4 | | The relative identifier (RID)
-| 4 | 4 | | Unknown (empty values)
+| 4 | 4 | | [yellow-background]*Unknown (empty values)*
 | 8 | 4 | | Size of unknown data at offset 52
-| 12 | 2 | 2 | Unknown: major format version ?
-| 14 | 2 | 1 | Unknown: minor format version ?
+| 12 | 2 | 2 | [yellow-background]*Unknown: major format version ?*
+| 14 | 2 | 1 | [yellow-background]*Unknown: minor format version ?*
 | 16 | 4 | | Name string offset +
 Relative from offset 52
 | 20 | 4 | | Name string size +
 Contains number of bytes
-| 24 | 4 | | Unknown (empty values)
+| 24 | 4 | | [yellow-background]*Unknown (empty values)*
 | 28 | 4 | | Description string offset +
 Relative from offset 52
 | 32 | 4 | | Description string size +
 Contains number of bytes
-| 36 | 4 | | Unknown (empty values)
+| 36 | 4 | | [yellow-background]*Unknown (empty values)*
 | 40 | 4 | | SID array offset +
 Relative from offset 52
 | 44 | 4 | | SID array size
@@ -200,22 +200,22 @@ Sub keys:
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | 2 | 2 | Unknown: major format version ?
-| 2 | 2 | 1 | Unknown: minor format version ?
+| 0 | 2 | 2 | [yellow-background]*Unknown: major format version ?*
+| 2 | 2 | 1 | [yellow-background]*Unknown: minor format version ?*
 | 4 | 4 | | The relative identifier (RID)
-| 8 | 20 | | Unknown
-| 28 | 2 | 2 | Unknown: major format version ?
-| 30 | 2 | 1 | Unknown: minor format version ?
+| 8 | 20 | | [yellow-background]*Unknown (empty values)*
+| 28 | 2 | 2 | [yellow-background]*Unknown: major format version ?*
+| 30 | 2 | 1 | [yellow-background]*Unknown: minor format version ?*
 | 32 | 4 | | Name string offset +
 Relative from offset 68
 | 36 | 4 | | Name string size +
 Contains number of bytes
-| 40 | 4 | | Unknown (empty values)
+| 40 | 4 | | [yellow-background]*Unknown (empty values)*
 | 44 | 4 | | Description string offset +
 Relative from offset 68
 | 48 | 4 | | Description string size +
 Contains number of bytes
-| 52 | 4 | | Unknown (empty values)
+| 52 | 4 | | [yellow-background]*Unknown (empty values)*
 | 56 | 4 | | Group member array offset +
 Relative from offset 68
 | 60 | 4 | | Group member array size +
@@ -262,33 +262,43 @@ Values:
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | 2 | 2 | Unknown: major version ?
-| 2 | 2 | 2 | Unknown: minor version ?
-| 4 | 2 | | Unknown: Extended data flags ?
-| 6 | 2 | | Unknown: Extended data size ?
-| 8 | 8 | | Last logon date and time +
-Contains a Filetime
-| 16 | 8 | | Unknown: flags ? +
-If not 0 other type of data ?
-| 24 | 8 | | Password last set date and time +
-Contains a Filetime
-| 32 | 8 | | Account expires date and time +
-Contains a Filetime, where 0x7fffffffffffffff represents Never ?
-| 40 | 8 | | Last incorrect password date and time +
-Contains a Filetime
+| 0 | 2 | 2 | [yellow-background]*Unknown: major version ?*
+| 2 | 2 | 2 | [yellow-background]*Unknown: minor version ?*
+| 4 | 2 | | [yellow-background]*Unknown: Extended data flags ?*
+| 6 | 2 | | [yellow-background]*Unknown: Extended data size ?*
+| 8 | 8 | | Last logon date and time (lastLogon) +
+Contains a FILETIME
+| 16 | 8 | | [yellow-background]*Unknown (lastLogoff?)*
+| 24 | 8 | | Password last set date and time (pwdLastSet) +
+Contains a FILETIME
+| 32 | 8 | | Account expires date and time (accountExpires) +
+Contains a FILETIME, where 0x7fffffffffffffff represents Never
+| 40 | 8 | | Last password failure date and time (badPasswordTime) +
+Contains a FILETIME
 | 48 | 4 | | Relative identifier (RID) +
 The user number corresponds to the the last authority of the SID
-| 52 | 4 | | Unknown
-| 54 | 2 | | Flags
-| 56 | 2 | | Unknown
-| 60 | 2 | | Country code 
-| 62 | 2 | | Unknown 
-| 64 | 2 | | Number of incorrect password attempts
-| 66 | 2 | | Number of log-ons
-| 68 | 4 | | Unknown
-| 72 | 4 | | Unknown
-| 76 | 2 | | Unknown
-| 78 | 2 | | Unknown
+| 52 | 4 | | [yellow-background]*Unknown*
+| 54 | 2 | | [yellow-background]*Unknown*
+| 56 | 2 | | Flags
+| 60 | 2 | | Country code (countryCode) +
+See section" <<country_code,Country code>>
+| 62 | 2 | | Codepage (codePage)
+| 64 | 2 | | Number of password failures (badPwdCount)
+| 66 | 2 | | Number of logons (logonCount)
+| 68 | 4 | | [yellow-background]*Unknown*
+| 72 | 4 | | [yellow-background]*Unknown*
+| 76 | 2 | | [yellow-background]*Unknown*
+| 78 | 2 | | [yellow-background]*Unknown*
+|===
+
+Flags
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x0001 | | Account disabled (inactive)
+| | |
+| 0x0004 | | No password required
 |===
 
 Extended data:
@@ -311,7 +321,7 @@ Extended data:
 | | Account is locked out
 |===
 
-===== Country code
+===== [[country_code]]Country code
 
 [cols="1,5",options="header"]
 |===

@@ -26,11 +26,11 @@ class UserProfilesCollector(interface.WindowsRegistryKeyCollector):
     if not profile_list_key:
       return False
 
-    for sub_key in profile_list_key.GetSubkeys():
+    for subkey in profile_list_key.GetSubkeys():
       profile_image_path = self._GetValueAsStringFromKey(
-          sub_key, u'ProfileImagePath')
+          subkey, u'ProfileImagePath')
 
       output_writer.WriteText(u'{0:s}: {1:s}'.format(
-          sub_key.name, profile_image_path))
+          subkey.name, profile_image_path))
 
     return True
