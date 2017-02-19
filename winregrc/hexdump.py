@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
-"""Function to provide hexadecimal represenation of data."""
+"""Function to provide hexadecimal representation of data."""
 
 _HEXDUMP_CHARACTER_MAP = [
     '.' if byte < 0x20 or byte > 0x7e else chr(byte) for byte in range(256)]
 
 
 def Hexdump(data):
-  """Formats data in a hexadecimal represenation.
+  """Formats data in a hexadecimal representation.
 
   Args:
     data (byte): data.
 
   Returns:
-    str: hexadecimal represenation of the data.
+    str: hexadecimal representation of the data.
   """
   in_group = False
   previous_hexadecimal_string = None
