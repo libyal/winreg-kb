@@ -1,36 +1,14 @@
 # -*- coding: utf-8 -*-
-"""Windows system information collector."""
+"""System information collector."""
 
-from dfwinreg import registry
-
-from winregrc import collector
+from winregrc import interface
 
 
-class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
-  """Class that defines a Windows system information collector.
-
-  Attributes:
-    key_found (bool): True if the Windows Registry key was found.
-  """
+class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
+  """Class that defines a system information collector."""
 
   _CURRENT_VERSION_KEY_PATH = (
       u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')
-
-  def __init__(self, debug=False, mediator=None):
-    """Initializes the collector object.
-
-    Args:
-      debug (Optional[bool]): True if debug information should be printed.
-      mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
-          mediator.
-    """
-    super(WindowsSystemInfoCollector, self).__init__(mediator=mediator)
-    self._debug = debug
-    registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(
-        registry_file_reader=registry_file_reader)
-
-    self.key_found = False
 
   def _GetValueAsStringFromKey(self, key, value_name, default_value=u''):
     """Retrieves a value as a string from the key.
@@ -52,20 +30,20 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
 
     return value.GetDataAsObject()
 
-  def Collect(self, output_writer):
-    """Collects the system information.
+  def Collect(self, registry, output_writer):
+    """Collects system information.
 
     Args:
+      registry (dfwinreg.WinRegistry): Windows Registry.
       output_writer (OutputWriter): output writer.
-    """
-    self.key_found = False
 
-    current_version_key = self._registry.GetKeyByPath(
+    Returns:
+      bool: True if the system information key was found, False if not.
+    """
+    current_version_key = registry.GetKeyByPath(
         self._CURRENT_VERSION_KEY_PATH)
     if not current_version_key:
-      return
-
-    self.key_found = True
+      return False
 
     value_names = [
         u'ProductName',
@@ -89,3 +67,5 @@ class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
     if value:
       output_writer.WriteText(
           u'InstallDate: {0:d}'.format(value.GetDataAsObject()))
+
+    return True

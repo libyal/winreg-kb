@@ -7,18 +7,18 @@ import logging
 
 import construct
 
-from dfwinreg import registry
-
-from winregrc import collector
 from winregrc import hexdump
+from winregrc import interface
 
 
-class TaskCacheCollector(collector.WindowsVolumeCollector):
-  """Class that defines a Task Cache collector.
+class TaskCacheDataParser(object):
+  """Class that parses the Task Cache value data."""
 
-  Attributes:
-    key_found (bool): True if the Windows Registry key was found.
-  """
+  # TODO: implement.
+
+
+class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
+  """Class that defines a Task Cache collector."""
 
   _DYNAMIC_INFO_STRUCT = construct.Struct(
       u'dynamic_info_record',
@@ -45,22 +45,6 @@ class TaskCacheCollector(collector.WindowsVolumeCollector):
       u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
       u'Schedule\\TaskCache')
 
-  def __init__(self, debug=False, mediator=None):
-    """Initializes the collector object.
-
-    Args:
-      debug (Optional[bool]): True if debug information should be printed.
-      mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
-          mediator.
-    """
-    super(TaskCacheCollector, self).__init__(mediator=mediator)
-    self._debug = debug
-    registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(
-        registry_file_reader=registry_file_reader)
-
-    self.key_found = False
-
   def _GetIdValue(self, registry_key):
     """Retrieves the Id value from Task Cache Tree key.
 
@@ -79,27 +63,27 @@ class TaskCacheCollector(collector.WindowsVolumeCollector):
       for value_key, id_value in self._GetIdValue(sub_key):
         yield value_key, id_value
 
-  def Collect(self, output_writer):
+  def Collect(self, registry, output_writer):
     """Collects the Task Cache.
 
     Args:
+      registry (dfwinreg.WinRegistry): Windows Registry.
       output_writer (OutputWriter): output writer.
+
+    Returns:
+      bool: True if the Task Cache key was found, False if not.
     """
     dynamic_info_size_error_reported = False
 
-    self.key_found = False
-
-    task_cache_key = self._registry.GetKeyByPath(self._TASK_CACHE_KEY_PATH)
+    task_cache_key = registry.GetKeyByPath(self._TASK_CACHE_KEY_PATH)
     if not task_cache_key:
-      return
+      return False
 
     tasks_key = task_cache_key.GetSubkeyByName(u'Tasks')
     tree_key = task_cache_key.GetSubkeyByName(u'Tree')
 
     if not tasks_key or not tree_key:
-      return
-
-    self.key_found = True
+      return False
 
     task_guids = {}
     for sub_key in tree_key.GetSubkeys():
@@ -218,3 +202,5 @@ class TaskCacheCollector(collector.WindowsVolumeCollector):
         output_writer.WriteText(u'Unknown time: {0!s}'.format(date_string))
 
       output_writer.WriteText(u'')
+
+    return True

@@ -73,21 +73,22 @@ def Main():
     print(u'')
     return False
 
-  collector_object = sysinfo.WindowsSystemInfoCollector(
-      debug=options.debug)
-
-  if not collector_object.ScanForWindowsVolume(options.source):
-    print((
-        u'Unable to retrieve the volume with the Windows directory from: '
-        u'{0:s}.').format(options.source))
+  registry_collector = collector.WindowsRegistryCollector()
+  if not registry_collector.ScanForWindowsVolume(options.source):
+    print(u'Unable to retrieve the Windows Registry from: {0:s}.'.format(
+        options.source))
     print(u'')
     return False
 
-  collector_object.Collect(output_writer)
-  output_writer.Close()
+  # TODO: map collector to available Registry keys.
+  collector_object = sysinfo.SystemInfoCollector(
+      debug=options.debug)
 
-  if not collector_object.key_found:
+  result = collector_object.Collect(registry_collector.registry, output_writer)
+  if not result:
     print(u'No Current Version key found.')
+
+  output_writer.Close()
 
   return True
 
