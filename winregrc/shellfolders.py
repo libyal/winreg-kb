@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""Shell Folder identifier collector."""
+"""Shell Folder collector."""
 
 from __future__ import print_function
 
 from dfwinreg import registry
 
-from winregrc import collector
+from winregrc import interface
 
 
 class ShellFolder(object):
@@ -25,39 +25,23 @@ class ShellFolder(object):
     self.localized_string = localized_string
 
 
-class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
-  """Class that defines a Shell Folder identifier collector.
-
-  Attributes:
-    key_found (bool): True if the Windows Registry key was found.
-  """
+class ShellFoldersCollector(interface.WindowsRegistryKeyCollector):
+  """Class that defines a Shell Folder collector."""
 
   _CLASS_IDENTIFIERS_KEY_PATH = u'HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID'
 
-  def __init__(self, debug=False, mediator=None):
-    """Initializes the collector object.
+  def Collect(self, registry, output_writer):
+    """Collects the shell folders.
 
     Args:
-      debug (Optional[bool]): True if debug information should be printed.
-      mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
-          mediator.
-    """
-    super(ShellFolderIdentifierCollector, self).__init__(mediator=mediator)
-    self._debug = debug
-    registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(
-        registry_file_reader=registry_file_reader)
-
-    self.key_found = False
-
-  def Collect(self, output_writer):
-    """Collects the Shell Folder identifiers.
-
-    Args:
+      registry (dfwinreg.WinRegistry): Windows Registry.
       output_writer (OutputWriter): output writer.
+
+    Returns:
+      bool: True if the shell folders key was found, False if not.
     """
-    self.key_found = False
-    class_identifiers_key = self._registry.GetKeyByPath(
+    result = False
+    class_identifiers_key = registry.GetKeyByPath(
         self._CLASS_IDENTIFIERS_KEY_PATH)
     if not class_identifiers_key:
       return
@@ -67,7 +51,7 @@ class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
 
       shell_folder_key = class_identifier_key.GetSubkeyByName(u'ShellFolder')
       if shell_folder_key:
-        self.key_found = True
+        result = True
 
         value = class_identifier_key.GetValueByName(u'')
         if value:
@@ -89,3 +73,5 @@ class ShellFolderIdentifierCollector(collector.WindowsVolumeCollector):
 
         shell_folder = ShellFolder(guid, name, localized_string)
         output_writer.WriteShellFolder(shell_folder)
+
+    return result

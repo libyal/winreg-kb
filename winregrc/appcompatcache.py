@@ -7,7 +7,6 @@ import logging
 
 import construct
 
-from winregrc import collector
 from winregrc import interface
 
 
