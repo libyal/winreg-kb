@@ -7,23 +7,12 @@ import argparse
 import logging
 import sys
 
-from winreg_kb import knownfolders
+from winregrc import knownfolders
+from winregrc import output_writer
 
 
-class StdoutWriter(object):
+class StdoutWriter(output_writer.StdoutOutputWriter):
   """Class that defines a stdout output writer."""
-
-  def Close(self):
-    """Closes the output writer object."""
-    return
-
-  def Open(self):
-    """Opens the output writer object.
-
-    Returns:
-      bool: True if successful or False if not.
-    """
-    return True
 
   def WriteKnownFolder(self, known_folder):
     """Writes a known folder to the output.

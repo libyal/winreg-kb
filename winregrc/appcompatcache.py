@@ -9,8 +9,7 @@ import construct
 
 from dfwinreg import registry
 
-from winreg_kb import collector
-from winreg_kb import hexdump
+from winregrc import collector
 
 
 # pylint: disable=logging-format-interpolation
@@ -19,7 +18,7 @@ class AppCompatCacheHeader(object):
   """Class that defines an Application Compatibility Cache header."""
 
   def __init__(self):
-    """Initializes an Application Compatibility Cache header ."""
+    """Initializes an Application Compatibility Cache header."""
     super(AppCompatCacheHeader, self).__init__()
     self.number_of_cached_entries = 0
     self.header_size = 0
@@ -183,14 +182,16 @@ class AppCompatCacheDataParser(object):
       construct.ULInt32(u'number_of_cached_entries'),
       construct.Padding(8))
 
-  def __init__(self, debug=False):
+  def __init__(self, debug=False, output_writer=None):
     """Initializes a parser object.
 
     Args:
       debug (Optional[bool]): True if debug information should be printed.
+      output_writer (OutputWriter): output writer.
     """
     super(AppCompatCacheDataParser, self).__init__()
     self._debug = debug
+    self._output_writer = output_writer
 
   def CheckSignature(self, value_data):
     """Parses the signature.
@@ -270,12 +271,12 @@ class AppCompatCacheDataParser(object):
       header_struct = self._HEADER_10_STRUCT.parse(value_data)
 
     if self._debug:
-      print(u'Header data:')
-      print(hexdump.Hexdump(value_data[0:header_object.header_size]))
+      self._output_writer.WriteDebugData(
+          u'Header data:', value_data[0:header_object.header_size])
 
     if self._debug:
-      print(u'Signature\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          header_struct.get(u'signature')))
+      self._output_writer.WriteDebugValue(
+          u'Signature', u'0x{0:08x}'.format(header_struct.signature))
 
     if format_type in (
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
@@ -313,8 +314,8 @@ class AppCompatCacheDataParser(object):
           print(u'')
 
       if self._debug:
-        print(u'Unknown data:')
-        print(hexdump.Hexdump(value_data[data_offset:400]))
+        self._output_writer.WriteDebugData(
+            u'Unknown data:', value_data[data_offset:400])
 
     elif format_type == self.FORMAT_TYPE_8:
       if self._debug:
@@ -426,13 +427,14 @@ class AppCompatCacheDataParser(object):
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7):
       if self._debug:
-        print(u'Cached entry: {0:d} data:'.format(cached_entry_index))
-        print(hexdump.Hexdump(cached_entry_data))
+        description = u'Cached entry: {0:d} data:'.format(cached_entry_index)
+        self._output_writer.WriteDebugData(description, cached_entry_data)
 
     elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
       if self._debug:
-        print(u'Cached entry: {0:d} header data:'.format(cached_entry_index))
-        print(hexdump.Hexdump(cached_entry_data[:-2]))
+        description = u'Cached entry: {0:d} header data:'.format(
+            cached_entry_index)
+        self._output_writer.WriteDebugData(description, cached_entry_data[:-2])
 
     cached_entry_struct = None
 
@@ -490,8 +492,8 @@ class AppCompatCacheDataParser(object):
 
     if format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
       if self._debug:
-        print(u'Cached entry: {0:d} data:'.format(cached_entry_index))
-        print(hexdump.Hexdump(cached_entry_data))
+        description = u'Cached entry: {0:d} data:'.format(cached_entry_index)
+        self._output_writer.WriteDebugData(description, cached_entry_data)
 
     cached_entry_object = AppCompatCacheCachedEntry()
     cached_entry_object.cached_entry_size = cached_entry_size
@@ -653,8 +655,8 @@ class AppCompatCacheDataParser(object):
       maximum_path_size += path_offset
 
       if self._debug:
-        print(u'Path data:')
-        print(hexdump.Hexdump(value_data[path_offset:maximum_path_size]))
+        self._output_writer.WriteDebugData(
+            u'Path data:', value_data[path_offset:maximum_path_size])
 
       cached_entry_object.path = value_data[path_offset:path_size].decode(
           u'utf-16-le')
@@ -669,8 +671,8 @@ class AppCompatCacheDataParser(object):
       cached_entry_object.data = value_data[data_offset:data_size]
 
       if self._debug:
-        print(u'Data:')
-        print(hexdump.Hexdump(cached_entry_object.data))
+        self._output_writer.WriteDebugData(
+            u'Data:', cached_entry_object.data)
 
     return cached_entry_object
 
@@ -690,9 +692,10 @@ class AppCompatCacheCollector(collector.WindowsVolumeCollector):
       mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
           mediator.
     """
+    registry_file_reader = collector.CollectorRegistryFileReader(self)
+
     super(AppCompatCacheCollector, self).__init__(mediator=mediator)
     self._debug = debug
-    registry_file_reader = collector.CollectorRegistryFileReader(self)
     self._registry = registry.WinRegistry(
         registry_file_reader=registry_file_reader)
 

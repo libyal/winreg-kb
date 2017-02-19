@@ -62,8 +62,8 @@ class WindowsVolumeCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
 
     Raises:
       ScannerError: if the source path does not exists, or if the source path
-                    is not a file or directory, or if the format of or within
-                    the source file is not supported.
+          is not a file or directory, or if the format of or within
+          the source file is not supported.
     """
     result = super(WindowsVolumeCollector, self).ScanForWindowsVolume(
         source_path)

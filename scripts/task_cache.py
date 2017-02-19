@@ -7,7 +7,7 @@ import argparse
 import logging
 import sys
 
-from winreg_kb import task_cache
+from winregrc import task_cache
 
 
 class StdoutWriter(object):

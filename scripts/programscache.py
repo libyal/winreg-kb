@@ -7,7 +7,7 @@ import argparse
 import logging
 import sys
 
-from winreg_kb import programscache
+from winregrc import programscache
 
 
 class StdoutWriter(object):

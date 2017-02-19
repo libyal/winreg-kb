@@ -7,7 +7,7 @@ import argparse
 import logging
 import sys
 
-from winreg_kb import profiles
+from winregrc import profiles
 
 
 class StdoutWriter(object):

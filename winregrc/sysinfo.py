@@ -1,31 +1,30 @@
 # -*- coding: utf-8 -*-
-"""Windows user profiles collector."""
+"""Windows system information collector."""
 
 from dfwinreg import registry
 
-from winreg_kb import collector
+from winregrc import collector
 
 
-class UserProfilesCollector(collector.WindowsVolumeCollector):
-  """Class that defines a Windows user profiles collector.
+class WindowsSystemInfoCollector(collector.WindowsVolumeCollector):
+  """Class that defines a Windows system information collector.
 
   Attributes:
     key_found (bool): True if the Windows Registry key was found.
   """
 
-  _PROFILE_LIST_KEY_PATH = (
-      u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
-      u'ProfileList')
+  _CURRENT_VERSION_KEY_PATH = (
+      u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')
 
   def __init__(self, debug=False, mediator=None):
-    """Initializes a Windows user profiles collector.
+    """Initializes the collector object.
 
     Args:
       debug (Optional[bool]): True if debug information should be printed.
       mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
           mediator.
     """
-    super(UserProfilesCollector, self).__init__(mediator=mediator)
+    super(WindowsSystemInfoCollector, self).__init__(mediator=mediator)
     self._debug = debug
     registry_file_reader = collector.CollectorRegistryFileReader(self)
     self._registry = registry.WinRegistry(
@@ -61,16 +60,32 @@ class UserProfilesCollector(collector.WindowsVolumeCollector):
     """
     self.key_found = False
 
-    profile_list_key = self._registry.GetKeyByPath(
-        self._PROFILE_LIST_KEY_PATH)
-    if not profile_list_key:
+    current_version_key = self._registry.GetKeyByPath(
+        self._CURRENT_VERSION_KEY_PATH)
+    if not current_version_key:
       return
 
     self.key_found = True
 
-    for sub_key in profile_list_key.GetSubkeys():
-      profile_image_path = self._GetValueAsStringFromKey(
-          sub_key, u'ProfileImagePath')
+    value_names = [
+        u'ProductName',
+        u'CSDVersion',
+        u'CurrentVersion',
+        u'CurrentBuildNumber',
+        u'CurrentType',
+        u'ProductId',
+        u'RegisteredOwner',
+        u'RegisteredOrganization',
+        u'PathName',
+        u'SystemRoot',
+    ]
 
-      output_writer.WriteText(u'{0:s}: {1:s}'.format(
-          sub_key.name, profile_image_path))
+    for value_name in value_names:
+      value_string = self._GetValueAsStringFromKey(
+          current_version_key, value_name)
+      output_writer.WriteText(u'{0:s}: {1:s}'.format(value_name, value_string))
+
+    value = current_version_key.GetValueByName(u'InstallDate')
+    if value:
+      output_writer.WriteText(
+          u'InstallDate: {0:d}'.format(value.GetDataAsObject()))

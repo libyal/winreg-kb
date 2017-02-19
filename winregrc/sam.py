@@ -9,8 +9,8 @@ import construct
 
 from dfwinreg import registry
 
-from winreg_kb import collector
-from winreg_kb import hexdump
+from winregrc import collector
+from winregrc import hexdump
 
 
 # pylint: disable=logging-format-interpolation

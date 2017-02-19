@@ -5,7 +5,7 @@ from __future__ import print_function
 
 from dfwinreg import registry
 
-from winreg_kb import collector
+from winregrc import collector
 
 
 class WindowsService(object):

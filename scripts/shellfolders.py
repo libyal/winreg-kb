@@ -13,7 +13,7 @@ try:
 except ImportError:
   import sqlite3
 
-from winreg_kb import shellfolders
+from winregrc import shellfolders
 
 
 class Sqlite3Writer(object):

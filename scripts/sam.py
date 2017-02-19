@@ -7,7 +7,7 @@ import argparse
 import logging
 import sys
 
-from winreg_kb import sam
+from winregrc import sam
 
 
 class StdoutWriter(object):

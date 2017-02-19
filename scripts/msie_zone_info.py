@@ -7,7 +7,7 @@ import argparse
 import logging
 import sys
 
-from winreg_kb import msie_zone_info
+from winregrc import msie_zone_info
 
 
 class StdoutWriter(object):

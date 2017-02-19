@@ -10,8 +10,8 @@ import pyfwsi  # pylint: disable=wrong-import-order
 
 from dfwinreg import registry
 
-from winreg_kb import collector
-from winreg_kb import hexdump
+from winregrc import collector
+from winregrc import hexdump
 
 
 class ProgramsCacheDataParser(object):

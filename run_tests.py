@@ -5,7 +5,7 @@
 import unittest
 import sys
 
-# Change PYTHONPATH to include the winreg_kb directory.
+# Change PYTHONPATH to include the winregrc directory.
 sys.path.insert(0, u'.')
 
 

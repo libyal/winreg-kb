@@ -3,7 +3,7 @@
 
 from dfwinreg import registry
 
-from winreg_kb import collector
+from winregrc import collector
 
 
 class KnownFolder(object):
