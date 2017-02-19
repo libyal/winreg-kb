@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""Tests for the Microsoft Internet Explorer (MSIE) zone collector."""
+"""Tests for the Programs Cache information collector."""
 
 import unittest
 
 from winregrc import collector
-from winregrc import msie_zone_info
 from winregrc import output_writer
+from winregrc import programscache
 
 from tests import test_lib as shared_test_lib
 
@@ -32,20 +32,26 @@ class TestOutputWriter(output_writer.StdoutOutputWriter):
     self.text.append(text)
 
 
-class MSIEZoneInfoCollectorTest(shared_test_lib.BaseTestCase):
-  """Tests for the Microsoft Internet Explorer (MSIE) zone collector."""
+class ProgramsCacheDataParserTest(shared_test_lib.BaseTestCase):
+  """Tests for the Programs Cache data parser."""
 
-  @shared_test_lib.skipUnlessHasTestFile([u'SOFTWARE'])
+  # TODO: add tests.
+
+
+class ProgramsCacheCollectorTest(shared_test_lib.BaseTestCase):
+  """Tests for the Programs Cache information collector."""
+
+  @shared_test_lib.skipUnlessHasTestFile([u'NTUSER.DAT'])
   def testCollect(self):
     """Tests the Collect function."""
     registry_collector = collector.WindowsRegistryCollector()
 
-    test_path = self._GetTestFilePath([u'SOFTWARE'])
+    test_path = self._GetTestFilePath([u'NTUSER.DAT'])
     registry_collector.ScanForWindowsVolume(test_path)
 
     self.assertIsNotNone(registry_collector.registry)
 
-    collector_object = msie_zone_info.MSIEZoneInfoCollector()
+    collector_object = programscache.ProgramsCacheCollector()
     output_writer = TestOutputWriter()
 
     collector_object.Collect(registry_collector.registry, output_writer)

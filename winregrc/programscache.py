@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Windows program cache collector."""
+"""Windows Programs Cache information collector."""
 
 from __future__ import print_function
 import logging
@@ -8,10 +8,8 @@ import uuid
 import construct
 import pyfwsi  # pylint: disable=wrong-import-order
 
-from dfwinreg import registry
-
-from winregrc import collector
 from winregrc import hexdump
+from winregrc import interface
 
 
 class ProgramsCacheDataParser(object):
@@ -154,12 +152,8 @@ class ProgramsCacheDataParser(object):
       print(hexdump.Hexdump(value_data[value_data_offset:]))
 
 
-class ProgramsCacheCollector(collector.WindowsVolumeCollector):
-  """Class that defines a Windows program cache collector.
-
-  Attributes:
-    key_found: boolean value to indicate the Windows Registry key was found.
-  """
+class ProgramsCacheCollector(interface.WindowsRegistryKeyCollector):
+  """Class that defines a Windows program cache collector."""
 
   _STARTPAGE_KEY_PATH = (
       u'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
@@ -169,41 +163,28 @@ class ProgramsCacheCollector(collector.WindowsVolumeCollector):
       u'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
       u'Explorer\\StartPage2')
 
-  def __init__(self, debug=False, mediator=None):
-    """Initializes the collector object.
-
-    Args:
-      debug: optional boolean value to indicate if debug information should
-             be printed.
-      mediator: a volume scanner mediator (instance of
-                dfvfs.VolumeScannerMediator) or None.
-    """
-    super(ProgramsCacheCollector, self).__init__(mediator=mediator)
-    self._debug = debug
-    registry_file_reader = collector.CollectorRegistryFileReader(self)
-    self._registry = registry.WinRegistry(
-        registry_file_reader=registry_file_reader)
-
-    self.key_found = False
-
-  def _CollectProgramsCacheFromValue(self, output_writer, key_path, value_name):
+  def _CollectProgramsCacheFromValue(
+      self, registry, output_writer, key_path, value_name):
     """Collects Programs Cache from a Windows Registry value.
 
     Args:
+      registry (dfwinreg.WinRegistry): Windows Registry.
       output_writer: the output writer object.
       key_path: the path of the Programs Cache key.
       value_name: the name of the Programs Cache value.
-    """
-    startpage_key = self._registry.GetKeyByPath(key_path)
-    if not startpage_key:
-      return
 
-    self.key_found = True
+    Returns:
+      bool: True if the Programs Cache information key was found, False if not.
+    """
+    startpage_key = registry.GetKeyByPath(key_path)
+    if not startpage_key:
+      return False
+
     value = startpage_key.GetValueByName(value_name)
     if not value:
       logging.warning(u'Missing {0:s} value in key: {1:s}'.format(
           value_name, key_path))
-      return
+      return True
 
     value_data = value.data
     value_data_size = len(value.data)
@@ -218,22 +199,38 @@ class ProgramsCacheCollector(collector.WindowsVolumeCollector):
 
     parser.Parse(value_data, value_data_size)
 
-  def Collect(self, output_writer):
-    """Collects the system information.
+    return True
+
+  def Collect(self, registry, output_writer):
+    """Collects the Programs Cache information.
 
     Args:
-      output_writer: the output writer object.
+      registry (dfwinreg.WinRegistry): Windows Registry.
+      output_writer (OutputWriter): output writer.
+
+    Returns:
+      bool: True if the Programs Cache information key was found, False if not.
     """
-    self.key_found = False
+    result = False
 
-    self._CollectProgramsCacheFromValue(
-        output_writer, self._STARTPAGE_KEY_PATH, u'ProgramsCache')
+    if self._CollectProgramsCacheFromValue(
+        registry, output_writer, self._STARTPAGE_KEY_PATH,
+        u'ProgramsCache'):
+      result = True
 
-    self._CollectProgramsCacheFromValue(
-        output_writer, self._STARTPAGE2_KEY_PATH, u'ProgramsCache')
+    if self._CollectProgramsCacheFromValue(
+        registry, output_writer, self._STARTPAGE2_KEY_PATH,
+        u'ProgramsCache'):
+      result = True
 
-    self._CollectProgramsCacheFromValue(
-        output_writer, self._STARTPAGE2_KEY_PATH, u'ProgramsCacheSMP')
+    if self._CollectProgramsCacheFromValue(
+        registry, output_writer, self._STARTPAGE2_KEY_PATH,
+        u'ProgramsCacheSMP'):
+      result = True
 
-    self._CollectProgramsCacheFromValue(
-        output_writer, self._STARTPAGE2_KEY_PATH, u'ProgramsCacheTBP')
+    if self._CollectProgramsCacheFromValue(
+        registry, output_writer, self._STARTPAGE2_KEY_PATH,
+        u'ProgramsCacheTBP'):
+      result = True
+
+    return result

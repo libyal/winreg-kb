@@ -9,7 +9,6 @@ import sys
 
 from winregrc import appcompatcache
 from winregrc import collector
-from winregrc import hexdump
 from winregrc import output_writer
 
 
