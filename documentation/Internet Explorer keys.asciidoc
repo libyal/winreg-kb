@@ -129,6 +129,7 @@ HKEY_CURRENT_USER\SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolic
 ....
 
 === External Links
+
 * http://msdn.microsoft.com/en-us/library/ms537184(v=vs.85).aspx[MSDN: Introduction to Feature Controls]
 * http://msdn.microsoft.com/en-us/library/ee330720(v=vs.85).aspx[MSDN: Internet Feature Controls]
 * http://msdn.microsoft.com/en-us/library/ms537183.aspx[MSDN: About URL Security Zones]

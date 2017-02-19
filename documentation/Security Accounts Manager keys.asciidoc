@@ -1,0 +1,390 @@
+*NOTE this page largely contains some notes for now*
+
+:toc:
+:toclevels: 4
+
+== Security Accounts Manager (SAM)
+
+The Security Accounts Manager (SAM) is stored in the key:
+....
+HKEY_LOCAL_MACHINE\SAM
+....
+
+It can be found in the SAM Registry file.
+
+*The following information is based on older notes on Windows XP TODO update it for other versions of Windows*
+
+=== SAM key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| Domains |
+| RXACT |
+|===
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| C | REG_BINARY |
+|===
+
+==== C value data
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | *TODO*
+|===
+
+=== Domains key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| Account |
+| Builtin |
+|===
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| `<default>` | |
+|===
+
+=== Account or Builtin sub key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| Aliases |
+| Groups |
+| Users |
+|===
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| F | |
+| V | |
+|===
+
+==== F value data
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | *TODO*
+|===
+
+==== V value data
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | *TODO*
+|===
+
+=== Aliases sub key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Members |
+| Names |
+| %RID% |
+|===
+
+Where %RID% is the relative identifier (RID) which corresponds to the last sub authority of the SID.
+
+==== Aliases RID sub key
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| C | |
+|===
+
+===== C value data
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | The relative identifier (RID)
+| 4 | 4 | | Unknown (empty values)
+| 8 | 4 | | Size of unknown data at offset 52
+| 12 | 2 | 2 | Unknown: major format version ?
+| 14 | 2 | 1 | Unknown: minor format version ?
+| 16 | 4 | | Name string offset +
+Relative from offset 52
+| 20 | 4 | | Name string size +
+Contains number of bytes
+| 24 | 4 | | Unknown (empty values)
+| 28 | 4 | | Description string offset +
+Relative from offset 52
+| 32 | 4 | | Description string size +
+Contains number of bytes
+| 36 | 4 | | Unknown (empty values)
+| 40 | 4 | | SID array offset +
+Relative from offset 52
+| 44 | 4 | | SID array size
+| 48 | 4 | | SID array number of values
+| 52 | ... | | Contains an https://code.google.com/p/libfwnt/wiki/SecurityDescriptor[NT security descriptor]
+| ... | ... | | Name string +
+Contains an UTF-16 little-endian formatted string without end-of-string character
+| ... | ... | | Description string +
+Contains an UTF-16 little-endian formatted string without end-of-string character +
+The data is stored using 4-byte alignment +
+The data is stored using 4-byte alignment
+| ... | ... | | SID array +
+Contains Windows NT Security Identifiers (SIDs)
+|===
+
+==== Aliases Members sub key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| %SID% |
+|===
+
+Where %SID% is the security identifier (SID) in the form of a string e.g. S-1-5.
+
+===== Aliases Members SID sub key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| %RID% |
+|===
+
+Where %RID% is the relative identifier (RID) which corresponds to the last sub authority of the SID.
+
+=== Groups sub key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| Names |
+| %RID% |
+|===
+
+==== C value data
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | 2 | Unknown: major format version ?
+| 2 | 2 | 1 | Unknown: minor format version ?
+| 4 | 4 | | The relative identifier (RID)
+| 8 | 20 | | Unknown
+| 28 | 2 | 2 | Unknown: major format version ?
+| 30 | 2 | 1 | Unknown: minor format version ?
+| 32 | 4 | | Name string offset +
+Relative from offset 68
+| 36 | 4 | | Name string size +
+Contains number of bytes
+| 40 | 4 | | Unknown (empty values)
+| 44 | 4 | | Description string offset +
+Relative from offset 68
+| 48 | 4 | | Description string size +
+Contains number of bytes
+| 52 | 4 | | Unknown (empty values)
+| 56 | 4 | | Group member array offset +
+Relative from offset 68
+| 60 | 4 | | Group member array size +
+Contains number of bytes
+| 64 | 4 | | Group member array number of values
+| 68 | ... | | Contains an https://code.google.com/p/libfwnt/wiki/SecurityDescriptor[NT security descriptor]
+| ... | ... | | Name string +
+Contains an UTF-16 little-endian formatted string without end-of-string character
+| ... | ... | | Description string +
+Contains an UTF-16 little-endian formatted string without end-of-string character +
+The data is stored using 4-byte alignment +
+The data is stored using 4-byte alignment
+| ... | ... | | Group member array +
+Contains 4-byte RID values
+|===
+
+=== Users sub key
+*TODO add some description*
+
+Sub keys:
+
+[cols="1,5",options="header"]
+|===
+| Name | Description
+| Names |
+| %RID% |
+|===
+
+Where %RID% is the relative identifier (RID) which corresponds to the last sub authority of the SID.
+
+==== Users RID sub key
+*TODO add some description*
+
+Values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Data type | Description
+| F | REG_BINARY |
+|===
+
+===== F value data
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | 2 | Unknown: major version ?
+| 2 | 2 | 2 | Unknown: minor version ?
+| 4 | 2 | | Unknown: Extended data flags ?
+| 6 | 2 | | Unknown: Extended data size ?
+| 8 | 8 | | Last logon date and time +
+Contains a Filetime
+| 16 | 8 | | Unknown: flags ? +
+If not 0 other type of data ?
+| 24 | 8 | | Password last set date and time +
+Contains a Filetime
+| 32 | 8 | | Account expires date and time +
+Contains a Filetime, where 0x7fffffffffffffff represents Never ?
+| 40 | 8 | | Last incorrect password date and time +
+Contains a Filetime
+| 48 | 4 | | Relative identifier (RID) +
+The user number corresponds to the the last authority of the SID
+| 52 | 4 | | Unknown
+| 54 | 2 | | Flags
+| 56 | 2 | | Unknown
+| 60 | 2 | | Country code 
+| 62 | 2 | | Unknown 
+| 64 | 2 | | Number of incorrect password attempts
+| 66 | 2 | | Number of log-ons
+| 68 | 4 | | Unknown
+| 72 | 4 | | Unknown
+| 76 | 2 | | Unknown
+| 78 | 2 | | Unknown
+|===
+
+Extended data:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 80 | | |
+|===
+
+===== Flags
+
+[cols="1,5",options="header"]
+|===
+| Value | Description
+| | User must change password at next log-on
+| | User cannot change password
+| | Password never expires
+| | Account is disabled
+| | Account is locked out
+|===
+
+===== Country code
+
+[cols="1,5",options="header"]
+|===
+| Value | Description
+| 000 | System Default
+| 001 | United States
+| 002 | Canada (French)
+| 003 | Latin America
+| 031 | Netherlands
+| 032 | Belgium
+| 033 | France
+| 034 | Spain
+| 039 | Italy
+| 041 | Switzerland
+| 044 | United Kingdom
+| 045 | Denmark
+| 046 | Sweden
+| 047 | Norway
+| 049 | Germany
+| 061 | Australia
+| 081 | Japan
+| 082 | Korea
+| 086 | China (PRC)
+| 088 | Taiwan
+| 099 | Asia
+| 351 | Portugal
+| 358 | Finland
+| 785 | Arabic
+| 972 | Hebrew
+|===
+
+=== Notes
+Format version 2.1 used as of NT 4 ?
+The RID is also referred to the the user number.
+
+==== Account types
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00000000 | SAM_DOMAIN_OBJECT | Represents a domain object
+| 0x10000000 | SAM_GROUP_OBJECT | Represents a group object
+| 0x10000001 | SAM_NON_SECURITY_GROUP_OBJECT | Represents a group object that is not used for authorization context generation
+| 0x20000000 | SAM_ALIAS_OBJECT | Represents an alias object
+| 0x20000001 | SAM_NON_SECURITY_ALIAS_OBJECT | Represents an alias object that is not used for authorization context generation
+| 0x30000000 | SAM_USER_OBJECT | Represents a user object
+| 0x30000001 | SAM_MACHINE_ACCOUNT | Represents a computer object
+| 0x30000002 | SAM_TRUST_ACCOUNT | Represents a user object that is used for domain trusts
+| 0x40000000 | SAM_APP_BASIC_GROUP | Represents an application-defined group
+| 0x40000001 | SAM_APP_QUERY_GROUP | Represents an application-defined group whose members are determined by the results of a query
+|===
+
+==== Predefined RIDs
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x000001f4 | DOMAIN_USER_RID_ADMIN | User: Administrator
+| 0x000001f5 | DOMAIN_USER_RID_GUEST | User: Guest
+| 0x000001f6 | DOMAIN_USER_RID_KRBTGT | User: krbtgt (Key Distribution Center Service)
+| 0x00000201 | DOMAIN_GROUP_RID_USERS | Group: Domain Users
+| 0x00000203 | DOMAIN_GROUP_RID_COMPUTERS | Group: Domain Computers
+| 0x00000204 | DOMAIN_GROUP_RID_CONTROLLERS | Group: Domain Controllers
+| 0x00000220 | DOMAIN_ALIAS_RID_ADMINS | Group: Administrators
+| 0x00000209 | DOMAIN_GROUP_RID_READONLY_CONTROLLERS | Group: Read-only Domain Controllers
+|===
+
+=== External Links
+
+* http://technet.microsoft.com/en-us/library/cc756748(v=ws.10).aspx[MSDN: Security Account Manager (SAM)]
+* http://msdn.microsoft.com/en-us/library/cc245527.aspx[MSDN: ACCOUNT_TYPE Values]
+* http://msdn.microsoft.com/en-us/library/cc245622.aspx[MSDN: SAMPR_USER_ALL_INFORMATION]
+* http://msdn.microsoft.com/en-us/library/cc245516.aspx[MSDN: Predefined RIDs]
+* http://msdn.microsoft.com/en-us/library/windows/desktop/aa379649(v=vs.85).aspx[MSDN: Well-known SIDs]
+* http://moyix.blogspot.ch/2008/02/syskey-and-sam.html[SysKey and the SAM], by Brendan Dolan-Gavitt, February 21, 2008
+
