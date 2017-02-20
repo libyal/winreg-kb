@@ -172,6 +172,8 @@ class SecurityAccountManagerDataParser(object):
     Args:
       value_data (bytes): V value data.
     """
+    if self._debug:
+      self._output_writer.WriteDebugData(u'V value data:', value_data)
 
 
 class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
