@@ -30,8 +30,8 @@ class SecurityAccountManagerDataParser(object):
       construct.ULInt64(u'last_password_failure_time'),
       construct.ULInt32(u'rid'),
       construct.ULInt32(u'unknown3'),
-      construct.ULInt16(u'unknown4'),
       construct.ULInt16(u'flags'),
+      construct.ULInt16(u'unknown4'),
       construct.ULInt16(u'country_code'),
       construct.ULInt16(u'codepage'),
       construct.ULInt16(u'number_of_password_failures'),
@@ -138,6 +138,9 @@ class SecurityAccountManagerDataParser(object):
 
       value_string = u'0x{0:04x}'.format(f_value_struct.flags)
       self._output_writer.WriteDebugValue(u'Flags', value_string)
+
+      value_string = u'0x{0:04x}'.format(f_value_struct.unknown4)
+      self._output_writer.WriteDebugValue(u'Unknown4', value_string)
 
       value_string = u'0x{0:04x}'.format(f_value_struct.country_code)
       self._output_writer.WriteDebugValue(u'Country code', value_string)

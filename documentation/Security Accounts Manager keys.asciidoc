@@ -278,8 +278,8 @@ Contains a FILETIME
 | 48 | 4 | | Relative identifier (RID) +
 The user number corresponds to the the last authority of the SID
 | 52 | 4 | | [yellow-background]*Unknown*
-| 54 | 2 | | [yellow-background]*Unknown*
 | 56 | 2 | | Flags
+| 58 | 2 | | [yellow-background]*Unknown*
 | 60 | 2 | | Country code (countryCode) +
 See section" <<country_code,Country code>>
 | 62 | 2 | | Codepage (codePage)
