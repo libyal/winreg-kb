@@ -14,6 +14,20 @@ It can be found in the SAM Registry file.
 
 *The following information is based on older notes on Windows XP TODO update it for other versions of Windows*
 
+=== Test version
+The following version of programs were used to test the information within this document:
+
+* Windows NT4
+* Windows 2000
+* Windows XP
+* Windows 2003
+* Windows Vista
+* Windows 2008
+* Windows 7
+* Windows 8
+* [yellow-background]*TODO: Windows 2012*
+* Windows 10
+
 === SAM key
 *TODO add some description*
 
@@ -275,13 +289,13 @@ Contains a FILETIME
 Contains a FILETIME, where 0x7fffffffffffffff represents Never
 | 40 | 8 | | Last password failure date and time (badPasswordTime) +
 Contains a FILETIME
-| 48 | 4 | | Relative identifier (RID) +
-The user number corresponds to the the last authority of the SID
-| 52 | 4 | | [yellow-background]*Unknown*
-| 56 | 2 | | Flags
-| 58 | 2 | | [yellow-background]*Unknown*
+| 48 | 4 | | Relative identifier (UserId) +
+The relative identifier (RID) corresponds to the the last authority of the SID
+| 52 | 4 | | Primary group identifier (PrimaryGroupId)
+| 56 | 4 | | User account control flags (UserAccountControl) +
+See section: <<user_account_control_flags,User account control flags>>
 | 60 | 2 | | Country code (countryCode) +
-See section" <<country_code,Country code>>
+See section: <<country_code,Country code>>
 | 62 | 2 | | Codepage (codePage)
 | 64 | 2 | | Number of password failures (badPwdCount)
 | 66 | 2 | | Number of logons (logonCount)
@@ -289,16 +303,6 @@ See section" <<country_code,Country code>>
 | 72 | 4 | | [yellow-background]*Unknown*
 | 76 | 2 | | [yellow-background]*Unknown*
 | 78 | 2 | | [yellow-background]*Unknown*
-|===
-
-Flags
-
-[cols="1,1,5",options="header"]
-|===
-| Value | Identifier | Description
-| 0x0001 | | Account disabled (inactive)
-| | |
-| 0x0004 | | No password required
 |===
 
 Extended data:
@@ -309,19 +313,54 @@ Extended data:
 | 80 | | |
 |===
 
-===== Flags
+[NOTE]
+The relative identifier (RID) is sometimes referred to as user number or
+user identifier.
+
+===== [[user_account_control_flags]]User account control flags
+
+The user account control flags (or USER_ACCOUNT Codes) are defined in subauth.h
 
 [cols="1,5",options="header"]
 |===
-| Value | Description
-| | User must change password at next log-on
-| | User cannot change password
-| | Password never expires
-| | Account is disabled
-| | Account is locked out
+| Value | Identifier | Description
+| 0x00000001 | USER_ACCOUNT_DISABLED | Account disabled (inactive)
+| 0x00000002 | USER_HOME_DIRECTORY_REQUIRED | Home directory required
+| 0x00000004 | USER_PASSWORD_NOT_REQUIRED | User password not required
+| 0x00000008 | USER_TEMP_DUPLICATE_ACCOUNT | Temporary duplicate account
+| 0x00000010 | USER_NORMAL_ACCOUNT | Normal user account
+| 0x00000020 | USER_MNS_LOGON_ACCOUNT | Majority Node Set (MNS) logon user account
+| 0x00000040 | USER_INTERDOMAIN_TRUST_ACCOUNT | Interdomain trust account
+| 0x00000080 | USER_WORKSTATION_TRUST_ACCOUNT | Workstation trust account
+| 0x00000100 | USER_SERVER_TRUST_ACCOUNT | Server trust account +
+Object is a domain controller (DC)
+| 0x00000200 | USER_DONT_EXPIRE_PASSWORD | User password does not expire
+| 0x00000400 | USER_ACCOUNT_AUTO_LOCKED | Account auto locked
+| 0x00000800 | USER_ENCRYPTED_TEXT_PASSWORD_ALLOWED | Encryped text password is allowed
+| 0x00001000 | USER_SMARTCARD_REQUIRED | Smart Card required
+| 0x00002000 | USER_TRUSTED_FOR_DELEGATION | Trusted for Delegation
+| 0x00004000 | USER_NOT_DELEGATED | Not delegated
+| 0x00008000 | USER_USE_DES_KEY_ONLY | Use DES key only
+| 0x00010000 | USER_DONT_REQUIRE_PREAUTH | Preauth not required
+| 0x00020000 | USER_PASSWORD_EXPIRED | Password Expired
+| 0x00040000 | USER_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION | Used by Kerberos see MS-KILE
+| 0x00080000 | USER_NO_AUTH_DATA_REQUIRED | Used by Kerberos see RFC4120
+| 0x00100000 | USER_PARTIAL_SECRETS_ACCOUNT | Partial secrets account +
+Object is a read-only domain controller (RODC)
+| 0x00200000 | USER_USE_AES_KEYS | Use AES keys
 |===
 
+[NOTE]
+These flags differ from ADS_USER_FLAG_ENUM. Mappings between the two are
+defined in "MS-SAMR: userAccountControl Mapping Table".
+
+[NOTE]
+The samba project defines these as flags with the WBC_ACB prefix, where WBC is
+short for winbind client.
+
 ===== [[country_code]]Country code
+
+[yellow-background]*Unknown. Is this suppose to be the country phone prefix?*
 
 [cols="1,5",options="header"]
 |===
@@ -352,10 +391,6 @@ Extended data:
 | 785 | Arabic
 | 972 | Hebrew
 |===
-
-=== Notes
-Format version 2.1 used as of NT 4 ?
-The RID is also referred to the the user number.
 
 ==== Account types
 
@@ -391,10 +426,14 @@ The RID is also referred to the the user number.
 
 === External Links
 
+* https://msdn.microsoft.com/en-us/library/cc245737.aspx[MSDN: userAccountControl Mapping Table]
+* https://msdn.microsoft.com/en-us/library/aa772300(v=vs.85).aspx[MSDN: ADS_USER_FLAG_ENUM enumeration]
 * http://technet.microsoft.com/en-us/library/cc756748(v=ws.10).aspx[MSDN: Security Account Manager (SAM)]
 * http://msdn.microsoft.com/en-us/library/cc245527.aspx[MSDN: ACCOUNT_TYPE Values]
 * http://msdn.microsoft.com/en-us/library/cc245622.aspx[MSDN: SAMPR_USER_ALL_INFORMATION]
 * http://msdn.microsoft.com/en-us/library/cc245516.aspx[MSDN: Predefined RIDs]
+* https://msdn.microsoft.com/en-us/library/windows/desktop/aa380523(v=vs.85).aspx[MSDN: USER_ALL_INFORMATION structure]
+* https://msdn.microsoft.com/en-us/library/cc245514.aspx[MSDN: USER_ACCOUNT Codes]
 * http://msdn.microsoft.com/en-us/library/windows/desktop/aa379649(v=vs.85).aspx[MSDN: Well-known SIDs]
 * http://moyix.blogspot.ch/2008/02/syskey-and-sam.html[SysKey and the SAM], by Brendan Dolan-Gavitt, February 21, 2008
 

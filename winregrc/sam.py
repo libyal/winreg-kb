@@ -29,9 +29,8 @@ class SecurityAccountManagerDataParser(object):
       construct.ULInt64(u'account_expiration_time'),
       construct.ULInt64(u'last_password_failure_time'),
       construct.ULInt32(u'rid'),
-      construct.ULInt32(u'unknown3'),
-      construct.ULInt16(u'flags'),
-      construct.ULInt16(u'unknown4'),
+      construct.ULInt32(u'primary_gid'),
+      construct.ULInt32(u'user_account_control_flags'),
       construct.ULInt16(u'country_code'),
       construct.ULInt16(u'codepage'),
       construct.ULInt16(u'number_of_password_failures'),
@@ -40,6 +39,30 @@ class SecurityAccountManagerDataParser(object):
       construct.ULInt32(u'unknown7'),
       construct.ULInt16(u'unknown8'),
       construct.ULInt16(u'unknown9'))
+
+  _USER_ACCOUNT_CONTROL_FLAGS = {
+      0x00000001: u'USER_ACCOUNT_DISABLED',
+      0x00000002: u'USER_HOME_DIRECTORY_REQUIRED',
+      0x00000004: u'USER_PASSWORD_NOT_REQUIRED',
+      0x00000008: u'USER_TEMP_DUPLICATE_ACCOUNT',
+      0x00000010: u'USER_NORMAL_ACCOUNT',
+      0x00000020: u'USER_MNS_LOGON_ACCOUNT',
+      0x00000040: u'USER_INTERDOMAIN_TRUST_ACCOUNT',
+      0x00000080: u'USER_WORKSTATION_TRUST_ACCOUNT',
+      0x00000100: u'USER_SERVER_TRUST_ACCOUNT',
+      0x00000200: u'USER_DONT_EXPIRE_PASSWORD',
+      0x00000400: u'USER_ACCOUNT_AUTO_LOCKED',
+      0x00000800: u'USER_ENCRYPTED_TEXT_PASSWORD_ALLOWED',
+      0x00001000: u'USER_SMARTCARD_REQUIRED',
+      0x00002000: u'USER_TRUSTED_FOR_DELEGATION',
+      0x00004000: u'USER_NOT_DELEGATED',
+      0x00008000: u'USER_USE_DES_KEY_ONLY',
+      0x00010000: u'USER_DONT_REQUIRE_PREAUTH',
+      0x00020000: u'USER_PASSWORD_EXPIRED',
+      0x00040000: u'USER_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION',
+      0x00080000: u'USER_NO_AUTH_DATA_REQUIRED',
+      0x00100000: u'USER_PARTIAL_SECRETS_ACCOUNT',
+      0x00200000: u'USER_USE_AES_KEYS'}
 
   def __init__(self, debug=False, output_writer=None):
     """Initializes a Security Account Manager (SAM) data parser.
@@ -128,19 +151,26 @@ class SecurityAccountManagerDataParser(object):
           u'Last password failure time', value_string)
 
       value_string = u'{0:d}'.format(f_value_struct.rid)
-      self._output_writer.WriteDebugValue(u'Relative identifier', value_string)
+      self._output_writer.WriteDebugValue(
+          u'Relative identifier (RID)', value_string)
 
-      value_string = u'0x{0:08x}'.format(f_value_struct.unknown3)
-      self._output_writer.WriteDebugValue(u'Unknown3', value_string)
+      value_string = u'0x{0:08x}'.format(f_value_struct.primary_gid)
+      self._output_writer.WriteDebugValue(
+          u'Primary group identifier (GID)', value_string)
 
-      value_string = u'0x{0:04x}'.format(f_value_struct.unknown4)
-      self._output_writer.WriteDebugValue(u'Unknown4', value_string)
+      value_string = u'0x{0:08x}'.format(
+          f_value_struct.user_account_control_flags)
+      self._output_writer.WriteDebugValue(
+          u'User account control flags', value_string)
 
-      value_string = u'0x{0:04x}'.format(f_value_struct.flags)
-      self._output_writer.WriteDebugValue(u'Flags', value_string)
+      if f_value_struct.user_account_control_flags:
+        for flag, identifier in sorted(
+            self._USER_ACCOUNT_CONTROL_FLAGS.items()):
+          if flag & f_value_struct.user_account_control_flags:
+            value_string = u'\t{0:s} (0x{1:08x})'.format(identifier, flag)
+            self._output_writer.WriteDebugText(value_string)
 
-      value_string = u'0x{0:04x}'.format(f_value_struct.unknown4)
-      self._output_writer.WriteDebugValue(u'Unknown4', value_string)
+        self._output_writer.WriteDebugText(u'')
 
       value_string = u'0x{0:04x}'.format(f_value_struct.country_code)
       self._output_writer.WriteDebugValue(u'Country code', value_string)
