@@ -19,7 +19,7 @@ class SecurityAccountManagerDataParser(object):
   """Class that parses the Security Account Manager (SAM) data."""
 
   _F_VALUE_STRUCT = construct.Struct(
-      u'f_struct',
+      u'f_value_struct',
       construct.ULInt16(u'major_version'),
       construct.ULInt16(u'minor_version'),
       construct.ULInt32(u'unknown1'),
@@ -39,6 +39,35 @@ class SecurityAccountManagerDataParser(object):
       construct.ULInt32(u'unknown7'),
       construct.ULInt16(u'unknown8'),
       construct.ULInt16(u'unknown9'))
+
+  _USER_INFORMATION_DESCRIPTOR = construct.Struct(
+      u'user_information_descriptor',
+      construct.ULInt32(u'offset'),
+      construct.ULInt32(u'size'),
+      construct.ULInt32(u'unknown1'))
+
+  _V_VALUE_STRUCT = construct.Struct(
+      u'v_value_struct',
+      construct.Array(17, _USER_INFORMATION_DESCRIPTOR))
+
+  _USER_INFORMATION_DESCRIPTORS = [
+      u'security descriptor',
+      u'username',
+      u'full name',
+      u'comment',
+      u'user comment',
+      u'unknown1',
+      u'home directory',
+      u'home directory connect',
+      u'script path',
+      u'profile path',
+      u'workstations',
+      u'hours allowed',
+      u'unknown2',
+      u'LM hash',
+      u'NTLM hash',
+      u'unknown3',
+      u'unknown4']
 
   _USER_ACCOUNT_CONTROL_FLAGS = {
       0x00000001: u'USER_ACCOUNT_DISABLED',
@@ -205,8 +234,41 @@ class SecurityAccountManagerDataParser(object):
     Args:
       value_data (bytes): V value data.
     """
+    v_value_struct = self._V_VALUE_STRUCT.parse(value_data)
+
     if self._debug:
       self._output_writer.WriteDebugData(u'V value data:', value_data)
+
+    if self._debug:
+      for index in range(0, 17):
+        user_information_descriptor = (
+            v_value_struct.user_information_descriptor[index])
+
+        data_start_offset = user_information_descriptor.offset + 0xcc
+        data_end_offset = data_start_offset + user_information_descriptor.size
+
+        description_string = u'Descriptor: {0:d} description'.format(index + 1)
+        value_string = self._USER_INFORMATION_DESCRIPTORS[index]
+        self._output_writer.WriteDebugValue(description_string, value_string)
+
+        offset_string = u'Descriptor: {0:d} offset'.format(index + 1)
+        value_string = u'0x{0:08x} (0x{1:08x})'.format(
+            user_information_descriptor.offset, data_start_offset)
+        self._output_writer.WriteDebugValue(offset_string, value_string)
+
+        size_string = u'Descriptor: {0:d} size'.format(index + 1)
+        value_string = u'{0:d}'.format(user_information_descriptor.size)
+        self._output_writer.WriteDebugValue(size_string, value_string)
+
+        unknown1_string = u'Descriptor: {0:d} unknown1'.format(index + 1)
+        value_string = u'0x{0:08x}'.format(user_information_descriptor.unknown1)
+        self._output_writer.WriteDebugValue(unknown1_string, value_string)
+
+        data_string = u'Descriptor: {0:d} data:'.format(index + 1)
+        self._output_writer.WriteDebugData(
+            data_string, value_data[data_start_offset:data_end_offset])
+
+      self._output_writer.WriteDebugText(u'')
 
 
 class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):

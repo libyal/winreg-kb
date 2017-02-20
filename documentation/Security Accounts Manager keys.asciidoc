@@ -108,10 +108,38 @@ Values:
 
 ==== V value data
 
+The V value data consists of:
+* 17 x user information descriptors
+** security descriptor
+** username
+** full name
+** comment
+** user comment
+** [yellow-background]*Unknown*
+** home directory
+** home directory connect
+** script path
+** profile path
+** workstations
+** hours allowed
+** [yellow-background]*Unknown*
+** LM hash (LANMAN)
+** NTLM hash
+** [yellow-background]*Unknown*
+** [yellow-background]*Unknown*
+* user information data
+
+===== User information descriptor
+
+A user information descriptor is 12 byte of size and consists of:
+
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | ... | | *TODO*
+| 0 | 4 | | Data offset +
+The offset is relative to the end of the last user information descriptor
+| 4 | 4 | | Data size
+| 8 | 4 | | [yellow-background]*Unknown*
 |===
 
 === Aliases sub key
