@@ -37,8 +37,7 @@ class SecurityAccountManagerDataParser(object):
       construct.ULInt16(u'number_of_logons'),
       construct.ULInt32(u'unknown6'),
       construct.ULInt32(u'unknown7'),
-      construct.ULInt16(u'unknown8'),
-      construct.ULInt16(u'unknown9'))
+      construct.ULInt32(u'unknown8'))
 
   _USER_INFORMATION_DESCRIPTOR = construct.Struct(
       u'user_information_descriptor',
@@ -220,11 +219,8 @@ class SecurityAccountManagerDataParser(object):
       value_string = u'0x{0:08x}'.format(f_value_struct.unknown7)
       self._output_writer.WriteDebugValue(u'Unknown7', value_string)
 
-      value_string = u'0x{0:04x}'.format(f_value_struct.unknown8)
+      value_string = u'0x{0:08x}'.format(f_value_struct.unknown8)
       self._output_writer.WriteDebugValue(u'Unknown8', value_string)
-
-      value_string = u'0x{0:04x}'.format(f_value_struct.unknown9)
-      self._output_writer.WriteDebugValue(u'Unknown9', value_string)
 
       self._output_writer.WriteDebugText(u'')
 

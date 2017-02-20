@@ -12,9 +12,7 @@ HKEY_LOCAL_MACHINE\SAM
 
 It can be found in the SAM Registry file.
 
-*The following information is based on older notes on Windows XP TODO update it for other versions of Windows*
-
-=== Test version
+=== Test versions
 The following version of programs were used to test the information within this document:
 
 * Windows NT4
@@ -329,8 +327,7 @@ See section: <<country_code,Country code>>
 | 66 | 2 | | Number of logons (logonCount)
 | 68 | 4 | | [yellow-background]*Unknown*
 | 72 | 4 | | [yellow-background]*Unknown*
-| 76 | 2 | | [yellow-background]*Unknown*
-| 78 | 2 | | [yellow-background]*Unknown*
+| 76 | 4 | | [yellow-background]*Unknown (checksum?)*
 |===
 
 Extended data:
