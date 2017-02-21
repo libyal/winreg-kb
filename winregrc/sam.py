@@ -182,7 +182,7 @@ class SecurityAccountManagerDataParser(object):
       self._output_writer.WriteDebugValue(
           u'Relative identifier (RID)', value_string)
 
-      value_string = u'0x{0:08x}'.format(f_value_struct.primary_gid)
+      value_string = u'{0:d}'.format(f_value_struct.primary_gid)
       self._output_writer.WriteDebugValue(
           u'Primary group identifier (GID)', value_string)
 
