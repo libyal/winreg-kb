@@ -77,14 +77,26 @@ class UserProfilesCollectorTest(shared_test_lib.BaseTestCase):
     registry = self._CreateTestRegistry()
 
     collector_object = profiles.UserProfilesCollector()
+
     output_writer = TestOutputWriter()
-
     collector_object.Collect(registry, output_writer)
-
     output_writer.Close()
 
     # TODO: return user profile objects.
     self.assertEqual(len(output_writer.text), 1)
+
+  def testCollectEmpty(self):
+    """Tests the Collect function on an empty Registry."""
+    registry = dfwinreg_registry.WinRegistry()
+
+    collector_object = profiles.UserProfilesCollector()
+
+    output_writer = TestOutputWriter()
+    collector_object.Collect(registry, output_writer)
+    output_writer.Close()
+
+    self.assertEqual(len(output_writer.text), 0)
+
 
 if __name__ == '__main__':
   unittest.main()

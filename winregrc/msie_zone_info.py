@@ -132,8 +132,9 @@ class MSIEZoneInfoCollector(interface.WindowsRegistryKeyCollector):
     if not lockdown_key:
       return
 
-    print(u'Key: {0:s}'.format(lockdown_key_path))
-    print(u'')
+    if self._debug:
+      print(u'Key: {0:s}'.format(lockdown_key_path))
+      print(u'')
 
     program_name = u'iexplore.exe'
     program_value = lockdown_key.GetValueByName(program_name)
@@ -143,11 +144,12 @@ class MSIEZoneInfoCollector(interface.WindowsRegistryKeyCollector):
     else:
       value = 0
 
-    if value == 1:
-      print(u'Local Machine lockdown for {0:s}: True'.format(program_name))
-    else:
-      print(u'Local Machine lockdown for {0:s}: False'.format(program_name))
-    print(u'')
+    if self._debug:
+      if value == 1:
+        print(u'Local Machine lockdown for {0:s}: True'.format(program_name))
+      else:
+        print(u'Local Machine lockdown for {0:s}: False'.format(program_name))
+      print(u'')
 
   def _PrintZonesKey(self, registry, zones_key_path, output_mode=0):
     """Prints a zones key.
@@ -161,16 +163,19 @@ class MSIEZoneInfoCollector(interface.WindowsRegistryKeyCollector):
     if not zones_key:
       return
 
-    print(u'Key: {0:s}'.format(zones_key_path))
-    print(u'')
+    if self._debug:
+      print(u'Key: {0:s}'.format(zones_key_path))
+      print(u'')
 
     for zone_key in zones_key.GetSubkeys():
       # TODO: the zone names are defined in another key.
       if zone_key.name in DEFAULT_ZONE_NAMES:
-        print(u'Zone: {0:s}: {1:s}'.format(
-            zone_key.name, DEFAULT_ZONE_NAMES[zone_key.name]))
+        if self._debug:
+          print(u'Zone: {0:s}: {1:s}'.format(
+              zone_key.name, DEFAULT_ZONE_NAMES[zone_key.name]))
       else:
-        print(u'Zone: {0:s}'.format(zone_key.name))
+        if self._debug:
+          print(u'Zone: {0:s}'.format(zone_key.name))
 
       for setting_value in zone_key.GetValues():
         if not setting_value.name:
@@ -179,13 +184,15 @@ class MSIEZoneInfoCollector(interface.WindowsRegistryKeyCollector):
         elif setting_value.name in [
             u'Description', u'DisplayName', u'PMDisplayName']:
           if output_mode == 0:
-            print(u'{0:s}: {1:s}'.format(
-                setting_value.name, setting_value.GetDataAsObject()))
+            if self._debug:
+              print(u'{0:s}: {1:s}'.format(
+                  setting_value.name, setting_value.GetDataAsObject()))
 
         elif len(setting_value.name) == 4 and setting_value.name != u'Icon':
           if len(setting_value.data) != 4:
             if output_mode == 0:
-              print(u'Value: {0:s}'.format(setting_value.data.encode(u'hex')))
+              if self._debug:
+                print(u'Value: {0:s}'.format(setting_value.data.encode(u'hex')))
 
           else:
             value = setting_value.GetDataAsObject()
@@ -214,28 +221,36 @@ class MSIEZoneInfoCollector(interface.WindowsRegistryKeyCollector):
 
           if output_mode == 0:
             if setting_value.name in CONTROL_DESCRIPTIONS:
-              print(u'Control: {0:s}: {1:s}'.format(
-                  setting_value.name, CONTROL_DESCRIPTIONS[setting_value.name]))
+              if self._debug:
+                print(u'Control: {0:s}: {1:s}'.format(
+                    setting_value.name, CONTROL_DESCRIPTIONS[setting_value.name]))
             else:
-              print(u'Control: {0:s}'.format(setting_value.name))
+              if self._debug:
+                print(u'Control: {0:s}'.format(setting_value.name))
             if value_desc:
-              print(u'Data: 0x{0:08x}: {1:s}'.format(value, value_desc))
+              if self._debug:
+                print(u'Data: 0x{0:08x}: {1:s}'.format(value, value_desc))
             else:
-              print(u'Data: 0x{0:08x}'.format(value))
+              if self._debug:
+                print(u'Data: 0x{0:08x}'.format(value))
 
           elif output_mode == 1:
             if setting_value.name in CONTROL_DESCRIPTIONS:
               control_desc = CONTROL_DESCRIPTIONS[setting_value.name]
             else:
               control_desc = u''
-            print(u'{0:s}\t0x{1:08x}\t{2:s}\t{3:s}'.format(
-                setting_value.name, value, value_desc, control_desc))
+
+            if self._debug:
+              print(u'{0:s}\t0x{1:08x}\t{2:s}\t{3:s}'.format(
+                  setting_value.name, value, value_desc, control_desc))
 
         else:
           if output_mode == 0:
-            print(u'Value: {0:s}'.format(setting_value.name))
+            if self._debug:
+              print(u'Value: {0:s}'.format(setting_value.name))
 
-      print(u'')
+      if self._debug:
+        print(u'')
 
   def Collect(self, registry, output_writer):
     """Collects the MSIE zone information.
