@@ -83,10 +83,9 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
     registry = self._CreateTestRegistry()
 
     collector_object = knownfolders.KnownFoldersCollector()
+
     output_writer = TestOutputWriter()
-
     collector_object.Collect(registry, output_writer)
-
     output_writer.Close()
 
     self.assertEqual(len(output_writer.known_folders), 1)
@@ -96,9 +95,19 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
     self.assertIsNotNone(known_folder)
     self.assertEqual(known_folder.guid, self._GUID)
     self.assertEqual(known_folder.name, self._NAME)
-    self.assertEqual(
-        known_folder.localized_name,
-        u'@%SystemRoot%\system32\shell32.dll,-21798')
+    self.assertEqual(known_folder.localized_name, self._LOCALIZED_NAME)
+
+  def testCollectEmpty(self):
+    """Tests the Collect function on an empty Registry."""
+    registry = dfwinreg_registry.WinRegistry()
+
+    collector_object = knownfolders.KnownFoldersCollector()
+
+    output_writer = TestOutputWriter()
+    collector_object.Collect(registry, output_writer)
+    output_writer.Close()
+
+    self.assertEqual(len(output_writer.known_folders), 0)
 
 
 if __name__ == '__main__':

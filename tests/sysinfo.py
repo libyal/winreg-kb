@@ -84,14 +84,25 @@ class SystemInfoCollectorTest(shared_test_lib.BaseTestCase):
     registry = self._CreateTestRegistry()
 
     collector_object = sysinfo.SystemInfoCollector()
-    output_writer = TestOutputWriter()
 
+    output_writer = TestOutputWriter()
     collector_object.Collect(registry, output_writer)
+    output_writer.Close()
 
     # TODO: return system information objects.
     self.assertEqual(len(output_writer.text), 10)
 
+  def testCollectEmpty(self):
+    """Tests the Collect function on an empty Registry."""
+    registry = dfwinreg_registry.WinRegistry()
+
+    collector_object = sysinfo.SystemInfoCollector()
+
+    output_writer = TestOutputWriter()
+    collector_object.Collect(registry, output_writer)
     output_writer.Close()
+
+    self.assertEqual(len(output_writer.text), 0)
 
 
 if __name__ == '__main__':

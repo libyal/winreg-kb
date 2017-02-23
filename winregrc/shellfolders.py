@@ -58,7 +58,7 @@ class ShellFoldersCollector(interface.WindowsRegistryKeyCollector):
           # The value data type does not have to be a string therefore try to
           # decode the data as an UTF-16 little-endian string and strip
           # the trailing end-of-string character
-          name = value.data.decode(u'utf-16-le')[:-1]
+          name = value.data.decode(u'utf-16-le').lstrip(u'\x00')
         else:
           name = u''
 
@@ -67,7 +67,7 @@ class ShellFoldersCollector(interface.WindowsRegistryKeyCollector):
           # The value data type does not have to be a string therefore try to
           # decode the data as an UTF-16 little-endian string and strip
           # the trailing end-of-string character
-          localized_string = value.data.decode(u'utf-16-le')[:-1]
+          localized_string = value.data.decode(u'utf-16-le').lstrip(u'\x00')
         else:
           localized_string = u''
 
