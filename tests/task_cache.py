@@ -4,6 +4,11 @@
 
 import unittest
 
+from dfdatetime import filetime as dfdatetime_filetime
+from dfwinreg import definitions as dfwinreg_definitions
+from dfwinreg import fake as dfwinreg_fake
+from dfwinreg import registry as dfwinreg_registry
+
 from winregrc import collector
 from winregrc import output_writer
 from winregrc import task_cache

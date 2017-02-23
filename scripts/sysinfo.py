@@ -7,6 +7,7 @@ import argparse
 import logging
 import sys
 
+from winregrc import collector
 from winregrc import sysinfo
 
 
