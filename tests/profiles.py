@@ -4,7 +4,11 @@
 
 import unittest
 
-from winregrc import collector
+from dfdatetime import filetime as dfdatetime_filetime
+from dfwinreg import definitions as dfwinreg_definitions
+from dfwinreg import fake as dfwinreg_fake
+from dfwinreg import registry as dfwinreg_registry
+
 from winregrc import output_writer
 from winregrc import profiles
 
@@ -35,26 +39,52 @@ class TestOutputWriter(output_writer.StdoutOutputWriter):
 class UserProfilesCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Windows user profiles collector."""
 
-  @shared_test_lib.skipUnlessHasTestFile([u'SOFTWARE'])
+  _SID = u'S-1-5-18'
+  _PROFILE_PATH = u'%systemroot%\system32\config\systemprofile'
+
+  def _CreateTestRegistry(self):
+    """Creates Registry keys and values for testing.
+
+    Returns:
+      dfwinreg.WinRegistry: Windows Registry for testing.
+    """
+    key_path_prefix = u'HKEY_LOCAL_MACHINE\\Software'
+
+    registry_file = dfwinreg_fake.FakeWinRegistryFile(
+        key_path_prefix=key_path_prefix)
+
+    registry_key = dfwinreg_fake.FakeWinRegistryKey(u'ProfileList')
+    registry_file.AddKeyByPath(
+        u'\\Microsoft\\Windows NT\\CurrentVersion', registry_key)
+
+    subkey = dfwinreg_fake.FakeWinRegistryKey(self._SID)
+    registry_key.AddSubkey(subkey)
+
+    value_data = self._PROFILE_PATH.encode(u'utf-16-le')
+    registry_value = dfwinreg_fake.FakeWinRegistryValue(
+        u'ProfileImagePath', data=value_data,
+        data_type=dfwinreg_definitions.REG_SZ)
+    subkey.AddValue(registry_value)
+
+    registry_file.Open(None)
+
+    registry = dfwinreg_registry.WinRegistry()
+    registry.MapFile(key_path_prefix, registry_file)
+    return registry
+
   def testCollect(self):
     """Tests the Collect function."""
-    registry_collector = collector.WindowsRegistryCollector()
-
-    test_path = self._GetTestFilePath([u'SOFTWARE'])
-    registry_collector.ScanForWindowsVolume(test_path)
-
-    self.assertIsNotNone(registry_collector.registry)
+    registry = self._CreateTestRegistry()
 
     collector_object = profiles.UserProfilesCollector()
     output_writer = TestOutputWriter()
 
-    collector_object.Collect(registry_collector.registry, output_writer)
-
-    # TODO: return user profile objects.
-    self.assertNotEqual(output_writer.text, [])
+    collector_object.Collect(registry, output_writer)
 
     output_writer.Close()
 
+    # TODO: return user profile objects.
+    self.assertEqual(len(output_writer.text), 1)
 
 if __name__ == '__main__':
   unittest.main()

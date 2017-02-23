@@ -9,7 +9,6 @@ from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import collector
 from winregrc import knownfolders
 from winregrc import output_writer
 
