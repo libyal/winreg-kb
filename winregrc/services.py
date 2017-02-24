@@ -181,23 +181,24 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
     Returns:
       bool: True if the services key was found, False if not.
     """
-    self.key_found = False
+    result = False
 
     if all_control_sets:
       system_key = registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
       if not system_key:
-        return
+        return result
 
       for control_set_key in system_key.GetSubkeys():
         if control_set_key.name.startswith(u'ControlSet'):
           services_key = control_set_key.GetSubkeyByName(u'Services')
           if services_key:
-            self.key_found = True
+            result = True
 
-            print(u'Control set: {0:s}'.format(control_set_key.name))
-            print(u'\tNumber of entries\t: {0:d}'.format(
-                services_key.number_of_subkeys))
-            print(u'')
+            if self._debug:
+              print(u'Control set: {0:s}'.format(control_set_key.name))
+              print(u'\tNumber of entries\t: {0:d}'.format(
+                  services_key.number_of_subkeys))
+              print(u'')
 
             for windows_service in self._CollectWindowsServicesFromKey(
                 services_key):
@@ -207,16 +208,19 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
       services_key = registry.GetKeyByPath(
           u'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services')
       if services_key:
-        self.key_found = True
+        result = True
 
-        print(u'Current control set')
-        print(u'\tNumber of entries\t: {0:d}'.format(
-            services_key.number_of_subkeys))
-        print(u'')
+        if self._debug:
+          print(u'Current control set')
+          print(u'\tNumber of entries\t: {0:d}'.format(
+              services_key.number_of_subkeys))
+          print(u'')
 
         for windows_service in self._CollectWindowsServicesFromKey(
             services_key):
           output_writer.WriteWindowsService(windows_service)
+
+    return result
 
   def Compare(self, registry, output_writer):
     """Compares services in the different control sets.
@@ -224,13 +228,15 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
       output_writer (OutputWriter): output writer.
-    """
-    self.key_found = False
 
+    Returns:
+      bool: True if the services key was found, False if not.
+    """
     system_key = registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
     if not system_key:
-      return
+      return False
 
+    result = False
     control_sets = []
     service_names = set()
     for control_set_key in system_key.GetSubkeys():
@@ -239,7 +245,7 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
         if not services_key:
           continue
 
-        self.key_found = True
+        result = True
 
         services = {}
         for windows_service in self._CollectWindowsServicesFromKey(
@@ -269,6 +275,9 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
 
       for windows_service in services_diff:
         if not windows_service:
-          print(u'Not defined')
+          if self._debug:
+            print(u'Not defined')
         else:
           output_writer.WriteWindowsService(windows_service)
+
+    return result
