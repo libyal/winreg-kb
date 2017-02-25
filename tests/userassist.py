@@ -58,24 +58,67 @@ class UserAssistDataParserTest(shared_test_lib.BaseTestCase):
 class UserAssistCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Windows User Assist collector."""
 
-  @shared_test_lib.skipUnlessHasTestFile([u'NTUSER.DAT'])
+  _GUID = u'{5E6AB780-7743-11CF-A12B-00AA004AE837}'
+
+  _UEME_CTLSESSION_VALUE_DATA = b''.join(map(chr, [
+      0xb0, 0xa8, 0x50, 0x0e, 0x01, 0x00, 0x00, 0x00]))
+
+  _ENTRY_VALUE_DATA = b''.join(map(chr, [
+      0x01, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00, 0x54, 0x4b, 0xf6, 0xd3,
+      0x15, 0x15, 0xca, 0x01]))
+
+  def _CreateTestRegistry(self):
+    """Creates Registry keys and values for testing.
+
+    Returns:
+      dfwinreg.WinRegistry: Windows Registry for testing.
+    """
+    key_path_prefix = u'HKEY_CURRENT_USER'
+
+    registry_file = dfwinreg_fake.FakeWinRegistryFile(
+        key_path_prefix=key_path_prefix)
+
+    registry_key = dfwinreg_fake.FakeWinRegistryKey(self._GUID)
+    registry_file.AddKeyByPath(
+        u'\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\UserAssist',
+        registry_key)
+
+    value_data = b'\x03\x00\x00\x00'
+    registry_value = dfwinreg_fake.FakeWinRegistryValue(
+        u'Version', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
+    registry_key.AddValue(registry_value)
+
+    subkey = dfwinreg_fake.FakeWinRegistryKey(u'Count')
+    registry_key.AddSubkey(subkey)
+
+    registry_value = dfwinreg_fake.FakeWinRegistryValue(
+        u'HRZR_PGYFRFFVBA', data=self._UEME_CTLSESSION_VALUE_DATA,
+        data_type=dfwinreg_definitions.REG_BINARY)
+    subkey.AddValue(registry_value)
+
+    registry_value = dfwinreg_fake.FakeWinRegistryValue(
+        u'HRZR_EHACVQY:%pfvqy2%\Jvaqbjf Zrffratre.yax',
+        data=self._ENTRY_VALUE_DATA, data_type=dfwinreg_definitions.REG_BINARY)
+    subkey.AddValue(registry_value)
+
+    registry_file.Open(None)
+
+    registry = dfwinreg_registry.WinRegistry()
+    registry.MapFile(key_path_prefix, registry_file)
+    return registry
+
   def testCollect(self):
     """Tests the Collect function."""
-    registry_collector = collector.WindowsRegistryCollector()
-
-    test_path = self._GetTestFilePath([u'NTUSER.DAT'])
-    registry_collector.ScanForWindowsVolume(test_path)
-
-    self.assertIsNotNone(registry_collector.registry)
+    registry = self._CreateTestRegistry()
 
     collector_object = userassist.UserAssistCollector()
 
     output_writer = TestOutputWriter()
-    collector_object.Collect(registry_collector.registry, output_writer)
+    collector_object.Collect(registry, output_writer)
     output_writer.Close()
 
-    # TODO: fix test.
-    self.assertEqual(output_writer.text, [])
+    # TODO: return user assist objects.
+    self.assertEqual(len(output_writer.text), 0)
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
