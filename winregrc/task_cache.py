@@ -170,11 +170,13 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
       output_writer.WriteText(u'Task: {0:s}'.format(name))
       output_writer.WriteText(u'ID: {0:s}'.format(subkey.name))
 
-      timestamp = task_cache_key.last_written_time // 10
-      date_string = (datetime.datetime(1601, 1, 1) +
-                     datetime.timedelta(microseconds=timestamp))
+      if (task_cache_key.last_written_time and
+          task_cache_key.last_written_time.timestamp):
+        timestamp = task_cache_key.last_written_time.timestamp // 10
+        date_string = (datetime.datetime(1601, 1, 1) +
+                       datetime.timedelta(microseconds=timestamp))
 
-      output_writer.WriteText(u'Last written time: {0!s}'.format(date_string))
+        output_writer.WriteText(u'Last written time: {0!s}'.format(date_string))
 
       if last_registered_time:
         # Note this is likely either the last registered time or

@@ -46,24 +46,73 @@ class TaskCacheDataParserTest(shared_test_lib.BaseTestCase):
 class TaskCacheCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Task Cache information collector."""
 
-  @shared_test_lib.skipUnlessHasTestFile([u'NTUSER.DAT'])
+  _DYNAMIC_INFO_DATA = b''.join(map(chr, [
+      0x03, 0x00, 0x00, 0x00, 0x0c, 0x1c, 0x7d, 0x12, 0x3f, 0x04, 0xca, 0x01,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00]))
+
+  _GUID = u'{8905ECD8-016F-4DC2-90E6-A5F1FA6A841A}'
+
+  _PATH = (
+      u'\\Microsoft\\Windows\\Active Directory Rights Management Services '
+      u'Client\\AD RMS Rights Policy Template Management (Automated)')
+
+  def _CreateTestRegistry(self):
+    """Creates Registry keys and values for testing.
+
+    Returns:
+      dfwinreg.WinRegistry: Windows Registry for testing.
+    """
+    key_path_prefix = u'HKEY_LOCAL_MACHINE\\Software'
+
+    registry_file = dfwinreg_fake.FakeWinRegistryFile(
+        key_path_prefix=key_path_prefix)
+
+    registry_key = dfwinreg_fake.FakeWinRegistryKey(self._GUID)
+    registry_file.AddKeyByPath(
+        u'\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tasks',
+        registry_key)
+
+    registry_value = dfwinreg_fake.FakeWinRegistryValue(
+        u'DynamicInfo', data=self._DYNAMIC_INFO_DATA,
+        data_type=dfwinreg_definitions.REG_BINARY)
+    registry_key.AddValue(registry_value)
+
+    value_data = self._PATH.encode(u'utf-16-le')
+    registry_value = dfwinreg_fake.FakeWinRegistryValue(
+        u'Path', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+    registry_key.AddValue(registry_value)
+
+    registry_key = dfwinreg_fake.FakeWinRegistryKey(
+        u'AD RMS Rights Policy Template Management (Automated)')
+    registry_file.AddKeyByPath((
+        u'\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tree\\'
+        u'Microsoft\\Windows\\Active Directory Rights Management Services '
+        u'Client'), registry_key)
+
+    value_data = u'{8905ECD8-016F-4DC2-90E6-A5F1FA6A841A}\x00'.encode(u'utf-16-le')
+    registry_value = dfwinreg_fake.FakeWinRegistryValue(
+        u'Id', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+    registry_key.AddValue(registry_value)
+
+    registry_file.Open(None)
+
+    registry = dfwinreg_registry.WinRegistry()
+    registry.MapFile(key_path_prefix, registry_file)
+    return registry
+
   def testCollect(self):
     """Tests the Collect function."""
-    registry_collector = collector.WindowsRegistryCollector()
-
-    test_path = self._GetTestFilePath([u'NTUSER.DAT'])
-    registry_collector.ScanForWindowsVolume(test_path)
-
-    self.assertIsNotNone(registry_collector.registry)
+    registry = self._CreateTestRegistry()
 
     collector_object = task_cache.TaskCacheCollector()
 
     output_writer = TestOutputWriter()
-    collector_object.Collect(registry_collector.registry, output_writer)
+    collector_object.Collect(registry, output_writer)
     output_writer.Close()
 
-    # TODO: fix test.
-    self.assertEqual(output_writer.text, [])
+    # TODO: return task cache objects.
+    self.assertEqual(len(output_writer.text), 4)
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
