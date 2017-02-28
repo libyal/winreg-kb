@@ -15,6 +15,19 @@ from winregrc import interface
 
 # pylint: disable=logging-format-interpolation
 
+class UserAccount(object):
+  """Class that defines an user account.
+
+  Attributes:
+    name (str): name.
+  """
+
+  def __init__(self):
+    """Initializes an user account."""
+    super(UserAccount, self).__init__()
+    self.name = None
+
+
 class SecurityAccountManagerDataParser(object):
   """Class that parses the Security Account Manager (SAM) data."""
 
@@ -103,16 +116,28 @@ class SecurityAccountManagerDataParser(object):
     self._debug = debug
     self._output_writer = output_writer
 
-  def ParseFValue(self, value_data):
+  def ParseFValue(self, value_data, user_account):
     """Parses the F value data.
 
     Args:
       value_data (bytes): F value data.
+      user_account (UserAccount): user account.
     """
     f_value_struct = self._F_VALUE_STRUCT.parse(value_data)
 
     if self._debug:
       self._output_writer.WriteDebugData(u'F value data:', value_data)
+
+    user_account.last_login_time = f_value_struct.last_login_time
+    user_account.last_password_set_time = f_value_struct.last_password_set_time
+    user_account.account_expiration_time = f_value_struct.account_expiration_time
+    user_account.last_password_failure_time = f_value_struct.last_password_failure_time
+    user_account.rid = f_value_struct.rid
+    user_account.primary_gid = f_value_struct.primary_gid
+    user_account.user_account_control_flags = f_value_struct.user_account_control_flags
+    user_account.codepage = f_value_struct.codepage
+    user_account.number_of_password_failures = f_value_struct.number_of_password_failures
+    user_account.number_of_logons = f_value_struct.number_of_logons
 
     if self._debug:
       value_string = u'{0:d}'.format(f_value_struct.major_version)
@@ -224,11 +249,12 @@ class SecurityAccountManagerDataParser(object):
 
       self._output_writer.WriteDebugText(u'')
 
-  def ParseVValue(self, value_data):
+  def ParseVValue(self, value_data, user_account):
     """Parses the V value data.
 
     Args:
       value_data (bytes): V value data.
+      user_account (UserAccount): user account.
     """
     v_value_struct = self._V_VALUE_STRUCT.parse(value_data)
 
@@ -293,12 +319,14 @@ class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
       if subkey.name == u'Names':
         continue
 
+      user_account = UserAccount()
+
       f_value = subkey.GetValueByName(u'F')
       if f_value:
-        parser.ParseFValue(f_value.data)
+        parser.ParseFValue(f_value.data, user_account)
 
       v_value = subkey.GetValueByName(u'V')
       if v_value:
-        parser.ParseVValue(v_value.data)
+        parser.ParseVValue(v_value.data, user_account)
 
     return True

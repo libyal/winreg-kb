@@ -103,17 +103,32 @@ class SecurityAccountManagerDataParserTest(shared_test_lib.BaseTestCase):
 
   def testParseFValue(self):
     """Tests the ParseFValue function."""
+    user_account = sam.UserAccount()
+
     parser = sam.SecurityAccountManagerDataParser()
 
-    parser.ParseFValue(_F_VALUE_DATA)
+    parser.ParseFValue(_F_VALUE_DATA, user_account)
+
+    self.assertEqual(user_account.last_login_time, 129347632925692440)
+    self.assertEqual(user_account.last_password_set_time, 129347637947436870)
+    self.assertEqual(user_account.account_expiration_time, 0)
+    self.assertEqual(user_account.last_password_failure_time, 0)
+    self.assertEqual(user_account.rid, 500)
+    self.assertEqual(user_account.primary_gid, 513)
+    self.assertEqual(user_account.user_account_control_flags, 0x211)
+    self.assertEqual(user_account.codepage, 0)
+    self.assertEqual(user_account.number_of_password_failures, 0)
+    self.assertEqual(user_account.number_of_logons, 6)
 
     # TODO: add bogus data tests.
 
   def testParseVValue(self):
     """Tests the ParseVValue function."""
+    user_account = sam.UserAccount()
+
     parser = sam.SecurityAccountManagerDataParser()
 
-    parser.ParseVValue(_V_VALUE_DATA)
+    parser.ParseVValue(_V_VALUE_DATA, user_account)
 
     # TODO: add bogus data tests.
 
