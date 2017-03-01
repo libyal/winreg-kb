@@ -25,7 +25,21 @@ class UserAccount(object):
   def __init__(self):
     """Initializes an user account."""
     super(UserAccount, self).__init__()
+    self.account_expiration_time = None
+    self.codepage = None
+    self.comment = None
+    self.full_name = None
+    self.last_login_time = None
+    self.last_password_failure_time = None
+    self.last_password_set_time = None
     self.name = None
+    self.number_of_logons = None
+    self.number_of_password_failures = None
+    self.primary_gid = None
+    self.rid = None
+    self.user_account_control_flags = None
+    self.user_comment = None
+    self.username = None
 
 
 class SecurityAccountManagerDataParser(object):
@@ -261,14 +275,15 @@ class SecurityAccountManagerDataParser(object):
     if self._debug:
       self._output_writer.WriteDebugData(u'V value data:', value_data)
 
-    if self._debug:
-      for index in range(0, 17):
-        user_information_descriptor = (
-            v_value_struct.user_information_descriptor[index])
+    for index in range(0, 17):
+      user_information_descriptor = (
+          v_value_struct.user_information_descriptor[index])
 
-        data_start_offset = user_information_descriptor.offset + 0xcc
-        data_end_offset = data_start_offset + user_information_descriptor.size
+      data_start_offset = user_information_descriptor.offset + 0xcc
+      data_end_offset = data_start_offset + user_information_descriptor.size
+      descriptor_data = value_data[data_start_offset:data_end_offset]
 
+      if self._debug:
         description_string = u'Descriptor: {0:d} description'.format(index + 1)
         value_string = self._USER_INFORMATION_DESCRIPTORS[index]
         self._output_writer.WriteDebugValue(description_string, value_string)
@@ -287,9 +302,44 @@ class SecurityAccountManagerDataParser(object):
         self._output_writer.WriteDebugValue(unknown1_string, value_string)
 
         data_string = u'Descriptor: {0:d} data:'.format(index + 1)
-        self._output_writer.WriteDebugData(
-            data_string, value_data[data_start_offset:data_end_offset])
+        self._output_writer.WriteDebugData(data_string, descriptor_data)
 
+      if index == 1:
+        user_account.username = descriptor_data.decode(
+            u'utf-16-le').rstrip(u'\x00')
+
+        if self._debug:
+          self._output_writer.WriteDebugValue(
+              u'Username', user_account.username)
+          self._output_writer.WriteDebugText(u'')
+
+      elif index == 2:
+        user_account.full_name = descriptor_data.decode(
+            u'utf-16-le').rstrip(u'\x00')
+
+        if self._debug:
+          self._output_writer.WriteDebugValue(
+              u'Full name', user_account.full_name)
+          self._output_writer.WriteDebugText(u'')
+
+      elif index == 3:
+        user_account.comment = descriptor_data.decode(
+            u'utf-16-le').rstrip(u'\x00')
+
+        if self._debug:
+          self._output_writer.WriteDebugValue(u'Comment', user_account.comment)
+          self._output_writer.WriteDebugText(u'')
+
+      elif index == 4:
+        user_account.user_comment = descriptor_data.decode(
+            u'utf-16-le').rstrip(u'\x00')
+
+        if self._debug:
+          self._output_writer.WriteDebugValue(
+              u'User comment', user_account.user_comment)
+          self._output_writer.WriteDebugText(u'')
+
+    if self._debug:
       self._output_writer.WriteDebugText(u'')
 
 
