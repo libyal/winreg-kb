@@ -273,7 +273,7 @@ class AppCompatCacheDataParser(object):
           u'Header data:', value_data[0:header_object.header_size])
 
     if self._debug:
-      self._output_writer.WriteDebugValue(
+      self._output_writer.WriteValue(
           u'Signature', u'0x{0:08x}'.format(header_struct.signature))
 
     if format_type in (

@@ -8,6 +8,7 @@ import logging
 import construct
 
 from dfdatetime import filetime as dfdatetime_filetime
+from dfdatetime import semantic_time as dfdatetime_semantic_time
 
 from winregrc import hexdump
 from winregrc import interface
@@ -130,6 +131,23 @@ class SecurityAccountManagerDataParser(object):
     self._debug = debug
     self._output_writer = output_writer
 
+  def _ParseFiletime(self, filetime):
+    """Parses a FILETIME timestamp value.
+
+    Args:
+      filetime (int): a FILETIME timestamp value.
+
+    Returns:
+      dfdatetime.DateTimeValues: date and time values.
+    """
+    if filetime == 0:
+      return dfdatetime_semantic_time.SemanticTime(string=u'Not set')
+
+    if filetime == 0x7fffffffffffffff:
+      return dfdatetime_semantic_time.SemanticTime(string=u'Never')
+
+    return dfdatetime_filetime.Filetime(timestamp=filetime)
+
   def ParseFValue(self, value_data, user_account):
     """Parses the F value data.
 
@@ -142,7 +160,11 @@ class SecurityAccountManagerDataParser(object):
     if self._debug:
       self._output_writer.WriteDebugData(u'F value data:', value_data)
 
+    # TODO: change FILETIME timestamps into date time values.
+    # date_time = self._ParseFiletime(f_value_struct.last_login_time)
+
     user_account.last_login_time = f_value_struct.last_login_time
+
     user_account.last_password_set_time = f_value_struct.last_password_set_time
     user_account.account_expiration_time = f_value_struct.account_expiration_time
     user_account.last_password_failure_time = f_value_struct.last_password_failure_time
@@ -155,15 +177,13 @@ class SecurityAccountManagerDataParser(object):
 
     if self._debug:
       value_string = u'{0:d}'.format(f_value_struct.major_version)
-      self._output_writer.WriteDebugValue(u'Major version', value_string)
+      self._output_writer.WriteValue(u'Major version', value_string)
 
       value_string = u'{0:d}'.format(f_value_struct.minor_version)
-      self._output_writer.WriteDebugValue(u'Minor version', value_string)
+      self._output_writer.WriteValue(u'Minor version', value_string)
 
       value_string = u'0x{0:08x}'.format(f_value_struct.unknown1)
-      self._output_writer.WriteDebugValue(u'Unknown1', value_string)
-
-      # date_time = dfdatetime_filetime.Filetime(timestamp=f_value_struct.last_login_time)
+      self._output_writer.WriteValue(u'Unknown1', value_string)
 
       if f_value_struct.last_login_time == 0:
         date_string = u'Not set'
@@ -174,10 +194,10 @@ class SecurityAccountManagerDataParser(object):
 
       value_string = u'{0!s} (0x{1:08x})'.format(
           date_string, f_value_struct.last_login_time)
-      self._output_writer.WriteDebugValue(u'Last login time', value_string)
+      self._output_writer.WriteValue(u'Last login time', value_string)
 
       value_string = u'0x{0:08x}'.format(f_value_struct.unknown2)
-      self._output_writer.WriteDebugValue(u'Unknown2', value_string)
+      self._output_writer.WriteValue(u'Unknown2', value_string)
 
       if f_value_struct.last_password_set_time == 0:
         date_string = u'Not set'
@@ -188,7 +208,7 @@ class SecurityAccountManagerDataParser(object):
 
       value_string = u'{0!s} (0x{1:08x})'.format(
           date_string, f_value_struct.last_password_set_time)
-      self._output_writer.WriteDebugValue(
+      self._output_writer.WriteValue(
           u'Last password set time', value_string)
 
       if f_value_struct.account_expiration_time == 0:
@@ -202,7 +222,7 @@ class SecurityAccountManagerDataParser(object):
 
       value_string = u'{0!s} (0x{1:08x})'.format(
           date_string, f_value_struct.account_expiration_time)
-      self._output_writer.WriteDebugValue(
+      self._output_writer.WriteValue(
           u'Account expiration time', value_string)
 
       if f_value_struct.last_password_failure_time == 0:
@@ -214,20 +234,20 @@ class SecurityAccountManagerDataParser(object):
 
       value_string = u'{0!s} (0x{1:08x})'.format(
           date_string, f_value_struct.last_password_failure_time)
-      self._output_writer.WriteDebugValue(
+      self._output_writer.WriteValue(
           u'Last password failure time', value_string)
 
       value_string = u'{0:d}'.format(f_value_struct.rid)
-      self._output_writer.WriteDebugValue(
+      self._output_writer.WriteValue(
           u'Relative identifier (RID)', value_string)
 
       value_string = u'{0:d}'.format(f_value_struct.primary_gid)
-      self._output_writer.WriteDebugValue(
+      self._output_writer.WriteValue(
           u'Primary group identifier (GID)', value_string)
 
       value_string = u'0x{0:08x}'.format(
           f_value_struct.user_account_control_flags)
-      self._output_writer.WriteDebugValue(
+      self._output_writer.WriteValue(
           u'User account control flags', value_string)
 
       if f_value_struct.user_account_control_flags:
@@ -235,33 +255,33 @@ class SecurityAccountManagerDataParser(object):
             self._USER_ACCOUNT_CONTROL_FLAGS.items()):
           if flag & f_value_struct.user_account_control_flags:
             value_string = u'\t{0:s} (0x{1:08x})'.format(identifier, flag)
-            self._output_writer.WriteDebugText(value_string)
+            self._output_writer.WriteText(value_string)
 
-        self._output_writer.WriteDebugText(u'')
+        self._output_writer.WriteText(u'')
 
       value_string = u'0x{0:04x}'.format(f_value_struct.country_code)
-      self._output_writer.WriteDebugValue(u'Country code', value_string)
+      self._output_writer.WriteValue(u'Country code', value_string)
 
       value_string = u'{0:d}'.format(f_value_struct.codepage)
-      self._output_writer.WriteDebugValue(u'Codepage', value_string)
+      self._output_writer.WriteValue(u'Codepage', value_string)
 
       value_string = u'{0:d}'.format(f_value_struct.number_of_password_failures)
-      self._output_writer.WriteDebugValue(
+      self._output_writer.WriteValue(
           u'Number of password failures', value_string)
 
       value_string = u'{0:d}'.format(f_value_struct.number_of_logons)
-      self._output_writer.WriteDebugValue(u'Number of logons', value_string)
+      self._output_writer.WriteValue(u'Number of logons', value_string)
 
       value_string = u'0x{0:08x}'.format(f_value_struct.unknown6)
-      self._output_writer.WriteDebugValue(u'Unknown6', value_string)
+      self._output_writer.WriteValue(u'Unknown6', value_string)
 
       value_string = u'0x{0:08x}'.format(f_value_struct.unknown7)
-      self._output_writer.WriteDebugValue(u'Unknown7', value_string)
+      self._output_writer.WriteValue(u'Unknown7', value_string)
 
       value_string = u'0x{0:08x}'.format(f_value_struct.unknown8)
-      self._output_writer.WriteDebugValue(u'Unknown8', value_string)
+      self._output_writer.WriteValue(u'Unknown8', value_string)
 
-      self._output_writer.WriteDebugText(u'')
+      self._output_writer.WriteText(u'')
 
   def ParseVValue(self, value_data, user_account):
     """Parses the V value data.
@@ -286,20 +306,20 @@ class SecurityAccountManagerDataParser(object):
       if self._debug:
         description_string = u'Descriptor: {0:d} description'.format(index + 1)
         value_string = self._USER_INFORMATION_DESCRIPTORS[index]
-        self._output_writer.WriteDebugValue(description_string, value_string)
+        self._output_writer.WriteValue(description_string, value_string)
 
         offset_string = u'Descriptor: {0:d} offset'.format(index + 1)
         value_string = u'0x{0:08x} (0x{1:08x})'.format(
             user_information_descriptor.offset, data_start_offset)
-        self._output_writer.WriteDebugValue(offset_string, value_string)
+        self._output_writer.WriteValue(offset_string, value_string)
 
         size_string = u'Descriptor: {0:d} size'.format(index + 1)
         value_string = u'{0:d}'.format(user_information_descriptor.size)
-        self._output_writer.WriteDebugValue(size_string, value_string)
+        self._output_writer.WriteValue(size_string, value_string)
 
         unknown1_string = u'Descriptor: {0:d} unknown1'.format(index + 1)
         value_string = u'0x{0:08x}'.format(user_information_descriptor.unknown1)
-        self._output_writer.WriteDebugValue(unknown1_string, value_string)
+        self._output_writer.WriteValue(unknown1_string, value_string)
 
         data_string = u'Descriptor: {0:d} data:'.format(index + 1)
         self._output_writer.WriteDebugData(data_string, descriptor_data)
@@ -309,38 +329,38 @@ class SecurityAccountManagerDataParser(object):
             u'utf-16-le').rstrip(u'\x00')
 
         if self._debug:
-          self._output_writer.WriteDebugValue(
+          self._output_writer.WriteValue(
               u'Username', user_account.username)
-          self._output_writer.WriteDebugText(u'')
+          self._output_writer.WriteText(u'')
 
       elif index == 2:
         user_account.full_name = descriptor_data.decode(
             u'utf-16-le').rstrip(u'\x00')
 
         if self._debug:
-          self._output_writer.WriteDebugValue(
+          self._output_writer.WriteValue(
               u'Full name', user_account.full_name)
-          self._output_writer.WriteDebugText(u'')
+          self._output_writer.WriteText(u'')
 
       elif index == 3:
         user_account.comment = descriptor_data.decode(
             u'utf-16-le').rstrip(u'\x00')
 
         if self._debug:
-          self._output_writer.WriteDebugValue(u'Comment', user_account.comment)
-          self._output_writer.WriteDebugText(u'')
+          self._output_writer.WriteValue(u'Comment', user_account.comment)
+          self._output_writer.WriteText(u'')
 
       elif index == 4:
         user_account.user_comment = descriptor_data.decode(
             u'utf-16-le').rstrip(u'\x00')
 
         if self._debug:
-          self._output_writer.WriteDebugValue(
+          self._output_writer.WriteValue(
               u'User comment', user_account.user_comment)
-          self._output_writer.WriteDebugText(u'')
+          self._output_writer.WriteText(u'')
 
     if self._debug:
-      self._output_writer.WriteDebugText(u'')
+      self._output_writer.WriteText(u'')
 
 
 class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
@@ -378,5 +398,7 @@ class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
       v_value = subkey.GetValueByName(u'V')
       if v_value:
         parser.ParseVValue(v_value.data, user_account)
+
+      output_writer.WriteUserAccount(user_account)
 
     return True

@@ -23,6 +23,43 @@ class StdoutWriter(output_writer.StdoutOutputWriter):
     """
     print(text)
 
+  def WriteUserAccount(self, user_account):
+    """Writes an user account to stdout.
+
+    Args:
+      user_account (UserAccount): user account to write.
+    """
+    self.WriteValue(u'Username', user_account.username)
+    self.WriteValue(u'Relative identifier (RID)', user_account.rid)
+    self.WriteValue(u'Primary group identifier', user_account.primary_gid)
+
+    if user_account.full_name:
+      self.WriteValue(u'Full name', user_account.full_name)
+
+    if user_account.comment:
+      self.WriteValue(u'Comment', user_account.comment)
+
+    if user_account.user_comment:
+      self.WriteValue(u'User comment', user_account.user_comment)
+
+    # TODO: convert to date time string.
+    self.WriteValue(u'Last log-in time', user_account.last_login_time)
+    self.WriteValue(
+        u'Last password set time', user_account.last_password_set_time)
+    self.WriteValue(
+        u'Account expiration time', user_account.account_expiration_time)
+    self.WriteValue(
+        u'Last password failure time', user_account.last_password_failure_time)
+
+    self.WriteValue(u'Number of log-ons', user_account.number_of_logons)
+    self.WriteValue(
+        u'Number of password failures', user_account.number_of_password_failures)
+
+    if user_account.codepage:
+      self.WriteValue(u'Codepage', user_account.codepage)
+
+    self.WriteText(u'')
+
 
 def Main():
   """The main program function.

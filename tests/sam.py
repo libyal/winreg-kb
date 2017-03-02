@@ -81,21 +81,21 @@ class TestOutputWriter(output_writer.StdoutOutputWriter):
   """Class that defines a test output writer.
 
   Attributes:
-    text (list[str]): text.
+    user_accounts (list[UserAccount]): user accounts.
   """
 
   def __init__(self):
     """Initializes an output writer object."""
     super(TestOutputWriter, self).__init__()
-    self.text = []
+    self.user_accounts = []
 
-  def WriteText(self, text):
-    """Writes text to stdout.
+  def WriteUserAccount(self, user_account):
+    """Writes an user account to stdout.
 
     Args:
-      text: the text to write.
+      user_account: the user account to write.
     """
-    self.text.append(text)
+    self.user_accounts.append(user_account)
 
 
 class SecurityAccountManagerDataParserTest(shared_test_lib.BaseTestCase):
@@ -129,6 +129,10 @@ class SecurityAccountManagerDataParserTest(shared_test_lib.BaseTestCase):
     parser = sam.SecurityAccountManagerDataParser()
 
     parser.ParseVValue(_V_VALUE_DATA, user_account)
+
+    self.assertEqual(user_account.username, u'Administrator')
+
+    # TODO: tests other values set by ParseVValue.
 
     # TODO: add bogus data tests.
 
@@ -181,8 +185,11 @@ class SecurityAccountManagerCollectorTest(shared_test_lib.BaseTestCase):
     collector_object.Collect(registry, output_writer)
     output_writer.Close()
 
-    # TODO: fix test.
-    self.assertEqual(len(output_writer.text), 0)
+    self.assertEqual(len(output_writer.user_accounts), 1)
+
+    user_account = output_writer.user_accounts[0]
+    self.assertIsNotNone(user_account)
+    self.assertEqual(user_account.username, u'Administrator')
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
@@ -194,7 +201,7 @@ class SecurityAccountManagerCollectorTest(shared_test_lib.BaseTestCase):
     collector_object.Collect(registry, output_writer)
     output_writer.Close()
 
-    self.assertEqual(len(output_writer.text), 0)
+    self.assertEqual(len(output_writer.user_accounts), 0)
 
 
 if __name__ == '__main__':

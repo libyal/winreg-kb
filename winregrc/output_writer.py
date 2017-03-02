@@ -33,7 +33,7 @@ class OutputWriter(object):
     """
 
   @abc.abstractmethod
-  def WriteDebugValue(self, description, value):
+  def WriteValue(self, description, value):
     """Writes a value for debugging.
 
     Args:
@@ -42,7 +42,7 @@ class OutputWriter(object):
     """
 
   @abc.abstractmethod
-  def WriteDebugText(self, text):
+  def WriteText(self, text):
     """Writes text for debugging.
 
     Args:
@@ -72,23 +72,23 @@ class StdoutOutputWriter(OutputWriter):
       description (str): description to write.
       data (bytes): data to write.
     """
-    self.WriteDebugText(description)
+    self.WriteText(description)
 
     hexdump_text = hexdump.Hexdump(data)
-    self.WriteDebugText(hexdump_text)
+    self.WriteText(hexdump_text)
 
-  def WriteDebugValue(self, description, value):
+  def WriteValue(self, description, value):
     """Writes a value for debugging.
 
     Args:
       description (str): description to write.
-      value (str): value to write.
+      value (object): value to write.
     """
     alignment = 8 - (len(description) / 8)
-    text = u'{0:s}{1:s}: {2:s}'.format(description, u'\t' * alignment, value)
-    self.WriteDebugText(text)
+    text = u'{0:s}{1:s}: {2!s}'.format(description, u'\t' * alignment, value)
+    self.WriteText(text)
 
-  def WriteDebugText(self, text):
+  def WriteText(self, text):
     """Writes text for debugging.
 
     Args:
