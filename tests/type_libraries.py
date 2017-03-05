@@ -4,9 +4,6 @@
 
 import unittest
 
-from dfdatetime import filetime as dfdatetime_filetime
-from dfwinreg import definitions as dfwinreg_definitions
-from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
 from winregrc import collector
@@ -52,11 +49,11 @@ class TypeLibraryCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = type_libraries.TypeLibrariesCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry_collector.registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry_collector.registry, test_output_writer)
+    test_output_writer.Close()
 
-    self.assertNotEqual(output_writer.type_libraries, [])
+    self.assertNotEqual(test_output_writer.type_libraries, [])
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
@@ -64,11 +61,11 @@ class TypeLibraryCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = type_libraries.TypeLibrariesCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry, test_output_writer)
+    test_output_writer.Close()
 
-    self.assertEqual(len(output_writer.type_libraries), 0)
+    self.assertEqual(len(test_output_writer.type_libraries), 0)
 
 
 if __name__ == '__main__':

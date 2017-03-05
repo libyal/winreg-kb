@@ -7,14 +7,9 @@ import logging
 
 import construct
 
-from dfwinreg import registry
-
-from winregrc import collector
 from winregrc import hexdump
 from winregrc import interface
 
-
-# pylint: disable=logging-format-interpolation
 
 class UserAssistDataParser(object):
   """Class that parses User Assist data."""

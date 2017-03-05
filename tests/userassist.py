@@ -4,12 +4,10 @@
 
 import unittest
 
-from dfdatetime import filetime as dfdatetime_filetime
 from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import collector
 from winregrc import output_writer
 from winregrc import userassist
 
@@ -97,7 +95,7 @@ class UserAssistCollectorTest(shared_test_lib.BaseTestCase):
     subkey.AddValue(registry_value)
 
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'HRZR_EHACVQY:%pfvqy2%\Jvaqbjf Zrffratre.yax',
+        u'HRZR_EHACVQY:%pfvqy2%\\Jvaqbjf Zrffratre.yax',
         data=self._ENTRY_VALUE_DATA, data_type=dfwinreg_definitions.REG_BINARY)
     subkey.AddValue(registry_value)
 
@@ -113,12 +111,12 @@ class UserAssistCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = userassist.UserAssistCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry, test_output_writer)
+    test_output_writer.Close()
 
     # TODO: return user assist objects.
-    self.assertEqual(len(output_writer.text), 0)
+    self.assertEqual(len(test_output_writer.text), 0)
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
@@ -126,11 +124,11 @@ class UserAssistCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = userassist.UserAssistCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry, test_output_writer)
+    test_output_writer.Close()
 
-    self.assertEqual(len(output_writer.text), 0)
+    self.assertEqual(len(test_output_writer.text), 0)
 
 
 if __name__ == '__main__':

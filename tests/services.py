@@ -4,7 +4,6 @@
 
 import unittest
 
-from dfdatetime import filetime as dfdatetime_filetime
 from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
@@ -33,16 +32,16 @@ class TestOutputWriter(output_writer.StdoutOutputWriter):
     Args:
       service (WindowsService): Windows service.
     """
-    self.services.append(services)
+    self.services.append(service)
 
 
 class WindowsServicesCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the services collector."""
 
-  _DESCRIPTION = u'@%SystemRoot%\System32\wwansvc.dll,-258'
-  _DISPLAY_NAME = u'@%SystemRoot%\System32\wwansvc.dll,-257'
-  _IMAGE_PATH = u'%SystemRoot%\system32\svchost.exe -k LocalServiceNoNetwork'
-  _OBJECT_NAME = u'NT Authority\LocalService'
+  _DESCRIPTION = u'@%SystemRoot%\\System32\\wwansvc.dll,-258'
+  _DISPLAY_NAME = u'@%SystemRoot%\\System32\\wwansvc.dll,-257'
+  _IMAGE_PATH = u'%SystemRoot%\\system32\\svchost.exe -k LocalServiceNoNetwork'
+  _OBJECT_NAME = u'NT Authority\\LocalService'
 
   def _CreateTestRegistry(self):
     """Creates Registry keys and values for testing.
@@ -115,12 +114,12 @@ class WindowsServicesCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = services.WindowsServicesCollector()
 
-    output_writer = TestOutputWriter()
+    test_output_writer = TestOutputWriter()
     collector_object.Collect(
-        registry, output_writer, all_control_sets=True)
-    output_writer.Close()
+        registry, test_output_writer, all_control_sets=True)
+    test_output_writer.Close()
 
-    self.assertEqual(len(output_writer.services), 1)
+    self.assertEqual(len(test_output_writer.services), 1)
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
@@ -128,11 +127,11 @@ class WindowsServicesCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = services.WindowsServicesCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry, test_output_writer)
+    test_output_writer.Close()
 
-    self.assertEqual(len(output_writer.services), 0)
+    self.assertEqual(len(test_output_writer.services), 0)
 
 
 if __name__ == '__main__':

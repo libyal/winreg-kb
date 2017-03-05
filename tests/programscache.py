@@ -4,9 +4,6 @@
 
 import unittest
 
-from dfdatetime import filetime as dfdatetime_filetime
-from dfwinreg import definitions as dfwinreg_definitions
-from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
 from winregrc import collector
@@ -58,12 +55,12 @@ class ProgramsCacheCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = programscache.ProgramsCacheCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry_collector.registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry_collector.registry, test_output_writer)
+    test_output_writer.Close()
 
     # TODO: fix test.
-    self.assertEqual(output_writer.text, [])
+    self.assertEqual(test_output_writer.text, [])
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
@@ -71,11 +68,11 @@ class ProgramsCacheCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = programscache.ProgramsCacheCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry, test_output_writer)
+    test_output_writer.Close()
 
-    self.assertEqual(len(output_writer.text), 0)
+    self.assertEqual(len(test_output_writer.text), 0)
 
 
 if __name__ == '__main__':

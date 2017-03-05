@@ -3,24 +3,37 @@
 
 from __future__ import print_function
 import datetime
-import logging
 
 import construct
 
 from dfdatetime import filetime as dfdatetime_filetime
 from dfdatetime import semantic_time as dfdatetime_semantic_time
 
-from winregrc import hexdump
 from winregrc import interface
 
-
-# pylint: disable=logging-format-interpolation
 
 class UserAccount(object):
   """Class that defines an user account.
 
   Attributes:
-    name (str): name.
+    account_expiration_time (dfdatetime.DateTimeValues): account expiration
+      date and time.
+    codepage (str): code page.
+    comment (str): comment.
+    full_name (str): full name.
+    last_login_time (dfdatetime.DateTimeValues): last log-in date and time.
+    last_password_failure_time (dfdatetime.DateTimeValues): last password
+        failure date and time.
+    last_password_set_time (dfdatetime.DateTimeValues): last password set
+        date and time.
+    name (str): name
+    number_of_logons (int): number of log-ons.
+    number_of_password_failures (int): number of password failures.
+    primary_gid (int): primary group identifier (GID).
+    rid (str): relative identifier (RID).
+    user_account_control_flags (int): user account control flags.
+    user_comment (str): user comment.
+    username (str): username.
   """
 
   def __init__(self):
@@ -166,13 +179,17 @@ class SecurityAccountManagerDataParser(object):
     user_account.last_login_time = f_value_struct.last_login_time
 
     user_account.last_password_set_time = f_value_struct.last_password_set_time
-    user_account.account_expiration_time = f_value_struct.account_expiration_time
-    user_account.last_password_failure_time = f_value_struct.last_password_failure_time
+    user_account.account_expiration_time = (
+        f_value_struct.account_expiration_time)
+    user_account.last_password_failure_time = (
+        f_value_struct.last_password_failure_time)
     user_account.rid = f_value_struct.rid
     user_account.primary_gid = f_value_struct.primary_gid
-    user_account.user_account_control_flags = f_value_struct.user_account_control_flags
+    user_account.user_account_control_flags = (
+        f_value_struct.user_account_control_flags)
     user_account.codepage = f_value_struct.codepage
-    user_account.number_of_password_failures = f_value_struct.number_of_password_failures
+    user_account.number_of_password_failures = (
+        f_value_struct.number_of_password_failures)
     user_account.number_of_logons = f_value_struct.number_of_logons
 
     if self._debug:
@@ -374,8 +391,8 @@ class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
       output_writer (OutputWriter): output writer.
 
     Returns:
-      bool: True if the Security Account Manager (SAM) information key was found,
-          False if not.
+      bool: True if the Security Account Manager (SAM) information key was
+          found, False if not.
     """
     key_path = u'HKEY_LOCAL_MACHINE\\SAM\\SAM\\Domains\\Account\\Users'
     users_key = registry.GetKeyByPath(key_path)

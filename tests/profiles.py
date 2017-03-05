@@ -4,7 +4,6 @@
 
 import unittest
 
-from dfdatetime import filetime as dfdatetime_filetime
 from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
@@ -40,7 +39,7 @@ class UserProfilesCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Windows user profiles collector."""
 
   _SID = u'S-1-5-18'
-  _PROFILE_PATH = u'%systemroot%\system32\config\systemprofile'
+  _PROFILE_PATH = u'%systemroot%\\system32\\config\\systemprofile'
 
   def _CreateTestRegistry(self):
     """Creates Registry keys and values for testing.
@@ -78,12 +77,12 @@ class UserProfilesCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = profiles.UserProfilesCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry, test_output_writer)
+    test_output_writer.Close()
 
     # TODO: return user profile objects.
-    self.assertEqual(len(output_writer.text), 1)
+    self.assertEqual(len(test_output_writer.text), 1)
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
@@ -91,11 +90,11 @@ class UserProfilesCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = profiles.UserProfilesCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry, test_output_writer)
+    test_output_writer.Close()
 
-    self.assertEqual(len(output_writer.text), 0)
+    self.assertEqual(len(test_output_writer.text), 0)
 
 
 if __name__ == '__main__':

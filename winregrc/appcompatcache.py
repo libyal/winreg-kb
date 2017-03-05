@@ -7,10 +7,9 @@ import logging
 
 import construct
 
+from winregrc import hexdump
 from winregrc import interface
 
-
-# pylint: disable=logging-format-interpolation
 
 class AppCompatCacheHeader(object):
   """Class that defines an Application Compatibility Cache header."""

@@ -4,7 +4,6 @@
 
 import unittest
 
-from dfdatetime import filetime as dfdatetime_filetime
 from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
@@ -181,13 +180,13 @@ class SecurityAccountManagerCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = sam.SecurityAccountManagerCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry, test_output_writer)
+    test_output_writer.Close()
 
-    self.assertEqual(len(output_writer.user_accounts), 1)
+    self.assertEqual(len(test_output_writer.user_accounts), 1)
 
-    user_account = output_writer.user_accounts[0]
+    user_account = test_output_writer.user_accounts[0]
     self.assertIsNotNone(user_account)
     self.assertEqual(user_account.username, u'Administrator')
 
@@ -197,11 +196,11 @@ class SecurityAccountManagerCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = sam.SecurityAccountManagerCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry, test_output_writer)
+    test_output_writer.Close()
 
-    self.assertEqual(len(output_writer.user_accounts), 0)
+    self.assertEqual(len(test_output_writer.user_accounts), 0)
 
 
 if __name__ == '__main__':

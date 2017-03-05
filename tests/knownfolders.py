@@ -4,7 +4,6 @@
 
 import unittest
 
-from dfdatetime import filetime as dfdatetime_filetime
 from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
@@ -40,7 +39,7 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Windows known folders collector."""
 
   _GUID = u'374de290-123f-4565-9164-39c4925e467b'
-  _LOCALIZED_NAME = u'@%SystemRoot%\system32\shell32.dll,-21798'
+  _LOCALIZED_NAME = u'@%SystemRoot%\\system32\\shell32.dll,-21798'
   _NAME = u'Downloads'
 
   def _CreateTestRegistry(self):
@@ -84,13 +83,13 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = knownfolders.KnownFoldersCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry, test_output_writer)
+    test_output_writer.Close()
 
-    self.assertEqual(len(output_writer.known_folders), 1)
+    self.assertEqual(len(test_output_writer.known_folders), 1)
 
-    known_folder = output_writer.known_folders[0]
+    known_folder = test_output_writer.known_folders[0]
 
     self.assertIsNotNone(known_folder)
     self.assertEqual(known_folder.guid, self._GUID)
@@ -103,11 +102,11 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = knownfolders.KnownFoldersCollector()
 
-    output_writer = TestOutputWriter()
-    collector_object.Collect(registry, output_writer)
-    output_writer.Close()
+    test_output_writer = TestOutputWriter()
+    collector_object.Collect(registry, test_output_writer)
+    test_output_writer.Close()
 
-    self.assertEqual(len(output_writer.known_folders), 0)
+    self.assertEqual(len(test_output_writer.known_folders), 0)
 
 
 if __name__ == '__main__':

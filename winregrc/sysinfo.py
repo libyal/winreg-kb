@@ -1,7 +1,43 @@
 # -*- coding: utf-8 -*-
 """System information collector."""
 
+from dfdatetime import posix_time as dfdatetime_posix_time
+from dfdatetime import semantic_time as dfdatetime_semantic_time
+
 from winregrc import interface
+
+
+class SystemInformation(object):
+  """Class that defines system information.
+
+  Attributes:
+    csd_version (str): CSD version.
+    current_build_number (str): current build number.
+    current_type (str): current type.
+    current_version (str): current version.
+    installation_date (dfdatetime.DateTimeValues): installation date and time.
+    path_name (str): path name.
+    product_identifier (str): product identifier.
+    product_name (str): product name.
+    registered_organization (str): registered organization.
+    registered_owner (str): registered owner.
+    system_root (str): system root path.
+  """
+
+  def __init__(self):
+    """Initializes system information."""
+    super(SystemInformation, self).__init__()
+    self.csd_version = None
+    self.current_build_number = None
+    self.current_type = None
+    self.current_version = None
+    self.installation_date = None
+    self.path_name = None
+    self.product_identifier = None
+    self.product_name = None
+    self.registered_organization = None
+    self.registered_owner = None
+    self.system_root = None
 
 
 class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
@@ -10,25 +46,17 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
   _CURRENT_VERSION_KEY_PATH = (
       u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')
 
-  def _GetValueAsStringFromKey(self, key, value_name, default_value=u''):
-    """Retrieves a value as a string from the key.
-
-    Args:
-      key (dfwinreg.WinRegistryKey): Registry key.
-      value_name (str): name of the value.
-      default_value (Optional[str]): default value.
-
-    Returns:
-      str: value or the default value if not available.
-    """
-    if not key:
-      return default_value
-
-    value = key.GetValueByName(value_name)
-    if not value:
-      return default_value
-
-    return value.GetDataAsObject()
+  _STRING_VALUES = {
+      u'CSDVersion': u'csd_version',
+      u'CurrentBuildNumber': u'current_build_number',
+      u'CurrentType': u'current_type',
+      u'CurrentVersion': u'current_version',
+      u'PathName': u'path_name',
+      u'ProductId': u'product_identifier',
+      u'ProductName': u'product_name',
+      u'RegisteredOrganization': u'registered_organization',
+      u'RegisteredOwner': u'registered_owner',
+      u'SystemRoot': u'system_root'}
 
   def Collect(self, registry, output_writer):
     """Collects system information.
@@ -45,27 +73,24 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
     if not current_version_key:
       return False
 
-    value_names = [
-        u'ProductName',
-        u'CSDVersion',
-        u'CurrentVersion',
-        u'CurrentBuildNumber',
-        u'CurrentType',
-        u'ProductId',
-        u'RegisteredOwner',
-        u'RegisteredOrganization',
-        u'PathName',
-        u'SystemRoot',
-    ]
+    system_information = SystemInformation()
 
-    for value_name in value_names:
+    for value_name, attribute_name in self._STRING_VALUES.items():
       value_string = self._GetValueAsStringFromKey(
           current_version_key, value_name)
-      output_writer.WriteText(u'{0:s}: {1:s}'.format(value_name, value_string))
 
-    value = current_version_key.GetValueByName(u'InstallDate')
-    if value:
-      output_writer.WriteText(
-          u'InstallDate: {0:d}'.format(value.GetDataAsObject()))
+      setattr(system_information, attribute_name, value_string)
+
+    registry_value = current_version_key.GetValueByName(u'InstallDate')
+    if registry_value:
+      timestamp = registry_value.GetDataAsObject()
+      if not timestamp:
+        date_time = dfdatetime_semantic_time.SemanticTime(string=u'Not set')
+      else:
+        date_time = dfdatetime_posix_time.PosixTime(timestamp=timestamp)
+
+      system_information.installation_date = date_time
+
+    output_writer.WriteSystemInformation(system_information)
 
     return True
