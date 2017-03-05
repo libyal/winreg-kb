@@ -53,7 +53,8 @@ class StdoutWriter(output_writer.StdoutOutputWriter):
 
     self.WriteValue(u'Number of log-ons', user_account.number_of_logons)
     self.WriteValue(
-        u'Number of password failures', user_account.number_of_password_failures)
+        u'Number of password failures',
+        user_account.number_of_password_failures)
 
     if user_account.codepage:
       self.WriteValue(u'Codepage', user_account.codepage)
@@ -94,9 +95,9 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format=u'[%(levelname)s] %(message)s')
 
-  output_writer = StdoutWriter()
+  output_writer_object = StdoutWriter()
 
-  if not output_writer.Open():
+  if not output_writer_object.Open():
     print(u'Unable to open output writer.')
     print(u'')
     return False
@@ -112,11 +113,12 @@ def Main():
   collector_object = sam.SecurityAccountManagerCollector(
       debug=options.debug)
 
-  result = collector_object.Collect(registry_collector.registry, output_writer)
+  result = collector_object.Collect(
+      registry_collector.registry, output_writer_object)
   if not result:
     print(u'No Security Account Manager key found.')
 
-  output_writer.Close()
+  output_writer_object.Close()
 
   return True
 

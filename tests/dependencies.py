@@ -26,6 +26,11 @@ class DependenciesTest(unittest.TestCase):
         u'bogus', u'__version__', u'0', verbose_output=False)
     self.assertFalse(result)
 
+  def testCheckSQLite3(self):
+    """Tests the _CheckSQLite3 function."""
+    result = dependencies._CheckSQLite3(verbose_output=False)
+    self.assertTrue(result)
+
   def testImportPythonModule(self):
     """Tests the _ImportPythonModule function."""
     module = dependencies._ImportPythonModule(u'os')

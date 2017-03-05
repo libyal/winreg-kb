@@ -7,23 +7,13 @@ import argparse
 import logging
 import sys
 
+from winregrc import collector
 from winregrc import msie_zone_info
+from winregrc import output_writer
 
 
-class StdoutWriter(object):
+class StdoutWriter(output_writer.StdoutOutputWriter):
   """Class that defines a stdout output writer."""
-
-  def Close(self):
-    """Closes the output writer object."""
-    return
-
-  def Open(self):
-    """Opens the output writer object.
-
-    Returns:
-      A boolean containing True if successful or False if not.
-    """
-    return True
 
   def WriteText(self, text):
     """Writes text to stdout.
@@ -67,9 +57,9 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format=u'[%(levelname)s] %(message)s')
 
-  output_writer = StdoutWriter()
+  output_writer_object = StdoutWriter()
 
-  if not output_writer.Open():
+  if not output_writer_object.Open():
     print(u'Unable to open output writer.')
     print(u'')
     return False
@@ -85,12 +75,13 @@ def Main():
   collector_object = msie_zone_info.MSIEZoneInfoCollector(
       debug=options.debug)
 
-  result = collector_object.Collect(registry_collector.registry, output_writer)
+  result = collector_object.Collect(
+      registry_collector.registry, output_writer_object)
   if not result:
     #  print(u'No lockdown and zones key found.')
     pass
 
-  output_writer.Close()
+  output_writer_object.Close()
 
   return True
 

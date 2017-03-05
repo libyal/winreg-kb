@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """The pyregf Windows Registry extension for dfVFS."""
 
+import pyregf
+
+from dfdatetime import posix_time
+
 from dfvfs.file_io import file_object_io
-from dfvfs.lib import date_time
 from dfvfs.lib import errors
 from dfvfs.path import factory
 from dfvfs.path import path_spec as dfvfs_path_spec
@@ -11,8 +14,6 @@ from dfvfs.resolver import resolver_helper
 from dfvfs.vfs import file_entry
 from dfvfs.vfs import file_system as dfvfs_file_system
 from dfvfs.vfs import vfs_stat
-
-import pyregf
 
 if pyregf.get_version() < '20150411':
   raise ImportWarning(u'dfVFS pyregf requires at least pyregf 20150411.')
@@ -218,7 +219,7 @@ class RegfFileEntry(file_entry.FileEntry):
     if self._regf_value:
       timestamp = None
     else:
-      timestamp = date_time.PosixTimestamp.FromFiletime(
+      timestamp = posix_time.PosixTimestamp.FromFiletime(
           self._regf_key.get_last_written_time_as_integer())
 
     if timestamp is not None:

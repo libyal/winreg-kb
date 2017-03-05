@@ -171,6 +171,55 @@ def _CheckPythonModule(
   return True
 
 
+def _CheckSQLite3(verbose_output=True):
+  """Checks the availability of sqlite3.
+
+  Args:
+    verbose_output (Optional[bool]): True if output should be verbose.
+
+  Returns:
+    bool: True if the sqlite3 Python module is available, False otherwise.
+  """
+  # On Windows sqlite3 can be provided by both pysqlite2.dbapi2 and
+  # sqlite3. sqlite3 is provided with the Python installation and
+  # pysqlite2.dbapi2 by the pysqlite2 Python module. Typically
+  # pysqlite2.dbapi2 would contain a newer version of sqlite3, hence
+  # we check for its presence first.
+  module_name = u'pysqlite2.dbapi2'
+  minimum_version = u'3.7.8'
+
+  module_object = _ImportPythonModule(module_name)
+  if not module_object:
+    module_name = u'sqlite3'
+
+  module_object = _ImportPythonModule(module_name)
+  if not module_object:
+    print(u'[FAILURE]\tmissing: {0:s}.'.format(module_name))
+    return False
+
+  module_version = getattr(module_object, u'sqlite_version', None)
+  if not module_version:
+    return False
+
+  # Split the version string and convert every digit into an integer.
+  # A string compare of both version strings will yield an incorrect result.
+  module_version_map = list(
+      map(int, _VERSION_SPLIT_REGEX.split(module_version)))
+  minimum_version_map = list(
+      map(int, _VERSION_SPLIT_REGEX.split(minimum_version)))
+
+  if module_version_map < minimum_version_map:
+    print((
+        u'[FAILURE]\t{0:s} version: {1!s} is too old, {2!s} or later '
+        u'required.').format(module_name, module_version, minimum_version))
+    return False
+
+  if verbose_output:
+    print(u'[OK]\t\t{0:s} version: {1!s}'.format(module_name, module_version))
+
+  return True
+
+
 def _ImportPythonModule(module_name):
   """Imports a Python module.
 
@@ -210,6 +259,9 @@ def CheckDependencies(verbose_output=True):
         module_name, version_tuple[0], version_tuple[1],
         maximum_version=version_tuple[2], verbose_output=verbose_output):
       check_result = False
+
+  if not _CheckSQLite3(verbose_output=verbose_output):
+    check_result = False
 
   if check_result and not verbose_output:
     print(u'[OK]')

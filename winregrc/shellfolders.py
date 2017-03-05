@@ -3,8 +3,6 @@
 
 from __future__ import print_function
 
-from dfwinreg import registry
-
 from winregrc import interface
 
 

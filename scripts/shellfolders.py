@@ -190,11 +190,12 @@ def Main():
       level=logging.INFO, format=u'[%(levelname)s] %(message)s')
 
   if not options.database:
-    output_writer = StdoutWriter()
+    output_writer_object = StdoutWriter()
   else:
-    output_writer = Sqlite3Writer(options.database, options.windows_version)
+    output_writer_object = Sqlite3Writer(
+        options.database, options.windows_version)
 
-  if not output_writer.Open():
+  if not output_writer_object.Open():
     print(u'Unable to open output writer.')
     print(u'')
     return False
@@ -210,11 +211,12 @@ def Main():
   collector_object = shellfolders.ShellFoldersCollector(
       debug=options.debug)
 
-  result = collector_object.Collect(registry_collector.registry, output_writer)
+  result = collector_object.Collect(
+      registry_collector.registry, output_writer_object)
   if not result:
     print(u'No shell folder identifier keys found.')
 
-  output_writer.Close()
+  output_writer_object.Close()
 
   return True
 

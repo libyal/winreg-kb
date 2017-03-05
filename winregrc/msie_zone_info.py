@@ -223,7 +223,8 @@ class MSIEZoneInfoCollector(interface.WindowsRegistryKeyCollector):
             if setting_value.name in CONTROL_DESCRIPTIONS:
               if self._debug:
                 print(u'Control: {0:s}: {1:s}'.format(
-                    setting_value.name, CONTROL_DESCRIPTIONS[setting_value.name]))
+                    setting_value.name,
+                    CONTROL_DESCRIPTIONS[setting_value.name]))
             else:
               if self._debug:
                 print(u'Control: {0:s}'.format(setting_value.name))

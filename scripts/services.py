@@ -122,9 +122,9 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format=u'[%(levelname)s] %(message)s')
 
-  output_writer = StdoutWriter(use_tsv=options.use_tsv)
+  output_writer_object = StdoutWriter(use_tsv=options.use_tsv)
 
-  if not output_writer.Open():
+  if not output_writer_object.Open():
     print(u'Unable to open output writer.')
     print(u'')
     return False
@@ -141,16 +141,17 @@ def Main():
       debug=options.debug)
 
   if options.diff_control_sets:
-    result = collector_object.Compare(output_writer)
+    result = collector_object.Compare(
+        registry_collector.registry, output_writer_object)
   else:
     result = collector_object.Collect(
-        registry_collector.registry, output_writer,
+        registry_collector.registry, output_writer_object,
         all_control_sets=options.all_control_sets)
 
   if not result:
     print(u'No Services key found.')
 
-  output_writer.Close()
+  output_writer_object.Close()
 
   return True
 

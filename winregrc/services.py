@@ -168,6 +168,7 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
           service_key.name, type_value, display_name_value, description_value,
           image_path_value, object_name_value, start_value)
 
+  # pylint: disable=arguments-differ
   def Collect(self, registry, output_writer, all_control_sets=False):
     """Collects the services.
 

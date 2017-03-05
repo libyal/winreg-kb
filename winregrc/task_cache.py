@@ -27,6 +27,7 @@ class CachedTask(object):
   def __init__(self):
     """Initializes an user account."""
     super(CachedTask, self).__init__()
+    self.identifier = None
     self.last_registered_time = None
     self.launch_time = None
     self.name = None
