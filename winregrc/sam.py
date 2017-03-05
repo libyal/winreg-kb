@@ -144,6 +144,27 @@ class SecurityAccountManagerDataParser(object):
     self._debug = debug
     self._output_writer = output_writer
 
+  def _CopyFiletimeToString(self, filetime):
+    """Retrieves a string representation of the FILETIME timestamp value.
+
+    Args:
+      filetime (int): a FILETIME timestamp value.
+
+    Returns:
+      str: string representation of the FILETIME timestamp value.
+    """
+    if filetime == 0:
+      return u'Not set'
+
+    if filetime == 0x7fffffffffffffff:
+      return u'Never'
+
+    filetime, _ = divmod(filetime, 10)
+    date_time = (datetime.datetime(1601, 1, 1) +
+                 datetime.timedelta(microseconds=filetime))
+
+    return u'{0!s}'.format(date_time)
+
   def _ParseFiletime(self, filetime):
     """Parses a FILETIME timestamp value.
 
@@ -202,54 +223,31 @@ class SecurityAccountManagerDataParser(object):
       value_string = u'0x{0:08x}'.format(f_value_struct.unknown1)
       self._output_writer.WriteValue(u'Unknown1', value_string)
 
-      if f_value_struct.last_login_time == 0:
-        date_string = u'Not set'
-      else:
-        timestamp = f_value_struct.last_login_time // 10
-        date_string = (datetime.datetime(1601, 1, 1) +
-                       datetime.timedelta(microseconds=timestamp))
-
-      value_string = u'{0!s} (0x{1:08x})'.format(
+      date_string = self._CopyFiletimeToString(f_value_struct.last_login_time)
+      value_string = u'{0:s} (0x{1:08x})'.format(
           date_string, f_value_struct.last_login_time)
       self._output_writer.WriteValue(u'Last login time', value_string)
 
       value_string = u'0x{0:08x}'.format(f_value_struct.unknown2)
       self._output_writer.WriteValue(u'Unknown2', value_string)
 
-      if f_value_struct.last_password_set_time == 0:
-        date_string = u'Not set'
-      else:
-        timestamp = f_value_struct.last_password_set_time // 10
-        date_string = (datetime.datetime(1601, 1, 1) +
-                       datetime.timedelta(microseconds=timestamp))
-
-      value_string = u'{0!s} (0x{1:08x})'.format(
+      date_string = self._CopyFiletimeToString(
+          f_value_struct.last_password_set_time)
+      value_string = u'{0:s} (0x{1:08x})'.format(
           date_string, f_value_struct.last_password_set_time)
       self._output_writer.WriteValue(
           u'Last password set time', value_string)
 
-      if f_value_struct.account_expiration_time == 0:
-        date_string = u'Not set'
-      elif f_value_struct.account_expiration_time == 0x7fffffffffffffff:
-        date_string = u'Never'
-      else:
-        timestamp = f_value_struct.account_expiration_time // 10
-        date_string = (datetime.datetime(1601, 1, 1) +
-                       datetime.timedelta(microseconds=timestamp))
-
-      value_string = u'{0!s} (0x{1:08x})'.format(
+      date_string = self._CopyFiletimeToString(
+          f_value_struct.account_expiration_time)
+      value_string = u'{0:s} (0x{1:08x})'.format(
           date_string, f_value_struct.account_expiration_time)
       self._output_writer.WriteValue(
           u'Account expiration time', value_string)
 
-      if f_value_struct.last_password_failure_time == 0:
-        date_string = u'Not set'
-      else:
-        timestamp = f_value_struct.last_password_failure_time // 10
-        date_string = (datetime.datetime(1601, 1, 1) +
-                       datetime.timedelta(microseconds=timestamp))
-
-      value_string = u'{0!s} (0x{1:08x})'.format(
+      date_string = self._CopyFiletimeToString(
+          f_value_struct.last_password_failure_time)
+      value_string = u'{0:s} (0x{1:08x})'.format(
           date_string, f_value_struct.last_password_failure_time)
       self._output_writer.WriteValue(
           u'Last password failure time', value_string)

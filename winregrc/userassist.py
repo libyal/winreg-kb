@@ -146,7 +146,7 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
       u'Explorer\\UserAssist')
 
   # TODO: replace print by output_writer.
-  def _CollectUserAssistFromKey(self, unused_output_writer, guid_subkey):
+  def _CollectUserAssistFromKey(self, output_writer, guid_subkey):
     """Collects the User Assist information from a GUID sub key.
 
     Args:
@@ -202,7 +202,8 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
         print(hexdump.Hexdump(value.data))
 
       if value_name != u'UEME_CTLSESSION':
-        parser = UserAssistDataParser(debug=self._debug)
+        parser = UserAssistDataParser(
+            debug=self._debug, output_writer=output_writer)
         parser.ParseEntry(format_version, value.data)
 
   def Collect(self, registry, output_writer):

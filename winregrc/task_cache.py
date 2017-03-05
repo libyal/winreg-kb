@@ -7,18 +7,33 @@ import logging
 
 import construct
 
-from winregrc import hexdump
+from dfdatetime import filetime as dfdatetime_filetime
+from dfdatetime import semantic_time as dfdatetime_semantic_time
+
 from winregrc import interface
+
+
+class CachedTask(object):
+  """Class that defines a cached task.
+
+  Attributes:
+    identifier (str): identifier.
+    last_registered_time (dfdatetime.DateTimeValues): last registered
+        date and time.
+    launch_time (dfdatetime.DateTimeValues): launch date and time.
+    name (str): name.
+  """
+
+  def __init__(self):
+    """Initializes an user account."""
+    super(CachedTask, self).__init__()
+    self.last_registered_time = None
+    self.launch_time = None
+    self.name = None
 
 
 class TaskCacheDataParser(object):
   """Class that parses the Task Cache value data."""
-
-  # TODO: implement.
-
-
-class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines a Task Cache collector."""
 
   _DYNAMIC_INFO_STRUCT = construct.Struct(
       u'dynamic_info_record',
@@ -40,6 +55,124 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
       construct.ULInt64(u'unknown_time'))
 
   _DYNAMIC_INFO2_STRUCT_SIZE = _DYNAMIC_INFO2_STRUCT.sizeof()
+
+  def __init__(self, debug=False, output_writer=None):
+    """Initializes a Security Account Manager (SAM) data parser.
+
+    Args:
+      debug (Optional[bool]): True if debug information should be printed.
+      output_writer (Optional[OutputWriter]): output writer.
+    """
+    super(TaskCacheDataParser, self).__init__()
+    self._debug = debug
+    self._output_writer = output_writer
+
+  def _ParseFiletime(self, filetime):
+    """Parses a FILETIME timestamp value.
+
+    Args:
+      filetime (int): a FILETIME timestamp value.
+
+    Returns:
+      dfdatetime.DateTimeValues: date and time values.
+    """
+    if filetime == 0:
+      return dfdatetime_semantic_time.SemanticTime(string=u'Not set')
+
+    if filetime == 0x7fffffffffffffff:
+      return dfdatetime_semantic_time.SemanticTime(string=u'Never')
+
+    return dfdatetime_filetime.Filetime(timestamp=filetime)
+
+  def CopyFiletimeToString(self, filetime):
+    """Retrieves a string representation of the FILETIME timestamp value.
+
+    Args:
+      filetime (int): a FILETIME timestamp value.
+
+    Returns:
+      str: string representation of the FILETIME timestamp value.
+    """
+    if filetime == 0:
+      return u'Not set'
+
+    if filetime == 0x7fffffffffffffff:
+      return u'Never'
+
+    filetime, _ = divmod(filetime, 10)
+    date_time = (datetime.datetime(1601, 1, 1) +
+                 datetime.timedelta(microseconds=filetime))
+
+    return u'{0!s}'.format(date_time)
+
+  def ParseDynamicInfo(self, value_data, cached_task):
+    """Parses the DynamicInfo value data.
+
+    Args:
+      value_data (bytes): DynamicInfo value data.
+      cached_task (CachedTask): cached task.
+
+    Raises:
+      IOError: if the format is unsupported.
+    """
+    if self._debug:
+      self._output_writer.WriteDebugData(
+          u'DynamicInfo value data:', value_data)
+
+    value_data_size = len(value_data)
+
+    if value_data_size == self._DYNAMIC_INFO_STRUCT_SIZE:
+      dynamic_info_struct = self._DYNAMIC_INFO_STRUCT.parse(value_data)
+
+    elif value_data_size == self._DYNAMIC_INFO2_STRUCT_SIZE:
+      dynamic_info_struct = self._DYNAMIC_INFO2_STRUCT.parse(value_data)
+
+    else:
+      raise IOError(
+          u'Unsupported DynamicInfo value data size: {0:d}.'.format(
+              value_data_size))
+
+    cached_task.last_registered_time = self._ParseFiletime(
+        dynamic_info_struct.last_registered_time)
+    cached_task.launch_time = self._ParseFiletime(
+        dynamic_info_struct.launch_time)
+
+    if self._debug:
+      value_string = u'0x{0:08x}'.format(dynamic_info_struct.unknown1)
+      self._output_writer.WriteValue(u'Unknown1', value_string)
+
+      # Note this is likely either the last registered time or
+      # the update time.
+      date_string = self.CopyFiletimeToString(
+          dynamic_info_struct.last_registered_time)
+      value_string = u'{0:s} (0x{1:08x})'.format(
+          date_string, dynamic_info_struct.last_registered_time)
+      self._output_writer.WriteValue(u'Last registered time', value_string)
+
+      # Note this is likely the launch time.
+      date_string = self.CopyFiletimeToString(dynamic_info_struct.launch_time)
+      value_string = u'{0:s} (0x{1:08x})'.format(
+          date_string, dynamic_info_struct.launch_time)
+      self._output_writer.WriteValue(u'Launch time', value_string)
+
+      value_string = u'0x{0:08x}'.format(dynamic_info_struct.unknown2)
+      self._output_writer.WriteValue(u'Unknown2', value_string)
+
+      value_string = u'0x{0:08x}'.format(dynamic_info_struct.unknown3)
+      self._output_writer.WriteValue(u'Unknown3', value_string)
+
+      if value_data_size == self._DYNAMIC_INFO2_STRUCT_SIZE:
+        date_string = self.CopyFiletimeToString(
+            dynamic_info_struct.unknown_time)
+        value_string = u'{0:s} (0x{1:08x})'.format(
+            date_string, dynamic_info_struct.unknown_time)
+        self._output_writer.WriteValue(u'Unknown time', value_string)
+
+      self._output_writer.WriteText(u'')
+
+
+class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
+  """Class that defines a Task Cache collector."""
 
   _TASK_CACHE_KEY_PATH = (
       u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
@@ -85,6 +218,9 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
     if not tasks_key or not tree_key:
       return False
 
+    parser = TaskCacheDataParser(
+        debug=self._debug, output_writer=output_writer)
+
     task_guids = {}
     for subkey in tree_key.GetSubkeys():
       for value_key, id_value in self._GetIdValue(subkey):
@@ -105,104 +241,29 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
       if not dynamic_info_value:
         continue
 
-      dynamic_info_value_data = dynamic_info_value.data
-      dynamic_info_value_data_size = len(dynamic_info_value_data)
+      cached_task = CachedTask()
+      cached_task.identifier = subkey.name
+      cached_task.name = task_guids.get(subkey.name, subkey.name)
 
       if self._debug:
-        print(u'DynamicInfo value data:')
-        print(hexdump.Hexdump(dynamic_info_value_data))
+        if (task_cache_key.last_written_time and
+            task_cache_key.last_written_time.timestamp):
+          date_string = parser.CopyFiletimeToString(
+              task_cache_key.last_written_time.timestamp)
+          output_writer.WriteValue(u'Last written time', date_string)
 
-      if dynamic_info_value_data_size == self._DYNAMIC_INFO_STRUCT_SIZE:
-        dynamic_info_struct = self._DYNAMIC_INFO_STRUCT.parse(
-            dynamic_info_value_data)
+        output_writer.WriteValue(u'Task', cached_task.name)
+        output_writer.WriteValue(u'Identifier', cached_task.identifier)
+        output_writer.WriteText(u'')
 
-      elif dynamic_info_value_data_size == self._DYNAMIC_INFO2_STRUCT_SIZE:
-        dynamic_info_struct = self._DYNAMIC_INFO2_STRUCT.parse(
-            dynamic_info_value_data)
-
-      else:
+      try:
+        parser.ParseDynamicInfo(dynamic_info_value.data, cached_task)
+      except IOError as exception:
         if not dynamic_info_size_error_reported:
-          logging.error(
-              u'Unsupported DynamicInfo value data size: {0:d}.'.format(
-                  dynamic_info_value_data_size))
+          logging.error(exception)
           dynamic_info_size_error_reported = True
         continue
 
-      last_registered_time = dynamic_info_struct.get(u'last_registered_time')
-      launch_time = dynamic_info_struct.get(u'launch_time')
-      unknown_time = dynamic_info_struct.get(u'unknown_time')
-
-      if self._debug:
-        print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            dynamic_info_struct.get(u'unknown1')))
-
-        timestamp = last_registered_time // 10
-        date_string = (datetime.datetime(1601, 1, 1) +
-                       datetime.timedelta(microseconds=timestamp))
-
-        print(u'Last registered time\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
-            date_string, last_registered_time))
-
-        timestamp = launch_time // 10
-        date_string = (datetime.datetime(1601, 1, 1) +
-                       datetime.timedelta(microseconds=timestamp))
-
-        print(u'Launch time\t\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
-            date_string, launch_time))
-
-        print(u'Unknown2\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            dynamic_info_struct.get(u'unknown2')))
-        print(u'Unknown3\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            dynamic_info_struct.get(u'unknown3')))
-
-        if dynamic_info_value_data_size == self._DYNAMIC_INFO2_STRUCT_SIZE:
-          timestamp = unknown_time // 10
-          date_string = (datetime.datetime(1601, 1, 1) +
-                         datetime.timedelta(microseconds=timestamp))
-
-          print(u'Unknown time\t\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
-              date_string, unknown_time))
-
-        print(u'')
-
-      name = task_guids.get(subkey.name, subkey.name)
-
-      output_writer.WriteText(u'Task: {0:s}'.format(name))
-      output_writer.WriteText(u'ID: {0:s}'.format(subkey.name))
-
-      if (task_cache_key.last_written_time and
-          task_cache_key.last_written_time.timestamp):
-        timestamp = task_cache_key.last_written_time.timestamp // 10
-        date_string = (datetime.datetime(1601, 1, 1) +
-                       datetime.timedelta(microseconds=timestamp))
-
-        output_writer.WriteText(u'Last written time: {0!s}'.format(date_string))
-
-      if last_registered_time:
-        # Note this is likely either the last registered time or
-        # the update time.
-        timestamp = last_registered_time // 10
-        date_string = (datetime.datetime(1601, 1, 1) +
-                       datetime.timedelta(microseconds=timestamp))
-
-        output_writer.WriteText(u'Last registered time: {0!s}'.format(
-            date_string))
-
-      if launch_time:
-        # Note this is likely the launch time.
-        timestamp = launch_time // 10
-        date_string = (datetime.datetime(1601, 1, 1) +
-                       datetime.timedelta(microseconds=timestamp))
-
-        output_writer.WriteText(u'Launch time: {0!s}'.format(date_string))
-
-      if unknown_time:
-        timestamp = unknown_time // 10
-        date_string = (datetime.datetime(1601, 1, 1) +
-                       datetime.timedelta(microseconds=timestamp))
-
-        output_writer.WriteText(u'Unknown time: {0!s}'.format(date_string))
-
-      output_writer.WriteText(u'')
+      output_writer.WriteCachedTask(cached_task)
 
     return True

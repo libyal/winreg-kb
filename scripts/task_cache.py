@@ -15,13 +15,20 @@ from winregrc import task_cache
 class StdoutWriter(output_writer.StdoutOutputWriter):
   """Class that defines a stdout output writer."""
 
-  def WriteText(self, text):
-    """Writes text to stdout.
+  def WriteCachedTask(self, cached_task):
+    """Writes a cached task to stdout.
 
     Args:
-      text: the text to write.
+      cached_task (CachedTask): the cached task to write.
     """
-    print(text)
+    self.WriteValue(u'Task', cached_task.name)
+    self.WriteValue(u'Identifier', cached_task.identifier)
+
+    # TODO: write date and time as human readable string.
+    self.WriteValue(u'Last registered time', cached_task.last_registered_time)
+    self.WriteValue(u'Launch time', cached_task.launch_time)
+
+    self.WriteText(u'')
 
 
 def Main():
@@ -57,9 +64,9 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format=u'[%(levelname)s] %(message)s')
 
-  output_writer = StdoutWriter()
+  output_writer_object = StdoutWriter()
 
-  if not output_writer.Open():
+  if not output_writer_object.Open():
     print(u'Unable to open output writer.')
     print(u'')
     return False
@@ -75,11 +82,12 @@ def Main():
   collector_object = task_cache.TaskCacheCollector(
       debug=options.debug)
 
-  result = collector_object.Collect(registry_collector.registry, output_writer)
+  result = collector_object.Collect(
+      registry_collector.registry, output_writer_object)
   if not result:
     print(u'No Task Cache key found.')
 
-  output_writer.Close()
+  output_writer_object.Close()
 
   return True
 
