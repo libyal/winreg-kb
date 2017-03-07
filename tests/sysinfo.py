@@ -38,6 +38,8 @@ class TestOutputWriter(output_writer.StdoutOutputWriter):
 class SystemInfoCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the system information collector."""
 
+  # pylint: disable=protected-access
+
   _CSD_VERSION = u'Service Pack 1'
   _CURRENT_BUILD_NUMBER = u'7601'
   _CURRENT_TYPE = u'Multiprocessor Free'
@@ -110,6 +112,29 @@ class SystemInfoCollectorTest(shared_test_lib.BaseTestCase):
     registry = dfwinreg_registry.WinRegistry()
     registry.MapFile(key_path_prefix, registry_file)
     return registry
+
+  def testParseInstallDate(self):
+    """Tests the _ParseInstallDate function."""
+    collector_object = sysinfo.SystemInfoCollector()
+
+    date_time = collector_object._ParseInstallDate(None)
+    self.assertIsNone(date_time)
+
+    value_data = b'\x47\xc8\xda\x4c'
+    registry_value = dfwinreg_fake.FakeWinRegistryValue(
+        u'InstallDate', data=value_data,
+        data_type=dfwinreg_definitions.REG_DWORD)
+
+    date_time = collector_object._ParseInstallDate(registry_value)
+    self.assertIsNotNone(date_time)
+
+    value_data = b'\x00\x00\x00\x00'
+    registry_value = dfwinreg_fake.FakeWinRegistryValue(
+        u'InstallDate', data=value_data,
+        data_type=dfwinreg_definitions.REG_DWORD)
+
+    date_time = collector_object._ParseInstallDate(registry_value)
+    self.assertIsNotNone(date_time)
 
   def testCollect(self):
     """Tests the Collect function."""

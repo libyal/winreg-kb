@@ -58,6 +58,24 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
       u'RegisteredOwner': u'registered_owner',
       u'SystemRoot': u'system_root'}
 
+  def _ParseInstallDate(self, registry_value):
+    """Parses the InstallDate value.
+
+    Args:
+      registry_value (dfwinreg.WinRegistryValue): Windows Registry value.
+
+    Returns:
+      dfdatetime.DateTimeValues: installation date and time or None.
+    """
+    if not registry_value:
+      return
+
+    timestamp = registry_value.GetDataAsObject()
+    if not timestamp:
+      return dfdatetime_semantic_time.SemanticTime(string=u'Not set')
+
+    return dfdatetime_posix_time.PosixTime(timestamp=timestamp)
+
   def Collect(self, registry, output_writer):
     """Collects system information.
 
@@ -82,14 +100,8 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
       setattr(system_information, attribute_name, value_string)
 
     registry_value = current_version_key.GetValueByName(u'InstallDate')
-    if registry_value:
-      timestamp = registry_value.GetDataAsObject()
-      if not timestamp:
-        date_time = dfdatetime_semantic_time.SemanticTime(string=u'Not set')
-      else:
-        date_time = dfdatetime_posix_time.PosixTime(timestamp=timestamp)
-
-      system_information.installation_date = date_time
+    system_information.installation_date = self._ParseInstallDate(
+        registry_value)
 
     output_writer.WriteSystemInformation(system_information)
 
