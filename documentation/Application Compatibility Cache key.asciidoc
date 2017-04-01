@@ -442,6 +442,24 @@ The Windows 10 application compat cache header is 48 bytes of size and consists 
 | 40 | 8 | | [yellow-background]*Unknown (empty values)*
 |===
 
+The Windows 10 Creator update application compat cache header is 52 bytes of
+size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | 52 | Header size (or cache entry array offset)
+| 4 | 4 | | [yellow-background]*Unknown*
+| 8 | 4 | | [yellow-background]*Unknown (empty values)*
+| 12 | 4 | | [yellow-background]*Unknown*
+| 16 | 4 | | [yellow-background]*Unknown*
+| 20 | 8 | | [yellow-background]*Unknown (empty values)*
+| 28 | 4 | | [yellow-background]*Unknown*
+| 32 | 8 | | [yellow-background]*Unknown (empty values)*
+| 40 | 4 | | Number of cached entries
+| 44 | 8 | | [yellow-background]*Unknown (empty values)*
+|===
+
 ==== Windows 10 application compat cache entry
 The Windows 10 application compat cache entry is variable bytes of size and consists of:
 

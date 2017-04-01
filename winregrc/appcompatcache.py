@@ -169,10 +169,10 @@ class AppCompatCacheDataParser(object):
   _CACHED_ENTRY_SIGNATURE_8_1 = u'10ts'
 
   # AppCompatCache format used in Windows 10
-  _HEADER_SIGNATURE_10 = 0x00000030
+  _HEADER_SIGNATURES_10 = (0x00000030, 0x00000034)
 
   _HEADER_10_STRUCT = construct.Struct(
-      u'appcompatcache_header_8',
+      u'appcompatcache_header_10',
       construct.ULInt32(u'signature'),
       construct.ULInt32(u'unknown1'),
       construct.Padding(28),
@@ -215,7 +215,7 @@ class AppCompatCacheDataParser(object):
           self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1):
         return self.FORMAT_TYPE_8
 
-    elif signature == self._HEADER_SIGNATURE_10:
+    elif signature in self._HEADER_SIGNATURES_10:
       # Windows 10 uses the same cache entry signature as Windows 8.1
       if value_data[signature:signature + 4] == (
           self._CACHED_ENTRY_SIGNATURE_8_1):
@@ -244,36 +244,40 @@ class AppCompatCacheDataParser(object):
     header_object = AppCompatCacheHeader()
 
     if format_type == self.FORMAT_TYPE_XP:
-      header_object.header_size = self._HEADER_XP_32BIT_STRUCT.sizeof()
       header_struct = self._HEADER_XP_32BIT_STRUCT.parse(value_data)
+      header_object.header_size = self._HEADER_XP_32BIT_STRUCT.sizeof()
 
     elif format_type == self.FORMAT_TYPE_2003:
-      header_object.header_size = self._HEADER_2003_STRUCT.sizeof()
       header_struct = self._HEADER_2003_STRUCT.parse(value_data)
+      header_object.header_size = self._HEADER_2003_STRUCT.sizeof()
 
     elif format_type == self.FORMAT_TYPE_VISTA:
-      header_object.header_size = self._HEADER_VISTA_STRUCT.sizeof()
       header_struct = self._HEADER_VISTA_STRUCT.parse(value_data)
+      header_object.header_size = self._HEADER_VISTA_STRUCT.sizeof()
 
     elif format_type == self.FORMAT_TYPE_7:
-      header_object.header_size = self._HEADER_7_STRUCT.sizeof()
       header_struct = self._HEADER_7_STRUCT.parse(value_data)
+      header_object.header_size = self._HEADER_7_STRUCT.sizeof()
 
     elif format_type == self.FORMAT_TYPE_8:
-      header_object.header_size = self._HEADER_8_STRUCT.sizeof()
       header_struct = self._HEADER_8_STRUCT.parse(value_data)
+      header_object.header_size = self._HEADER_8_STRUCT.sizeof()
 
     elif format_type == self.FORMAT_TYPE_10:
-      header_object.header_size = self._HEADER_10_STRUCT.sizeof()
       header_struct = self._HEADER_10_STRUCT.parse(value_data)
+      header_object.header_size = header_struct.signature
 
     if self._debug:
       self._output_writer.WriteDebugData(
           u'Header data:', value_data[0:header_object.header_size])
 
     if self._debug:
-      self._output_writer.WriteValue(
-          u'Signature', u'0x{0:08x}'.format(header_struct.signature))
+      if format_type == self.FORMAT_TYPE_10:
+        self._output_writer.WriteValue(
+            u'Header size', u'{0:d}'.format(header_struct.signature))
+      else:
+        self._output_writer.WriteValue(
+            u'Signature', u'0x{0:08x}'.format(header_struct.signature))
 
     if format_type in (
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
@@ -282,18 +286,21 @@ class AppCompatCacheDataParser(object):
           u'number_of_cached_entries')
 
       if self._debug:
-        print(u'Number of cached entries\t\t\t\t\t\t: {0:d}'.format(
-            header_object.number_of_cached_entries))
+        self._output_writer.WriteValue(
+            u'Number of cached entries',
+            u'{0:d}'.format(header_object.number_of_cached_entries))
 
     if format_type == self.FORMAT_TYPE_XP:
       number_of_lru_entries = header_struct.get(u'number_of_lru_entries')
       if self._debug:
-        print(u'Number of LRU entries\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            number_of_lru_entries))
-        print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            header_struct.get(u'unknown1')))
+        self._output_writer.WriteValue(
+            u'Number of LRU entries',
+            u'0x{0:08x}'.format(number_of_lru_entries))
+        self._output_writer.WriteValue(
+            u'Unknown1', u'0x{0:08x}'.format(header_struct.get(u'unknown1')))
 
-        print(u'LRU entries:')
+        self._output_writer.WriteText(u'LRU entries:')
+
       data_offset = 16
       if number_of_lru_entries > 0 and number_of_lru_entries <= 96:
         for lru_entry_index in range(number_of_lru_entries):
@@ -703,7 +710,8 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
     value_data_size = len(value.data)
 
     # TODO: add non debug output
-    parser = AppCompatCacheDataParser(debug=self._debug)
+    parser = AppCompatCacheDataParser(
+        debug=self._debug, output_writer=output_writer)
 
     if self._debug:
       # TODO: replace WriteText by more output specific method e.g.

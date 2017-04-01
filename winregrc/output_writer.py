@@ -84,7 +84,7 @@ class StdoutOutputWriter(OutputWriter):
       description (str): description to write.
       value (object): value to write.
     """
-    alignment = 8 - (len(description) / 8)
+    alignment = 8 - (len(description) / 8) + 1
     text = u'{0:s}{1:s}: {2!s}'.format(description, u'\t' * alignment, value)
     self.WriteText(text)
 
