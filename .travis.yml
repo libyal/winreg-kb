@@ -1,16 +1,24 @@
-sudo: required
-dist: trusty
 language: python
-python:
-  - "2.7"
-  - "3.4"
+matrix:
+  include:
+  - os: linux
+    dist: trusty
+    sudo: required
+    python: 2.7
+  - os: linux
+    dist: trusty
+    sudo: required
+    python: 3.4
+  - os: osx
+    osx_image: xcode8.1
+    language: generic
 before_install:
   - ./config/travis/install.sh
 script:
-  - if test `uname -s` = 'Linux' && test ${TRAVIS_PYTHON_VERSION} = "2.7"; then coverage run --source=winregrc --omit="*_test*,*__init__*,*test_lib*" ./run_tests.py; else ./run_tests.py; fi
+  - if test ${TRAVIS_OS_NAME} = "osx"; then PYTHONPATH=/Library/Python/2.7/site-packages/ /usr/bin/python run_tests.py; elif test ${TRAVIS_OS_NAME} = "linux"; then if test ${TRAVIS_PYTHON_VERSION} = "2.7"; then coverage run --source=winregrc --omit="*_test*,*__init__*,*test_lib*" ./run_tests.py; else ./run_tests.py; fi; fi
   - python setup.py build
   - python setup.py sdist
   - python setup.py bdist
-  - mkdir -p ${PWD}/tmp/lib/python${TRAVIS_PYTHON_VERSION}/site-packages/ && PYTHONPATH=${PWD}/tmp/lib/python${TRAVIS_PYTHON_VERSION}/site-packages/ python setup.py install --prefix=${PWD}/tmp/
+  - if test ${TRAVIS_OS_NAME} = "linux"; then mkdir -p ${PWD}/tmp/lib/python${TRAVIS_PYTHON_VERSION}/site-packages/ && PYTHONPATH=${PWD}/tmp/lib/python${TRAVIS_PYTHON_VERSION}/site-packages/ python setup.py install --prefix=${PWD}/tmp/; fi
 after_success:
-  - if test `uname -s` = 'Linux' && test ${TRAVIS_PYTHON_VERSION} = "2.7"; then coveralls --verbose; fi
+  - if test ${TRAVIS_OS_NAME} = "linux" && test ${TRAVIS_PYTHON_VERSION} = "2.7"; then coveralls --verbose; fi
