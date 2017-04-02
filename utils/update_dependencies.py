@@ -107,7 +107,7 @@ class TravisBeforeInstallScript(object):
       u'\tmkdir dependencies;',
       u'',
       (u'\tPYTHONPATH=../l2tdevtools ../l2tdevtools/tools/update.py '
-       u'--download-directory=dependencies --preset=winregrc;'),
+       u'--download-directory=dependencies --preset=winreg-kb;'),
       u'',
       u'elif test `uname -s` = "Linux";',
       u'then',

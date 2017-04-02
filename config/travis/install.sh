@@ -19,7 +19,7 @@ then
 	mv l2tdevtools ../;
 	mkdir dependencies;
 
-	PYTHONPATH=../l2tdevtools ../l2tdevtools/tools/update.py --download-directory=dependencies --preset=winregrc;
+	PYTHONPATH=../l2tdevtools ../l2tdevtools/tools/update.py --download-directory=dependencies --preset=winreg-kb;
 
 elif test `uname -s` = "Linux";
 then
