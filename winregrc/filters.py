@@ -38,10 +38,10 @@ class WindowsRegistryKeyPathFilter(BaseWindowsRegistryKeyFilter):
       u'HKEY_LOCAL_MACHINE\\Software']
 
   def __init__(self, key_path):
-    """Initializes a Windows Registry key filter object.
+    """Initializes a Windows Registry key filter.
 
     Args:
-      key_path: the key path.
+      key_path (str): key path.
     """
     super(WindowsRegistryKeyPathFilter, self).__init__()
 
@@ -84,7 +84,7 @@ class WindowsRegistryKeyPathFilter(BaseWindowsRegistryKeyFilter):
 
   @property
   def key_paths(self):
-    """List of key paths defined by the filter."""
+    """list[str]: key paths defined by the filter."""
     if self._wow64_key_path:
       return [self._key_path, self._wow64_key_path]
     return [self._key_path]
@@ -123,10 +123,10 @@ class WindowsRegistryKeyPathPrefixFilter(BaseWindowsRegistryKeyFilter):
   """Windows Registry key path prefix filter."""
 
   def __init__(self, key_path_prefix):
-    """Initializes a Windows Registry key filter object.
+    """Initializes a Windows Registry key filter.
 
     Args:
-      key_path_prefix: the key path prefix.
+      key_path_prefix (str): key path prefix.
     """
     super(WindowsRegistryKeyPathPrefixFilter, self).__init__()
     self._key_path_prefix = key_path_prefix
@@ -147,10 +147,10 @@ class WindowsRegistryKeyPathSuffixFilter(BaseWindowsRegistryKeyFilter):
   """Windows Registry key path suffix filter."""
 
   def __init__(self, key_path_suffix):
-    """Initializes a Windows Registry key filter object.
+    """Initializes a Windows Registry key filter.
 
     Args:
-      key_path_suffix: the key path suffix.
+      key_path_prefix (str): key path prefix.
     """
     super(WindowsRegistryKeyPathSuffixFilter, self).__init__()
     self._key_path_suffix = key_path_suffix
@@ -173,10 +173,10 @@ class WindowsRegistryKeyWithValuesFilter(BaseWindowsRegistryKeyFilter):
   _EMPTY_SET = frozenset()
 
   def __init__(self, value_names):
-    """Initializes a Windows Registry key filter object.
+    """Initializes a Windows Registry key filter.
 
     Args:
-      value_names: list of value names that should be present in the key.
+      value_names (list[str]): value names that should be present in the key.
     """
     super(WindowsRegistryKeyWithValuesFilter, self).__init__()
     self._value_names = frozenset(value_names)
