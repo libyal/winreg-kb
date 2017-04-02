@@ -16,7 +16,7 @@ PYTHON_DEPENDENCIES = {
     u'construct': (u'__version__', u'2.5.2', u'2.5.3'),
     u'Crypto': (u'__version__', u'2.6.0', None),
     u'dfdatetime': (u'__version__', u'20160319', None),
-    u'dfvfs': (u'__version__', u'20160803', None),
+    u'dfvfs': (u'__version__', u'20170402', None),
     u'dfwinreg': (u'__version__', u'20170301', None),
     u'pybde': (u'get_version()', u'20140531', None),
     u'pyewf': (u'get_version()', u'20131210', None),
