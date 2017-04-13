@@ -455,4 +455,3 @@ factory.Factory.RegisterPathSpec(RegfPathSpec)
 
 # Register the resolver helpers with the resolver.
 resolver.Resolver.RegisterHelper(RegfResolverHelper())
-

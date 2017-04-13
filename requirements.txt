@@ -1,9 +1,12 @@
 pip >= 7.0.0
 pytest
+mock
+PyYAML >= 3.10
 construct >= 2.5.2,<= 2.5.3
 dfdatetime >= 20160319
-dfvfs >= 20160803
+dfvfs >= 20170402
 dfwinreg >= 20170301
+dtfabric >= 20170413
 libbde-python >= 20140531
 libewf-python >= 20131210
 libfsntfs-python >= 20151130

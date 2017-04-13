@@ -50,7 +50,13 @@ class UserAssistDataParserTest(shared_test_lib.BaseTestCase):
       0x00, 0x00, 0x80, 0xbf, 0x00, 0x00, 0x80, 0xbf, 0xff, 0xff, 0xff, 0xff,
       0x04, 0xa8, 0x92, 0xd2, 0xab, 0x80, 0xcb, 0x01, 0x00, 0x00, 0x00, 0x00]))
 
-  # TODO: add tests.
+  def testParseEntry(self):
+    """Tests the ParseEntry function."""
+    data_parser = userassist.UserAssistDataParser()
+
+    data_parser.ParseEntry(3, self._ENTRY_DATA_V3)
+
+    data_parser.ParseEntry(5, self._ENTRY_DATA_V5)
 
 
 class UserAssistCollectorTest(shared_test_lib.BaseTestCase):

@@ -5,45 +5,107 @@ from __future__ import print_function
 import datetime
 import logging
 
-import construct
+from dtfabric import fabric as dtfabric_fabric
 
+from winregrc import dependencies
 from winregrc import hexdump
 from winregrc import interface
 
 
+dependencies.CheckModuleVersion(u'dtfabric')
+
+
 class UserAssistDataParser(object):
-  """Class that parses User Assist data."""
+  """User Assist data parser."""
 
-  # UserAssist format version used in Windows 2000, XP, 2003, Vista.
-  _USER_ASSIST_V3_STRUCT = construct.Struct(
-      u'user_assist_entry',
-      construct.ULInt32(u'unknown1'),
-      construct.ULInt32(u'execution_count'),
-      construct.ULInt64(u'last_execution_time'))
+  _DATA_TYPE_FABRIC_DEFINITION = b'\n'.join([
+      b'name: float32',
+      b'type: floating-point',
+      b'attributes:',
+      b'  size: 4',
+      b'  units: bytes',
+      b'---',
+      b'name: uint32',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 4',
+      b'  units: bytes',
+      b'---',
+      b'name: uint64',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 8',
+      b'  units: bytes',
+      b'---',
+      b'name: user_assist_entry_v3',
+      b'type: structure',
+      (b'description: UserAssist format version used in Windows 2000, XP, '
+       b'2003, Vista.'),
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'- name: execution_count',
+      b'  data_type: uint32',
+      b'- name: last_execution_time',
+      b'  data_type: uint64',
+      b'---',
+      b'name: user_assist_entry_v5',
+      b'type: structure',
+      (b'description: UserAssist format version used in Windows 2008, 7, 8, '
+       b'10.'),
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'- name: execution_count',
+      b'  data_type: uint32',
+      b'- name: application_focus_count',
+      b'  data_type: uint32',
+      b'- name: application_focus_duration',
+      b'  data_type: uint32',
+      b'- name: unknown2',
+      b'  data_type: float32',
+      b'- name: unknown3',
+      b'  data_type: float32',
+      b'- name: unknown4',
+      b'  data_type: float32',
+      b'- name: unknown5',
+      b'  data_type: float32',
+      b'- name: unknown6',
+      b'  data_type: float32',
+      b'- name: unknown7',
+      b'  data_type: float32',
+      b'- name: unknown8',
+      b'  data_type: float32',
+      b'- name: unknown9',
+      b'  data_type: float32',
+      b'- name: unknown10',
+      b'  data_type: float32',
+      b'- name: unknown11',
+      b'  data_type: float32',
+      b'- name: unknown12',
+      b'  data_type: uint32',
+      b'- name: last_execution_time',
+      b'  data_type: uint64',
+      b'- name: unknown13',
+      b'  data_type: uint32'])
 
-  # UserAssist format version used in Windows 2008, 7, 8.
-  _USER_ASSIST_V5_STRUCT = construct.Struct(
-      u'user_assist_entry',
-      construct.ULInt32(u'unknown1'),
-      construct.ULInt32(u'execution_count'),
-      construct.ULInt32(u'application_focus_count'),
-      construct.ULInt32(u'application_focus_duration'),
-      construct.LFloat32(u'unknown2'),
-      construct.LFloat32(u'unknown3'),
-      construct.LFloat32(u'unknown4'),
-      construct.LFloat32(u'unknown5'),
-      construct.LFloat32(u'unknown6'),
-      construct.LFloat32(u'unknown7'),
-      construct.LFloat32(u'unknown8'),
-      construct.LFloat32(u'unknown9'),
-      construct.LFloat32(u'unknown10'),
-      construct.LFloat32(u'unknown11'),
-      construct.ULInt32(u'unknown12'),
-      construct.ULInt64(u'last_execution_time'),
-      construct.ULInt32(u'unknown13'))
+  _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
+      yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
+
+  _USER_ASSIST_ENTRY_V3 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'user_assist_entry_v3')
+
+  _USER_ASSIST_ENTRY_V5 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'user_assist_entry_v5')
 
   def __init__(self, debug=False, output_writer=None):
-    """Initializes a parser object.
+    """Initializes an User Assist data parser.
 
     Args:
       debug (Optional[bool]): True if debug information should be printed.
@@ -61,10 +123,11 @@ class UserAssistDataParser(object):
       entry_data (bytes): entry data.
     """
     if format_version == 3:
-      entry_data_size = self._USER_ASSIST_V3_STRUCT.sizeof()
+      data_type_map = self._USER_ASSIST_ENTRY_V3
     elif format_version == 5:
-      entry_data_size = self._USER_ASSIST_V5_STRUCT.sizeof()
+      data_type_map = self._USER_ASSIST_ENTRY_V5
 
+    entry_data_size = data_type_map.GetByteSize()
     if entry_data_size != len(entry_data):
       logging.warning((
           u'Version: {0:d} size mismatch (calculated: {1:d}, '
@@ -72,70 +135,69 @@ class UserAssistDataParser(object):
               format_version, entry_data_size, len(entry_data)))
       return
 
-    if format_version == 3:
-      parsed_data = self._USER_ASSIST_V3_STRUCT.parse(entry_data)
-    elif format_version == 5:
-      parsed_data = self._USER_ASSIST_V5_STRUCT.parse(entry_data)
+    parsed_data = data_type_map.MapByteStream(entry_data)
 
     if self._debug:
-      print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          parsed_data.get(u'unknown1')))
+      value_string = u'0x{0:08x}'.format(parsed_data.unknown1)
+      self._output_writer.WriteValue(u'Unknown1', value_string)
 
-      print(u'Execution count\t\t\t\t\t\t\t\t: {0:d}'.format(
-          parsed_data.get(u'execution_count')))
+      value_string = u'{0:d}'.format(parsed_data.execution_count)
+      self._output_writer.WriteValue(u'Execution count', value_string)
 
       if format_version == 5:
-        print(u'Application focus count\t\t\t\t\t\t\t: {0:d}'.format(
-            parsed_data.get(u'application_focus_count')))
+        value_string = u'{0:d}'.format(parsed_data.application_focus_count)
+        self._output_writer.WriteValue(
+            u'Application focus count', value_string)
 
-        print(u'Application focus duration\t\t\t\t\t\t: {0:d}'.format(
-            parsed_data.get(u'application_focus_duration')))
+        value_string = u'{0:d}'.format(parsed_data.application_focus_duration)
+        self._output_writer.WriteValue(
+            u'Application focus duration', value_string)
 
-        print(u'Unknown2\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-            parsed_data.get(u'unknown2')))
+        value_string = u'{0:.2f}'.format(parsed_data.unknown2)
+        self._output_writer.WriteValue(u'Unknown2', value_string)
 
-        print(u'Unknown3\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-            parsed_data.get(u'unknown3')))
+        value_string = u'{0:.2f}'.format(parsed_data.unknown3)
+        self._output_writer.WriteValue(u'Unknown3', value_string)
 
-        print(u'Unknown4\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-            parsed_data.get(u'unknown4')))
+        value_string = u'{0:.2f}'.format(parsed_data.unknown4)
+        self._output_writer.WriteValue(u'Unknown4', value_string)
 
-        print(u'Unknown5\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-            parsed_data.get(u'unknown5')))
+        value_string = u'{0:.2f}'.format(parsed_data.unknown5)
+        self._output_writer.WriteValue(u'Unknown5', value_string)
 
-        print(u'Unknown6\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-            parsed_data.get(u'unknown6')))
+        value_string = u'{0:.2f}'.format(parsed_data.unknown6)
+        self._output_writer.WriteValue(u'Unknown6', value_string)
 
-        print(u'Unknown7\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-            parsed_data.get(u'unknown7')))
+        value_string = u'{0:.2f}'.format(parsed_data.unknown7)
+        self._output_writer.WriteValue(u'Unknown7', value_string)
 
-        print(u'Unknown8\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-            parsed_data.get(u'unknown8')))
+        value_string = u'{0:.2f}'.format(parsed_data.unknown8)
+        self._output_writer.WriteValue(u'Unknown8', value_string)
 
-        print(u'Unknown9\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-            parsed_data.get(u'unknown9')))
+        value_string = u'{0:.2f}'.format(parsed_data.unknown9)
+        self._output_writer.WriteValue(u'Unknown9', value_string)
 
-        print(u'Unknown10\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-            parsed_data.get(u'unknown10')))
+        value_string = u'{0:.2f}'.format(parsed_data.unknown10)
+        self._output_writer.WriteValue(u'Unknown10', value_string)
 
-        print(u'Unknown11\t\t\t\t\t\t\t\t: {0:.2f}'.format(
-            parsed_data.get(u'unknown11')))
+        value_string = u'{0:.2f}'.format(parsed_data.unknown11)
+        self._output_writer.WriteValue(u'Unknown11', value_string)
 
-        print(u'Unknown12\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            parsed_data.get(u'unknown12')))
+        value_string = u'0x{0:08x}'.format(parsed_data.unknown12)
+        self._output_writer.WriteValue(u'Unknown12', value_string)
 
       timestamp = parsed_data.get(u'last_execution_time')
       date_string = (datetime.datetime(1601, 1, 1) +
                      datetime.timedelta(microseconds=timestamp/10))
 
-      print(u'Last execution time\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
-          date_string, timestamp))
+      value_string = u'{0!s} (0x{1:08x})'.format(date_string, timestamp)
+      self._output_writer.WriteValue(u'Last execution time', value_string)
 
       if format_version == 5:
-        print(u'Unknown13\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            parsed_data.get(u'unknown13')))
+        value_string = u'0x{0:08x}'.format(parsed_data.unknown13)
+        self._output_writer.WriteValue(u'Unknown13', value_string)
 
-      print(u'')
+      self._output_writer.WriteText(u'')
 
 
 class UserAssistCollector(interface.WindowsRegistryKeyCollector):
@@ -198,8 +260,7 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
             value.name, exception))
 
       if self._debug:
-        print(u'Value data:')
-        print(hexdump.Hexdump(value.data))
+        output_writer.WriteDebugData(u'Value data:', value.data)
 
       if value_name != u'UEME_CTLSESSION':
         parser = UserAssistDataParser(

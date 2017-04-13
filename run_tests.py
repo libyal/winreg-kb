@@ -8,7 +8,7 @@ import unittest
 # Change PYTHONPATH to include winregrc.
 sys.path.insert(0, u'.')
 
-import winregrc.dependencies
+import winregrc.dependencies  # pylint: disable=wrong-import-position
 
 
 if __name__ == '__main__':
