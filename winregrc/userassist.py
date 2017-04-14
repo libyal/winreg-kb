@@ -8,7 +8,6 @@ import logging
 from dtfabric import fabric as dtfabric_fabric
 
 from winregrc import dependencies
-from winregrc import hexdump
 from winregrc import interface
 
 

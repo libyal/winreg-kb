@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 """Security Account Manager (SAM) collector."""
 
-from __future__ import print_function
 import datetime
-
-import construct
 
 from dfdatetime import filetime as dfdatetime_filetime
 from dfdatetime import semantic_time as dfdatetime_semantic_time
+from dtfabric import fabric as dtfabric_fabric
 
+from winregrc import dependencies
 from winregrc import interface
+
+
+dependencies.CheckModuleVersion(u'dfdatetime')
+dependencies.CheckModuleVersion(u'dtfabric')
 
 
 class UserAccount(object):
@@ -59,36 +62,97 @@ class UserAccount(object):
 class SecurityAccountManagerDataParser(object):
   """Class that parses the Security Account Manager (SAM) data."""
 
-  _F_VALUE_STRUCT = construct.Struct(
-      u'f_value_struct',
-      construct.ULInt16(u'major_version'),
-      construct.ULInt16(u'minor_version'),
-      construct.ULInt32(u'unknown1'),
-      construct.ULInt64(u'last_login_time'),
-      construct.ULInt64(u'unknown2'),
-      construct.ULInt64(u'last_password_set_time'),
-      construct.ULInt64(u'account_expiration_time'),
-      construct.ULInt64(u'last_password_failure_time'),
-      construct.ULInt32(u'rid'),
-      construct.ULInt32(u'primary_gid'),
-      construct.ULInt32(u'user_account_control_flags'),
-      construct.ULInt16(u'country_code'),
-      construct.ULInt16(u'codepage'),
-      construct.ULInt16(u'number_of_password_failures'),
-      construct.ULInt16(u'number_of_logons'),
-      construct.ULInt32(u'unknown6'),
-      construct.ULInt32(u'unknown7'),
-      construct.ULInt32(u'unknown8'))
+  _DATA_TYPE_FABRIC_DEFINITION = b'\n'.join([
+      b'name: uint16',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 2',
+      b'  units: bytes',
+      b'---',
+      b'name: uint32',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 4',
+      b'  units: bytes',
+      b'---',
+      b'name: uint64',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 8',
+      b'  units: bytes',
+      b'---',
+      b'name: f_value',
+      b'type: structure',
+      b'description: Security Account Manager F value.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: major_version',
+      b'  data_type: uint16',
+      b'- name: minor_version',
+      b'  data_type: uint16',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'- name: last_login_time',
+      b'  data_type: uint64',
+      b'- name: unknown2',
+      b'  data_type: uint64',
+      b'- name: last_password_set_time',
+      b'  data_type: uint64',
+      b'- name: account_expiration_time',
+      b'  data_type: uint64',
+      b'- name: last_password_failure_time',
+      b'  data_type: uint64',
+      b'- name: rid',
+      b'  data_type: uint32',
+      b'- name: primary_gid',
+      b'  data_type: uint32',
+      b'- name: user_account_control_flags',
+      b'  data_type: uint32',
+      b'- name: country_code',
+      b'  data_type: uint16',
+      b'- name: codepage',
+      b'  data_type: uint16',
+      b'- name: number_of_password_failures',
+      b'  data_type: uint16',
+      b'- name: number_of_logons',
+      b'  data_type: uint16',
+      b'- name: unknown6',
+      b'  data_type: uint32',
+      b'- name: unknown7',
+      b'  data_type: uint32',
+      b'- name: unknown8',
+      b'  data_type: uint32',
+      b'---',
+      b'name: user_information_descriptor',
+      b'type: structure',
+      b'description: Security Account Manager user information descriptor.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: offset',
+      b'  data_type: uint32',
+      b'- name: size',
+      b'  data_type: uint32',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'---',
+      b'name: v_value',
+      b'type: sequence',
+      b'description: Security Account Manager V value.',
+      b'element_type: user_information_descriptor',
+      b'number_of_elements: 17',
+  ])
 
-  _USER_INFORMATION_DESCRIPTOR = construct.Struct(
-      u'user_information_descriptor',
-      construct.ULInt32(u'offset'),
-      construct.ULInt32(u'size'),
-      construct.ULInt32(u'unknown1'))
+  _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
+      yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
 
-  _V_VALUE_STRUCT = construct.Struct(
-      u'v_value_struct',
-      construct.Array(17, _USER_INFORMATION_DESCRIPTOR))
+  _F_VALUE = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'f_value')
+
+  _V_VALUE = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'v_value')
 
   _USER_INFORMATION_DESCRIPTORS = [
       u'security descriptor',
@@ -189,111 +253,102 @@ class SecurityAccountManagerDataParser(object):
       value_data (bytes): F value data.
       user_account (UserAccount): user account.
     """
-    f_value_struct = self._F_VALUE_STRUCT.parse(value_data)
+    f_value = self._F_VALUE.MapByteStream(value_data)
 
     if self._debug:
       self._output_writer.WriteDebugData(u'F value data:', value_data)
 
     # TODO: change FILETIME timestamps into date time values.
-    # date_time = self._ParseFiletime(f_value_struct.last_login_time)
+    # date_time = self._ParseFiletime(f_value.last_login_time)
 
-    user_account.last_login_time = f_value_struct.last_login_time
+    user_account.last_login_time = f_value.last_login_time
 
-    user_account.last_password_set_time = f_value_struct.last_password_set_time
-    user_account.account_expiration_time = (
-        f_value_struct.account_expiration_time)
-    user_account.last_password_failure_time = (
-        f_value_struct.last_password_failure_time)
-    user_account.rid = f_value_struct.rid
-    user_account.primary_gid = f_value_struct.primary_gid
-    user_account.user_account_control_flags = (
-        f_value_struct.user_account_control_flags)
-    user_account.codepage = f_value_struct.codepage
+    user_account.last_password_set_time = f_value.last_password_set_time
+    user_account.account_expiration_time = f_value.account_expiration_time
+    user_account.last_password_failure_time = f_value.last_password_failure_time
+    user_account.rid = f_value.rid
+    user_account.primary_gid = f_value.primary_gid
+    user_account.user_account_control_flags = f_value.user_account_control_flags
+    user_account.codepage = f_value.codepage
     user_account.number_of_password_failures = (
-        f_value_struct.number_of_password_failures)
-    user_account.number_of_logons = f_value_struct.number_of_logons
+        f_value.number_of_password_failures)
+    user_account.number_of_logons = f_value.number_of_logons
 
     if self._debug:
-      value_string = u'{0:d}'.format(f_value_struct.major_version)
+      value_string = u'{0:d}'.format(f_value.major_version)
       self._output_writer.WriteValue(u'Major version', value_string)
 
-      value_string = u'{0:d}'.format(f_value_struct.minor_version)
+      value_string = u'{0:d}'.format(f_value.minor_version)
       self._output_writer.WriteValue(u'Minor version', value_string)
 
-      value_string = u'0x{0:08x}'.format(f_value_struct.unknown1)
+      value_string = u'0x{0:08x}'.format(f_value.unknown1)
       self._output_writer.WriteValue(u'Unknown1', value_string)
 
-      date_string = self._CopyFiletimeToString(f_value_struct.last_login_time)
+      date_string = self._CopyFiletimeToString(f_value.last_login_time)
       value_string = u'{0:s} (0x{1:08x})'.format(
-          date_string, f_value_struct.last_login_time)
+          date_string, f_value.last_login_time)
       self._output_writer.WriteValue(u'Last login time', value_string)
 
-      value_string = u'0x{0:08x}'.format(f_value_struct.unknown2)
+      value_string = u'0x{0:08x}'.format(f_value.unknown2)
       self._output_writer.WriteValue(u'Unknown2', value_string)
 
-      date_string = self._CopyFiletimeToString(
-          f_value_struct.last_password_set_time)
+      date_string = self._CopyFiletimeToString(f_value.last_password_set_time)
       value_string = u'{0:s} (0x{1:08x})'.format(
-          date_string, f_value_struct.last_password_set_time)
-      self._output_writer.WriteValue(
-          u'Last password set time', value_string)
+          date_string, f_value.last_password_set_time)
+      self._output_writer.WriteValue(u'Last password set time', value_string)
+
+      date_string = self._CopyFiletimeToString(f_value.account_expiration_time)
+      value_string = u'{0:s} (0x{1:08x})'.format(
+          date_string, f_value.account_expiration_time)
+      self._output_writer.WriteValue(u'Account expiration time', value_string)
 
       date_string = self._CopyFiletimeToString(
-          f_value_struct.account_expiration_time)
+          f_value.last_password_failure_time)
       value_string = u'{0:s} (0x{1:08x})'.format(
-          date_string, f_value_struct.account_expiration_time)
-      self._output_writer.WriteValue(
-          u'Account expiration time', value_string)
-
-      date_string = self._CopyFiletimeToString(
-          f_value_struct.last_password_failure_time)
-      value_string = u'{0:s} (0x{1:08x})'.format(
-          date_string, f_value_struct.last_password_failure_time)
+          date_string, f_value.last_password_failure_time)
       self._output_writer.WriteValue(
           u'Last password failure time', value_string)
 
-      value_string = u'{0:d}'.format(f_value_struct.rid)
-      self._output_writer.WriteValue(
-          u'Relative identifier (RID)', value_string)
+      value_string = u'{0:d}'.format(f_value.rid)
+      self._output_writer.WriteValue(u'Relative identifier (RID)', value_string)
 
-      value_string = u'{0:d}'.format(f_value_struct.primary_gid)
+      value_string = u'{0:d}'.format(f_value.primary_gid)
       self._output_writer.WriteValue(
           u'Primary group identifier (GID)', value_string)
 
-      value_string = u'0x{0:08x}'.format(
-          f_value_struct.user_account_control_flags)
+      value_string = u'0x{0:08x}'.format(f_value.user_account_control_flags)
       self._output_writer.WriteValue(
           u'User account control flags', value_string)
 
-      if f_value_struct.user_account_control_flags:
+      if f_value.user_account_control_flags:
         for flag, identifier in sorted(
             self._USER_ACCOUNT_CONTROL_FLAGS.items()):
-          if flag & f_value_struct.user_account_control_flags:
+          if flag & f_value.user_account_control_flags:
             value_string = u'\t{0:s} (0x{1:08x})'.format(identifier, flag)
             self._output_writer.WriteText(value_string)
 
         self._output_writer.WriteText(u'')
 
-      value_string = u'0x{0:04x}'.format(f_value_struct.country_code)
+      value_string = u'0x{0:04x}'.format(f_value.country_code)
       self._output_writer.WriteValue(u'Country code', value_string)
 
-      value_string = u'{0:d}'.format(f_value_struct.codepage)
+      value_string = u'{0:d}'.format(f_value.codepage)
       self._output_writer.WriteValue(u'Codepage', value_string)
 
-      value_string = u'{0:d}'.format(f_value_struct.number_of_password_failures)
+      value_string = u'{0:d}'.format(f_value.number_of_password_failures)
       self._output_writer.WriteValue(
           u'Number of password failures', value_string)
 
-      value_string = u'{0:d}'.format(f_value_struct.number_of_logons)
+      value_string = u'{0:d}'.format(f_value.number_of_logons)
       self._output_writer.WriteValue(u'Number of logons', value_string)
 
-      value_string = u'0x{0:08x}'.format(f_value_struct.unknown6)
+      value_string = u'0x{0:08x}'.format(f_value.unknown6)
       self._output_writer.WriteValue(u'Unknown6', value_string)
 
-      value_string = u'0x{0:08x}'.format(f_value_struct.unknown7)
+      value_string = u'0x{0:08x}'.format(f_value.unknown7)
       self._output_writer.WriteValue(u'Unknown7', value_string)
 
-      value_string = u'0x{0:08x}'.format(f_value_struct.unknown8)
+      value_string = u'0x{0:08x}'.format(f_value.unknown8)
       self._output_writer.WriteValue(u'Unknown8', value_string)
 
       self._output_writer.WriteText(u'')
@@ -305,14 +360,13 @@ class SecurityAccountManagerDataParser(object):
       value_data (bytes): V value data.
       user_account (UserAccount): user account.
     """
-    v_value_struct = self._V_VALUE_STRUCT.parse(value_data)
+    v_value = self._V_VALUE.MapByteStream(value_data)
 
     if self._debug:
       self._output_writer.WriteDebugData(u'V value data:', value_data)
 
     for index in range(0, 17):
-      user_information_descriptor = (
-          v_value_struct.user_information_descriptor[index])
+      user_information_descriptor = v_value[index]
 
       data_start_offset = user_information_descriptor.offset + 0xcc
       data_end_offset = data_start_offset + user_information_descriptor.size
@@ -344,8 +398,7 @@ class SecurityAccountManagerDataParser(object):
             u'utf-16-le').rstrip(u'\x00')
 
         if self._debug:
-          self._output_writer.WriteValue(
-              u'Username', user_account.username)
+          self._output_writer.WriteValue(u'Username', user_account.username)
           self._output_writer.WriteText(u'')
 
       elif index == 2:
@@ -353,8 +406,7 @@ class SecurityAccountManagerDataParser(object):
             u'utf-16-le').rstrip(u'\x00')
 
         if self._debug:
-          self._output_writer.WriteValue(
-              u'Full name', user_account.full_name)
+          self._output_writer.WriteValue(u'Full name', user_account.full_name)
           self._output_writer.WriteText(u'')
 
       elif index == 3:
