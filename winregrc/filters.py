@@ -5,7 +5,7 @@ import abc
 
 
 class BaseWindowsRegistryKeyFilter(object):
-  """Class that defines the Windows Registry key filter interface."""
+  """Windows Registry key filter interface."""
 
   @property
   def key_paths(self):

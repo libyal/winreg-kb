@@ -5,111 +5,197 @@ from __future__ import print_function
 import logging
 import uuid
 
-import construct
-import pyfwsi  # pylint: disable=wrong-import-order
+import pyfwsi
 
-from winregrc import hexdump
+from dtfabric import errors as dtfabric_errors
+from dtfabric import fabric as dtfabric_fabric
+
+from winregrc import dependencies
+from winregrc import errors
 from winregrc import interface
 
 
+dependencies.CheckModuleVersion(u'dtfabric')
+
+
 class ProgramsCacheDataParser(object):
-  """Class that parses the Programs Cache value data."""
+  """Programs Cache data parser."""
 
-  _HEADER_STRUCT = construct.Struct(
-      u'programscache_header',
-      construct.ULInt32(u'format_version'))
+  _DATA_TYPE_FABRIC_DEFINITION = b'\n'.join([
+      b'name: uint8',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 1',
+      b'  units: bytes',
+      b'---',
+      b'name: uint16',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 2',
+      b'  units: bytes',
+      b'---',
+      b'name: uint32',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 4',
+      b'  units: bytes',
+      b'---',
+      b'name: programscache_header',
+      b'type: structure',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: format_version',
+      b'  data_type: uint32',
+      b'---',
+      b'name: programscache_header9',
+      b'type: structure',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: unknown1',
+      b'  data_type: uint16',
+      b'---',
+      b'name: programscache_entry_header',
+      b'type: structure',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: data_size',
+      b'  data_type: uint32',
+      b'---',
+      b'name: programscache_entry_footer',
+      b'type: structure',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: sentinel',
+      b'  data_type: uint8'])
 
-  _HEADER_9_STRUCT = construct.Struct(
-      u'programscache_header_9',
-      construct.ULInt16(u'unknown2'))
+  _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
+      yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
 
-  _ENTRY_HEADER_STRUCT = construct.Struct(
-      u'programscache_entry_header',
-      construct.ULInt32(u'data_size'))
+  _HEADER = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'programscache_header')
 
-  _ENTRY_FOOTER_STRUCT = construct.Struct(
-      u'programscache_entry_footer',
-      construct.Byte(u'sentinel'))
+  _HEADER_SIZE = _HEADER.GetByteSize()
 
-  def __init__(self, debug=False):
-    """Initializes the parser object.
+  _HEADER9 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'programscache_header9')
+
+  _HEADER9_SIZE = _HEADER9.GetByteSize()
+
+  _ENTRY_HEADER = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'programscache_entry_header')
+
+  _ENTRY_HEADER_SIZE = _ENTRY_HEADER.GetByteSize()
+
+  _ENTRY_FOOTER = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'programscache_entry_footer')
+
+  _ENTRY_FOOTER_SIZE = _ENTRY_FOOTER.GetByteSize()
+
+  def __init__(self, debug=False, output_writer=None):
+    """Initializes a Programs Cache data parser.
 
     Args:
-      debug: optional boolean value to indicate if debug information should
-             be printed.
+      debug (Optional[bool]): True if debug information should be printed.
+      output_writer (Optional[OutputWriter]): output writer.
     """
     super(ProgramsCacheDataParser, self).__init__()
     self._debug = debug
+    self._output_writer = output_writer
 
-  def Parse(self, value_data, value_data_size):
+  def Parse(self, value_data):
     """Parses the value data.
 
     Args:
-      value_data: a binary string containing the value data.
-      value_data_size: the size of the value data.
-
-    Returns:
-      TODO
+      value_data (bytes): value data.
 
     Raises:
-      RuntimeError: if the format is not supported.
+      ParseError: if the value data could not be parsed.
     """
-    header_struct = self._HEADER_STRUCT.parse(value_data)
-    value_data_offset = self._HEADER_STRUCT.sizeof()
+    value_data_size = len(value_data)
 
-    format_version = header_struct.get(u'format_version')
     if self._debug:
-      print(u'Format version\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          format_version))
+      self._output_writer.WriteDebugData(u'Value data:', value_data)
 
-    if format_version == 0x01:
+    try:
+      header = self._HEADER.MapByteStream(value_data)
+    except dtfabric_errors.MappingError as exception:
+      raise errors.ParseError(exception)
+
+    value_data_offset = self._HEADER_SIZE
+
+    if self._debug:
+      value_string = u'{0:d}'.format(header.format_version)
+      self._output_writer.WriteValue(u'Format version', value_string)
+
+    if header.format_version not in (1, 9, 12, 19):
+      raise errors.ParseError(u'Unsupported format.')
+
+    if header.format_version == 1:
       value_data_offset += 4
 
-    elif format_version == 0x09:
-      header_struct = self._HEADER_9_STRUCT.parse(value_data)
-      value_data_offset += self._HEADER_9_STRUCT.sizeof()
+    elif header.format_version == 9:
+      try:
+        header9 = self._HEADER9.MapByteStream(value_data)
+      except dtfabric_errors.MappingError as exception:
+        raise errors.ParseError(exception)
+
+      value_data_offset += self._HEADER9_SIZE
 
       if self._debug:
-        print(u'Unknown2\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            header_struct.get(u'unknown2')))
+        value_string = u'0x{0:08x}'.format(header9.unknown2)
+        self._output_writer.WriteValue(u'Unknown2', value_string)
 
-    elif format_version in [0x0c, 0x13]:
+    elif header.format_version in (12, 19):
       uuid_object = uuid.UUID(bytes_le=value_data[4:20])
       value_data_offset += 16
 
       if self._debug:
-        print(u'Known folder identifier\t\t\t\t\t\t\t: {0!s}'.format(
-            uuid_object))
+        value_string = u'{0!s}'.format(uuid_object)
+        self._output_writer.WriteValue(u'Known folder identifier', value_string)
 
-    else:
-      raise RuntimeError(u'Unsupported format.')
+    sentinel = 0
+    if header.format_version != 9:
+      try:
+        entry_footer = self._ENTRY_FOOTER.MapByteStream(
+            value_data[value_data_offset:])
+      except dtfabric_errors.MappingError as exception:
+        raise errors.ParseError(exception)
 
-    if format_version == 0x09:
-      sentinel = 0
-    else:
-      entry_footer_struct = self._ENTRY_FOOTER_STRUCT.parse(
-          value_data[value_data_offset:])
-      value_data_offset += self._ENTRY_FOOTER_STRUCT.sizeof()
+      value_data_offset += self._ENTRY_FOOTER_SIZE
 
-      sentinel = entry_footer_struct.get(u'sentinel')
+      sentinel = entry_footer.sentinel
+
       if self._debug:
-        print(u'Sentinel\t\t\t\t\t\t\t\t: 0x{0:02x}'.format(sentinel))
+        value_string = u'0x{0:02x}'.format(sentinel)
+        self._output_writer.WriteValue(u'Sentinel', value_string)
 
     if self._debug:
-      print(u'')
+      self._output_writer.WriteText(u'')
 
-    while sentinel in [0x00, 0x01]:
-      entry_header_struct = self._ENTRY_HEADER_STRUCT.parse(
-          value_data[value_data_offset:])
-      value_data_offset += self._ENTRY_HEADER_STRUCT.sizeof()
+    while sentinel in (0, 1):
+      try:
+        entry_header = self._ENTRY_HEADER.MapByteStream(
+            value_data[value_data_offset:])
+      except dtfabric_errors.MappingError as exception:
+        raise errors.ParseError(exception)
 
-      entry_data_size = entry_header_struct.get(u'data_size')
+      value_data_offset += self._ENTRY_HEADER
+
+      entry_data_size = entry_header.data_size
 
       if self._debug:
-        print(u'Entry data offset\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            value_data_offset))
-        print(u'Entry data size\t\t\t\t\t\t\t\t: {0:d}'.format(
-            entry_data_size))
+        value_string = u'0x{0:08x}'.format(value_data_offset)
+        self._output_writer.WriteValue(u'Entry data offset', value_string)
+
+        value_string = u'{0:d}'.format(entry_data_size)
+        self._output_writer.WriteValue(u'Entry data size', value_string)
 
       shell_item_list = pyfwsi.item_list()
       shell_item_list.copy_from_byte_stream(value_data[value_data_offset:])
@@ -121,39 +207,48 @@ class ProgramsCacheDataParser(object):
 
       value_data_offset += entry_data_size
 
-      entry_footer_struct = self._ENTRY_FOOTER_STRUCT.parse(
-          value_data[value_data_offset:])
-      value_data_offset += self._ENTRY_FOOTER_STRUCT.sizeof()
+      try:
+        entry_footer = self._ENTRY_FOOTER.MapByteStream(
+            value_data[value_data_offset:])
+      except dtfabric_errors.MappingError as exception:
+        raise errors.ParseError(exception)
 
-      sentinel = entry_footer_struct.get(u'sentinel')
+      value_data_offset += self._ENTRY_FOOTER_SIZE
+
       if self._debug:
-        print(u'Sentinel\t\t\t\t\t\t\t\t: 0x{0:02x}'.format(sentinel))
-        print(u'')
+        value_string = u'0x{0:02x}'.format(entry_footer.sentinel)
+        self._output_writer.WriteValue(u'Sentinel', value_string)
+        self._output_writer.WriteText(u'')
 
-      if sentinel == 0x02 and value_data_offset < value_data_size:
+      if entry_footer.sentinel == 2 and value_data_offset < value_data_size:
         # TODO: determine the logic to this value.
         while ord(value_data[value_data_offset]) != 0x00:
           value_data_offset += 1
         value_data_offset += 7
 
-        entry_footer_struct = self._ENTRY_FOOTER_STRUCT.parse(
-            value_data[value_data_offset:])
-        value_data_offset += self._ENTRY_FOOTER_STRUCT.sizeof()
+        try:
+          entry_footer = self._ENTRY_FOOTER.MapByteStream(
+              value_data[value_data_offset:])
+        except dtfabric_errors.MappingError as exception:
+          raise errors.ParseError(exception)
 
-        sentinel = entry_footer_struct.get(u'sentinel')
+        value_data_offset += self._ENTRY_FOOTER_SIZE
+
         if self._debug:
-          print(u'Sentinel\t\t\t\t\t\t\t\t: 0x{0:02x}'.format(sentinel))
-          print(u'')
+          value_string = u'0x{0:02x}'.format(entry_footer.sentinel)
+          self._output_writer.WriteValue(u'Sentinel', value_string)
+          self._output_writer.WriteText(u'')
 
     if value_data_offset < value_data_size:
-      print(u'Trailing data:')
-      print(u'Trailing data offset\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-          value_data_offset))
-      print(hexdump.Hexdump(value_data[value_data_offset:]))
+      value_string = u'0x{0:08x}'.format(value_data_offset)
+      self._output_writer.WriteValue(u'Trailing data offset', value_string)
+
+      self._output_writer.WriteDebugData(
+          u'Trailing data:', value_data[value_data_offset:])
 
 
 class ProgramsCacheCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines a Windows program cache collector."""
+  """Windows program cache collector."""
 
   _STARTPAGE_KEY_PATH = (
       u'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
@@ -169,9 +264,9 @@ class ProgramsCacheCollector(interface.WindowsRegistryKeyCollector):
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer: the output writer object.
-      key_path: the path of the Programs Cache key.
-      value_name: the name of the Programs Cache value.
+      output_writer (OutputWriter): output writer.
+      key_path (str): path of the Programs Cache key.
+      value_name (str): name of the Programs Cache value.
 
     Returns:
       bool: True if the Programs Cache information key was found, False if not.
@@ -186,18 +281,10 @@ class ProgramsCacheCollector(interface.WindowsRegistryKeyCollector):
           value_name, key_path))
       return True
 
-    value_data = value.data
-    value_data_size = len(value.data)
+    parser = ProgramsCacheDataParser(
+        debug=self._debug, output_writer=output_writer)
 
-    parser = ProgramsCacheDataParser(debug=self._debug)
-
-    if self._debug:
-      # TODO: replace WriteText by more output specific method e.g.
-      # WriteValueData.
-      output_writer.WriteText(u'Value data:')
-      output_writer.WriteText(hexdump.Hexdump(value_data))
-
-    parser.Parse(value_data, value_data_size)
+    parser.Parse(value.data)
 
     return True
 

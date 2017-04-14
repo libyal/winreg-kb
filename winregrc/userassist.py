@@ -5,9 +5,11 @@ from __future__ import print_function
 import datetime
 import logging
 
+from dtfabric import errors as dtfabric_errors
 from dtfabric import fabric as dtfabric_fabric
 
 from winregrc import dependencies
+from winregrc import errors
 from winregrc import interface
 
 
@@ -120,6 +122,9 @@ class UserAssistDataParser(object):
     Args:
       format_version (int): format version.
       entry_data (bytes): entry data.
+
+    Raises:
+      ParseError: if the value data could not be parsed.
     """
     if format_version == 3:
       data_type_map = self._USER_ASSIST_ENTRY_V3
@@ -134,7 +139,10 @@ class UserAssistDataParser(object):
               format_version, entry_data_size, len(entry_data)))
       return
 
-    parsed_data = data_type_map.MapByteStream(entry_data)
+    try:
+      parsed_data = data_type_map.MapByteStream(entry_data)
+    except dtfabric_errors.MappingError as exception:
+      raise errors.ParseError(exception)
 
     if self._debug:
       value_string = u'0x{0:08x}'.format(parsed_data.unknown1)
@@ -200,7 +208,7 @@ class UserAssistDataParser(object):
 
 
 class UserAssistCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines a Windows User Assist information collector."""
+  """Windows User Assist information collector."""
 
   _USER_ASSIST_KEY = (
       u'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'

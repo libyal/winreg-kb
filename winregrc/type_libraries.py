@@ -5,7 +5,7 @@ from winregrc import interface
 
 
 class TypeLibrary(object):
-  """Class that defines a type library.
+  """Type library.
 
   Attributes:
     description (str): description.
@@ -31,7 +31,7 @@ class TypeLibrary(object):
 
 
 class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines a Windows type libraries collector."""
+  """Windows type libraries collector."""
 
   _TYPE_LIBRARIES_KEY_PATH = (
       u'HKEY_LOCAL_MACHINE\\Software\\Classes\\TypeLib')

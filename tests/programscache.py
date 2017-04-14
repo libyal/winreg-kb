@@ -7,6 +7,7 @@ import unittest
 from dfwinreg import registry as dfwinreg_registry
 
 from winregrc import collector
+from winregrc import errors
 from winregrc import output_writer
 from winregrc import programscache
 
@@ -37,7 +38,12 @@ class TestOutputWriter(output_writer.StdoutOutputWriter):
 class ProgramsCacheDataParserTest(shared_test_lib.BaseTestCase):
   """Tests for the Programs Cache data parser."""
 
-  # TODO: add tests.
+  def testParse(self):
+    """Tests the Parse function."""
+    data_parser = programscache.ProgramsCacheDataParser()
+
+    with self.assertRaises(errors.ParseError):
+      data_parser.Parse(b'')
 
 
 class ProgramsCacheCollectorTest(shared_test_lib.BaseTestCase):

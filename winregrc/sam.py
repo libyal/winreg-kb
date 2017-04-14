@@ -5,9 +5,12 @@ import datetime
 
 from dfdatetime import filetime as dfdatetime_filetime
 from dfdatetime import semantic_time as dfdatetime_semantic_time
+
+from dtfabric import errors as dtfabric_errors
 from dtfabric import fabric as dtfabric_fabric
 
 from winregrc import dependencies
+from winregrc import errors
 from winregrc import interface
 
 
@@ -16,7 +19,7 @@ dependencies.CheckModuleVersion(u'dtfabric')
 
 
 class UserAccount(object):
-  """Class that defines an user account.
+  """User account.
 
   Attributes:
     account_expiration_time (dfdatetime.DateTimeValues): account expiration
@@ -60,7 +63,7 @@ class UserAccount(object):
 
 
 class SecurityAccountManagerDataParser(object):
-  """Class that parses the Security Account Manager (SAM) data."""
+  """Security Account Manager (SAM) data parser."""
 
   _DATA_TYPE_FABRIC_DEFINITION = b'\n'.join([
       b'name: uint16',
@@ -144,8 +147,7 @@ class SecurityAccountManagerDataParser(object):
       b'type: sequence',
       b'description: Security Account Manager V value.',
       b'element_type: user_information_descriptor',
-      b'number_of_elements: 17',
-  ])
+      b'number_of_elements: 17'])
 
   _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
       yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
@@ -252,8 +254,14 @@ class SecurityAccountManagerDataParser(object):
     Args:
       value_data (bytes): F value data.
       user_account (UserAccount): user account.
+
+    Raises:
+      ParseError: if the value data could not be parsed.
     """
-    f_value = self._F_VALUE.MapByteStream(value_data)
+    try:
+      f_value = self._F_VALUE.MapByteStream(value_data)
+    except dtfabric_errors.MappingError as exception:
+      raise errors.ParseError(exception)
 
     if self._debug:
       self._output_writer.WriteDebugData(u'F value data:', value_data)
@@ -359,8 +367,14 @@ class SecurityAccountManagerDataParser(object):
     Args:
       value_data (bytes): V value data.
       user_account (UserAccount): user account.
+
+    Raises:
+      ParseError: if the value data could not be parsed.
     """
-    v_value = self._V_VALUE.MapByteStream(value_data)
+    try:
+      v_value = self._V_VALUE.MapByteStream(value_data)
+    except dtfabric_errors.MappingError as exception:
+      raise errors.ParseError(exception)
 
     if self._debug:
       self._output_writer.WriteDebugData(u'V value data:', value_data)
@@ -431,7 +445,7 @@ class SecurityAccountManagerDataParser(object):
 
 
 class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines a Security Account Manager (SAM) collector."""
+  """Security Account Manager (SAM) collector."""
 
   def Collect(self, registry, output_writer):
     """Collects the Security Account Manager (SAM) information.

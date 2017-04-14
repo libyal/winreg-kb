@@ -1,20 +1,26 @@
 # -*- coding: utf-8 -*-
 """Task Cache collector."""
 
-from __future__ import print_function
 import datetime
 import logging
-
-import construct
 
 from dfdatetime import filetime as dfdatetime_filetime
 from dfdatetime import semantic_time as dfdatetime_semantic_time
 
+from dtfabric import errors as dtfabric_errors
+from dtfabric import fabric as dtfabric_fabric
+
+from winregrc import dependencies
+from winregrc import errors
 from winregrc import interface
 
 
+dependencies.CheckModuleVersion(u'dfdatetime')
+dependencies.CheckModuleVersion(u'dtfabric')
+
+
 class CachedTask(object):
-  """Class that defines a cached task.
+  """Cached task.
 
   Attributes:
     identifier (str): identifier.
@@ -25,7 +31,7 @@ class CachedTask(object):
   """
 
   def __init__(self):
-    """Initializes an user account."""
+    """Initializes a cached task."""
     super(CachedTask, self).__init__()
     self.identifier = None
     self.last_registered_time = None
@@ -34,31 +40,76 @@ class CachedTask(object):
 
 
 class TaskCacheDataParser(object):
-  """Class that parses the Task Cache value data."""
+  """Task Cache data parser."""
 
-  _DYNAMIC_INFO_STRUCT = construct.Struct(
-      u'dynamic_info_record',
-      construct.ULInt32(u'unknown1'),
-      construct.ULInt64(u'last_registered_time'),
-      construct.ULInt64(u'launch_time'),
-      construct.ULInt32(u'unknown2'),
-      construct.ULInt32(u'unknown3'))
+  _DATA_TYPE_FABRIC_DEFINITION = b'\n'.join([
+      b'name: uint32',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 4',
+      b'  units: bytes',
+      b'---',
+      b'name: uint64',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 8',
+      b'  units: bytes',
+      b'---',
+      b'name: dynamic_info_record',
+      b'type: structure',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'- name: last_registered_time',
+      b'  data_type: uint64',
+      b'- name: launch_time',
+      b'  data_type: uint64',
+      b'- name: unknown2',
+      b'  data_type: uint32',
+      b'- name: unknown3',
+      b'  data_type: uint32',
+      b'---',
+      b'name: dynamic_info2_record',
+      b'type: structure',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'- name: last_registered_time',
+      b'  data_type: uint64',
+      b'- name: launch_time',
+      b'  data_type: uint64',
+      b'- name: unknown2',
+      b'  data_type: uint32',
+      b'- name: unknown3',
+      b'  data_type: uint32',
+      b'- name: unknown_time',
+      b'  data_type: uint64'])
 
-  _DYNAMIC_INFO_STRUCT_SIZE = _DYNAMIC_INFO_STRUCT.sizeof()
+  _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
+      yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
 
-  _DYNAMIC_INFO2_STRUCT = construct.Struct(
-      u'dynamic_info2_record',
-      construct.ULInt32(u'unknown1'),
-      construct.ULInt64(u'last_registered_time'),
-      construct.ULInt64(u'launch_time'),
-      construct.ULInt32(u'unknown2'),
-      construct.ULInt32(u'unknown3'),
-      construct.ULInt64(u'unknown_time'))
+  _DYNAMIC_INFO_RECORD = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'dynamic_info_record')
 
-  _DYNAMIC_INFO2_STRUCT_SIZE = _DYNAMIC_INFO2_STRUCT.sizeof()
+  _DYNAMIC_INFO_RECORD_SIZE = _DYNAMIC_INFO_RECORD.GetByteSize()
+
+  _DYNAMIC_INFO2_RECORD = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'dynamic_info2_record')
+
+  _DYNAMIC_INFO2_RECORD_SIZE = _DYNAMIC_INFO2_RECORD.GetByteSize()
+
+  _DYNAMIC_INFO_RECORDS = {
+      _DYNAMIC_INFO_RECORD_SIZE: _DYNAMIC_INFO_RECORD,
+      _DYNAMIC_INFO2_RECORD_SIZE: _DYNAMIC_INFO2_RECORD}
 
   def __init__(self, debug=False, output_writer=None):
-    """Initializes a Security Account Manager (SAM) data parser.
+    """Initializes a Task Cache data parser.
 
     Args:
       debug (Optional[bool]): True if debug information should be printed.
@@ -114,66 +165,63 @@ class TaskCacheDataParser(object):
       cached_task (CachedTask): cached task.
 
     Raises:
-      IOError: if the format is unsupported.
+      ParseError: if the value data could not be parsed.
     """
     if self._debug:
-      self._output_writer.WriteDebugData(
-          u'DynamicInfo value data:', value_data)
+      self._output_writer.WriteDebugData(u'DynamicInfo value data:', value_data)
 
     value_data_size = len(value_data)
 
-    if value_data_size == self._DYNAMIC_INFO_STRUCT_SIZE:
-      dynamic_info_struct = self._DYNAMIC_INFO_STRUCT.parse(value_data)
+    dynamic_info_struct = self._DYNAMIC_INFO_RECORDS.get(value_data_size, None)
+    if not dynamic_info_struct:
+      raise errors.ParseError(
+          u'Unsupported value data size: {0:d}.'.format(value_data_size))
 
-    elif value_data_size == self._DYNAMIC_INFO2_STRUCT_SIZE:
-      dynamic_info_struct = self._DYNAMIC_INFO2_STRUCT.parse(value_data)
-
-    else:
-      raise IOError(
-          u'Unsupported DynamicInfo value data size: {0:d}.'.format(
-              value_data_size))
+    try:
+      dynamic_info = dynamic_info_struct.MapByteStream(value_data)
+    except dtfabric_errors.MappingError as exception:
+      raise errors.ParseError(exception)
 
     cached_task.last_registered_time = self._ParseFiletime(
-        dynamic_info_struct.last_registered_time)
+        dynamic_info.last_registered_time)
     cached_task.launch_time = self._ParseFiletime(
-        dynamic_info_struct.launch_time)
+        dynamic_info.launch_time)
 
     if self._debug:
-      value_string = u'0x{0:08x}'.format(dynamic_info_struct.unknown1)
+      value_string = u'0x{0:08x}'.format(dynamic_info.unknown1)
       self._output_writer.WriteValue(u'Unknown1', value_string)
 
       # Note this is likely either the last registered time or
       # the update time.
-      date_string = self.CopyFiletimeToString(
-          dynamic_info_struct.last_registered_time)
+      date_string = self.CopyFiletimeToString(dynamic_info.last_registered_time)
       value_string = u'{0:s} (0x{1:08x})'.format(
-          date_string, dynamic_info_struct.last_registered_time)
+          date_string, dynamic_info.last_registered_time)
       self._output_writer.WriteValue(u'Last registered time', value_string)
 
       # Note this is likely the launch time.
-      date_string = self.CopyFiletimeToString(dynamic_info_struct.launch_time)
+      date_string = self.CopyFiletimeToString(dynamic_info.launch_time)
       value_string = u'{0:s} (0x{1:08x})'.format(
-          date_string, dynamic_info_struct.launch_time)
+          date_string, dynamic_info.launch_time)
       self._output_writer.WriteValue(u'Launch time', value_string)
 
-      value_string = u'0x{0:08x}'.format(dynamic_info_struct.unknown2)
+      value_string = u'0x{0:08x}'.format(dynamic_info.unknown2)
       self._output_writer.WriteValue(u'Unknown2', value_string)
 
-      value_string = u'0x{0:08x}'.format(dynamic_info_struct.unknown3)
+      value_string = u'0x{0:08x}'.format(dynamic_info.unknown3)
       self._output_writer.WriteValue(u'Unknown3', value_string)
 
-      if value_data_size == self._DYNAMIC_INFO2_STRUCT_SIZE:
-        date_string = self.CopyFiletimeToString(
-            dynamic_info_struct.unknown_time)
+      unknown_time = dynamic_info.get(u'unknown_time', None)
+      if unknown_time is not None:
+        date_string = self.CopyFiletimeToString(unknown_time)
         value_string = u'{0:s} (0x{1:08x})'.format(
-            date_string, dynamic_info_struct.unknown_time)
+            date_string, dynamic_info.unknown_time)
         self._output_writer.WriteValue(u'Unknown time', value_string)
 
       self._output_writer.WriteText(u'')
 
 
 class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines a Task Cache collector."""
+  """Task Cache collector."""
 
   _TASK_CACHE_KEY_PATH = (
       u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
@@ -259,7 +307,7 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
 
       try:
         parser.ParseDynamicInfo(dynamic_info_value.data, cached_task)
-      except IOError as exception:
+      except errors.ParseError as exception:
         if not dynamic_info_size_error_reported:
           logging.error(exception)
           dynamic_info_size_error_reported = True

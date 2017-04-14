@@ -5,7 +5,7 @@ import abc
 
 
 class WindowsRegistryKeyCollector(object):
-  """Class that defines a Windows Registry key and value collector."""
+  """Windows Registry key and value collector."""
 
   def __init__(self, debug=False):
     """Initializes a Windows Registry key and value collector.

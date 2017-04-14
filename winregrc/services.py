@@ -7,7 +7,7 @@ from winregrc import interface
 
 
 class WindowsService(object):
-  """Class that defines a Windows service.
+  """Windows service.
 
   Attributes:
     description (str): service description.
@@ -125,7 +125,7 @@ class WindowsService(object):
 
 
 class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines a Windows services collector."""
+  """Windows services collector."""
 
   def _CollectWindowsServicesFromKey(self, services_key):
     """Collects the Windows services from a services Registry key.

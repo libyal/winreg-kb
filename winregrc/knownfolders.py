@@ -5,7 +5,7 @@ from winregrc import interface
 
 
 class KnownFolder(object):
-  """Class that defines a known folder.
+  """Known folder.
 
   Attributes:
     guid (str): identifier.
@@ -28,7 +28,7 @@ class KnownFolder(object):
 
 
 class KnownFoldersCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines a Windows known folders collector."""
+  """Windows known folders collector."""
 
   _FOLDER_DESCRIPTIONS_KEY_PATH = (
       u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\'

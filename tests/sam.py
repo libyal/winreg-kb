@@ -8,6 +8,7 @@ from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
+from winregrc import errors
 from winregrc import output_writer
 from winregrc import sam
 
@@ -104,9 +105,9 @@ class SecurityAccountManagerDataParserTest(shared_test_lib.BaseTestCase):
     """Tests the ParseFValue function."""
     user_account = sam.UserAccount()
 
-    parser = sam.SecurityAccountManagerDataParser()
+    data_parser = sam.SecurityAccountManagerDataParser()
 
-    parser.ParseFValue(_F_VALUE_DATA, user_account)
+    data_parser.ParseFValue(_F_VALUE_DATA, user_account)
 
     self.assertEqual(user_account.last_login_time, 129347632925692440)
     self.assertEqual(user_account.last_password_set_time, 129347637947436870)
@@ -119,19 +120,25 @@ class SecurityAccountManagerDataParserTest(shared_test_lib.BaseTestCase):
     self.assertEqual(user_account.number_of_password_failures, 0)
     self.assertEqual(user_account.number_of_logons, 6)
 
+    with self.assertRaises(errors.ParseError):
+      data_parser.ParseFValue(b'', user_account)
+
     # TODO: add bogus data tests.
 
   def testParseVValue(self):
     """Tests the ParseVValue function."""
     user_account = sam.UserAccount()
 
-    parser = sam.SecurityAccountManagerDataParser()
+    data_parser = sam.SecurityAccountManagerDataParser()
 
-    parser.ParseVValue(_V_VALUE_DATA, user_account)
+    data_parser.ParseVValue(_V_VALUE_DATA, user_account)
 
     self.assertEqual(user_account.username, u'Administrator')
 
     # TODO: tests other values set by ParseVValue.
+
+    with self.assertRaises(errors.ParseError):
+      data_parser.ParseVValue(b'', user_account)
 
     # TODO: add bogus data tests.
 

@@ -21,7 +21,7 @@ if dfwinreg.__version__ < u'20151026':
 
 
 class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
-  """Class that defines the collector-based Windows Registry file reader."""
+  """Collector-based Windows Registry file reader."""
 
   def __init__(self, volume_scanner):
     """Initializes a Windows Registry file reader object.
@@ -62,7 +62,7 @@ class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
 
 
 class WindowsRegistryCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
-  """Class that defines a Windows Registry collector.
+  """Windows Registry collector.
 
   Attributes:
     registry (dfwinreg.WinRegistry): Windows Registry.
@@ -116,63 +116,6 @@ class WindowsRegistryCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
           the source file is not supported.
     """
     result = super(WindowsRegistryCollector, self).ScanForWindowsVolume(
-        source_path)
-
-    if self._source_type == dfvfs_definitions.SOURCE_TYPE_FILE:
-      self._single_file = True
-      return True
-
-    return result
-
-
-# TODO: deprecate.
-class WindowsVolumeCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
-  """Class that defines a Windows volume collector."""
-
-  def __init__(self, mediator=None):
-    """Initializes the collector object.
-
-    Args:
-      mediator (VolumeScannerMediator): volume scanner mediator.
-    """
-    super(WindowsVolumeCollector, self).__init__(mediator=mediator)
-    self._single_file = False
-
-  def OpenFile(self, windows_path):
-    """Opens the file specificed by the Windows path.
-
-    Args:
-      windows_path (str): Windows path to the file.
-
-    Returns:
-      dfvfs.FileIO: file-like object or None if the file does not exist.
-    """
-    if not self._single_file:
-      return super(WindowsVolumeCollector, self).OpenFile(windows_path)
-
-    # TODO: check name of single file.
-    path_spec = dfvfs_path_spec_factory.Factory.NewPathSpec(
-        dfvfs_definitions.TYPE_INDICATOR_OS, location=self._source_path)
-    if path_spec is None:
-      return
-
-    return dfvfs_resolver.Resolver.OpenFileObject(path_spec)
-
-  def ScanForWindowsVolume(self, source_path):
-    """Scans for a Windows volume.
-
-    Args:
-      source_path (str): source path.
-
-    Returns:
-      bool: True if a Windows volume was found.
-
-    Raises:
-      ScannerError: if the source path does not exists, or if the source path
-          is not a file or directory, or if the format of or within
-          the source file is not supported.
-    """
-    result = super(WindowsVolumeCollector, self).ScanForWindowsVolume(
         source_path)
 
     if self._source_type == dfvfs_definitions.SOURCE_TYPE_FILE:

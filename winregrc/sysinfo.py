@@ -8,7 +8,7 @@ from winregrc import interface
 
 
 class SystemInformation(object):
-  """Class that defines system information.
+  """System information.
 
   Attributes:
     csd_version (str): CSD version.
@@ -41,7 +41,7 @@ class SystemInformation(object):
 
 
 class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines a system information collector."""
+  """System information collector."""
 
   _CURRENT_VERSION_KEY_PATH = (
       u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')

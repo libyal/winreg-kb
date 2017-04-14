@@ -119,7 +119,7 @@ CONTROL_VALUES_1C00 = {
 
 
 class MSIEZoneInfoCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines a MSIE zone information collector."""
+  """MSIE zone information collector."""
 
   def _PrintLockdownKey(self, registry, lockdown_key_path):
     """Prints a lockdown key.

@@ -14,6 +14,17 @@ from winregrc import task_cache
 from tests import test_lib as shared_test_lib
 
 
+_DYNAMIC_INFO_DATA = b''.join(map(chr, [
+    0x03, 0x00, 0x00, 0x00, 0x0c, 0x1c, 0x7d, 0x12, 0x3f, 0x04, 0xca, 0x01,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00]))
+
+_DYNAMIC_INFO2_DATA = b''.join(map(chr, [
+    0x03, 0x00, 0x00, 0x00, 0x0c, 0x1c, 0x7d, 0x12, 0x3f, 0x04, 0xca, 0x01,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x0c, 0x1c, 0x7d, 0x12, 0x3f, 0x04, 0xca, 0x01]))
+
+
 class TestOutputWriter(output_writer.StdoutOutputWriter):
   """Class that defines a test output writer.
 
@@ -38,21 +49,29 @@ class TestOutputWriter(output_writer.StdoutOutputWriter):
 class TaskCacheDataParserTest(shared_test_lib.BaseTestCase):
   """Tests for the Task Cache data parser."""
 
-  # TODO: add tests.
+  def testParseDynamicInfo(self):
+    """Tests the ParseDynamicInfo function."""
+    data_parser = task_cache.TaskCacheDataParser()
+
+    cached_task = task_cache.CachedTask()
+    data_parser.ParseDynamicInfo(_DYNAMIC_INFO_DATA, cached_task)
+
+    # TODO: compare date time value.
+    self.assertIsNotNone(cached_task.last_registered_time)
+    # TODO: compare date time value.
+    self.assertIsNotNone(cached_task.launch_time)
+
+    cached_task = task_cache.CachedTask()
+    data_parser.ParseDynamicInfo(_DYNAMIC_INFO2_DATA, cached_task)
+
+    # TODO: compare date time value.
+    self.assertIsNotNone(cached_task.last_registered_time)
+    # TODO: compare date time value.
+    self.assertIsNotNone(cached_task.launch_time)
 
 
 class TaskCacheCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Task Cache information collector."""
-
-  _DYNAMIC_INFO_DATA = b''.join(map(chr, [
-      0x03, 0x00, 0x00, 0x00, 0x0c, 0x1c, 0x7d, 0x12, 0x3f, 0x04, 0xca, 0x01,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00]))
-
-  _DYNAMIC_INFO2_DATA = b''.join(map(chr, [
-      0x03, 0x00, 0x00, 0x00, 0x0c, 0x1c, 0x7d, 0x12, 0x3f, 0x04, 0xca, 0x01,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x0c, 0x1c, 0x7d, 0x12, 0x3f, 0x04, 0xca, 0x01]))
 
   _GUID1 = u'{8905ECD8-016F-4DC2-90E6-A5F1FA6A841A}'
   _GUID2 = u'{F93C7104-998A-4A38-B935-775A3138B3C3}'
@@ -83,7 +102,7 @@ class TaskCacheCollectorTest(shared_test_lib.BaseTestCase):
         registry_key)
 
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'DynamicInfo', data=self._DYNAMIC_INFO_DATA,
+        u'DynamicInfo', data=_DYNAMIC_INFO_DATA,
         data_type=dfwinreg_definitions.REG_BINARY)
     registry_key.AddValue(registry_value)
 
@@ -110,7 +129,7 @@ class TaskCacheCollectorTest(shared_test_lib.BaseTestCase):
         registry_key)
 
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'DynamicInfo', data=self._DYNAMIC_INFO2_DATA,
+        u'DynamicInfo', data=_DYNAMIC_INFO2_DATA,
         data_type=dfwinreg_definitions.REG_BINARY)
     registry_key.AddValue(registry_value)
 

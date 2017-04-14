@@ -7,12 +7,19 @@ import logging
 
 import construct
 
+from winregrc import dependencies
+from winregrc import errors
 from winregrc import hexdump
 from winregrc import interface
 
 
 class AppCompatCacheHeader(object):
-  """Class that defines an Application Compatibility Cache header."""
+  """Application Compatibility Cache header.
+
+  Attributes:
+    number_of_cached_entries (int): number of cached entries.
+    header_size (int): header size.
+  """
 
   def __init__(self):
     """Initializes an Application Compatibility Cache header."""
@@ -22,7 +29,19 @@ class AppCompatCacheHeader(object):
 
 
 class AppCompatCacheCachedEntry(object):
-  """Class that defines an Application Compatibility Cache cached entry."""
+  """Application Compatibility Cache cached entry.
+
+  Attributes:
+    cached_entry_size (int): size of the cached entry.
+    data (bytes): data of the cached entry.
+    file_size (int): size of file corresponding to the cached entry.
+    insertion_flags (int): insertion flags of the cached entry.
+    last_modification_time (int): last modification timestamp of the file
+        corresponding to the cached entry.
+    last_update_time (int): last update timestamp the cached entry.
+    shim_flags (int): shim flags of the cached entry.
+    path (str): path of the cached entry.
+  """
 
   def __init__(self):
     """Initializes an Application Compatibility Cache cached entry."""
@@ -38,7 +57,7 @@ class AppCompatCacheCachedEntry(object):
 
 
 class AppCompatCacheDataParser(object):
-  """Class that parses Application Compatibility Cache data."""
+  """Application Compatibility Cache data parser."""
 
   FORMAT_TYPE_2000 = 1
   FORMAT_TYPE_XP = 2
@@ -234,12 +253,13 @@ class AppCompatCacheDataParser(object):
       AppCompatCacheHeader: header.
 
     Raises:
-      RuntimeError: if the format type is not supported.
+      ParseError: if the value data could not be parsed.
     """
     if format_type not in (
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7, self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
-      raise RuntimeError(u'Unsupported format type: {0:d}'.format(format_type))
+      raise errors.ParseError(u'Unsupported format type: {0:d}'.format(
+          format_type))
 
     header_object = AppCompatCacheHeader()
 
@@ -345,12 +365,13 @@ class AppCompatCacheDataParser(object):
       int: cached entry size or None.
 
     Raises:
-      RuntimeError: if the format type is not supported.
+      ParseError: if the value data could not be parsed.
     """
     if format_type not in (
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7, self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
-      raise RuntimeError(u'Unsupported format type: {0:d}'.format(format_type))
+      raise errors.ParseError(u'Unsupported format type: {0:d}'.format(
+          format_type))
 
     cached_entry_data = value_data[cached_entry_offset:]
     cached_entry_size = 0
@@ -417,12 +438,13 @@ class AppCompatCacheDataParser(object):
       AppCompatCacheCachedEntry: cached entry.
 
     Raises:
-      RuntimeError: if the format type is not supported.
+      ParseError: if the value data could not be parsed.
     """
     if format_type not in (
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7, self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
-      raise RuntimeError(u'Unsupported format type: {0:d}'.format(format_type))
+      raise errors.ParseError(u'Unsupported format type: {0:d}'.format(
+          format_type))
 
     cached_entry_data = value_data[
         cached_entry_offset:cached_entry_offset + cached_entry_size]
@@ -477,7 +499,7 @@ class AppCompatCacheDataParser(object):
     elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
       if cached_entry_data[0:4] not in (
           self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1):
-        raise RuntimeError(u'Unsupported cache entry signature')
+        raise errors.ParseError(u'Unsupported cache entry signature')
 
       if cached_entry_size == self._CACHED_ENTRY_HEADER_8_STRUCT.sizeof():
         cached_entry_struct = self._CACHED_ENTRY_HEADER_8_STRUCT.parse(
@@ -491,7 +513,7 @@ class AppCompatCacheDataParser(object):
             cached_entry_offset:cached_entry_offset + cached_entry_size]
 
     if not cached_entry_struct:
-      raise RuntimeError(u'Unsupported cache entry size: {0:d}'.format(
+      raise errors.ParseError(u'Unsupported cache entry size: {0:d}'.format(
           cached_entry_size))
 
     if format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
@@ -682,7 +704,7 @@ class AppCompatCacheDataParser(object):
 
 
 class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines an Application Compatibility Cache collector."""
+  """Application Compatibility Cache collector."""
 
   def _CollectAppCompatCacheFromKey(self, registry, key_path, output_writer):
     """Collects Application Compatibility Cache from a Windows Registry key.

@@ -7,7 +7,7 @@ from winregrc import interface
 
 
 class ShellFolder(object):
-  """Class that defines a shell folder."""
+  """Shell folder."""
 
   def __init__(self, guid, name, localized_string):
     """Initializes a shell folder.
@@ -24,7 +24,7 @@ class ShellFolder(object):
 
 
 class ShellFoldersCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines a Shell Folder collector."""
+  """Shell folder collector."""
 
   _CLASS_IDENTIFIERS_KEY_PATH = u'HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID'
 

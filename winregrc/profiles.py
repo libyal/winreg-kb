@@ -5,7 +5,7 @@ from winregrc import interface
 
 
 class UserProfilesCollector(interface.WindowsRegistryKeyCollector):
-  """Class that defines a Windows user profiles collector."""
+  """Windows user profiles collector."""
 
   _PROFILE_LIST_KEY_PATH = (
       u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
