@@ -13,7 +13,6 @@ import re
 # Where version_attribute_name is either a name of an attribute,
 # property or method.
 PYTHON_DEPENDENCIES = {
-    u'construct': (u'__version__', u'2.5.2', u'2.5.3', True),
     u'Crypto': (u'__version__', u'2.6.0', None, True),
     u'dfdatetime': (u'__version__', u'20160319', None, True),
     u'dfvfs': (u'__version__', u'20170402', None, True),
