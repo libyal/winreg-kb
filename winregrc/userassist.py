@@ -148,17 +148,16 @@ class UserAssistDataParser(object):
       value_string = u'0x{0:08x}'.format(parsed_data.unknown1)
       self._output_writer.WriteValue(u'Unknown1', value_string)
 
-      value_string = u'{0:d}'.format(parsed_data.execution_count)
-      self._output_writer.WriteValue(u'Execution count', value_string)
+      self._output_writer.WriteIntegerValueAsDecimal(
+          u'Execution count', parsed_data.execution_count)
 
       if format_version == 5:
-        value_string = u'{0:d}'.format(parsed_data.application_focus_count)
-        self._output_writer.WriteValue(
-            u'Application focus count', value_string)
+        self._output_writer.WriteIntegerValueAsDecimal(
+            u'Application focus count', parsed_data.application_focus_count)
 
-        value_string = u'{0:d}'.format(parsed_data.application_focus_duration)
-        self._output_writer.WriteValue(
-            u'Application focus duration', value_string)
+        self._output_writer.WriteIntegerValueAsDecimal(
+            u'Application focus duration',
+            parsed_data.application_focus_duration)
 
         value_string = u'{0:.2f}'.format(parsed_data.unknown2)
         self._output_writer.WriteValue(u'Unknown2', value_string)

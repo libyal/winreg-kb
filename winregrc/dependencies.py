@@ -18,7 +18,7 @@ PYTHON_DEPENDENCIES = {
     u'dfdatetime': (u'__version__', u'20160319', None, True),
     u'dfvfs': (u'__version__', u'20170402', None, True),
     u'dfwinreg': (u'__version__', u'20170301', None, True),
-    u'dtfabric': (u'__version__', u'20170414', None, True),
+    u'dtfabric': (u'__version__', u'20170415', None, True),
     u'pybde': (u'get_version()', u'20140531', None, True),
     u'pyewf': (u'get_version()', u'20131210', None, True),
     u'pyfsntfs': (u'get_version()', u'20151130', None, True),

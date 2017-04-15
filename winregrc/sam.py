@@ -146,7 +146,7 @@ class SecurityAccountManagerDataParser(object):
       b'name: v_value',
       b'type: sequence',
       b'description: Security Account Manager V value.',
-      b'element_type: user_information_descriptor',
+      b'element_data_type: user_information_descriptor',
       b'number_of_elements: 17'])
 
   _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
@@ -283,11 +283,11 @@ class SecurityAccountManagerDataParser(object):
     user_account.number_of_logons = f_value.number_of_logons
 
     if self._debug:
-      value_string = u'{0:d}'.format(f_value.major_version)
-      self._output_writer.WriteValue(u'Major version', value_string)
+      self._output_writer.WriteIntegerValueAsDecimal(
+          u'Major version', f_value.major_version)
 
-      value_string = u'{0:d}'.format(f_value.minor_version)
-      self._output_writer.WriteValue(u'Minor version', value_string)
+      self._output_writer.WriteIntegerValueAsDecimal(
+          u'Minor version', f_value.minor_version)
 
       value_string = u'0x{0:08x}'.format(f_value.unknown1)
       self._output_writer.WriteValue(u'Unknown1', value_string)
@@ -317,12 +317,11 @@ class SecurityAccountManagerDataParser(object):
       self._output_writer.WriteValue(
           u'Last password failure time', value_string)
 
-      value_string = u'{0:d}'.format(f_value.rid)
-      self._output_writer.WriteValue(u'Relative identifier (RID)', value_string)
+      self._output_writer.WriteIntegerValueAsDecimal(
+          u'Relative identifier (RID)', f_value.rid)
 
-      value_string = u'{0:d}'.format(f_value.primary_gid)
-      self._output_writer.WriteValue(
-          u'Primary group identifier (GID)', value_string)
+      self._output_writer.WriteIntegerValueAsDecimal(
+          u'Primary group identifier (GID)', f_value.primary_gid)
 
       value_string = u'0x{0:08x}'.format(f_value.user_account_control_flags)
       self._output_writer.WriteValue(
@@ -340,15 +339,14 @@ class SecurityAccountManagerDataParser(object):
       value_string = u'0x{0:04x}'.format(f_value.country_code)
       self._output_writer.WriteValue(u'Country code', value_string)
 
-      value_string = u'{0:d}'.format(f_value.codepage)
-      self._output_writer.WriteValue(u'Codepage', value_string)
+      self._output_writer.WriteIntegerValueAsDecimal(
+          u'Codepage', f_value.codepage)
 
-      value_string = u'{0:d}'.format(f_value.number_of_password_failures)
-      self._output_writer.WriteValue(
-          u'Number of password failures', value_string)
+      self._output_writer.WriteIntegerValueAsDecimal(
+          u'Number of password failures', f_value.number_of_password_failures)
 
-      value_string = u'{0:d}'.format(f_value.number_of_logons)
-      self._output_writer.WriteValue(u'Number of logons', value_string)
+      self._output_writer.WriteIntegerValueAsDecimal(
+          u'Number of logons', f_value.number_of_logons)
 
       value_string = u'0x{0:08x}'.format(f_value.unknown6)
       self._output_writer.WriteValue(u'Unknown6', value_string)
@@ -391,14 +389,14 @@ class SecurityAccountManagerDataParser(object):
         value_string = self._USER_INFORMATION_DESCRIPTORS[index]
         self._output_writer.WriteValue(description_string, value_string)
 
-        offset_string = u'Descriptor: {0:d} offset'.format(index + 1)
+        value_description = u'Descriptor: {0:d} offset'.format(index + 1)
         value_string = u'0x{0:08x} (0x{1:08x})'.format(
             user_information_descriptor.offset, data_start_offset)
-        self._output_writer.WriteValue(offset_string, value_string)
+        self._output_writer.WriteValue(value_description, value_string)
 
-        size_string = u'Descriptor: {0:d} size'.format(index + 1)
-        value_string = u'{0:d}'.format(user_information_descriptor.size)
-        self._output_writer.WriteValue(size_string, value_string)
+        value_description = u'Descriptor: {0:d} size'.format(index + 1)
+        self._output_writer.WriteIntegerValueAsDecimal(
+            value_description, user_information_descriptor.size)
 
         unknown1_string = u'Descriptor: {0:d} unknown1'.format(index + 1)
         value_string = u'0x{0:08x}'.format(user_information_descriptor.unknown1)

@@ -33,6 +33,15 @@ class OutputWriter(object):
     """
 
   @abc.abstractmethod
+  def WriteIntegerValueAsDecimal(self, description, value):
+    """Writes an integer value as decimal for debugging.
+
+    Args:
+      description (str): description to write.
+      value (int): value to write.
+    """
+
+  @abc.abstractmethod
   def WriteValue(self, description, value):
     """Writes a value for debugging.
 
@@ -76,6 +85,16 @@ class StdoutOutputWriter(OutputWriter):
 
     hexdump_text = hexdump.Hexdump(data)
     self.WriteText(hexdump_text)
+
+  def WriteIntegerValueAsDecimal(self, description, value):
+    """Writes an integer value as decimal for debugging.
+
+    Args:
+      description (str): description to write.
+      value (int): value to write.
+    """
+    value_string = u'{0:d}'.format(value)
+    self.WriteValue(description, value_string)
 
   def WriteValue(self, description, value):
     """Writes a value for debugging.

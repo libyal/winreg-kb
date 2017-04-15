@@ -131,8 +131,8 @@ class ProgramsCacheDataParser(object):
     value_data_offset = self._HEADER_SIZE
 
     if self._debug:
-      value_string = u'{0:d}'.format(header.format_version)
-      self._output_writer.WriteValue(u'Format version', value_string)
+      self._output_writer.WriteIntegerValueAsDecimal(
+          u'Format version', header.format_version)
 
     if header.format_version not in (1, 9, 12, 19):
       raise errors.ParseError(u'Unsupported format.')
@@ -194,8 +194,8 @@ class ProgramsCacheDataParser(object):
         value_string = u'0x{0:08x}'.format(value_data_offset)
         self._output_writer.WriteValue(u'Entry data offset', value_string)
 
-        value_string = u'{0:d}'.format(entry_data_size)
-        self._output_writer.WriteValue(u'Entry data size', value_string)
+        self._output_writer.WriteIntegerValueAsDecimal(
+            u'Entry data size', entry_data_size)
 
       shell_item_list = pyfwsi.item_list()
       shell_item_list.copy_from_byte_stream(value_data[value_data_offset:])

@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 """Application Compatibility Cache collector."""
 
-from __future__ import print_function
 import datetime
 import logging
 
-import construct
+from dtfabric import errors as dtfabric_errors
+from dtfabric import fabric as dtfabric_fabric
 
 from winregrc import dependencies
 from winregrc import errors
 from winregrc import hexdump
 from winregrc import interface
+
+
+dependencies.CheckModuleVersion(u'dtfabric')
 
 
 class AppCompatCacheHeader(object):
@@ -67,136 +70,395 @@ class AppCompatCacheDataParser(object):
   FORMAT_TYPE_8 = 6
   FORMAT_TYPE_10 = 7
 
-  # AppCompatCache format signature used in Windows XP.
-  _HEADER_SIGNATURE_XP = 0xdeadbeef
+  _DATA_TYPE_FABRIC_DEFINITION = b'\n'.join([
+      b'name: byte',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 1',
+      b'  units: bytes',
+      b'---',
+      b'name: uint16',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 2',
+      b'  units: bytes',
+      b'---',
+      b'name: uint32',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 4',
+      b'  units: bytes',
+      b'---',
+      b'name: uint64',
+      b'type: integer',
+      b'attributes:',
+      b'  format: unsigned',
+      b'  size: 8',
+      b'  units: bytes',
+      b'---',
+      b'name: appcompatcache_header_xp_32bit',
+      b'type: structure',
+      b'description: Windows XP 32-bit AppCompatCache header.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: signature',
+      b'  data_type: uint32',
+      b'- name: number_of_cached_entries',
+      b'  data_type: uint32',
+      b'- name: number_of_lru_entries',
+      b'  data_type: uint32',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'- name: lru_entries',
+      b'  type: sequence',
+      b'  element_data_type: uint32',
+      b'  number_of_elements: 96',
+      b'---',
+      b'name: appcompatcache_cached_entry_xp_32bit',
+      b'type: structure',
+      b'description: Windows XP 32-bit AppCompatCache cached entry.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: path',
+      b'  type: sequence',
+      b'  element_data_type: byte',
+      b'  number_of_elements: 528',
+      b'- name: last_modification_time',
+      b'  data_type: uint64',
+      b'- name: file_size',
+      b'  data_type: uint64',
+      b'- name: last_update_time',
+      b'  data_type: uint64',
+      b'---',
+      b'name: appcompatcache_header_2003',
+      b'type: structure',
+      b'description: Windows 2003 AppCompatCache header.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: signature',
+      b'  data_type: uint32',
+      b'- name: number_of_cached_entries',
+      b'  data_type: uint32',
+      b'---',
+      b'name: appcompatcache_cached_entry_2003_32bit',
+      b'type: structure',
+      b'description: Windows 2003 32-bit AppCompatCache cached entry.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: path_size',
+      b'  data_type: uint16',
+      b'- name: maximum_path_size',
+      b'  data_type: uint16',
+      b'- name: path_offset',
+      b'  data_type: uint32',
+      b'- name: last_modification_time',
+      b'  data_type: uint64',
+      b'- name: file_size',
+      b'  data_type: uint64',
+      b'---',
+      b'name: appcompatcache_cached_entry_2003_64bit',
+      b'type: structure',
+      b'description: Windows 2003 64-bit AppCompatCache cached entry.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: path_size',
+      b'  data_type: uint16',
+      b'- name: maximum_path_size',
+      b'  data_type: uint16',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'- name: path_offset',
+      b'  data_type: uint64',
+      b'- name: last_modification_time',
+      b'  data_type: uint64',
+      b'- name: file_size',
+      b'  data_type: uint64',
+      b'---',
+      b'name: appcompatcache_header_vista',
+      b'type: structure',
+      b'description: Windows Vista and 2008 AppCompatCache header.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: signature',
+      b'  data_type: uint32',
+      b'- name: number_of_cached_entries',
+      b'  data_type: uint32',
+      b'---',
+      b'name: appcompatcache_cached_entry_vista_32bit',
+      b'type: structure',
+      (b'description: Windows Vista and 2008 32-bit AppCompatCache '
+       b'cached entry.'),
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: path_size',
+      b'  data_type: uint16',
+      b'- name: maximum_path_size',
+      b'  data_type: uint16',
+      b'- name: path_offset',
+      b'  data_type: uint32',
+      b'- name: last_modification_time',
+      b'  data_type: uint64',
+      b'- name: insertion_flags',
+      b'  data_type: uint32',
+      b'- name: shim_flags',
+      b'  data_type: uint32',
+      b'---',
+      b'name: appcompatcache_cached_entry_vista_64bit',
+      b'type: structure',
+      (b'description: Windows Vista and 2008 64-bit AppCompatCache '
+       b'cached entry.'),
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: path_size',
+      b'  data_type: uint16',
+      b'- name: maximum_path_size',
+      b'  data_type: uint16',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'- name: path_offset',
+      b'  data_type: uint64',
+      b'- name: last_modification_time',
+      b'  data_type: uint64',
+      b'- name: insertion_flags',
+      b'  data_type: uint32',
+      b'- name: shim_flags',
+      b'  data_type: uint32',
+      b'---',
+      b'name: appcompatcache_header_7',
+      b'type: structure',
+      b'description: Windows 7 AppCompatCache header.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: signature',
+      b'  data_type: uint32',
+      b'- name: number_of_cached_entries',
+      b'  data_type: uint32',
+      b'- name: unknown1',
+      b'  type: sequence',
+      b'  element_data_type: byte',
+      b'  number_of_elements: 120',
+      b'---',
+      b'name: appcompatcache_cached_entry_7_32bit',
+      b'type: structure',
+      b'description: Windows 7 and 2008 R2 32-bit AppCompatCache cached entry.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: path_size',
+      b'  data_type: uint16',
+      b'- name: maximum_path_size',
+      b'  data_type: uint16',
+      b'- name: path_offset',
+      b'  data_type: uint32',
+      b'- name: last_modification_time',
+      b'  data_type: uint64',
+      b'- name: insertion_flags',
+      b'  data_type: uint32',
+      b'- name: shim_flags',
+      b'  data_type: uint32',
+      b'- name: data_size',
+      b'  data_type: uint32',
+      b'- name: data_offset',
+      b'  data_type: uint32',
+      b'---',
+      b'name: appcompatcache_cached_entry_7_64bit',
+      b'type: structure',
+      b'description: Windows 7 and 2008 R2 64-bit AppCompatCache cached entry.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: path_size',
+      b'  data_type: uint16',
+      b'- name: maximum_path_size',
+      b'  data_type: uint16',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'- name: path_offset',
+      b'  data_type: uint64',
+      b'- name: last_modification_time',
+      b'  data_type: uint64',
+      b'- name: insertion_flags',
+      b'  data_type: uint64',
+      b'- name: shim_flags',
+      b'  data_type: uint64',
+      b'---',
+      b'name: appcompatcache_header_8',
+      b'type: structure',
+      b'description: Windows 8 AppCompatCache header.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: signature',
+      b'  data_type: uint32',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'- name: unknown2',
+      b'  type: sequence',
+      b'  element_data_type: byte',
+      b'  number_of_elements: 120',
+      b'---',
+      b'name: appcompatcache_cached_entry_header_8',
+      b'type: structure',
+      b'description: Windows 8 AppCompatCache header.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: signature',
+      b'  data_type: uint32',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'- name: cached_entry_data_size',
+      b'  data_type: uint32',
+      b'- name: path_size',
+      b'  data_type: uint16',
+      b'---',
+      b'name: appcompatcache_header_10',
+      b'type: structure',
+      b'description: Windows 10 AppCompatCache header.',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: signature',
+      b'  data_type: uint32',
+      b'- name: unknown1',
+      b'  data_type: uint32',
+      b'- name: unknown2',
+      b'  type: sequence',
+      b'  element_data_type: byte',
+      b'  number_of_elements: 28',
+      b'- name: number_of_cached_entries',
+      b'  data_type: uint32',
+      b'- name: unknown3',
+      b'  type: sequence',
+      b'  element_data_type: byte',
+      b'  number_of_elements: 8'
+  ])
 
-  # AppCompatCache format used in Windows XP.
-  _HEADER_XP_32BIT_STRUCT = construct.Struct(
-      u'appcompatcache_header_xp',
-      construct.ULInt32(u'signature'),
-      construct.ULInt32(u'number_of_cached_entries'),
-      construct.ULInt32(u'number_of_lru_entries'),
-      construct.ULInt32(u'unknown1'),
-      construct.Array(96, construct.ULInt32("lru_entry")))
+  _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
+      yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
 
-  _CACHED_ENTRY_XP_32BIT_STRUCT = construct.Struct(
-      u'appcompatcache_cached_entry_xp_32bit',
-      construct.Array(528, construct.Byte(u'path')),
-      construct.ULInt64(u'last_modification_time'),
-      construct.ULInt64(u'file_size'),
-      construct.ULInt64(u'last_update_time'))
+  _UINT16 = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'uint16')
+  _UINT32 = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'uint32')
+  _UINT64 = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'uint64')
 
-  # AppCompatCache format signature used in Windows 2003, Vista and 2008.
-  _HEADER_SIGNATURE_2003 = 0xbadc0ffe
+  _HEADER_XP_32BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_header_xp_32bit')
 
-  # AppCompatCache format used in Windows 2003.
-  _HEADER_2003_STRUCT = construct.Struct(
-      u'appcompatcache_header_2003',
-      construct.ULInt32(u'signature'),
-      construct.ULInt32(u'number_of_cached_entries'))
+  _CACHED_ENTRY_XP_32BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_cached_entry_xp_32bit')
 
-  _CACHED_ENTRY_2003_32BIT_STRUCT = construct.Struct(
-      u'appcompatcache_cached_entry_2003_32bit',
-      construct.ULInt16(u'path_size'),
-      construct.ULInt16(u'maximum_path_size'),
-      construct.ULInt32(u'path_offset'),
-      construct.ULInt64(u'last_modification_time'),
-      construct.ULInt64(u'file_size'))
+  _CACHED_ENTRY_XP_32BIT_SIZE = _CACHED_ENTRY_XP_32BIT.GetByteSize()
 
-  _CACHED_ENTRY_2003_64BIT_STRUCT = construct.Struct(
-      u'appcompatcache_cached_entry_2003_64bit',
-      construct.ULInt16(u'path_size'),
-      construct.ULInt16(u'maximum_path_size'),
-      construct.ULInt32(u'unknown1'),
-      construct.ULInt64(u'path_offset'),
-      construct.ULInt64(u'last_modification_time'),
-      construct.ULInt64(u'file_size'))
+  _HEADER_2003 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_header_2003')
 
-  # AppCompatCache format used in Windows Vista and 2008.
-  _CACHED_ENTRY_VISTA_32BIT_STRUCT = construct.Struct(
-      u'appcompatcache_cached_entry_vista_32bit',
-      construct.ULInt16(u'path_size'),
-      construct.ULInt16(u'maximum_path_size'),
-      construct.ULInt32(u'path_offset'),
-      construct.ULInt64(u'last_modification_time'),
-      construct.ULInt32(u'insertion_flags'),
-      construct.ULInt32(u'shim_flags'))
+  _CACHED_ENTRY_2003_32BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_cached_entry_2003_32bit')
 
-  _CACHED_ENTRY_VISTA_64BIT_STRUCT = construct.Struct(
-      u'appcompatcache_cached_entry_vista_64bit',
-      construct.ULInt16(u'path_size'),
-      construct.ULInt16(u'maximum_path_size'),
-      construct.ULInt32(u'unknown1'),
-      construct.ULInt64(u'path_offset'),
-      construct.ULInt64(u'last_modification_time'),
-      construct.ULInt32(u'insertion_flags'),
-      construct.ULInt32(u'shim_flags'))
+  _CACHED_ENTRY_2003_32BIT_SIZE = _CACHED_ENTRY_2003_32BIT.GetByteSize()
 
-  # AppCompatCache format signature used in Windows 7 and 2008 R2.
-  _HEADER_SIGNATURE_7 = 0xbadc0fee
+  _CACHED_ENTRY_2003_64BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_cached_entry_2003_64bit')
 
-  # AppCompatCache format used in Windows 7 and 2008 R2.
-  _HEADER_7_STRUCT = construct.Struct(
-      u'appcompatcache_header_7',
-      construct.ULInt32(u'signature'),
-      construct.ULInt32(u'number_of_cached_entries'),
-      construct.Padding(120))
+  _CACHED_ENTRY_2003_64BIT_SIZE = _CACHED_ENTRY_2003_64BIT.GetByteSize()
 
-  _CACHED_ENTRY_7_32BIT_STRUCT = construct.Struct(
-      u'appcompatcache_cached_entry_7_32bit',
-      construct.ULInt16(u'path_size'),
-      construct.ULInt16(u'maximum_path_size'),
-      construct.ULInt32(u'path_offset'),
-      construct.ULInt64(u'last_modification_time'),
-      construct.ULInt32(u'insertion_flags'),
-      construct.ULInt32(u'shim_flags'),
-      construct.ULInt32(u'data_size'),
-      construct.ULInt32(u'data_offset'))
+  _HEADER_VISTA = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_header_vista')
 
-  _CACHED_ENTRY_7_64BIT_STRUCT = construct.Struct(
-      u'appcompatcache_cached_entry_7_64bit',
-      construct.ULInt16(u'path_size'),
-      construct.ULInt16(u'maximum_path_size'),
-      construct.ULInt32(u'unknown1'),
-      construct.ULInt64(u'path_offset'),
-      construct.ULInt64(u'last_modification_time'),
-      construct.ULInt32(u'insertion_flags'),
-      construct.ULInt32(u'shim_flags'),
-      construct.ULInt64(u'data_size'),
-      construct.ULInt64(u'data_offset'))
+  _CACHED_ENTRY_VISTA_32BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_cached_entry_vista_32bit')
 
-  # AppCompatCache format used in Windows 8.0 and 8.1.
-  _HEADER_SIGNATURE_8 = 0x00000080
+  _CACHED_ENTRY_VISTA_32BIT_SIZE = _CACHED_ENTRY_VISTA_32BIT.GetByteSize()
 
-  _HEADER_8_STRUCT = construct.Struct(
-      u'appcompatcache_header_8',
-      construct.ULInt32(u'signature'),
-      construct.ULInt32(u'unknown1'),
-      construct.Padding(120))
+  _CACHED_ENTRY_VISTA_64BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_cached_entry_vista_64bit')
 
-  _CACHED_ENTRY_HEADER_8_STRUCT = construct.Struct(
-      u'appcompatcache_cached_entry_header_8',
-      construct.ULInt32(u'signature'),
-      construct.ULInt32(u'unknown1'),
-      construct.ULInt32(u'cached_entry_data_size'),
-      construct.ULInt16(u'path_size'))
+  _CACHED_ENTRY_VISTA_64BIT_SIZE = _CACHED_ENTRY_VISTA_64BIT.GetByteSize()
+
+  _HEADER_7 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_header_7')
+
+  _CACHED_ENTRY_7_32BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_cached_entry_7_32bit')
+
+  _CACHED_ENTRY_7_32BIT_SIZE = _CACHED_ENTRY_7_32BIT.GetByteSize()
+
+  _CACHED_ENTRY_7_64BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_cached_entry_7_64bit')
+
+  _CACHED_ENTRY_7_64BIT_SIZE = _CACHED_ENTRY_7_64BIT.GetByteSize()
+
+  _HEADER_8 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_header_8')
+
+  _CACHED_ENTRY_HEADER_8 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_cached_entry_header_8')
+
+  _CACHED_ENTRY_HEADER_8_SIZE = _CACHED_ENTRY_HEADER_8.GetByteSize()
+
+  _HEADER_10 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_header_10')
+
+  _HEADER_SIGNATURES = {
+      # AppCompatCache format signature used in Windows XP.
+      0xdeadbeef: FORMAT_TYPE_XP,
+      # AppCompatCache format signature used in Windows 2003, Vista and 2008.
+      0xbadc0ffe: FORMAT_TYPE_2003,
+      # AppCompatCache format signature used in Windows 7 and 2008 R2.
+      0xbadc0fee: FORMAT_TYPE_7,
+      # AppCompatCache format used in Windows 8.0 and 8.1.
+      0x00000080: FORMAT_TYPE_8,
+      # AppCompatCache format used in Windows 10
+      0x00000030: FORMAT_TYPE_10,
+      0x00000034: FORMAT_TYPE_10}
+
+  _HEADERS = {
+      FORMAT_TYPE_XP: _HEADER_XP_32BIT,
+      FORMAT_TYPE_2003: _HEADER_2003,
+      FORMAT_TYPE_VISTA: _HEADER_VISTA,
+      FORMAT_TYPE_7: _HEADER_7,
+      FORMAT_TYPE_8: _HEADER_8,
+      FORMAT_TYPE_10: _HEADER_10}
+
+  _HEADER_SIZES = {
+      FORMAT_TYPE_XP: _HEADER_XP_32BIT.GetByteSize(),
+      FORMAT_TYPE_2003: _HEADER_2003.GetByteSize(),
+      FORMAT_TYPE_VISTA: _HEADER_VISTA.GetByteSize(),
+      FORMAT_TYPE_7: _HEADER_7.GetByteSize(),
+      FORMAT_TYPE_8: _HEADER_8.GetByteSize(),
+      FORMAT_TYPE_10: _HEADER_10.GetByteSize()}
+
+  _CACHED_ENTRIES = {
+      FORMAT_TYPE_XP: {
+          _CACHED_ENTRY_XP_32BIT_SIZE: _CACHED_ENTRY_XP_32BIT},
+      FORMAT_TYPE_2003: {
+          _CACHED_ENTRY_2003_32BIT_SIZE: _CACHED_ENTRY_2003_32BIT,
+          _CACHED_ENTRY_2003_64BIT_SIZE: _CACHED_ENTRY_2003_64BIT},
+      FORMAT_TYPE_VISTA: {
+          _CACHED_ENTRY_VISTA_32BIT_SIZE: _CACHED_ENTRY_VISTA_32BIT,
+          _CACHED_ENTRY_VISTA_64BIT_SIZE: _CACHED_ENTRY_VISTA_64BIT},
+      FORMAT_TYPE_7: {
+          _CACHED_ENTRY_7_32BIT_SIZE: _CACHED_ENTRY_7_32BIT,
+          _CACHED_ENTRY_7_64BIT_SIZE: _CACHED_ENTRY_7_64BIT},
+  }
 
   # AppCompatCache format used in Windows 8.0.
   _CACHED_ENTRY_SIGNATURE_8_0 = u'00ts'
 
   # AppCompatCache format used in Windows 8.1.
   _CACHED_ENTRY_SIGNATURE_8_1 = u'10ts'
-
-  # AppCompatCache format used in Windows 10
-  _HEADER_SIGNATURES_10 = (0x00000030, 0x00000034)
-
-  _HEADER_10_STRUCT = construct.Struct(
-      u'appcompatcache_header_10',
-      construct.ULInt32(u'signature'),
-      construct.ULInt32(u'unknown1'),
-      construct.Padding(28),
-      construct.ULInt32(u'number_of_cached_entries'),
-      construct.Padding(8))
 
   def __init__(self, debug=False, output_writer=None):
     """Initializes an Application Compatibility Cache parser.
@@ -217,28 +479,35 @@ class AppCompatCacheDataParser(object):
 
     Returns:
       int: format type or None.
-    """
-    signature = construct.ULInt32(u'signature').parse(value_data)
-    if signature == self._HEADER_SIGNATURE_XP:
-      return self.FORMAT_TYPE_XP
 
-    elif signature == self._HEADER_SIGNATURE_2003:
+    Raises:
+      ParseError: if the value data could not be parsed.
+    """
+    try:
+      signature = self._UINT32.MapByteStream(value_data)
+    except dtfabric_errors.MappingError as exception:
+      raise errors.ParseError(exception)
+
+    format_type = self._HEADER_SIGNATURES.get(signature, None)
+
+    if format_type == self.FORMAT_TYPE_2003:
       # TODO: determine which format version is used (2003 or Vista).
       return self.FORMAT_TYPE_2003
 
-    elif signature == self._HEADER_SIGNATURE_7:
-      return self.FORMAT_TYPE_7
-
-    elif signature == self._HEADER_SIGNATURE_8:
-      if value_data[signature:signature + 4] in (
+    elif format_type == self.FORMAT_TYPE_8:
+      cached_entry_signature = value_data[signature:signature + 4]
+      if cached_entry_signature in (
           self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1):
         return self.FORMAT_TYPE_8
 
-    elif signature in self._HEADER_SIGNATURES_10:
+    elif format_type == self.FORMAT_TYPE_10:
       # Windows 10 uses the same cache entry signature as Windows 8.1
-      if value_data[signature:signature + 4] == (
-          self._CACHED_ENTRY_SIGNATURE_8_1):
+      cached_entry_signature = value_data[signature:signature + 4]
+      if cached_entry_signature == self._CACHED_ENTRY_SIGNATURE_8_1:
         return self.FORMAT_TYPE_10
+
+    elif format_type is not None:
+      return format_type
 
     return
 
@@ -255,87 +524,74 @@ class AppCompatCacheDataParser(object):
     Raises:
       ParseError: if the value data could not be parsed.
     """
-    if format_type not in (
-        self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
-        self.FORMAT_TYPE_7, self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
+    header_struct = self._HEADERS.get(format_type, None)
+    if not header_struct:
       raise errors.ParseError(u'Unsupported format type: {0:d}'.format(
           format_type))
 
-    header_object = AppCompatCacheHeader()
+    try:
+      header = header_struct.MapByteStream(value_data)
+    except dtfabric_errors.MappingError as exception:
+      raise errors.ParseError(exception)
 
-    if format_type == self.FORMAT_TYPE_XP:
-      header_struct = self._HEADER_XP_32BIT_STRUCT.parse(value_data)
-      header_object.header_size = self._HEADER_XP_32BIT_STRUCT.sizeof()
-
-    elif format_type == self.FORMAT_TYPE_2003:
-      header_struct = self._HEADER_2003_STRUCT.parse(value_data)
-      header_object.header_size = self._HEADER_2003_STRUCT.sizeof()
-
-    elif format_type == self.FORMAT_TYPE_VISTA:
-      header_struct = self._HEADER_VISTA_STRUCT.parse(value_data)
-      header_object.header_size = self._HEADER_VISTA_STRUCT.sizeof()
-
-    elif format_type == self.FORMAT_TYPE_7:
-      header_struct = self._HEADER_7_STRUCT.parse(value_data)
-      header_object.header_size = self._HEADER_7_STRUCT.sizeof()
-
-    elif format_type == self.FORMAT_TYPE_8:
-      header_struct = self._HEADER_8_STRUCT.parse(value_data)
-      header_object.header_size = self._HEADER_8_STRUCT.sizeof()
-
-    elif format_type == self.FORMAT_TYPE_10:
-      header_struct = self._HEADER_10_STRUCT.parse(value_data)
-      header_object.header_size = header_struct.signature
+    header_data_size = self._HEADER_SIZES.get(format_type, None)
+    if format_type == self.FORMAT_TYPE_10:
+      header_data_size = header.signature
 
     if self._debug:
       self._output_writer.WriteDebugData(
-          u'Header data:', value_data[0:header_object.header_size])
+          u'Header data:', value_data[0:header_data_size])
+
+    cache_header = AppCompatCacheHeader()
+    cache_header.header_size = header_data_size
 
     if self._debug:
       if format_type == self.FORMAT_TYPE_10:
-        self._output_writer.WriteValue(
-            u'Header size', u'{0:d}'.format(header_struct.signature))
+        self._output_writer.WriteIntegerValueAsDecimal(
+            u'Header size', header.signature)
       else:
-        self._output_writer.WriteValue(
-            u'Signature', u'0x{0:08x}'.format(header_struct.signature))
+        value_string = u'0x{0:08x}'.format(header.signature)
+        self._output_writer.WriteValue(u'Signature', value_string)
 
     if format_type in (
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7, self.FORMAT_TYPE_10):
-      header_object.number_of_cached_entries = header_struct.get(
-          u'number_of_cached_entries')
+      cache_header.number_of_cached_entries = header.number_of_cached_entries
 
       if self._debug:
-        self._output_writer.WriteValue(
-            u'Number of cached entries',
-            u'{0:d}'.format(header_object.number_of_cached_entries))
+        self._output_writer.WriteIntegerValueAsDecimal(
+            u'Number of cached entries', cache_header.number_of_cached_entries)
 
     if format_type == self.FORMAT_TYPE_XP:
-      number_of_lru_entries = header_struct.get(u'number_of_lru_entries')
+      number_of_lru_entries = header.number_of_lru_entries
       if self._debug:
-        self._output_writer.WriteValue(
-            u'Number of LRU entries',
-            u'0x{0:08x}'.format(number_of_lru_entries))
-        self._output_writer.WriteValue(
-            u'Unknown1', u'0x{0:08x}'.format(header_struct.get(u'unknown1')))
+        value_string = u'0x{0:08x}'.format(number_of_lru_entries)
+        self._output_writer.WriteValue(u'Number of LRU entries', value_string)
+
+        value_string = u'0x{0:08x}'.format(header.unknown1)
+        self._output_writer.WriteValue(u'Unknown1', value_string)
 
         self._output_writer.WriteText(u'LRU entries:')
 
       data_offset = 16
       if number_of_lru_entries > 0 and number_of_lru_entries <= 96:
         for lru_entry_index in range(number_of_lru_entries):
-          lru_entry = construct.ULInt32(u'cache_entry_index').parse(
-              value_data[data_offset:data_offset + 4])
+          try:
+            lru_entry = self._UINT32.MapByteStream(
+                value_data[data_offset:data_offset + 4])
+          except dtfabric_errors.MappingError as exception:
+            raise errors.ParseError(exception)
+
           data_offset += 4
 
           if self._debug:
-            print((
-                u'LRU entry: {0:d}\t\t\t\t\t\t\t\t: {1:d} '
-                u'(offset: 0x{2:08x})').format(
-                    lru_entry_index, lru_entry, 400 + (lru_entry * 552)))
+            value_string = u'{0:d} (offset: 0x{1:08x})'.format(
+                lru_entry, 400 + (lru_entry * 552))
+            self._output_writer.WriteValue(
+                u'LRU entry: {0:d}'.format(lru_entry_index), value_string)
 
         if self._debug:
-          print(u'')
+          self._output_writer.WriteText(u'')
 
       if self._debug:
         self._output_writer.WriteDebugData(
@@ -343,13 +599,13 @@ class AppCompatCacheDataParser(object):
 
     elif format_type == self.FORMAT_TYPE_8:
       if self._debug:
-        print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            header_struct.get(u'unknown1')))
+        value_string = u'0x{0:08x}'.format(header.unknown1)
+        self._output_writer.WriteValue(u'Unknown1', value_string)
 
     if self._debug:
-      print(u'')
+      self._output_writer.WriteText(u'')
 
-    return header_object
+    return cache_header
 
   def DetermineCacheEntrySize(
       self, format_type, value_data, cached_entry_offset):
@@ -377,47 +633,47 @@ class AppCompatCacheDataParser(object):
     cached_entry_size = 0
 
     if format_type == self.FORMAT_TYPE_XP:
-      cached_entry_size = self._CACHED_ENTRY_XP_32BIT_STRUCT.sizeof()
+      cached_entry_size = self._CACHED_ENTRY_XP_32BIT_SIZE
 
     elif format_type in (
         self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA, self.FORMAT_TYPE_7):
-      path_size = construct.ULInt16(u'path_size').parse(cached_entry_data[0:2])
-      maximum_path_size = construct.ULInt16(u'maximum_path_size').parse(
-          cached_entry_data[2:4])
-      path_offset_32bit = construct.ULInt32(u'path_offset').parse(
-          cached_entry_data[4:8])
-      path_offset_64bit = construct.ULInt32(u'path_offset').parse(
-          cached_entry_data[8:16])
+      try:
+        path_size = self._UINT16.MapByteStream(cached_entry_data[0:2])
+        maximum_path_size = self._UINT16.MapByteStream(cached_entry_data[2:4])
+        path_offset_32bit = self._UINT32.MapByteStream(cached_entry_data[4:8])
+        path_offset_64bit = self._UINT32.MapByteStream(cached_entry_data[8:16])
+      except dtfabric_errors.MappingError as exception:
+        raise errors.ParseError(exception)
 
       if maximum_path_size < path_size:
-        logging.error(u'Path size value out of bounds.')
+        errors.ParseError(u'Path size value out of bounds.')
         return
 
       path_end_of_string_size = maximum_path_size - path_size
       if path_size == 0 or path_end_of_string_size != 2:
-        logging.error(u'Unsupported path size values.')
+        errors.ParseError(u'Unsupported path size values.')
         return
 
       # Assume the entry is 64-bit if the 32-bit path offset is 0 and
       # the 64-bit path offset is set.
       if path_offset_32bit == 0 and path_offset_64bit != 0:
         if format_type == self.FORMAT_TYPE_2003:
-          cached_entry_size = self._CACHED_ENTRY_2003_64BIT_STRUCT.sizeof()
+          cached_entry_size = self._CACHED_ENTRY_2003_64BIT_SIZE
         elif format_type == self.FORMAT_TYPE_VISTA:
-          cached_entry_size = self._CACHED_ENTRY_VISTA_64BIT_STRUCT.sizeof()
+          cached_entry_size = self._CACHED_ENTRY_VISTA_64BIT_SIZE
         elif format_type == self.FORMAT_TYPE_7:
-          cached_entry_size = self._CACHED_ENTRY_7_64BIT_STRUCT.sizeof()
+          cached_entry_size = self._CACHED_ENTRY_7_64BIT_SIZE
 
       else:
         if format_type == self.FORMAT_TYPE_2003:
-          cached_entry_size = self._CACHED_ENTRY_2003_32BIT_STRUCT.sizeof()
+          cached_entry_size = self._CACHED_ENTRY_2003_32BIT_SIZE
         elif format_type == self.FORMAT_TYPE_VISTA:
-          cached_entry_size = self._CACHED_ENTRY_VISTA_32BIT_STRUCT.sizeof()
+          cached_entry_size = self._CACHED_ENTRY_VISTA_32BIT_SIZE
         elif format_type == self.FORMAT_TYPE_7:
-          cached_entry_size = self._CACHED_ENTRY_7_32BIT_STRUCT.sizeof()
+          cached_entry_size = self._CACHED_ENTRY_7_32BIT_SIZE
 
     elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
-      cached_entry_size = self._CACHED_ENTRY_HEADER_8_STRUCT.sizeof()
+      cached_entry_size = self._CACHED_ENTRY_HEADER_8_SIZE
 
     return cached_entry_size
 
@@ -462,57 +718,37 @@ class AppCompatCacheDataParser(object):
             cached_entry_index)
         self._output_writer.WriteDebugData(description, cached_entry_data[:-2])
 
-    cached_entry_struct = None
+    cached_entry = None
 
-    if format_type == self.FORMAT_TYPE_XP:
-      if cached_entry_size == self._CACHED_ENTRY_XP_32BIT_STRUCT.sizeof():
-        cached_entry_struct = self._CACHED_ENTRY_XP_32BIT_STRUCT.parse(
-            cached_entry_data)
+    cached_entry_struct = self._CACHED_ENTRIES.get(format_type, {}).get(
+        cached_entry_size, None)
 
-    elif format_type == self.FORMAT_TYPE_2003:
-      if cached_entry_size == self._CACHED_ENTRY_2003_32BIT_STRUCT.sizeof():
-        cached_entry_struct = self._CACHED_ENTRY_2003_32BIT_STRUCT.parse(
-            cached_entry_data)
+    if cached_entry_struct:
+      try:
+        cached_entry = cached_entry_struct.MapByteStream(cached_entry_data)
+      except dtfabric_errors.MappingError as exception:
+        raise errors.ParseError(exception)
 
-      elif cached_entry_size == self._CACHED_ENTRY_2003_64BIT_STRUCT.sizeof():
-        cached_entry_struct = self._CACHED_ENTRY_2003_64BIT_STRUCT.parse(
-            cached_entry_data)
-
-    elif format_type == self.FORMAT_TYPE_VISTA:
-      if cached_entry_size == self._CACHED_ENTRY_VISTA_32BIT_STRUCT.sizeof():
-        cached_entry_struct = self._CACHED_ENTRY_VISTA_32BIT_STRUCT.parse(
-            cached_entry_data)
-
-      elif cached_entry_size == self._CACHED_ENTRY_VISTA_64BIT_STRUCT.sizeof():
-        cached_entry_struct = self._CACHED_ENTRY_VISTA_64BIT_STRUCT.parse(
-            cached_entry_data)
-
-    elif format_type == self.FORMAT_TYPE_7:
-      if cached_entry_size == self._CACHED_ENTRY_7_32BIT_STRUCT.sizeof():
-        cached_entry_struct = self._CACHED_ENTRY_7_32BIT_STRUCT.parse(
-            cached_entry_data)
-
-      elif cached_entry_size == self._CACHED_ENTRY_7_64BIT_STRUCT.sizeof():
-        cached_entry_struct = self._CACHED_ENTRY_7_64BIT_STRUCT.parse(
-            cached_entry_data)
-
-    elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
+    if format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
       if cached_entry_data[0:4] not in (
           self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1):
         raise errors.ParseError(u'Unsupported cache entry signature')
 
-      if cached_entry_size == self._CACHED_ENTRY_HEADER_8_STRUCT.sizeof():
-        cached_entry_struct = self._CACHED_ENTRY_HEADER_8_STRUCT.parse(
-            cached_entry_data)
+      if cached_entry_size == self._CACHED_ENTRY_HEADER_8_SIZE:
+        try:
+          cached_entry = self._CACHED_ENTRY_HEADER_8.MapByteStream(
+              cached_entry_data)
+        except dtfabric_errors.MappingError as exception:
+          raise errors.ParseError(exception)
 
-        cached_entry_data_size = cached_entry_struct.get(
+        cached_entry_data_size = cached_entry.get(
             u'cached_entry_data_size')
         cached_entry_size = 12 + cached_entry_data_size
 
         cached_entry_data = value_data[
             cached_entry_offset:cached_entry_offset + cached_entry_size]
 
-    if not cached_entry_struct:
+    if not cached_entry:
       raise errors.ParseError(u'Unsupported cache entry size: {0:d}'.format(
           cached_entry_size))
 
@@ -539,60 +775,75 @@ class AppCompatCacheDataParser(object):
           u'utf-16-le')
 
       if self._debug:
-        print(u'Path\t\t\t\t\t\t\t\t\t: {0:s}'.format(cached_entry_object.path))
+        self._output_writer.WriteValue(u'Path', cached_entry_object.path)
 
     elif format_type in (
         self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA, self.FORMAT_TYPE_7):
-      path_size = cached_entry_struct.get(u'path_size')
-      maximum_path_size = cached_entry_struct.get(u'maximum_path_size')
-      path_offset = cached_entry_struct.get(u'path_offset')
+      path_size = cached_entry.get(u'path_size')
+      maximum_path_size = cached_entry.get(u'maximum_path_size')
+      path_offset = cached_entry.get(u'path_offset')
 
       if self._debug:
-        print(u'Path size\t\t\t\t\t\t\t\t: {0:d}'.format(path_size))
-        print(u'Maximum path size\t\t\t\t\t\t\t: {0:d}'.format(
-            maximum_path_size))
-        print(u'Path offset\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(path_offset))
+        self._output_writer.WriteIntegerValueAsDecimal(u'Path size', path_size)
+
+        self._output_writer.WriteIntegerValueAsDecimal(
+            u'Maximum path size', maximum_path_size)
+
+        value_string = u'0x{0:08x}'.format(path_offset)
+        self._output_writer.WriteValue(u'Path offset', value_string)
 
     elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
-      path_size = cached_entry_struct.get(u'path_size')
+      path_size = cached_entry.get(u'path_size')
 
       if self._debug:
-        print(u'Signature\t\t\t\t\t\t\t\t: {0:s}'.format(
-            cached_entry_data[0:4]))
-        print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            cached_entry_struct.get(u'unknown1')))
-        print(u'Cached entry data size\t\t\t\t\t\t\t: {0:d}'.format(
-            cached_entry_data_size))
-        print(u'Path size\t\t\t\t\t\t\t\t: {0:d}'.format(path_size))
+        self._output_writer.WriteValue(u'Signature', cached_entry_data[0:4])
+
+        value_string = u'0x{0:08x}'.format(cached_entry.unknown1)
+        self._output_writer.WriteValue(u'Unknown1', value_string)
+
+        self._output_writer.WriteIntegerValueAsDecimal(
+            u'Cached entry data size', cached_entry_data_size)
+
+        self._output_writer.WriteIntegerValueAsDecimal(u'Path size', path_size)
 
       cached_entry_data_offset = 14 + path_size
       cached_entry_object.path = cached_entry_data[
           14:cached_entry_data_offset].decode(u'utf-16-le')
 
       if self._debug:
-        print(u'Path\t\t\t\t\t\t\t\t\t: {0:s}'.format(cached_entry_object.path))
+        self._output_writer.WriteValue(u'Path', cached_entry_object.path)
 
       if format_type == self.FORMAT_TYPE_8:
         remaining_data = cached_entry_data[cached_entry_data_offset:]
 
-        cached_entry_object.insertion_flags = construct.ULInt32(
-            u'insertion_flags').parse(remaining_data[0:4])
-        cached_entry_object.shim_flags = construct.ULInt32(
-            u'shim_flags').parse(remaining_data[4:8])
+        try:
+          cached_entry_object.insertion_flags = self._UINT32.MapByteStream(
+              remaining_data[0:4])
+          cached_entry_object.shim_flags = self._UINT32.MapByteStream(
+              remaining_data[4:8])
+        except dtfabric_errors.MappingError as exception:
+          raise errors.ParseError(exception)
 
         if self._debug:
-          print(u'Insertion flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-              cached_entry_object.insertion_flags))
-          print(u'Shim flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-              cached_entry_object.shim_flags))
+          value_string = u'0x{0:08x}'.format(
+              cached_entry_object.insertion_flags)
+          self._output_writer.WriteValue(u'Insertion flags', value_string)
+
+          value_string = u'0x{0:08x}'.format(cached_entry_object.shim_flags)
+          self._output_writer.WriteValue(u'Shim flags', value_string)
 
         if cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_0:
           cached_entry_data_offset += 8
 
         elif cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_1:
           if self._debug:
-            print(u'Unknown1\t\t\t\t\t\t\t\t: 0x{0:04x}'.format(
-                construct.ULInt16(u'unknown1').parse(remaining_data[8:10])))
+            try:
+              unknown1 = self._UINT16.MapByteStream(remaining_data[8:10])
+            except dtfabric_errors.MappingError as exception:
+              raise errors.ParseError(exception)
+
+            value_string = u'0x{0:04x}'.format(unknown1)
+            self._output_writer.WriteValue(u'Unknown1', value_string)
 
           cached_entry_data_offset += 10
 
@@ -601,17 +852,21 @@ class AppCompatCacheDataParser(object):
     if format_type in (
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7):
-      cached_entry_object.last_modification_time = cached_entry_struct.get(
+      cached_entry_object.last_modification_time = cached_entry.get(
           u'last_modification_time')
 
     elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
-      cached_entry_object.last_modification_time = construct.ULInt64(
-          u'last_modification_time').parse(remaining_data[0:8])
+      try:
+        cached_entry_object.last_modification_time = (
+            self._UINT64.MapByteStream(remaining_data[0:8]))
+      except dtfabric_errors.MappingError as exception:
+        raise errors.ParseError(exception)
 
     if not cached_entry_object.last_modification_time:
       if self._debug:
-        print(u'Last modification time\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            cached_entry_object.last_modification_time))
+        value_string = u'0x{0:08x}'.format(
+            cached_entry_object.last_modification_time)
+        self._output_writer.WriteValue(u'Last modification time', value_string)
 
     else:
       timestamp = cached_entry_object.last_modification_time // 10
@@ -619,35 +874,38 @@ class AppCompatCacheDataParser(object):
                      datetime.timedelta(microseconds=timestamp))
 
       if self._debug:
-        print(u'Last modification time\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
-            date_string, cached_entry_object.last_modification_time))
+        value_string = u'{0!s} (0x{1:08x})'.format(
+            date_string, cached_entry_object.last_modification_time)
+        self._output_writer.WriteValue(u'Last modification time', value_string)
 
     if format_type in (self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003):
-      cached_entry_object.file_size = cached_entry_struct.get(u'file_size')
+      cached_entry_object.file_size = cached_entry.get(u'file_size')
 
       if self._debug:
-        print(u'File size\t\t\t\t\t\t\t\t: {0:d}'.format(
-            cached_entry_object.file_size))
+        self._output_writer.WriteIntegerValueAsDecimal(
+            u'File size', cached_entry_object.file_size)
 
     elif format_type in (self.FORMAT_TYPE_VISTA, self.FORMAT_TYPE_7):
-      cached_entry_object.insertion_flags = cached_entry_struct.get(
+      cached_entry_object.insertion_flags = cached_entry.get(
           u'insertion_flags')
-      cached_entry_object.shim_flags = cached_entry_struct.get(u'shim_flags')
+      cached_entry_object.shim_flags = cached_entry.get(u'shim_flags')
 
       if self._debug:
-        print(u'Insertion flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            cached_entry_object.insertion_flags))
-        print(u'Shim flags\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-            cached_entry_object.shim_flags))
+        value_string = u'0x{0:08x}'.format(cached_entry_object.insertion_flags)
+        self._output_writer.WriteValue(u'Insertion flags', value_string)
+
+        value_string = u'0x{0:08x}'.format(cached_entry_object.shim_flags)
+        self._output_writer.WriteValue(u'Shim flags', value_string)
 
     if format_type == self.FORMAT_TYPE_XP:
-      cached_entry_object.last_update_time = cached_entry_struct.get(
+      cached_entry_object.last_update_time = cached_entry.get(
           u'last_update_time')
 
       if not cached_entry_object.last_update_time:
         if self._debug:
-          print(u'Last update time\t\t\t\t\t\t\t: 0x{0:08x}'.format(
-              cached_entry_object.last_update_time))
+          value_string = u'0x{0:08x}'.format(
+              cached_entry_object.last_update_time)
+          self._output_writer.WriteValue(u'Last update time', value_string)
 
       else:
         timestamp = cached_entry_object.last_update_time // 10
@@ -655,26 +913,33 @@ class AppCompatCacheDataParser(object):
                        datetime.timedelta(microseconds=timestamp))
 
         if self._debug:
-          print(u'Last update time\t\t\t\t\t\t\t: {0!s} (0x{1:08x})'.format(
-              date_string, cached_entry_object.last_update_time))
+          value_string = u'{0!s} (0x{1:08x})'.format(
+              date_string, cached_entry_object.last_update_time)
+          self._output_writer.WriteValue(u'Last update time', value_string)
 
     if format_type == self.FORMAT_TYPE_7:
-      data_offset = cached_entry_struct.get(u'data_offset')
-      data_size = cached_entry_struct.get(u'data_size')
+      data_offset = cached_entry.get(u'data_offset')
+      data_size = cached_entry.get(u'data_size')
 
       if self._debug:
-        print(u'Data offset\t\t\t\t\t\t\t\t: 0x{0:08x}'.format(data_offset))
-        print(u'Data size\t\t\t\t\t\t\t\t: {0:d}'.format(data_size))
+        value_string = u'0x{0:08x}'.format(data_offset)
+        self._output_writer.WriteValue(u'Data offset', value_string)
+
+        self._output_writer.WriteIntegerValueAsDecimal(u'Data size', data_size)
 
     elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
       data_offset = cached_entry_offset + cached_entry_data_offset + 12
-      data_size = construct.ULInt32(u'data_size').parse(remaining_data[8:12])
+
+      try:
+        data_size = self._UINT32.MapByteStream(remaining_data[8:12])
+      except dtfabric_errors.MappingError as exception:
+        raise errors.ParseError(exception)
 
       if self._debug:
-        print(u'Data size\t\t\t\t\t\t\t\t: {0:d}'.format(data_size))
+        self._output_writer.WriteIntegerValueAsDecimal(u'Data size', data_size)
 
     if self._debug:
-      print(u'')
+      self._output_writer.WriteText(u'')
 
     if path_offset > 0 and path_size > 0:
       path_size += path_offset
@@ -688,8 +953,8 @@ class AppCompatCacheDataParser(object):
           u'utf-16-le')
 
       if self._debug:
-        print(u'Path\t\t\t\t\t\t\t\t\t: {0:s}'.format(cached_entry_object.path))
-        print(u'')
+        self._output_writer.WriteValue(u'Path', cached_entry_object.path)
+        self._output_writer.WriteText(u'')
 
     if data_size > 0:
       data_size += data_offset
@@ -697,8 +962,7 @@ class AppCompatCacheDataParser(object):
       cached_entry_object.data = value_data[data_offset:data_size]
 
       if self._debug:
-        self._output_writer.WriteDebugData(
-            u'Data:', cached_entry_object.data)
+        self._output_writer.WriteDebugData(u'Data:', cached_entry_object.data)
 
     return cached_entry_object
 
@@ -736,24 +1000,21 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
         debug=self._debug, output_writer=output_writer)
 
     if self._debug:
-      # TODO: replace WriteText by more output specific method e.g.
-      # WriteValueData.
-      output_writer.WriteText(u'Value data:')
-      output_writer.WriteText(hexdump.Hexdump(value_data))
+      output_writer.WriteDebugData(u'Value data:', value_data)
 
     format_type = parser.CheckSignature(value_data)
     if not format_type:
       logging.warning(u'Unsupported signature.')
       return True
 
-    header_object = parser.ParseHeader(format_type, value_data)
+    cache_header = parser.ParseHeader(format_type, value_data)
 
     # On Windows Vista and 2008 when the cache is empty it will
     # only consist of the header.
-    if value_data_size <= header_object.header_size:
+    if value_data_size <= cache_header.header_size:
       return True
 
-    cached_entry_offset = header_object.header_size
+    cached_entry_offset = cache_header.header_size
     cached_entry_size = parser.DetermineCacheEntrySize(
         format_type, value_data, cached_entry_offset)
 
@@ -769,8 +1030,8 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
       cached_entry_offset += cached_entry_object.cached_entry_size
       cached_entry_index += 1
 
-      if (header_object.number_of_cached_entries != 0 and
-          cached_entry_index >= header_object.number_of_cached_entries):
+      if (cache_header.number_of_cached_entries != 0 and
+          cached_entry_index >= cache_header.number_of_cached_entries):
         break
 
     return True
