@@ -140,59 +140,60 @@ class UserAssistDataParser(object):
       return
 
     try:
-      parsed_data = data_type_map.MapByteStream(entry_data)
+      user_assist_entry = data_type_map.MapByteStream(entry_data)
     except dtfabric_errors.MappingError as exception:
       raise errors.ParseError(exception)
 
     if self._debug:
-      value_string = u'0x{0:08x}'.format(parsed_data.unknown1)
+      value_string = u'0x{0:08x}'.format(user_assist_entry.unknown1)
       self._output_writer.WriteValue(u'Unknown1', value_string)
 
       self._output_writer.WriteIntegerValueAsDecimal(
-          u'Execution count', parsed_data.execution_count)
+          u'Execution count', user_assist_entry.execution_count)
 
       if format_version == 5:
         self._output_writer.WriteIntegerValueAsDecimal(
-            u'Application focus count', parsed_data.application_focus_count)
+            u'Application focus count',
+            user_assist_entry.application_focus_count)
 
         self._output_writer.WriteIntegerValueAsDecimal(
             u'Application focus duration',
-            parsed_data.application_focus_duration)
+            user_assist_entry.application_focus_duration)
 
-        value_string = u'{0:.2f}'.format(parsed_data.unknown2)
+        value_string = u'{0:.2f}'.format(user_assist_entry.unknown2)
         self._output_writer.WriteValue(u'Unknown2', value_string)
 
-        value_string = u'{0:.2f}'.format(parsed_data.unknown3)
+        value_string = u'{0:.2f}'.format(user_assist_entry.unknown3)
         self._output_writer.WriteValue(u'Unknown3', value_string)
 
-        value_string = u'{0:.2f}'.format(parsed_data.unknown4)
+        value_string = u'{0:.2f}'.format(user_assist_entry.unknown4)
         self._output_writer.WriteValue(u'Unknown4', value_string)
 
-        value_string = u'{0:.2f}'.format(parsed_data.unknown5)
+        value_string = u'{0:.2f}'.format(user_assist_entry.unknown5)
         self._output_writer.WriteValue(u'Unknown5', value_string)
 
-        value_string = u'{0:.2f}'.format(parsed_data.unknown6)
+        value_string = u'{0:.2f}'.format(user_assist_entry.unknown6)
         self._output_writer.WriteValue(u'Unknown6', value_string)
 
-        value_string = u'{0:.2f}'.format(parsed_data.unknown7)
+        value_string = u'{0:.2f}'.format(user_assist_entry.unknown7)
         self._output_writer.WriteValue(u'Unknown7', value_string)
 
-        value_string = u'{0:.2f}'.format(parsed_data.unknown8)
+        value_string = u'{0:.2f}'.format(user_assist_entry.unknown8)
         self._output_writer.WriteValue(u'Unknown8', value_string)
 
-        value_string = u'{0:.2f}'.format(parsed_data.unknown9)
+        value_string = u'{0:.2f}'.format(user_assist_entry.unknown9)
         self._output_writer.WriteValue(u'Unknown9', value_string)
 
-        value_string = u'{0:.2f}'.format(parsed_data.unknown10)
+        value_string = u'{0:.2f}'.format(user_assist_entry.unknown10)
         self._output_writer.WriteValue(u'Unknown10', value_string)
 
-        value_string = u'{0:.2f}'.format(parsed_data.unknown11)
+        value_string = u'{0:.2f}'.format(user_assist_entry.unknown11)
         self._output_writer.WriteValue(u'Unknown11', value_string)
 
-        value_string = u'0x{0:08x}'.format(parsed_data.unknown12)
+        value_string = u'0x{0:08x}'.format(user_assist_entry.unknown12)
         self._output_writer.WriteValue(u'Unknown12', value_string)
 
-      timestamp = parsed_data.get(u'last_execution_time')
+      timestamp = user_assist_entry.last_execution_time
       date_string = (datetime.datetime(1601, 1, 1) +
                      datetime.timedelta(microseconds=timestamp/10))
 
@@ -200,7 +201,7 @@ class UserAssistDataParser(object):
       self._output_writer.WriteValue(u'Last execution time', value_string)
 
       if format_version == 5:
-        value_string = u'0x{0:08x}'.format(parsed_data.unknown13)
+        value_string = u'0x{0:08x}'.format(user_assist_entry.unknown13)
         self._output_writer.WriteValue(u'Unknown13', value_string)
 
       self._output_writer.WriteText(u'')

@@ -210,7 +210,7 @@ class TaskCacheDataParser(object):
       value_string = u'0x{0:08x}'.format(dynamic_info.unknown3)
       self._output_writer.WriteValue(u'Unknown3', value_string)
 
-      unknown_time = dynamic_info.get(u'unknown_time', None)
+      unknown_time = dynamic_info.unknown_time
       if unknown_time is not None:
         date_string = self.CopyFiletimeToString(unknown_time)
         value_string = u'{0:s} (0x{1:08x})'.format(

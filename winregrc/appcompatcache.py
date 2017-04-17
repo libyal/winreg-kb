@@ -9,7 +9,6 @@ from dtfabric import fabric as dtfabric_fabric
 
 from winregrc import dependencies
 from winregrc import errors
-from winregrc import hexdump
 from winregrc import interface
 
 
@@ -99,6 +98,30 @@ class AppCompatCacheDataParser(object):
       b'  size: 8',
       b'  units: bytes',
       b'---',
+      b'name: uint16le',
+      b'type: integer',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'  format: unsigned',
+      b'  size: 2',
+      b'  units: bytes',
+      b'---',
+      b'name: uint32le',
+      b'type: integer',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'  format: unsigned',
+      b'  size: 4',
+      b'  units: bytes',
+      b'---',
+      b'name: uint64le',
+      b'type: integer',
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'  format: unsigned',
+      b'  size: 8',
+      b'  units: bytes',
+      b'---',
       b'name: appcompatcache_header_xp_32bit',
       b'type: structure',
       b'description: Windows XP 32-bit AppCompatCache header.',
@@ -145,6 +168,22 @@ class AppCompatCacheDataParser(object):
       b'  data_type: uint32',
       b'- name: number_of_cached_entries',
       b'  data_type: uint32',
+      b'---',
+      b'name: appcompatcache_cached_entry_2003_common',
+      b'type: structure',
+      (b'description: Windows 2003, Vista, 7 common AppCompatCache cached '
+       b'entry.'),
+      b'attributes:',
+      b'  byte_order: little-endian',
+      b'members:',
+      b'- name: path_size',
+      b'  data_type: uint16',
+      b'- name: maximum_path_size',
+      b'  data_type: uint16',
+      b'- name: path_offset_32bit',
+      b'  data_type: uint32',
+      b'- name: path_offset_64bit',
+      b'  data_type: uint64',
       b'---',
       b'name: appcompatcache_cached_entry_2003_32bit',
       b'type: structure',
@@ -349,9 +388,9 @@ class AppCompatCacheDataParser(object):
   _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
       yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
 
-  _UINT16 = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'uint16')
-  _UINT32 = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'uint32')
-  _UINT64 = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'uint64')
+  _UINT16LE = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'uint16le')
+  _UINT32LE = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'uint32le')
+  _UINT64LE = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'uint64le')
 
   _HEADER_XP_32BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
       u'appcompatcache_header_xp_32bit')
@@ -363,6 +402,9 @@ class AppCompatCacheDataParser(object):
 
   _HEADER_2003 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
       u'appcompatcache_header_2003')
+
+  _CACHED_ENTRY_2003_COMMON = _DATA_TYPE_FABRIC.CreateDataTypeMap(
+      u'appcompatcache_cached_entry_2003_common')
 
   _CACHED_ENTRY_2003_32BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
       u'appcompatcache_cached_entry_2003_32bit')
@@ -484,7 +526,7 @@ class AppCompatCacheDataParser(object):
       ParseError: if the value data could not be parsed.
     """
     try:
-      signature = self._UINT32.MapByteStream(value_data)
+      signature = self._UINT32LE.MapByteStream(value_data)
     except dtfabric_errors.MappingError as exception:
       raise errors.ParseError(exception)
 
@@ -577,7 +619,7 @@ class AppCompatCacheDataParser(object):
       if number_of_lru_entries > 0 and number_of_lru_entries <= 96:
         for lru_entry_index in range(number_of_lru_entries):
           try:
-            lru_entry = self._UINT32.MapByteStream(
+            lru_entry = self._UINT32LE.MapByteStream(
                 value_data[data_offset:data_offset + 4])
           except dtfabric_errors.MappingError as exception:
             raise errors.ParseError(exception)
@@ -607,9 +649,9 @@ class AppCompatCacheDataParser(object):
 
     return cache_header
 
-  def DetermineCacheEntrySize(
+  def DeterminedCacheEntrySize(
       self, format_type, value_data, cached_entry_offset):
-    """Parses a cached entry.
+    """Determines the size of a cached entry.
 
     Args:
       format_type (int): format type.
@@ -638,25 +680,25 @@ class AppCompatCacheDataParser(object):
     elif format_type in (
         self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA, self.FORMAT_TYPE_7):
       try:
-        path_size = self._UINT16.MapByteStream(cached_entry_data[0:2])
-        maximum_path_size = self._UINT16.MapByteStream(cached_entry_data[2:4])
-        path_offset_32bit = self._UINT32.MapByteStream(cached_entry_data[4:8])
-        path_offset_64bit = self._UINT32.MapByteStream(cached_entry_data[8:16])
+        cached_entry = self._CACHED_ENTRY_2003_COMMON.MapByteStream(
+            cached_entry_data)
       except dtfabric_errors.MappingError as exception:
         raise errors.ParseError(exception)
 
-      if maximum_path_size < path_size:
+      if cached_entry.maximum_path_size < cached_entry.path_size:
         errors.ParseError(u'Path size value out of bounds.')
         return
 
-      path_end_of_string_size = maximum_path_size - path_size
-      if path_size == 0 or path_end_of_string_size != 2:
+      path_end_of_string_size = (
+          cached_entry.maximum_path_size - cached_entry.path_size)
+      if cached_entry.path_size == 0 or path_end_of_string_size != 2:
         errors.ParseError(u'Unsupported path size values.')
         return
 
       # Assume the entry is 64-bit if the 32-bit path offset is 0 and
       # the 64-bit path offset is set.
-      if path_offset_32bit == 0 and path_offset_64bit != 0:
+      if (cached_entry.path_offset_32bit == 0 and
+          cached_entry.path_offset_64bit != 0):
         if format_type == self.FORMAT_TYPE_2003:
           cached_entry_size = self._CACHED_ENTRY_2003_64BIT_SIZE
         elif format_type == self.FORMAT_TYPE_VISTA:
@@ -741,8 +783,7 @@ class AppCompatCacheDataParser(object):
         except dtfabric_errors.MappingError as exception:
           raise errors.ParseError(exception)
 
-        cached_entry_data_size = cached_entry.get(
-            u'cached_entry_data_size')
+        cached_entry_data_size = cached_entry.cached_entry_data_size
         cached_entry_size = 12 + cached_entry_data_size
 
         cached_entry_data = value_data[
@@ -779,9 +820,9 @@ class AppCompatCacheDataParser(object):
 
     elif format_type in (
         self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA, self.FORMAT_TYPE_7):
-      path_size = cached_entry.get(u'path_size')
-      maximum_path_size = cached_entry.get(u'maximum_path_size')
-      path_offset = cached_entry.get(u'path_offset')
+      path_size = cached_entry.path_size
+      maximum_path_size = cached_entry.maximum_path_size
+      path_offset = cached_entry.path_offset
 
       if self._debug:
         self._output_writer.WriteIntegerValueAsDecimal(u'Path size', path_size)
@@ -793,7 +834,7 @@ class AppCompatCacheDataParser(object):
         self._output_writer.WriteValue(u'Path offset', value_string)
 
     elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
-      path_size = cached_entry.get(u'path_size')
+      path_size = cached_entry.path_size
 
       if self._debug:
         self._output_writer.WriteValue(u'Signature', cached_entry_data[0:4])
@@ -817,9 +858,9 @@ class AppCompatCacheDataParser(object):
         remaining_data = cached_entry_data[cached_entry_data_offset:]
 
         try:
-          cached_entry_object.insertion_flags = self._UINT32.MapByteStream(
+          cached_entry_object.insertion_flags = self._UINT32LE.MapByteStream(
               remaining_data[0:4])
-          cached_entry_object.shim_flags = self._UINT32.MapByteStream(
+          cached_entry_object.shim_flags = self._UINT32LE.MapByteStream(
               remaining_data[4:8])
         except dtfabric_errors.MappingError as exception:
           raise errors.ParseError(exception)
@@ -838,7 +879,7 @@ class AppCompatCacheDataParser(object):
         elif cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_1:
           if self._debug:
             try:
-              unknown1 = self._UINT16.MapByteStream(remaining_data[8:10])
+              unknown1 = self._UINT16LE.MapByteStream(remaining_data[8:10])
             except dtfabric_errors.MappingError as exception:
               raise errors.ParseError(exception)
 
@@ -852,13 +893,13 @@ class AppCompatCacheDataParser(object):
     if format_type in (
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7):
-      cached_entry_object.last_modification_time = cached_entry.get(
-          u'last_modification_time')
+      cached_entry_object.last_modification_time = (
+          cached_entry.last_modification_time)
 
     elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
       try:
         cached_entry_object.last_modification_time = (
-            self._UINT64.MapByteStream(remaining_data[0:8]))
+            self._UINT64LE.MapByteStream(remaining_data[0:8]))
       except dtfabric_errors.MappingError as exception:
         raise errors.ParseError(exception)
 
@@ -879,16 +920,15 @@ class AppCompatCacheDataParser(object):
         self._output_writer.WriteValue(u'Last modification time', value_string)
 
     if format_type in (self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003):
-      cached_entry_object.file_size = cached_entry.get(u'file_size')
+      cached_entry_object.file_size = cached_entry.file_size
 
       if self._debug:
         self._output_writer.WriteIntegerValueAsDecimal(
             u'File size', cached_entry_object.file_size)
 
     elif format_type in (self.FORMAT_TYPE_VISTA, self.FORMAT_TYPE_7):
-      cached_entry_object.insertion_flags = cached_entry.get(
-          u'insertion_flags')
-      cached_entry_object.shim_flags = cached_entry.get(u'shim_flags')
+      cached_entry_object.insertion_flags = cached_entry.insertion_flags
+      cached_entry_object.shim_flags = cached_entry.shim_flags
 
       if self._debug:
         value_string = u'0x{0:08x}'.format(cached_entry_object.insertion_flags)
@@ -898,8 +938,7 @@ class AppCompatCacheDataParser(object):
         self._output_writer.WriteValue(u'Shim flags', value_string)
 
     if format_type == self.FORMAT_TYPE_XP:
-      cached_entry_object.last_update_time = cached_entry.get(
-          u'last_update_time')
+      cached_entry_object.last_update_time = cached_entry.last_update_time
 
       if not cached_entry_object.last_update_time:
         if self._debug:
@@ -918,8 +957,8 @@ class AppCompatCacheDataParser(object):
           self._output_writer.WriteValue(u'Last update time', value_string)
 
     if format_type == self.FORMAT_TYPE_7:
-      data_offset = cached_entry.get(u'data_offset')
-      data_size = cached_entry.get(u'data_size')
+      data_offset = cached_entry.data_offset
+      data_size = cached_entry.data_size
 
       if self._debug:
         value_string = u'0x{0:08x}'.format(data_offset)
@@ -931,7 +970,7 @@ class AppCompatCacheDataParser(object):
       data_offset = cached_entry_offset + cached_entry_data_offset + 12
 
       try:
-        data_size = self._UINT32.MapByteStream(remaining_data[8:12])
+        data_size = self._UINT32LE.MapByteStream(remaining_data[8:12])
       except dtfabric_errors.MappingError as exception:
         raise errors.ParseError(exception)
 
@@ -1015,7 +1054,7 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
       return True
 
     cached_entry_offset = cache_header.header_size
-    cached_entry_size = parser.DetermineCacheEntrySize(
+    cached_entry_size = parser.DetermineCachedEntrySize(
         format_type, value_data, cached_entry_offset)
 
     if not cached_entry_size:
