@@ -8,15 +8,10 @@ from dfdatetime import filetime as dfdatetime_filetime
 from dfdatetime import semantic_time as dfdatetime_semantic_time
 
 from dtfabric import errors as dtfabric_errors
-from dtfabric import fabric as dtfabric_fabric
+from dtfabric.runtime import fabric as dtfabric_fabric
 
-from winregrc import dependencies
 from winregrc import errors
 from winregrc import interface
-
-
-dependencies.CheckModuleVersion(u'dfdatetime')
-dependencies.CheckModuleVersion(u'dtfabric')
 
 
 class CachedTask(object):
@@ -179,7 +174,9 @@ class TaskCacheDataParser(object):
 
     try:
       dynamic_info = dynamic_info_struct.MapByteStream(value_data)
-    except dtfabric_errors.MappingError as exception:
+    except (
+        dtfabric_errors.ByteStreamTooSmallError,
+        dtfabric_errors.MappingError) as exception:
       raise errors.ParseError(exception)
 
     cached_task.last_registered_time = self._ParseFiletime(

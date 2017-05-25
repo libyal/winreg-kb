@@ -6,14 +6,10 @@ import datetime
 import logging
 
 from dtfabric import errors as dtfabric_errors
-from dtfabric import fabric as dtfabric_fabric
+from dtfabric.runtime import fabric as dtfabric_fabric
 
-from winregrc import dependencies
 from winregrc import errors
 from winregrc import interface
-
-
-dependencies.CheckModuleVersion(u'dtfabric')
 
 
 class UserAssistDataParser(object):
@@ -141,7 +137,9 @@ class UserAssistDataParser(object):
 
     try:
       user_assist_entry = data_type_map.MapByteStream(entry_data)
-    except dtfabric_errors.MappingError as exception:
+    except (
+        dtfabric_errors.ByteStreamTooSmallError,
+        dtfabric_errors.MappingError) as exception:
       raise errors.ParseError(exception)
 
     if self._debug:

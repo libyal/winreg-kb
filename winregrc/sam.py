@@ -7,15 +7,10 @@ from dfdatetime import filetime as dfdatetime_filetime
 from dfdatetime import semantic_time as dfdatetime_semantic_time
 
 from dtfabric import errors as dtfabric_errors
-from dtfabric import fabric as dtfabric_fabric
+from dtfabric.runtime import fabric as dtfabric_fabric
 
-from winregrc import dependencies
 from winregrc import errors
 from winregrc import interface
-
-
-dependencies.CheckModuleVersion(u'dfdatetime')
-dependencies.CheckModuleVersion(u'dtfabric')
 
 
 class UserAccount(object):
@@ -260,7 +255,9 @@ class SecurityAccountManagerDataParser(object):
     """
     try:
       f_value = self._F_VALUE.MapByteStream(value_data)
-    except dtfabric_errors.MappingError as exception:
+    except (
+        dtfabric_errors.ByteStreamTooSmallError,
+        dtfabric_errors.MappingError) as exception:
       raise errors.ParseError(exception)
 
     if self._debug:
@@ -371,7 +368,9 @@ class SecurityAccountManagerDataParser(object):
     """
     try:
       v_value = self._V_VALUE.MapByteStream(value_data)
-    except dtfabric_errors.MappingError as exception:
+    except (
+        dtfabric_errors.ByteStreamTooSmallError,
+        dtfabric_errors.MappingError) as exception:
       raise errors.ParseError(exception)
 
     if self._debug:

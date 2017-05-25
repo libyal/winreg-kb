@@ -5,14 +5,10 @@ import datetime
 import logging
 
 from dtfabric import errors as dtfabric_errors
-from dtfabric import fabric as dtfabric_fabric
+from dtfabric.runtime import fabric as dtfabric_fabric
 
-from winregrc import dependencies
 from winregrc import errors
 from winregrc import interface
-
-
-dependencies.CheckModuleVersion(u'dtfabric')
 
 
 class AppCompatCacheHeader(object):
@@ -527,7 +523,9 @@ class AppCompatCacheDataParser(object):
     """
     try:
       signature = self._UINT32LE.MapByteStream(value_data)
-    except dtfabric_errors.MappingError as exception:
+    except (
+        dtfabric_errors.ByteStreamTooSmallError,
+        dtfabric_errors.MappingError) as exception:
       raise errors.ParseError(exception)
 
     format_type = self._HEADER_SIGNATURES.get(signature, None)
@@ -573,7 +571,9 @@ class AppCompatCacheDataParser(object):
 
     try:
       header = header_struct.MapByteStream(value_data)
-    except dtfabric_errors.MappingError as exception:
+    except (
+        dtfabric_errors.ByteStreamTooSmallError,
+        dtfabric_errors.MappingError) as exception:
       raise errors.ParseError(exception)
 
     header_data_size = self._HEADER_SIZES.get(format_type, None)
@@ -621,7 +621,9 @@ class AppCompatCacheDataParser(object):
           try:
             lru_entry = self._UINT32LE.MapByteStream(
                 value_data[data_offset:data_offset + 4])
-          except dtfabric_errors.MappingError as exception:
+          except (
+              dtfabric_errors.ByteStreamTooSmallError,
+              dtfabric_errors.MappingError) as exception:
             raise errors.ParseError(exception)
 
           data_offset += 4
@@ -682,7 +684,9 @@ class AppCompatCacheDataParser(object):
       try:
         cached_entry = self._CACHED_ENTRY_2003_COMMON.MapByteStream(
             cached_entry_data)
-      except dtfabric_errors.MappingError as exception:
+      except (
+          dtfabric_errors.ByteStreamTooSmallError,
+          dtfabric_errors.MappingError) as exception:
         raise errors.ParseError(exception)
 
       if cached_entry.maximum_path_size < cached_entry.path_size:
@@ -768,7 +772,9 @@ class AppCompatCacheDataParser(object):
     if cached_entry_struct:
       try:
         cached_entry = cached_entry_struct.MapByteStream(cached_entry_data)
-      except dtfabric_errors.MappingError as exception:
+      except (
+          dtfabric_errors.ByteStreamTooSmallError,
+          dtfabric_errors.MappingError) as exception:
         raise errors.ParseError(exception)
 
     if format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
@@ -780,7 +786,9 @@ class AppCompatCacheDataParser(object):
         try:
           cached_entry = self._CACHED_ENTRY_HEADER_8.MapByteStream(
               cached_entry_data)
-        except dtfabric_errors.MappingError as exception:
+        except (
+            dtfabric_errors.ByteStreamTooSmallError,
+            dtfabric_errors.MappingError) as exception:
           raise errors.ParseError(exception)
 
         cached_entry_data_size = cached_entry.cached_entry_data_size
@@ -862,7 +870,9 @@ class AppCompatCacheDataParser(object):
               remaining_data[0:4])
           cached_entry_object.shim_flags = self._UINT32LE.MapByteStream(
               remaining_data[4:8])
-        except dtfabric_errors.MappingError as exception:
+        except (
+            dtfabric_errors.ByteStreamTooSmallError,
+            dtfabric_errors.MappingError) as exception:
           raise errors.ParseError(exception)
 
         if self._debug:
@@ -880,7 +890,9 @@ class AppCompatCacheDataParser(object):
           if self._debug:
             try:
               unknown1 = self._UINT16LE.MapByteStream(remaining_data[8:10])
-            except dtfabric_errors.MappingError as exception:
+            except (
+                dtfabric_errors.ByteStreamTooSmallError,
+                dtfabric_errors.MappingError) as exception:
               raise errors.ParseError(exception)
 
             value_string = u'0x{0:04x}'.format(unknown1)
@@ -900,7 +912,9 @@ class AppCompatCacheDataParser(object):
       try:
         cached_entry_object.last_modification_time = (
             self._UINT64LE.MapByteStream(remaining_data[0:8]))
-      except dtfabric_errors.MappingError as exception:
+      except (
+          dtfabric_errors.ByteStreamTooSmallError,
+          dtfabric_errors.MappingError) as exception:
         raise errors.ParseError(exception)
 
     if not cached_entry_object.last_modification_time:
@@ -971,7 +985,9 @@ class AppCompatCacheDataParser(object):
 
       try:
         data_size = self._UINT32LE.MapByteStream(remaining_data[8:12])
-      except dtfabric_errors.MappingError as exception:
+      except (
+          dtfabric_errors.ByteStreamTooSmallError,
+          dtfabric_errors.MappingError) as exception:
         raise errors.ParseError(exception)
 
       if self._debug:

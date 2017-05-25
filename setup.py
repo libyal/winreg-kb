@@ -6,17 +6,20 @@ from __future__ import print_function
 import os
 import sys
 
-import run_tests
+try:
+  from setuptools import find_packages, setup
+except ImportError:
+  from distutils.core import find_packages, setup
 
 try:
-  from setuptools import find_packages, setup, Command
+  from distutils.command.bdist_msi import bdist_msi
 except ImportError:
-  from distutils.core import find_packages, setup, Command
+  bdist_msi = None
 
 try:
-  from setuptools.commands.bdist_rpm import bdist_rpm
-except ImportError:
   from distutils.command.bdist_rpm import bdist_rpm
+except ImportError:
+  bdist_rpm = None
 
 if sys.version < '2.7':
   print('Unsupported Python version: {0:s}.'.format(sys.version))
@@ -26,106 +29,103 @@ if sys.version < '2.7':
 # Change PYTHONPATH to include winregrc so that we can get the version.
 sys.path.insert(0, '.')
 
-import winregrc
+import winregrc  # pylint: disable=wrong-import-position
 
 
-class BdistRPMCommand(bdist_rpm):
-  """Custom handler for the bdist_rpm command."""
+if not bdist_msi:
+  BdistMSICommand = None
+else:
+  class BdistMSICommand(bdist_msi):
+    """Custom handler for the bdist_msi command."""
 
-  def _make_spec_file(self):
-    """Generates the text of an RPM spec file.
+    def run(self):
+      """Builds an MSI."""
+      # Command bdist_msi does not support the library version, neither a date
+      # as a version but if we suffix it with .1 everything is fine.
+      self.distribution.metadata.version += '.1'
 
-    Returns:
-      A list of strings containing the lines of text.
-    """
-    # Note that bdist_rpm can be an old style class.
-    if issubclass(BdistRPMCommand, object):
-      spec_file = super(BdistRPMCommand, self)._make_spec_file()
-    else:
-      spec_file = bdist_rpm._make_spec_file(self)
-
-    if sys.version_info[0] < 3:
-      python_package = 'python'
-    else:
-      python_package = 'python3'
-
-    description = []
-    summary = ''
-    in_description = False
-
-    python_spec_file = []
-    for index, line in enumerate(spec_file):
-      if line.startswith('Summary: '):
-        summary = line
-
-      elif line.startswith('BuildRequires: '):
-        line = 'BuildRequires: {0:s}-setuptools'.format(python_package)
-
-      elif line.startswith('Requires: '):
-        if python_package == 'python3':
-          line = line.replace('python', 'python3')
-
-      elif line.startswith('%description'):
-        in_description = True
-
-      elif line.startswith('%files'):
-        line = '%files -f INSTALLED_FILES -n {0:s}-%{{name}}'.format(
-           python_package)
-
-      elif line.startswith('%prep'):
-        in_description = False
-
-        python_spec_file.append(
-            '%package -n {0:s}-%{{name}}'.format(python_package))
-        python_spec_file.append('{0:s}'.format(summary))
-        python_spec_file.append('')
-        python_spec_file.append(
-            '%description -n {0:s}-%{{name}}'.format(python_package))
-        python_spec_file.extend(description)
-
-      elif in_description:
-        # Ignore leading white lines in the description.
-        if not description and not line:
-          continue
-
-        description.append(line)
-
-      python_spec_file.append(line)
-
-    return python_spec_file
+      bdist_msi.run(self)
 
 
-class TestCommand(Command):
-  """Run tests, implementing an interface."""
-  user_options = []
+if not bdist_rpm:
+  BdistRPMCommand = None
+else:
+  class BdistRPMCommand(bdist_rpm):
+    """Custom handler for the bdist_rpm command."""
 
-  def initialize_options(self):
-    self._dir = os.getcwd()
+    def _make_spec_file(self):
+      """Generates the text of an RPM spec file.
 
-  def finalize_options(self):
-    pass
+      Returns:
+        list[str]: lines of the RPM spec file.
+      """
+      # Note that bdist_rpm can be an old style class.
+      if issubclass(BdistRPMCommand, object):
+        spec_file = super(BdistRPMCommand, self)._make_spec_file()
+      else:
+        spec_file = bdist_rpm._make_spec_file(self)
 
-  def run(self):
-    test_results = run_tests.RunTests(os.path.join('.', 'winregrc'))
+      if sys.version_info[0] < 3:
+        python_package = 'python'
+      else:
+        python_package = 'python3'
 
+      description = []
+      summary = ''
+      in_description = False
 
-winregrc_version = winregrc.__version__
+      python_spec_file = []
+      for line in iter(spec_file):
+        if line.startswith('Summary: '):
+          summary = line
 
-# Command bdist_msi does not support the library version, neither a date
-# as a version but if we suffix it with .1 everything is fine.
-if 'bdist_msi' in sys.argv:
-  winregrc_version += '.1'
+        elif line.startswith('BuildRequires: '):
+          line = 'BuildRequires: {0:s}-setuptools'.format(python_package)
+
+        elif line.startswith('Requires: '):
+          if python_package == 'python3':
+            line = line.replace('python', 'python3')
+
+        elif line.startswith('%description'):
+          in_description = True
+
+        elif line.startswith('%files'):
+          line = '%files -f INSTALLED_FILES -n {0:s}-%{{name}}'.format(
+              python_package)
+
+        elif line.startswith('%prep'):
+          in_description = False
+
+          python_spec_file.append(
+              '%package -n {0:s}-%{{name}}'.format(python_package))
+          python_spec_file.append('{0:s}'.format(summary))
+          python_spec_file.append('')
+          python_spec_file.append(
+              '%description -n {0:s}-%{{name}}'.format(python_package))
+          python_spec_file.extend(description)
+
+        elif in_description:
+          # Ignore leading white lines in the description.
+          if not description and not line:
+            continue
+
+          description.append(line)
+
+        python_spec_file.append(line)
+
+      return python_spec_file
+
 
 winregrc_description = (
     'Windows Registry resources (winregrc).')
 
 winregrc_long_description = (
-    'winregrc is a Python module part of winreg-kb to allow easy reuse of '
-    'the Windows Registry resource extraction functionality.')
+    'winregrc is a Python module part of winreg-kb to allow reuse of '
+    'Windows Registry Resources.')
 
 setup(
     name='winregrc',
-    version=winregrc_version,
+    version=winregrc.__version__,
     description=winregrc_description,
     long_description=winregrc_long_description,
     license='Apache License, Version 2.0',
@@ -139,8 +139,8 @@ setup(
         'Programming Language :: Python',
     ],
     cmdclass={
-        'bdist_rpm': BdistRPMCommand,
-        'test': TestCommand},
+        'bdist_msi': BdistMSICommand,
+        'bdist_rpm': BdistRPMCommand},
     packages=find_packages('.', exclude=[
         'tests', 'tests.*', 'utils']),
     package_dir={

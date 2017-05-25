@@ -8,14 +8,10 @@ import uuid
 import pyfwsi
 
 from dtfabric import errors as dtfabric_errors
-from dtfabric import fabric as dtfabric_fabric
+from dtfabric.runtime import fabric as dtfabric_fabric
 
-from winregrc import dependencies
 from winregrc import errors
 from winregrc import interface
-
-
-dependencies.CheckModuleVersion(u'dtfabric')
 
 
 class ProgramsCacheDataParser(object):
@@ -125,7 +121,9 @@ class ProgramsCacheDataParser(object):
 
     try:
       header = self._HEADER.MapByteStream(value_data)
-    except dtfabric_errors.MappingError as exception:
+    except (
+        dtfabric_errors.ByteStreamTooSmallError,
+        dtfabric_errors.MappingError) as exception:
       raise errors.ParseError(exception)
 
     value_data_offset = self._HEADER_SIZE
@@ -143,7 +141,9 @@ class ProgramsCacheDataParser(object):
     elif header.format_version == 9:
       try:
         header9 = self._HEADER9.MapByteStream(value_data)
-      except dtfabric_errors.MappingError as exception:
+      except (
+          dtfabric_errors.ByteStreamTooSmallError,
+          dtfabric_errors.MappingError) as exception:
         raise errors.ParseError(exception)
 
       value_data_offset += self._HEADER9_SIZE
@@ -165,7 +165,9 @@ class ProgramsCacheDataParser(object):
       try:
         entry_footer = self._ENTRY_FOOTER.MapByteStream(
             value_data[value_data_offset:])
-      except dtfabric_errors.MappingError as exception:
+      except (
+          dtfabric_errors.ByteStreamTooSmallError,
+          dtfabric_errors.MappingError) as exception:
         raise errors.ParseError(exception)
 
       value_data_offset += self._ENTRY_FOOTER_SIZE
@@ -183,7 +185,9 @@ class ProgramsCacheDataParser(object):
       try:
         entry_header = self._ENTRY_HEADER.MapByteStream(
             value_data[value_data_offset:])
-      except dtfabric_errors.MappingError as exception:
+      except (
+          dtfabric_errors.ByteStreamTooSmallError,
+          dtfabric_errors.MappingError) as exception:
         raise errors.ParseError(exception)
 
       value_data_offset += self._ENTRY_HEADER
@@ -210,7 +214,9 @@ class ProgramsCacheDataParser(object):
       try:
         entry_footer = self._ENTRY_FOOTER.MapByteStream(
             value_data[value_data_offset:])
-      except dtfabric_errors.MappingError as exception:
+      except (
+          dtfabric_errors.ByteStreamTooSmallError,
+          dtfabric_errors.MappingError) as exception:
         raise errors.ParseError(exception)
 
       value_data_offset += self._ENTRY_FOOTER_SIZE
@@ -229,7 +235,9 @@ class ProgramsCacheDataParser(object):
         try:
           entry_footer = self._ENTRY_FOOTER.MapByteStream(
               value_data[value_data_offset:])
-        except dtfabric_errors.MappingError as exception:
+        except (
+            dtfabric_errors.ByteStreamTooSmallError,
+            dtfabric_errors.MappingError) as exception:
           raise errors.ParseError(exception)
 
         value_data_offset += self._ENTRY_FOOTER_SIZE
