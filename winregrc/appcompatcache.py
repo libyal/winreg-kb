@@ -1025,26 +1025,22 @@ class AppCompatCacheDataParser(object):
 class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
   """Application Compatibility Cache collector."""
 
-  def _CollectAppCompatCacheFromKey(self, registry, key_path, output_writer):
+  def _CollectAppCompatCacheFromKey(self, app_compat_cache_key, output_writer):
     """Collects Application Compatibility Cache from a Windows Registry key.
 
     Args:
-      registry (dfwinreg.WinRegistry): Windows Registry.
-      key_path (str): path of the Application Compatibility Cache Registry key.
+      app_compat_cache_key (dfwinreg.WinRegistryKey): Application Compatibility
+          Cache Windows Registry key.
       output_writer (OutputWriter): output writer.
 
     Returns:
       bool: True if the Application Compatibility Cache key was found,
           False if not.
     """
-    app_compat_cache_key = registry.GetKeyByPath(key_path)
-    if not app_compat_cache_key:
-      return False
-
     value = app_compat_cache_key.GetValueByName(u'AppCompatCache')
     if not value:
       logging.warning(u'Missing AppCompatCache value in key: {0:s}'.format(
-          key_path))
+          app_compat_cache_key.path))
       return True
 
     value_data = value.data
@@ -1091,12 +1087,15 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
 
     return True
 
-  def Collect(self, registry, output_writer):
+  def Collect(self, registry, output_writer, all_control_sets=False):
     """Collects the Application Compatibility Cache.
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
       output_writer (OutputWriter): output writer.
+      all_control_sets (Optional[bool]): True if the services should be
+          collected from all control sets instead of only the current control
+          set.
 
     Returns:
       bool: True if the Application Compatibility Cache key was found,
@@ -1104,20 +1103,48 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
     """
     result = False
 
-    # Windows XP
-    key_path = (
-        u'HKEY_LOCAL_MACHINE\\System\\ControlSet001\\Control\\Session Manager\\'
-        u'AppCompatibility')
-    if self._CollectAppCompatCacheFromKey(registry, key_path, output_writer):
-      result = True
+    if all_control_sets:
+      system_key = registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
+      if not system_key:
+        return result
 
-    # Windows 2003 and later
-    key_path = (
-        u'HKEY_LOCAL_MACHINE\\System\\ControlSet001\\Control\\Session Manager\\'
-        u'AppCompatCache')
-    if self._CollectAppCompatCacheFromKey(registry, key_path, output_writer):
-      result = True
+      for control_set_key in system_key.GetSubkeys():
+        if control_set_key.name.startswith(u'ControlSet'):
+          # Windows XP
+          app_compat_cache_key = control_set_key.GetSubkeyByPath(
+              u'Control\\Session Manager\\AppCompatibility')
+          if app_compat_cache_key:
+            if self._CollectAppCompatCacheFromKey(
+                app_compat_cache_key, output_writer):
+              result = True
 
-    # TODO: handle multiple control sets.
+          # Windows 2003 and later
+          app_compat_cache_key = control_set_key.GetSubkeyByPath(
+              u'Control\\Session Manager\\AppCompatCache')
+          if app_compat_cache_key:
+            if self._CollectAppCompatCacheFromKey(
+                app_compat_cache_key, output_writer):
+              result = True
+
+    else:
+      # Windows XP
+      key_path = (
+          u'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\'
+          u'Session Manager\\AppCompatibility')
+      app_compat_cache_key = registry.GetKeyByPath(key_path)
+      if app_compat_cache_key:
+        if self._CollectAppCompatCacheFromKey(
+            app_compat_cache_key, output_writer):
+          result = True
+
+      # Windows 2003 and later
+      key_path = (
+          u'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\'
+          u'Session Manager\\AppCompatCache')
+      app_compat_cache_key = registry.GetKeyByPath(key_path)
+      if app_compat_cache_key:
+        if self._CollectAppCompatCacheFromKey(
+            app_compat_cache_key, output_writer):
+          result = True
 
     return result

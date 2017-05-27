@@ -35,6 +35,11 @@ def Main():
       u'a SYSTEM Registry file.'))
 
   argument_parser.add_argument(
+      u'--all', dest=u'all_control_sets', action=u'store_true', default=False,
+      help=(
+          u'Process all control sets instead of only the current control set.'))
+
+  argument_parser.add_argument(
       u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,
       help=u'enable debug output.')
 
@@ -76,7 +81,8 @@ def Main():
       debug=options.debug)
 
   result = collector_object.Collect(
-      registry_collector.registry, output_writer_object)
+      registry_collector.registry, output_writer_object,
+      all_control_sets=options.all_control_sets)
   if not result:
     print(u'No Application Compatibility Cache key found.')
 
