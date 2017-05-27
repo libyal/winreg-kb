@@ -651,7 +651,7 @@ class AppCompatCacheDataParser(object):
 
     return cache_header
 
-  def DeterminedCacheEntrySize(
+  def DetermineCachedEntrySize(
       self, format_type, value_data, cached_entry_offset):
     """Determines the size of a cached entry.
 
