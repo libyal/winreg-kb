@@ -15,7 +15,7 @@ from tests import test_lib as shared_test_lib
 
 
 class TestOutputWriter(output_writer.StdoutOutputWriter):
-  """Class that defines a test output writer.
+  """Output writer for testing.
 
   Attributes:
     services (list[WindowsService]): services.
@@ -49,7 +49,7 @@ class WindowsServicesCollectorTest(shared_test_lib.BaseTestCase):
     Returns:
       dfwinreg.WinRegistry: Windows Registry for testing.
     """
-    key_path_prefix = u'HKEY_LOCAL_MACHINE'
+    key_path_prefix = u'HKEY_LOCAL_MACHINE\\System'
 
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
@@ -63,7 +63,7 @@ class WindowsServicesCollectorTest(shared_test_lib.BaseTestCase):
     registry_key.AddValue(registry_value)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey(u'Services')
-    registry_file.AddKeyByPath(u'\\System\\ControlSet001', registry_key)
+    registry_file.AddKeyByPath(u'\\ControlSet001', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(u'WwanSvc')
     registry_key.AddSubkey(subkey)

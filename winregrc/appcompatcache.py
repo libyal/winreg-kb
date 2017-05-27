@@ -1075,10 +1075,13 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
 
     cached_entry_index = 0
     while cached_entry_offset < value_data_size:
-      cached_entry_object = parser.ParseCachedEntry(
+      cached_entry = parser.ParseCachedEntry(
           format_type, value_data, cached_entry_index, cached_entry_offset,
           cached_entry_size)
-      cached_entry_offset += cached_entry_object.cached_entry_size
+
+      output_writer.WriteCachedEntry(cached_entry)
+
+      cached_entry_offset += cached_entry.cached_entry_size
       cached_entry_index += 1
 
       if (cache_header.number_of_cached_entries != 0 and

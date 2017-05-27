@@ -13,15 +13,16 @@ from winregrc import output_writer
 
 
 class StdoutWriter(output_writer.StdoutOutputWriter):
-  """Class that defines a stdout output writer."""
+  """Stdout output writer."""
 
-  def WriteText(self, text):
-    """Writes text to stdout.
+  def WriteCachedEntry(self, cached_entry):
+    """Writes the Application Compatibility Cache cached entry to stdout.
 
     Args:
-      text (bytes): text to write.
+      cached_entry (AppCompatCacheCachedEntry): Application Compatibility
+          Cache cached entry.
     """
-    print(text)
+    print(u'Type\t\t\t: {0:s}'.format(service_type_description))
 
 
 def Main():

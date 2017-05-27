@@ -13,7 +13,7 @@ from winregrc import services
 
 
 class StdoutWriter(output_writer.StdoutOutputWriter):
-  """Class that defines a stdout output writer."""
+  """Stdout output writer."""
 
   def __init__(self, use_tsv=False):
     """Initializes a stdout output writer.

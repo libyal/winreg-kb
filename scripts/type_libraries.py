@@ -13,7 +13,7 @@ from winregrc import type_libraries
 
 
 class StdoutWriter(output_writer.StdoutOutputWriter):
-  """Class that defines a stdout output writer."""
+  """Stdout output writer."""
 
   def WriteTypeLibrary(self, type_library):
     """Writes a type library folder to the output.

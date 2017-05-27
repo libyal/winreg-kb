@@ -13,7 +13,7 @@ from winregrc import sysinfo
 
 
 class StdoutWriter(output_writer.StdoutOutputWriter):
-  """Class that defines a stdout output writer."""
+  """Stdout output writer."""
 
   def WriteSystemInformation(self, system_information):
     """Writes system information to stdout.

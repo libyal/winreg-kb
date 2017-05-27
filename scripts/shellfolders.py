@@ -19,7 +19,7 @@ from winregrc import shellfolders
 
 
 class Sqlite3Writer(object):
-  """Class that defines a sqlite3 output writer."""
+  """SQLite3 output writer."""
 
   _SHELL_FOLDER_CREATE_QUERY = (
       u'CREATE TABLE shell_folder ( guid TEXT, name TEXT )')
@@ -128,7 +128,7 @@ class Sqlite3Writer(object):
 
 
 class StdoutWriter(output_writer.StdoutOutputWriter):
-  """Class that defines a stdout output writer."""
+  """Stdout output writer."""
 
   def WriteShellFolder(self, shell_folder):
     """Writes the shell folder to stdout.

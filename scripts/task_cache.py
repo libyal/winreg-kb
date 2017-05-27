@@ -13,7 +13,7 @@ from winregrc import task_cache
 
 
 class StdoutWriter(output_writer.StdoutOutputWriter):
-  """Class that defines a stdout output writer."""
+  """Stdout output writer."""
 
   def WriteCachedTask(self, cached_task):
     """Writes a cached task to stdout.

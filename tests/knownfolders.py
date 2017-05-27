@@ -15,7 +15,7 @@ from tests import test_lib as shared_test_lib
 
 
 class TestOutputWriter(output_writer.StdoutOutputWriter):
-  """Class that defines a test output writer.
+  """Output writer for testing.
 
   Attributes:
     known_folders (list[KnownFolder]): known folders.

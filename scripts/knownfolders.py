@@ -13,7 +13,7 @@ from winregrc import output_writer
 
 
 class StdoutWriter(output_writer.StdoutOutputWriter):
-  """Class that defines a stdout output writer."""
+  """Stdout output writer."""
 
   def WriteKnownFolder(self, known_folder):
     """Writes a known folder to the output.
