@@ -3,6 +3,8 @@
 """Script to extract shell folder class identifiers."""
 
 from __future__ import print_function
+from __future__ import unicode_literals
+
 import argparse
 import logging
 import os
@@ -22,31 +24,31 @@ class Sqlite3Writer(object):
   """SQLite3 output writer."""
 
   _SHELL_FOLDER_CREATE_QUERY = (
-      u'CREATE TABLE shell_folder ( guid TEXT, name TEXT )')
+      'CREATE TABLE shell_folder ( guid TEXT, name TEXT )')
 
   _SHELL_FOLDER_INSERT_QUERY = (
-      u'INSERT INTO shell_folder VALUES ( "{0:s}", "{1:s}" )')
+      'INSERT INTO shell_folder VALUES ( "{0:s}", "{1:s}" )')
 
   _SHELL_FOLDER_SELECT_QUERY = (
-      u'SELECT name FROM shell_folder WHERE guid = "{0:s}"')
+      'SELECT name FROM shell_folder WHERE guid = "{0:s}"')
 
   _LOCALIZED_NAME_CREATE_QUERY = (
-      u'CREATE TABLE localized_name ( guid TEXT, reference TEXT )')
+      'CREATE TABLE localized_name ( guid TEXT, reference TEXT )')
 
   _LOCALIZED_NAME_INSERT_QUERY = (
-      u'INSERT INTO localized_name VALUES ( "{0:s}", "{1:s}" )')
+      'INSERT INTO localized_name VALUES ( "{0:s}", "{1:s}" )')
 
   _LOCALIZED_NAME_SELECT_QUERY = (
-      u'SELECT reference FROM localized_name WHERE guid = "{0:s}"')
+      'SELECT reference FROM localized_name WHERE guid = "{0:s}"')
 
   _VERSION_CREATE_QUERY = (
-      u'CREATE TABLE version ( guid TEXT, windows_version TEXT )')
+      'CREATE TABLE version ( guid TEXT, windows_version TEXT )')
 
   _VERSION_INSERT_QUERY = (
-      u'INSERT INTO version VALUES ( "{0:s}", "{1:s}" )')
+      'INSERT INTO version VALUES ( "{0:s}", "{1:s}" )')
 
   _VERSION_SELECT_QUERY = (
-      u'SELECT windows_version FROM version WHERE guid = "{0:s}"')
+      'SELECT windows_version FROM version WHERE guid = "{0:s}"')
 
   def __init__(self, database_file, windows_version):
     """Initializes the output writer object.
@@ -124,7 +126,7 @@ class Sqlite3Writer(object):
       self._connection.commit()
     else:
       # TODO: print duplicates.
-      logging.info(u'Ignoring duplicate: {0:s}'.format(shell_folder.guid))
+      logging.info('Ignoring duplicate: {0:s}'.format(shell_folder.guid))
 
 
 class StdoutWriter(output_writer.StdoutOutputWriter):
@@ -136,7 +138,7 @@ class StdoutWriter(output_writer.StdoutOutputWriter):
     Args:
       shell_folder: the shell folder (instance of ShellFolder).
     """
-    print(u'{0:s}\t{1:s}\t{2:s}'.format(
+    print('{0:s}\t{1:s}\t{2:s}'.format(
         shell_folder.guid, shell_folder.name, shell_folder.localized_string))
 
 
@@ -147,47 +149,47 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      u'Extracts the shell folder class identifiers from a SOFTWARE Registry '
-      u'file.'))
+      'Extracts the shell folder class identifiers from a SOFTWARE Registry '
+      'file.'))
 
   argument_parser.add_argument(
-      u'-d', u'--debug', dest=u'debug', action=u'store_true', default=False,
-      help=u'enable debug output.')
+      '-d', '--debug', dest='debug', action='store_true', default=False,
+      help='enable debug output.')
 
   argument_parser.add_argument(
-      u'--db', dest=u'database', action=u'store', metavar=u'shellitems.db',
-      default=None, help=u'path of the sqlite3 database to write to.')
+      '--db', dest='database', action='store', metavar='shellitems.db',
+      default=None, help='path of the sqlite3 database to write to.')
 
   argument_parser.add_argument(
-      u'--winver', dest=u'windows_version', action=u'store', metavar=u'xp',
+      '--winver', dest='windows_version', action='store', metavar='xp',
       default=None, help=(
-          u'string that identifies the Windows version in the database.'))
+          'string that identifies the Windows version in the database.'))
 
   argument_parser.add_argument(
-      u'source', nargs=u'?', action=u'store', metavar=u'PATH', default=None,
+      'source', nargs='?', action='store', metavar='PATH', default=None,
       help=(
-          u'path of the volume containing C:\\Windows, the filename of '
-          u'a storage media image containing the C:\\Windows directory,'
-          u'or the path of a SOFTWARE Registry file.'))
+          'path of the volume containing C:\\Windows, the filename of '
+          'a storage media image containing the C:\\Windows directory,'
+          'or the path of a SOFTWARE Registry file.'))
 
   options = argument_parser.parse_args()
 
   if not options.source:
-    print(u'Source value is missing.')
-    print(u'')
+    print('Source value is missing.')
+    print('')
     argument_parser.print_help()
-    print(u'')
+    print('')
     return False
 
   if options.database and not options.windows_version:
-    print(u'Windows version missing.')
-    print(u'')
+    print('Windows version missing.')
+    print('')
     argument_parser.print_help()
-    print(u'')
+    print('')
     return False
 
   logging.basicConfig(
-      level=logging.INFO, format=u'[%(levelname)s] %(message)s')
+      level=logging.INFO, format='[%(levelname)s] %(message)s')
 
   if not options.database:
     output_writer_object = StdoutWriter()
@@ -196,15 +198,15 @@ def Main():
         options.database, options.windows_version)
 
   if not output_writer_object.Open():
-    print(u'Unable to open output writer.')
-    print(u'')
+    print('Unable to open output writer.')
+    print('')
     return False
 
   registry_collector = collector.WindowsRegistryCollector()
   if not registry_collector.ScanForWindowsVolume(options.source):
-    print(u'Unable to retrieve the Windows Registry from: {0:s}.'.format(
+    print('Unable to retrieve the Windows Registry from: {0:s}.'.format(
         options.source))
-    print(u'')
+    print('')
     return False
 
   # TODO: map collector to available Registry keys.
@@ -214,7 +216,7 @@ def Main():
   result = collector_object.Collect(
       registry_collector.registry, output_writer_object)
   if not result:
-    print(u'No shell folder identifier keys found.')
+    print('No shell folder identifier keys found.')
 
   output_writer_object.Close()
 
