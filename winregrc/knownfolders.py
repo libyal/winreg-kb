@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Windows known folders collector."""
 
+from __future__ import unicode_literals
+
 from winregrc import interface
 
 
@@ -31,8 +33,8 @@ class KnownFoldersCollector(interface.WindowsRegistryKeyCollector):
   """Windows known folders collector."""
 
   _FOLDER_DESCRIPTIONS_KEY_PATH = (
-      u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\'
-      u'Explorer\\FolderDescriptions')
+      'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\'
+      'Explorer\\FolderDescriptions')
 
   def Collect(self, registry, output_writer):
     """Collects the known folders.
@@ -51,9 +53,9 @@ class KnownFoldersCollector(interface.WindowsRegistryKeyCollector):
 
     for subkey in folder_descriptions_key.GetSubkeys():
       guid = subkey.name.lower()
-      name = self._GetValueAsStringFromKey(subkey, u'Name')
+      name = self._GetValueAsStringFromKey(subkey, 'Name')
       localized_name = self._GetValueAsStringFromKey(
-          subkey, u'LocalizedName')
+          subkey, 'LocalizedName')
 
       known_folder = KnownFolder(guid, name, localized_name)
       output_writer.WriteKnownFolder(known_folder)

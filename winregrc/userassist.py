@@ -2,6 +2,8 @@
 """Windows User Assist information collector."""
 
 from __future__ import print_function
+from __future__ import unicode_literals
+
 import datetime
 import logging
 
@@ -96,10 +98,10 @@ class UserAssistDataParser(object):
       yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
 
   _USER_ASSIST_ENTRY_V3 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'user_assist_entry_v3')
+      'user_assist_entry_v3')
 
   _USER_ASSIST_ENTRY_V5 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'user_assist_entry_v5')
+      'user_assist_entry_v5')
 
   def __init__(self, debug=False, output_writer=None):
     """Initializes an User Assist data parser.
@@ -130,8 +132,8 @@ class UserAssistDataParser(object):
     entry_data_size = data_type_map.GetByteSize()
     if entry_data_size != len(entry_data):
       logging.warning((
-          u'Version: {0:d} size mismatch (calculated: {1:d}, '
-          u'stored: {2:d}).').format(
+          'Version: {0:d} size mismatch (calculated: {1:d}, '
+          'stored: {2:d}).').format(
               format_version, entry_data_size, len(entry_data)))
       return
 
@@ -143,74 +145,74 @@ class UserAssistDataParser(object):
       raise errors.ParseError(exception)
 
     if self._debug:
-      value_string = u'0x{0:08x}'.format(user_assist_entry.unknown1)
-      self._output_writer.WriteValue(u'Unknown1', value_string)
+      value_string = '0x{0:08x}'.format(user_assist_entry.unknown1)
+      self._output_writer.WriteValue('Unknown1', value_string)
 
       self._output_writer.WriteIntegerValueAsDecimal(
-          u'Execution count', user_assist_entry.execution_count)
+          'Execution count', user_assist_entry.execution_count)
 
       if format_version == 5:
         self._output_writer.WriteIntegerValueAsDecimal(
-            u'Application focus count',
+            'Application focus count',
             user_assist_entry.application_focus_count)
 
         self._output_writer.WriteIntegerValueAsDecimal(
-            u'Application focus duration',
+            'Application focus duration',
             user_assist_entry.application_focus_duration)
 
-        value_string = u'{0:.2f}'.format(user_assist_entry.unknown2)
-        self._output_writer.WriteValue(u'Unknown2', value_string)
+        value_string = '{0:.2f}'.format(user_assist_entry.unknown2)
+        self._output_writer.WriteValue('Unknown2', value_string)
 
-        value_string = u'{0:.2f}'.format(user_assist_entry.unknown3)
-        self._output_writer.WriteValue(u'Unknown3', value_string)
+        value_string = '{0:.2f}'.format(user_assist_entry.unknown3)
+        self._output_writer.WriteValue('Unknown3', value_string)
 
-        value_string = u'{0:.2f}'.format(user_assist_entry.unknown4)
-        self._output_writer.WriteValue(u'Unknown4', value_string)
+        value_string = '{0:.2f}'.format(user_assist_entry.unknown4)
+        self._output_writer.WriteValue('Unknown4', value_string)
 
-        value_string = u'{0:.2f}'.format(user_assist_entry.unknown5)
-        self._output_writer.WriteValue(u'Unknown5', value_string)
+        value_string = '{0:.2f}'.format(user_assist_entry.unknown5)
+        self._output_writer.WriteValue('Unknown5', value_string)
 
-        value_string = u'{0:.2f}'.format(user_assist_entry.unknown6)
-        self._output_writer.WriteValue(u'Unknown6', value_string)
+        value_string = '{0:.2f}'.format(user_assist_entry.unknown6)
+        self._output_writer.WriteValue('Unknown6', value_string)
 
-        value_string = u'{0:.2f}'.format(user_assist_entry.unknown7)
-        self._output_writer.WriteValue(u'Unknown7', value_string)
+        value_string = '{0:.2f}'.format(user_assist_entry.unknown7)
+        self._output_writer.WriteValue('Unknown7', value_string)
 
-        value_string = u'{0:.2f}'.format(user_assist_entry.unknown8)
-        self._output_writer.WriteValue(u'Unknown8', value_string)
+        value_string = '{0:.2f}'.format(user_assist_entry.unknown8)
+        self._output_writer.WriteValue('Unknown8', value_string)
 
-        value_string = u'{0:.2f}'.format(user_assist_entry.unknown9)
-        self._output_writer.WriteValue(u'Unknown9', value_string)
+        value_string = '{0:.2f}'.format(user_assist_entry.unknown9)
+        self._output_writer.WriteValue('Unknown9', value_string)
 
-        value_string = u'{0:.2f}'.format(user_assist_entry.unknown10)
-        self._output_writer.WriteValue(u'Unknown10', value_string)
+        value_string = '{0:.2f}'.format(user_assist_entry.unknown10)
+        self._output_writer.WriteValue('Unknown10', value_string)
 
-        value_string = u'{0:.2f}'.format(user_assist_entry.unknown11)
-        self._output_writer.WriteValue(u'Unknown11', value_string)
+        value_string = '{0:.2f}'.format(user_assist_entry.unknown11)
+        self._output_writer.WriteValue('Unknown11', value_string)
 
-        value_string = u'0x{0:08x}'.format(user_assist_entry.unknown12)
-        self._output_writer.WriteValue(u'Unknown12', value_string)
+        value_string = '0x{0:08x}'.format(user_assist_entry.unknown12)
+        self._output_writer.WriteValue('Unknown12', value_string)
 
       timestamp = user_assist_entry.last_execution_time
       date_string = (datetime.datetime(1601, 1, 1) +
                      datetime.timedelta(microseconds=timestamp/10))
 
-      value_string = u'{0!s} (0x{1:08x})'.format(date_string, timestamp)
-      self._output_writer.WriteValue(u'Last execution time', value_string)
+      value_string = '{0!s} (0x{1:08x})'.format(date_string, timestamp)
+      self._output_writer.WriteValue('Last execution time', value_string)
 
       if format_version == 5:
-        value_string = u'0x{0:08x}'.format(user_assist_entry.unknown13)
-        self._output_writer.WriteValue(u'Unknown13', value_string)
+        value_string = '0x{0:08x}'.format(user_assist_entry.unknown13)
+        self._output_writer.WriteValue('Unknown13', value_string)
 
-      self._output_writer.WriteText(u'')
+      self._output_writer.WriteText('')
 
 
 class UserAssistCollector(interface.WindowsRegistryKeyCollector):
   """Windows User Assist information collector."""
 
   _USER_ASSIST_KEY = (
-      u'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
-      u'Explorer\\UserAssist')
+      'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
+      'Explorer\\UserAssist')
 
   # TODO: replace print by output_writer.
   def _CollectUserAssistFromKey(self, output_writer, guid_subkey):
@@ -220,54 +222,54 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
       output_writer (OutputWriter): output writer.
       guid_subkey (dfwinreg.WinRegistryKey): User Assist GUID Registry key.
     """
-    version_value = guid_subkey.GetValueByName(u'Version')
+    version_value = guid_subkey.GetValueByName('Version')
     if not version_value:
-      logging.warning(u'Missing Version value in sub key: {0:s}'.format(
+      logging.warning('Missing Version value in sub key: {0:s}'.format(
           guid_subkey.name))
       return
 
     format_version = version_value.GetDataAsObject()
 
     if self._debug:
-      print(u'GUID\t\t: {0:s}'.format(guid_subkey.name))
-      print(u'Format version\t: {0:d}'.format(format_version))
-      print(u'')
+      print('GUID\t\t: {0:s}'.format(guid_subkey.name))
+      print('Format version\t: {0:d}'.format(format_version))
+      print('')
 
-    count_subkey = guid_subkey.GetSubkeyByName(u'Count')
+    count_subkey = guid_subkey.GetSubkeyByName('Count')
     for value in count_subkey.GetValues():
-      output_string = u'Original name\t: {0:s}'.format(value.name)
+      output_string = 'Original name\t: {0:s}'.format(value.name)
 
       if self._debug:
-        print(output_string.encode(u'utf-8'))
+        print(output_string.encode('utf-8'))
 
       try:
-        value_name = value.name.decode(u'rot-13')
+        value_name = value.name.decode('rot-13')
       except UnicodeEncodeError as exception:
         characters = []
         for char in value.name:
           if ord(char) < 128:
             try:
-              characters.append(char.decode(u'rot-13'))
+              characters.append(char.decode('rot-13'))
             except UnicodeEncodeError:
               characters.append(char)
           else:
             characters.append(char)
 
-        value_name = u''.join(characters)
+        value_name = ''.join(characters)
 
       try:
-        output_string = u'Converted name\t: {0:s}'.format(value_name)
+        output_string = 'Converted name\t: {0:s}'.format(value_name)
 
         if self._debug:
-          print(output_string.encode(u'utf-8'))
+          print(output_string.encode('utf-8'))
       except UnicodeEncodeError as exception:
-        logging.warning(u'Unable to convert: {0:s} with error: {1:s}'.format(
+        logging.warning('Unable to convert: {0:s} with error: {1:s}'.format(
             value.name, exception))
 
       if self._debug:
-        output_writer.WriteDebugData(u'Value data:', value.data)
+        output_writer.WriteDebugData('Value data:', value.data)
 
-      if value_name != u'UEME_CTLSESSION':
+      if value_name != 'UEME_CTLSESSION':
         parser = UserAssistDataParser(
             debug=self._debug, output_writer=output_writer)
         parser.ParseEntry(format_version, value.data)
@@ -287,8 +289,8 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
       return False
 
     if self._debug:
-      print(u'Key: {0:s}'.format(self._USER_ASSIST_KEY))
-      print(u'')
+      print('Key: {0:s}'.format(self._USER_ASSIST_KEY))
+      print('')
 
     for guid_subkey in user_assist_key.GetSubkeys():
       self._CollectUserAssistFromKey(output_writer, guid_subkey)

@@ -2,6 +2,7 @@
 """Windows services collector."""
 
 from __future__ import print_function
+from __future__ import unicode_literals
 
 from winregrc import interface
 
@@ -20,25 +21,25 @@ class WindowsService(object):
   """
 
   _OBJECT_NAME_DESCRIPTIONS = {
-      0x00000010: u'Account name',
-      0x00000020: u'Account name',
-      0x00000110: u'Account name',
+      0x00000010: 'Account name',
+      0x00000020: 'Account name',
+      0x00000110: 'Account name',
   }
 
   _SERVICE_TYPE_DESCRIPTIONS = {
-      0x00000001: u'Kernel device driver',
-      0x00000002: u'File system driver',
-      0x00000004: u'Adapter arguments',
-      0x00000010: u'Stand-alone service',
-      0x00000020: u'Shared service',
+      0x00000001: 'Kernel device driver',
+      0x00000002: 'File system driver',
+      0x00000004: 'Adapter arguments',
+      0x00000010: 'Stand-alone service',
+      0x00000020: 'Shared service',
   }
 
   _START_VALUE_DESCRIPTIONS = {
-      0x00000000: u'Boot',
-      0x00000001: u'System',
-      0x00000002: u'Automatic',
-      0x00000003: u'On demand',
-      0x00000004: u'Disabled',
+      0x00000000: 'Boot',
+      0x00000001: 'System',
+      0x00000002: 'Automatic',
+      0x00000003: 'On demand',
+      0x00000004: 'Disabled',
   }
 
   def __init__(
@@ -103,7 +104,7 @@ class WindowsService(object):
       str: object name description.
     """
     return(self._OBJECT_NAME_DESCRIPTIONS.get(
-        self.service_type, u'Object name'))
+        self.service_type, 'Object name'))
 
   def GetServiceTypeDescription(self):
     """Retrieves the service type description.
@@ -112,7 +113,7 @@ class WindowsService(object):
       str: service type description.
     """
     return(self._SERVICE_TYPE_DESCRIPTIONS.get(
-        self.service_type, u'Unknown 0x{0:08x}'.format(self.service_type)))
+        self.service_type, 'Unknown 0x{0:08x}'.format(self.service_type)))
 
   def GetStartValueDescription(self):
     """Retrieves the start value description.
@@ -121,7 +122,7 @@ class WindowsService(object):
       str: start value description.
     """
     return(self._START_VALUE_DESCRIPTIONS.get(
-        self.start_value, u'Unknown 0x{0:08x}'.format(self.start_value)))
+        self.start_value, 'Unknown 0x{0:08x}'.format(self.start_value)))
 
 
 class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
@@ -137,30 +138,30 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
       WindowsService: Windows service.
     """
     for service_key in services_key.GetSubkeys():
-      type_value = service_key.GetValueByName(u'Type')
+      type_value = service_key.GetValueByName('Type')
       if type_value:
         type_value = type_value.GetDataAsObject()
 
-      display_name_value = service_key.GetValueByName(u'DisplayName')
+      display_name_value = service_key.GetValueByName('DisplayName')
       if display_name_value:
         if display_name_value.DataIsString():
           display_name_value = display_name_value.GetDataAsObject()
         else:
           display_name_value = None
 
-      description_value = service_key.GetValueByName(u'Description')
+      description_value = service_key.GetValueByName('Description')
       if description_value:
         description_value = description_value.GetDataAsObject()
 
-      image_path_value = service_key.GetValueByName(u'ImagePath')
+      image_path_value = service_key.GetValueByName('ImagePath')
       if image_path_value:
         image_path_value = image_path_value.GetDataAsObject()
 
-      object_name_value = service_key.GetValueByName(u'ObjectName')
+      object_name_value = service_key.GetValueByName('ObjectName')
       if object_name_value:
         object_name_value = object_name_value.GetDataAsObject()
 
-      start_value = service_key.GetValueByName(u'Start')
+      start_value = service_key.GetValueByName('Start')
       if start_value:
         start_value = start_value.GetDataAsObject()
 
@@ -185,21 +186,21 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
     result = False
 
     if all_control_sets:
-      system_key = registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
+      system_key = registry.GetKeyByPath('HKEY_LOCAL_MACHINE\\System\\')
       if not system_key:
         return result
 
       for control_set_key in system_key.GetSubkeys():
-        if control_set_key.name.startswith(u'ControlSet'):
-          services_key = control_set_key.GetSubkeyByName(u'Services')
+        if control_set_key.name.startswith('ControlSet'):
+          services_key = control_set_key.GetSubkeyByName('Services')
           if services_key:
             result = True
 
             if self._debug:
-              print(u'Control set: {0:s}'.format(control_set_key.name))
-              print(u'\tNumber of entries\t: {0:d}'.format(
+              print('Control set: {0:s}'.format(control_set_key.name))
+              print('\tNumber of entries\t: {0:d}'.format(
                   services_key.number_of_subkeys))
-              print(u'')
+              print('')
 
             for windows_service in self._CollectWindowsServicesFromKey(
                 services_key):
@@ -207,15 +208,15 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
 
     else:
       services_key = registry.GetKeyByPath(
-          u'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services')
+          'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services')
       if services_key:
         result = True
 
         if self._debug:
-          print(u'Current control set')
-          print(u'\tNumber of entries\t: {0:d}'.format(
+          print('Current control set')
+          print('\tNumber of entries\t: {0:d}'.format(
               services_key.number_of_subkeys))
-          print(u'')
+          print('')
 
         for windows_service in self._CollectWindowsServicesFromKey(
             services_key):
@@ -233,7 +234,7 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
     Returns:
       bool: True if the services key was found, False if not.
     """
-    system_key = registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
+    system_key = registry.GetKeyByPath('HKEY_LOCAL_MACHINE\\System\\')
     if not system_key:
       return False
 
@@ -241,8 +242,8 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
     control_sets = []
     service_names = set()
     for control_set_key in system_key.GetSubkeys():
-      if control_set_key.name.startswith(u'ControlSet'):
-        services_key = control_set_key.GetSubkeyByName(u'Services')
+      if control_set_key.name.startswith('ControlSet'):
+        services_key = control_set_key.GetSubkeyByName('Services')
         if not services_key:
           continue
 
@@ -277,7 +278,7 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
       for windows_service in services_diff:
         if not windows_service:
           if self._debug:
-            print(u'Not defined')
+            print('Not defined')
         else:
           output_writer.WriteWindowsService(windows_service)
 

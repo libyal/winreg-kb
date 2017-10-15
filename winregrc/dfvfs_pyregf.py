@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """The pyregf Windows Registry extension for dfVFS."""
 
+from __future__ import unicode_literals
+
 import pyregf
 
 from dfdatetime import posix_time
@@ -16,11 +18,11 @@ from dfvfs.vfs import file_system as dfvfs_file_system
 from dfvfs.vfs import vfs_stat
 
 if pyregf.get_version() < '20150411':
-  raise ImportWarning(u'dfVFS pyregf requires at least pyregf 20150411.')
+  raise ImportWarning('dfVFS pyregf requires at least pyregf 20150411.')
 
 
 # The type indicator definition.
-TYPE_INDICATOR_REGF = u'REGF'
+TYPE_INDICATOR_REGF = 'REGF'
 
 
 # The file-like object.
@@ -42,7 +44,7 @@ class RegfFile(file_object_io.FileObjectIO):
     """
     if not path_spec.HasParent():
       raise errors.PathSpecError(
-          u'Unsupported path specification without parent.')
+          'Unsupported path specification without parent.')
 
     file_object = resolver.Resolver.OpenFileObject(
         path_spec.parent, resolver_context=self._resolver_context)
@@ -56,7 +58,7 @@ class RegfPathSpec(dfvfs_path_spec.PathSpec):
   """Class that implements the REGF path specification."""
 
   # Constant to define the default (nameless) value.
-  DEFAULT_VALUE_NAME = u''
+  DEFAULT_VALUE_NAME = ''
 
   TYPE_INDICATOR = TYPE_INDICATOR_REGF
 
@@ -76,7 +78,7 @@ class RegfPathSpec(dfvfs_path_spec.PathSpec):
       ValueError: when key_path or parent is not set.
     """
     if not key_path or not parent:
-      raise ValueError(u'Missing key path or parent value.')
+      raise ValueError('Missing key path or parent value.')
 
     super(RegfPathSpec, self).__init__(parent=parent, **kwargs)
     self.key_path = key_path
@@ -87,12 +89,12 @@ class RegfPathSpec(dfvfs_path_spec.PathSpec):
     """Comparable representation of the path specification."""
     string_parts = []
 
-    string_parts.append(u'key path: {0:s}'.format(self.key_path))
+    string_parts.append('key path: {0:s}'.format(self.key_path))
     if self.value_name is not None:
-      string_parts.append(u'value name: "{0:s}"'.format(
+      string_parts.append('value name: "{0:s}"'.format(
           self.value_name))
 
-    return self._GetComparable(sub_comparable_string=u', '.join(string_parts))
+    return self._GetComparable(sub_comparable_string=', '.join(string_parts))
 
 
 # The resolver helper.
@@ -137,8 +139,8 @@ class RegfDirectory(file_entry.Directory):
     Yields:
       A path specification (instance of RegfPathSpec).
     """
-    key_path = getattr(self.path_spec, u'key_path', None)
-    value_name = getattr(self.path_spec, u'value_name', None)
+    key_path = getattr(self.path_spec, 'key_path', None)
+    value_name = getattr(self.path_spec, 'value_name', None)
     if value_name is None:
       regf_key = self._file_system.GetRegfKey(key_path)
 
@@ -207,7 +209,7 @@ class RegfFileEntry(file_entry.FileEntry):
       BackEndError: when the regf key is missing.
     """
     if not self._regf_key:
-      raise errors.BackEndError(u'Missing regf key.')
+      raise errors.BackEndError('Missing regf key.')
 
     stat_object = vfs_stat.VFSStat()
 
@@ -270,19 +272,19 @@ class RegfFileEntry(file_entry.FileEntry):
 
   def GetParentFileEntry(self):
     """Retrieves the parent file entry."""
-    location = getattr(self.path_spec, u'location', None)
+    location = getattr(self.path_spec, 'location', None)
     if location is None:
       return
     parent_inode = self._parent_inode
     parent_location = self._file_system.DirnamePath(location)
     if parent_inode is None and parent_location is None:
       return
-    if parent_location == u'':
+    if parent_location == '':
       parent_location = self._file_system.PATH_SEPARATOR
 
-    parent_path_spec = getattr(self.path_spec, u'parent', None)
+    parent_path_spec = getattr(self.path_spec, 'parent', None)
     # TODO: determine parent_key_path.
-    parent_key_path = u''
+    parent_key_path = ''
     path_spec = RegfPathSpec(
         key_path=parent_key_path, parent=parent_path_spec)
 
@@ -293,8 +295,8 @@ class RegfFileEntry(file_entry.FileEntry):
 class RegfFileSystem(dfvfs_file_system.FileSystem):
   """Class that implements a file system object using pyregf."""
 
-  LOCATION_ROOT = u'\\'
-  PATH_SEPARATOR = u'\\'
+  LOCATION_ROOT = '\\'
+  PATH_SEPARATOR = '\\'
 
   TYPE_INDICATOR = TYPE_INDICATOR_REGF
 
@@ -338,7 +340,7 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
     """
     if not path_spec.HasParent():
       raise errors.PathSpecError(
-          u'Unsupported path specification without parent.')
+          'Unsupported path specification without parent.')
 
     file_object = resolver.Resolver.OpenFileObject(
         path_spec.parent, resolver_context=self._resolver_context)
@@ -363,16 +365,16 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
     Raises:
       PathSpecError: if the path specification is incorrect.
     """
-    key_path = getattr(path_spec, u'key_path', None)
+    key_path = getattr(path_spec, 'key_path', None)
     if not key_path:
       raise errors.PathSpecError(
-          u'Unsupported path specification without key path.')
+          'Unsupported path specification without key path.')
 
     regf_key = self.GetRegfKey(key_path)
     if not regf_key:
       return False
 
-    value_name = getattr(path_spec, u'value_name', None)
+    value_name = getattr(path_spec, 'value_name', None)
     if value_name is None:
       return True
 
@@ -391,12 +393,12 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
     Raises:
       PathSpecError: if the path specification is incorrect.
     """
-    key_path = getattr(path_spec, u'key_path', None)
+    key_path = getattr(path_spec, 'key_path', None)
     if not key_path:
       raise errors.PathSpecError(
-          u'Unsupported path specification without key path.')
+          'Unsupported path specification without key path.')
 
-    value_name = getattr(path_spec, u'value_name', None)
+    value_name = getattr(path_spec, 'value_name', None)
 
     regf_key = self.GetRegfKey(key_path)
     if not regf_key:
@@ -443,8 +445,8 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
     """
     kwargs = {}
 
-    kwargs[u'key_path'] = self.LOCATION_ROOT
-    kwargs[u'parent'] = self._path_spec.parent
+    kwargs['key_path'] = self.LOCATION_ROOT
+    kwargs['parent'] = self._path_spec.parent
 
     path_spec = RegfPathSpec(**kwargs)
     return self.GetFileEntryByPathSpec(path_spec)

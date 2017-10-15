@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Classes to implement a Windows Registry key and value collector."""
+"""Windows Registry key and value collector."""
+
+from __future__ import unicode_literals
 
 import abc
 
@@ -17,7 +19,7 @@ class WindowsRegistryKeyCollector(object):
     self._debug = debug
 
   def _GetValueAsStringFromKey(
-      self, registry_key, value_name, default_value=u''):
+      self, registry_key, value_name, default_value=''):
     """Retrieves a value as a string from the Registry key.
 
     Args:

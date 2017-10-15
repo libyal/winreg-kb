@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Application Compatibility Cache collector."""
 
+from __future__ import unicode_literals
+
 import datetime
 import logging
 
@@ -384,70 +386,70 @@ class AppCompatCacheDataParser(object):
   _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
       yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
 
-  _UINT16LE = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'uint16le')
-  _UINT32LE = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'uint32le')
-  _UINT64LE = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'uint64le')
+  _UINT16LE = _DATA_TYPE_FABRIC.CreateDataTypeMap('uint16le')
+  _UINT32LE = _DATA_TYPE_FABRIC.CreateDataTypeMap('uint32le')
+  _UINT64LE = _DATA_TYPE_FABRIC.CreateDataTypeMap('uint64le')
 
   _HEADER_XP_32BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_header_xp_32bit')
+      'appcompatcache_header_xp_32bit')
 
   _CACHED_ENTRY_XP_32BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_cached_entry_xp_32bit')
+      'appcompatcache_cached_entry_xp_32bit')
 
   _CACHED_ENTRY_XP_32BIT_SIZE = _CACHED_ENTRY_XP_32BIT.GetByteSize()
 
   _HEADER_2003 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_header_2003')
+      'appcompatcache_header_2003')
 
   _CACHED_ENTRY_2003_COMMON = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_cached_entry_2003_common')
+      'appcompatcache_cached_entry_2003_common')
 
   _CACHED_ENTRY_2003_32BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_cached_entry_2003_32bit')
+      'appcompatcache_cached_entry_2003_32bit')
 
   _CACHED_ENTRY_2003_32BIT_SIZE = _CACHED_ENTRY_2003_32BIT.GetByteSize()
 
   _CACHED_ENTRY_2003_64BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_cached_entry_2003_64bit')
+      'appcompatcache_cached_entry_2003_64bit')
 
   _CACHED_ENTRY_2003_64BIT_SIZE = _CACHED_ENTRY_2003_64BIT.GetByteSize()
 
   _HEADER_VISTA = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_header_vista')
+      'appcompatcache_header_vista')
 
   _CACHED_ENTRY_VISTA_32BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_cached_entry_vista_32bit')
+      'appcompatcache_cached_entry_vista_32bit')
 
   _CACHED_ENTRY_VISTA_32BIT_SIZE = _CACHED_ENTRY_VISTA_32BIT.GetByteSize()
 
   _CACHED_ENTRY_VISTA_64BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_cached_entry_vista_64bit')
+      'appcompatcache_cached_entry_vista_64bit')
 
   _CACHED_ENTRY_VISTA_64BIT_SIZE = _CACHED_ENTRY_VISTA_64BIT.GetByteSize()
 
   _HEADER_7 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_header_7')
+      'appcompatcache_header_7')
 
   _CACHED_ENTRY_7_32BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_cached_entry_7_32bit')
+      'appcompatcache_cached_entry_7_32bit')
 
   _CACHED_ENTRY_7_32BIT_SIZE = _CACHED_ENTRY_7_32BIT.GetByteSize()
 
   _CACHED_ENTRY_7_64BIT = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_cached_entry_7_64bit')
+      'appcompatcache_cached_entry_7_64bit')
 
   _CACHED_ENTRY_7_64BIT_SIZE = _CACHED_ENTRY_7_64BIT.GetByteSize()
 
   _HEADER_8 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_header_8')
+      'appcompatcache_header_8')
 
   _CACHED_ENTRY_HEADER_8 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_cached_entry_header_8')
+      'appcompatcache_cached_entry_header_8')
 
   _CACHED_ENTRY_HEADER_8_SIZE = _CACHED_ENTRY_HEADER_8.GetByteSize()
 
   _HEADER_10 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'appcompatcache_header_10')
+      'appcompatcache_header_10')
 
   _HEADER_SIGNATURES = {
       # AppCompatCache format signature used in Windows XP.
@@ -493,10 +495,10 @@ class AppCompatCacheDataParser(object):
   }
 
   # AppCompatCache format used in Windows 8.0.
-  _CACHED_ENTRY_SIGNATURE_8_0 = u'00ts'
+  _CACHED_ENTRY_SIGNATURE_8_0 = '00ts'
 
   # AppCompatCache format used in Windows 8.1.
-  _CACHED_ENTRY_SIGNATURE_8_1 = u'10ts'
+  _CACHED_ENTRY_SIGNATURE_8_1 = '10ts'
 
   def __init__(self, debug=False, output_writer=None):
     """Initializes an Application Compatibility Cache parser.
@@ -566,7 +568,7 @@ class AppCompatCacheDataParser(object):
     """
     header_struct = self._HEADERS.get(format_type, None)
     if not header_struct:
-      raise errors.ParseError(u'Unsupported format type: {0:d}'.format(
+      raise errors.ParseError('Unsupported format type: {0:d}'.format(
           format_type))
 
     try:
@@ -582,7 +584,7 @@ class AppCompatCacheDataParser(object):
 
     if self._debug:
       self._output_writer.WriteDebugData(
-          u'Header data:', value_data[0:header_data_size])
+          'Header data:', value_data[0:header_data_size])
 
     cache_header = AppCompatCacheHeader()
     cache_header.header_size = header_data_size
@@ -590,10 +592,10 @@ class AppCompatCacheDataParser(object):
     if self._debug:
       if format_type == self.FORMAT_TYPE_10:
         self._output_writer.WriteIntegerValueAsDecimal(
-            u'Header size', header.signature)
+            'Header size', header.signature)
       else:
-        value_string = u'0x{0:08x}'.format(header.signature)
-        self._output_writer.WriteValue(u'Signature', value_string)
+        value_string = '0x{0:08x}'.format(header.signature)
+        self._output_writer.WriteValue('Signature', value_string)
 
     if format_type in (
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
@@ -602,18 +604,18 @@ class AppCompatCacheDataParser(object):
 
       if self._debug:
         self._output_writer.WriteIntegerValueAsDecimal(
-            u'Number of cached entries', cache_header.number_of_cached_entries)
+            'Number of cached entries', cache_header.number_of_cached_entries)
 
     if format_type == self.FORMAT_TYPE_XP:
       number_of_lru_entries = header.number_of_lru_entries
       if self._debug:
-        value_string = u'0x{0:08x}'.format(number_of_lru_entries)
-        self._output_writer.WriteValue(u'Number of LRU entries', value_string)
+        value_string = '0x{0:08x}'.format(number_of_lru_entries)
+        self._output_writer.WriteValue('Number of LRU entries', value_string)
 
-        value_string = u'0x{0:08x}'.format(header.unknown1)
-        self._output_writer.WriteValue(u'Unknown1', value_string)
+        value_string = '0x{0:08x}'.format(header.unknown1)
+        self._output_writer.WriteValue('Unknown1', value_string)
 
-        self._output_writer.WriteText(u'LRU entries:')
+        self._output_writer.WriteText('LRU entries:')
 
       data_offset = 16
       if number_of_lru_entries > 0 and number_of_lru_entries <= 96:
@@ -629,25 +631,25 @@ class AppCompatCacheDataParser(object):
           data_offset += 4
 
           if self._debug:
-            value_string = u'{0:d} (offset: 0x{1:08x})'.format(
+            value_string = '{0:d} (offset: 0x{1:08x})'.format(
                 lru_entry, 400 + (lru_entry * 552))
             self._output_writer.WriteValue(
-                u'LRU entry: {0:d}'.format(lru_entry_index), value_string)
+                'LRU entry: {0:d}'.format(lru_entry_index), value_string)
 
         if self._debug:
-          self._output_writer.WriteText(u'')
+          self._output_writer.WriteText('')
 
       if self._debug:
         self._output_writer.WriteDebugData(
-            u'Unknown data:', value_data[data_offset:400])
+            'Unknown data:', value_data[data_offset:400])
 
     elif format_type == self.FORMAT_TYPE_8:
       if self._debug:
-        value_string = u'0x{0:08x}'.format(header.unknown1)
-        self._output_writer.WriteValue(u'Unknown1', value_string)
+        value_string = '0x{0:08x}'.format(header.unknown1)
+        self._output_writer.WriteValue('Unknown1', value_string)
 
     if self._debug:
-      self._output_writer.WriteText(u'')
+      self._output_writer.WriteText('')
 
     return cache_header
 
@@ -670,7 +672,7 @@ class AppCompatCacheDataParser(object):
     if format_type not in (
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7, self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
-      raise errors.ParseError(u'Unsupported format type: {0:d}'.format(
+      raise errors.ParseError('Unsupported format type: {0:d}'.format(
           format_type))
 
     cached_entry_data = value_data[cached_entry_offset:]
@@ -690,13 +692,13 @@ class AppCompatCacheDataParser(object):
         raise errors.ParseError(exception)
 
       if cached_entry.maximum_path_size < cached_entry.path_size:
-        errors.ParseError(u'Path size value out of bounds.')
+        errors.ParseError('Path size value out of bounds.')
         return
 
       path_end_of_string_size = (
           cached_entry.maximum_path_size - cached_entry.path_size)
       if cached_entry.path_size == 0 or path_end_of_string_size != 2:
-        errors.ParseError(u'Unsupported path size values.')
+        errors.ParseError('Unsupported path size values.')
         return
 
       # Assume the entry is 64-bit if the 32-bit path offset is 0 and
@@ -745,7 +747,7 @@ class AppCompatCacheDataParser(object):
     if format_type not in (
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7, self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
-      raise errors.ParseError(u'Unsupported format type: {0:d}'.format(
+      raise errors.ParseError('Unsupported format type: {0:d}'.format(
           format_type))
 
     cached_entry_data = value_data[
@@ -755,12 +757,12 @@ class AppCompatCacheDataParser(object):
         self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
         self.FORMAT_TYPE_7):
       if self._debug:
-        description = u'Cached entry: {0:d} data:'.format(cached_entry_index)
+        description = 'Cached entry: {0:d} data:'.format(cached_entry_index)
         self._output_writer.WriteDebugData(description, cached_entry_data)
 
     elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
       if self._debug:
-        description = u'Cached entry: {0:d} header data:'.format(
+        description = 'Cached entry: {0:d} header data:'.format(
             cached_entry_index)
         self._output_writer.WriteDebugData(description, cached_entry_data[:-2])
 
@@ -780,7 +782,7 @@ class AppCompatCacheDataParser(object):
     if format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
       if cached_entry_data[0:4] not in (
           self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1):
-        raise errors.ParseError(u'Unsupported cache entry signature')
+        raise errors.ParseError('Unsupported cache entry signature')
 
       if cached_entry_size == self._CACHED_ENTRY_HEADER_8_SIZE:
         try:
@@ -798,12 +800,12 @@ class AppCompatCacheDataParser(object):
             cached_entry_offset:cached_entry_offset + cached_entry_size]
 
     if not cached_entry:
-      raise errors.ParseError(u'Unsupported cache entry size: {0:d}'.format(
+      raise errors.ParseError('Unsupported cache entry size: {0:d}'.format(
           cached_entry_size))
 
     if format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
       if self._debug:
-        description = u'Cached entry: {0:d} data:'.format(cached_entry_index)
+        description = 'Cached entry: {0:d} data:'.format(cached_entry_index)
         self._output_writer.WriteDebugData(description, cached_entry_data)
 
     cached_entry_object = AppCompatCacheCachedEntry()
@@ -821,10 +823,10 @@ class AppCompatCacheDataParser(object):
         string_size += 2
 
       cached_entry_object.path = cached_entry_data[0:string_size].decode(
-          u'utf-16-le')
+          'utf-16-le')
 
       if self._debug:
-        self._output_writer.WriteValue(u'Path', cached_entry_object.path)
+        self._output_writer.WriteValue('Path', cached_entry_object.path)
 
     elif format_type in (
         self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA, self.FORMAT_TYPE_7):
@@ -833,34 +835,34 @@ class AppCompatCacheDataParser(object):
       path_offset = cached_entry.path_offset
 
       if self._debug:
-        self._output_writer.WriteIntegerValueAsDecimal(u'Path size', path_size)
+        self._output_writer.WriteIntegerValueAsDecimal('Path size', path_size)
 
         self._output_writer.WriteIntegerValueAsDecimal(
-            u'Maximum path size', maximum_path_size)
+            'Maximum path size', maximum_path_size)
 
-        value_string = u'0x{0:08x}'.format(path_offset)
-        self._output_writer.WriteValue(u'Path offset', value_string)
+        value_string = '0x{0:08x}'.format(path_offset)
+        self._output_writer.WriteValue('Path offset', value_string)
 
     elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
       path_size = cached_entry.path_size
 
       if self._debug:
-        self._output_writer.WriteValue(u'Signature', cached_entry_data[0:4])
+        self._output_writer.WriteValue('Signature', cached_entry_data[0:4])
 
-        value_string = u'0x{0:08x}'.format(cached_entry.unknown1)
-        self._output_writer.WriteValue(u'Unknown1', value_string)
+        value_string = '0x{0:08x}'.format(cached_entry.unknown1)
+        self._output_writer.WriteValue('Unknown1', value_string)
 
         self._output_writer.WriteIntegerValueAsDecimal(
-            u'Cached entry data size', cached_entry_data_size)
+            'Cached entry data size', cached_entry_data_size)
 
-        self._output_writer.WriteIntegerValueAsDecimal(u'Path size', path_size)
+        self._output_writer.WriteIntegerValueAsDecimal('Path size', path_size)
 
       cached_entry_data_offset = 14 + path_size
       cached_entry_object.path = cached_entry_data[
-          14:cached_entry_data_offset].decode(u'utf-16-le')
+          14:cached_entry_data_offset].decode('utf-16-le')
 
       if self._debug:
-        self._output_writer.WriteValue(u'Path', cached_entry_object.path)
+        self._output_writer.WriteValue('Path', cached_entry_object.path)
 
       if format_type == self.FORMAT_TYPE_8:
         remaining_data = cached_entry_data[cached_entry_data_offset:]
@@ -876,12 +878,12 @@ class AppCompatCacheDataParser(object):
           raise errors.ParseError(exception)
 
         if self._debug:
-          value_string = u'0x{0:08x}'.format(
+          value_string = '0x{0:08x}'.format(
               cached_entry_object.insertion_flags)
-          self._output_writer.WriteValue(u'Insertion flags', value_string)
+          self._output_writer.WriteValue('Insertion flags', value_string)
 
-          value_string = u'0x{0:08x}'.format(cached_entry_object.shim_flags)
-          self._output_writer.WriteValue(u'Shim flags', value_string)
+          value_string = '0x{0:08x}'.format(cached_entry_object.shim_flags)
+          self._output_writer.WriteValue('Shim flags', value_string)
 
         if cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_0:
           cached_entry_data_offset += 8
@@ -895,8 +897,8 @@ class AppCompatCacheDataParser(object):
                 dtfabric_errors.MappingError) as exception:
               raise errors.ParseError(exception)
 
-            value_string = u'0x{0:04x}'.format(unknown1)
-            self._output_writer.WriteValue(u'Unknown1', value_string)
+            value_string = '0x{0:04x}'.format(unknown1)
+            self._output_writer.WriteValue('Unknown1', value_string)
 
           cached_entry_data_offset += 10
 
@@ -919,9 +921,9 @@ class AppCompatCacheDataParser(object):
 
     if not cached_entry_object.last_modification_time:
       if self._debug:
-        value_string = u'0x{0:08x}'.format(
+        value_string = '0x{0:08x}'.format(
             cached_entry_object.last_modification_time)
-        self._output_writer.WriteValue(u'Last modification time', value_string)
+        self._output_writer.WriteValue('Last modification time', value_string)
 
     else:
       timestamp = cached_entry_object.last_modification_time // 10
@@ -929,36 +931,36 @@ class AppCompatCacheDataParser(object):
                      datetime.timedelta(microseconds=timestamp))
 
       if self._debug:
-        value_string = u'{0!s} (0x{1:08x})'.format(
+        value_string = '{0!s} (0x{1:08x})'.format(
             date_string, cached_entry_object.last_modification_time)
-        self._output_writer.WriteValue(u'Last modification time', value_string)
+        self._output_writer.WriteValue('Last modification time', value_string)
 
     if format_type in (self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003):
       cached_entry_object.file_size = cached_entry.file_size
 
       if self._debug:
         self._output_writer.WriteIntegerValueAsDecimal(
-            u'File size', cached_entry_object.file_size)
+            'File size', cached_entry_object.file_size)
 
     elif format_type in (self.FORMAT_TYPE_VISTA, self.FORMAT_TYPE_7):
       cached_entry_object.insertion_flags = cached_entry.insertion_flags
       cached_entry_object.shim_flags = cached_entry.shim_flags
 
       if self._debug:
-        value_string = u'0x{0:08x}'.format(cached_entry_object.insertion_flags)
-        self._output_writer.WriteValue(u'Insertion flags', value_string)
+        value_string = '0x{0:08x}'.format(cached_entry_object.insertion_flags)
+        self._output_writer.WriteValue('Insertion flags', value_string)
 
-        value_string = u'0x{0:08x}'.format(cached_entry_object.shim_flags)
-        self._output_writer.WriteValue(u'Shim flags', value_string)
+        value_string = '0x{0:08x}'.format(cached_entry_object.shim_flags)
+        self._output_writer.WriteValue('Shim flags', value_string)
 
     if format_type == self.FORMAT_TYPE_XP:
       cached_entry_object.last_update_time = cached_entry.last_update_time
 
       if not cached_entry_object.last_update_time:
         if self._debug:
-          value_string = u'0x{0:08x}'.format(
+          value_string = '0x{0:08x}'.format(
               cached_entry_object.last_update_time)
-          self._output_writer.WriteValue(u'Last update time', value_string)
+          self._output_writer.WriteValue('Last update time', value_string)
 
       else:
         timestamp = cached_entry_object.last_update_time // 10
@@ -966,19 +968,19 @@ class AppCompatCacheDataParser(object):
                        datetime.timedelta(microseconds=timestamp))
 
         if self._debug:
-          value_string = u'{0!s} (0x{1:08x})'.format(
+          value_string = '{0!s} (0x{1:08x})'.format(
               date_string, cached_entry_object.last_update_time)
-          self._output_writer.WriteValue(u'Last update time', value_string)
+          self._output_writer.WriteValue('Last update time', value_string)
 
     if format_type == self.FORMAT_TYPE_7:
       data_offset = cached_entry.data_offset
       data_size = cached_entry.data_size
 
       if self._debug:
-        value_string = u'0x{0:08x}'.format(data_offset)
-        self._output_writer.WriteValue(u'Data offset', value_string)
+        value_string = '0x{0:08x}'.format(data_offset)
+        self._output_writer.WriteValue('Data offset', value_string)
 
-        self._output_writer.WriteIntegerValueAsDecimal(u'Data size', data_size)
+        self._output_writer.WriteIntegerValueAsDecimal('Data size', data_size)
 
     elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
       data_offset = cached_entry_offset + cached_entry_data_offset + 12
@@ -991,10 +993,10 @@ class AppCompatCacheDataParser(object):
         raise errors.ParseError(exception)
 
       if self._debug:
-        self._output_writer.WriteIntegerValueAsDecimal(u'Data size', data_size)
+        self._output_writer.WriteIntegerValueAsDecimal('Data size', data_size)
 
     if self._debug:
-      self._output_writer.WriteText(u'')
+      self._output_writer.WriteText('')
 
     if path_offset > 0 and path_size > 0:
       path_size += path_offset
@@ -1002,14 +1004,14 @@ class AppCompatCacheDataParser(object):
 
       if self._debug:
         self._output_writer.WriteDebugData(
-            u'Path data:', value_data[path_offset:maximum_path_size])
+            'Path data:', value_data[path_offset:maximum_path_size])
 
       cached_entry_object.path = value_data[path_offset:path_size].decode(
-          u'utf-16-le')
+          'utf-16-le')
 
       if self._debug:
-        self._output_writer.WriteValue(u'Path', cached_entry_object.path)
-        self._output_writer.WriteText(u'')
+        self._output_writer.WriteValue('Path', cached_entry_object.path)
+        self._output_writer.WriteText('')
 
     if data_size > 0:
       data_size += data_offset
@@ -1017,7 +1019,7 @@ class AppCompatCacheDataParser(object):
       cached_entry_object.data = value_data[data_offset:data_size]
 
       if self._debug:
-        self._output_writer.WriteDebugData(u'Data:', cached_entry_object.data)
+        self._output_writer.WriteDebugData('Data:', cached_entry_object.data)
 
     return cached_entry_object
 
@@ -1037,9 +1039,9 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
       bool: True if the Application Compatibility Cache key was found,
           False if not.
     """
-    value = app_compat_cache_key.GetValueByName(u'AppCompatCache')
+    value = app_compat_cache_key.GetValueByName('AppCompatCache')
     if not value:
-      logging.warning(u'Missing AppCompatCache value in key: {0:s}'.format(
+      logging.warning('Missing AppCompatCache value in key: {0:s}'.format(
           app_compat_cache_key.path))
       return True
 
@@ -1051,11 +1053,11 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
         debug=self._debug, output_writer=output_writer)
 
     if self._debug:
-      output_writer.WriteDebugData(u'Value data:', value_data)
+      output_writer.WriteDebugData('Value data:', value_data)
 
     format_type = parser.CheckSignature(value_data)
     if not format_type:
-      logging.warning(u'Unsupported signature.')
+      logging.warning('Unsupported signature.')
       return True
 
     cache_header = parser.ParseHeader(format_type, value_data)
@@ -1070,7 +1072,7 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
         format_type, value_data, cached_entry_offset)
 
     if not cached_entry_size:
-      logging.warning(u'Unsupported cached entry size.')
+      logging.warning('Unsupported cached entry size.')
       return True
 
     cached_entry_index = 0
@@ -1107,15 +1109,15 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
     result = False
 
     if all_control_sets:
-      system_key = registry.GetKeyByPath(u'HKEY_LOCAL_MACHINE\\System\\')
+      system_key = registry.GetKeyByPath('HKEY_LOCAL_MACHINE\\System\\')
       if not system_key:
         return result
 
       for control_set_key in system_key.GetSubkeys():
-        if control_set_key.name.startswith(u'ControlSet'):
+        if control_set_key.name.startswith('ControlSet'):
           # Windows XP
           app_compat_cache_key = control_set_key.GetSubkeyByPath(
-              u'Control\\Session Manager\\AppCompatibility')
+              'Control\\Session Manager\\AppCompatibility')
           if app_compat_cache_key:
             if self._CollectAppCompatCacheFromKey(
                 app_compat_cache_key, output_writer):
@@ -1123,7 +1125,7 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
 
           # Windows 2003 and later
           app_compat_cache_key = control_set_key.GetSubkeyByPath(
-              u'Control\\Session Manager\\AppCompatCache')
+              'Control\\Session Manager\\AppCompatCache')
           if app_compat_cache_key:
             if self._CollectAppCompatCacheFromKey(
                 app_compat_cache_key, output_writer):
@@ -1132,8 +1134,8 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
     else:
       # Windows XP
       key_path = (
-          u'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\'
-          u'Session Manager\\AppCompatibility')
+          'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\'
+          'Session Manager\\AppCompatibility')
       app_compat_cache_key = registry.GetKeyByPath(key_path)
       if app_compat_cache_key:
         if self._CollectAppCompatCacheFromKey(
@@ -1142,8 +1144,8 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
 
       # Windows 2003 and later
       key_path = (
-          u'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\'
-          u'Session Manager\\AppCompatCache')
+          'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\'
+          'Session Manager\\AppCompatCache')
       app_compat_cache_key = registry.GetKeyByPath(key_path)
       if app_compat_cache_key:
         if self._CollectAppCompatCacheFromKey(

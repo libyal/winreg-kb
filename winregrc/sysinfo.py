@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """System information collector."""
 
+from __future__ import unicode_literals
+
 from dfdatetime import posix_time as dfdatetime_posix_time
 from dfdatetime import semantic_time as dfdatetime_semantic_time
 
@@ -44,19 +46,19 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
   """System information collector."""
 
   _CURRENT_VERSION_KEY_PATH = (
-      u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')
+      'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')
 
   _STRING_VALUES = {
-      u'CSDVersion': u'csd_version',
-      u'CurrentBuildNumber': u'current_build_number',
-      u'CurrentType': u'current_type',
-      u'CurrentVersion': u'current_version',
-      u'PathName': u'path_name',
-      u'ProductId': u'product_identifier',
-      u'ProductName': u'product_name',
-      u'RegisteredOrganization': u'registered_organization',
-      u'RegisteredOwner': u'registered_owner',
-      u'SystemRoot': u'system_root'}
+      'CSDVersion': 'csd_version',
+      'CurrentBuildNumber': 'current_build_number',
+      'CurrentType': 'current_type',
+      'CurrentVersion': 'current_version',
+      'PathName': 'path_name',
+      'ProductId': 'product_identifier',
+      'ProductName': 'product_name',
+      'RegisteredOrganization': 'registered_organization',
+      'RegisteredOwner': 'registered_owner',
+      'SystemRoot': 'system_root'}
 
   def _ParseInstallDate(self, registry_value):
     """Parses the InstallDate value.
@@ -72,7 +74,7 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
 
     timestamp = registry_value.GetDataAsObject()
     if not timestamp:
-      return dfdatetime_semantic_time.SemanticTime(string=u'Not set')
+      return dfdatetime_semantic_time.SemanticTime(string='Not set')
 
     return dfdatetime_posix_time.PosixTime(timestamp=timestamp)
 
@@ -99,7 +101,7 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
 
       setattr(system_information, attribute_name, value_string)
 
-    registry_value = current_version_key.GetValueByName(u'InstallDate')
+    registry_value = current_version_key.GetValueByName('InstallDate')
     system_information.installation_date = self._ParseInstallDate(
         registry_value)
 

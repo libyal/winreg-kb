@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """The Windows Registry key and value filters."""
 
+from __future__ import unicode_literals
+
 import abc
 
 
@@ -28,14 +30,14 @@ class WindowsRegistryKeyPathFilter(BaseWindowsRegistryKeyFilter):
   """Windows Registry key path filter."""
 
   _CONTROL_SET_PREFIX = (
-      u'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet')
+      'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet')
 
   # This list must be ordered with most specific matches first.
   _WOW64_PREFIXES = [
-      u'HKEY_CURRENT_USER\\Software\\Classes',
-      u'HKEY_CURRENT_USER\\Software',
-      u'HKEY_LOCAL_MACHINE\\Software\\Classes',
-      u'HKEY_LOCAL_MACHINE\\Software']
+      'HKEY_CURRENT_USER\\Software\\Classes',
+      'HKEY_CURRENT_USER\\Software',
+      'HKEY_LOCAL_MACHINE\\Software\\Classes',
+      'HKEY_LOCAL_MACHINE\\Software']
 
   def __init__(self, key_path):
     """Initializes a Windows Registry key filter.
@@ -45,7 +47,7 @@ class WindowsRegistryKeyPathFilter(BaseWindowsRegistryKeyFilter):
     """
     super(WindowsRegistryKeyPathFilter, self).__init__()
 
-    key_path.rstrip(u'\\')
+    key_path.rstrip('\\')
     self._key_path = key_path
 
     key_path = key_path.upper()
@@ -56,7 +58,7 @@ class WindowsRegistryKeyPathFilter(BaseWindowsRegistryKeyFilter):
 
     if key_path.startswith(self._CONTROL_SET_PREFIX.upper()):
       self._key_path_prefix, _, self._key_path_suffix = key_path.partition(
-          u'CurrentControlSet'.upper())
+          'CurrentControlSet'.upper())
 
     else:
       self._key_path_prefix = None
@@ -76,10 +78,10 @@ class WindowsRegistryKeyPathFilter(BaseWindowsRegistryKeyFilter):
 
       if wow64_prefix:
         key_path_suffix = self._key_path[len(wow64_prefix):]
-        if key_path_suffix.startswith(u'\\'):
+        if key_path_suffix.startswith('\\'):
           key_path_suffix = key_path_suffix[1:]
-        self._wow64_key_path = u'\\'.join([
-            wow64_prefix, u'Wow6432Node', key_path_suffix])
+        self._wow64_key_path = '\\'.join([
+            wow64_prefix, 'Wow6432Node', key_path_suffix])
         self._wow64_key_path_upper = self._wow64_key_path.upper()
 
   @property
@@ -105,7 +107,7 @@ class WindowsRegistryKeyPathFilter(BaseWindowsRegistryKeyFilter):
 
         key_path_segment = key_path[
             len(self._key_path_prefix):-len(self._key_path_suffix)]
-        if key_path_segment.startswith(u'ControlSet'.upper()):
+        if key_path_segment.startswith('ControlSet'.upper()):
           try:
             control_set = int(key_path_segment[10:], 10)
           except ValueError:

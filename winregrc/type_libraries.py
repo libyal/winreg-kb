@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Windows type libraries collector."""
 
+from __future__ import unicode_literals
+
 from winregrc import interface
 
 
@@ -34,7 +36,7 @@ class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
   """Windows type libraries collector."""
 
   _TYPE_LIBRARIES_KEY_PATH = (
-      u'HKEY_LOCAL_MACHINE\\Software\\Classes\\TypeLib')
+      'HKEY_LOCAL_MACHINE\\Software\\Classes\\TypeLib')
 
   def Collect(self, registry, output_writer):
     """Collects the type libraries.
@@ -55,26 +57,26 @@ class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
       guid = type_library_key.name.lower()
 
       for subkey in type_library_key.GetSubkeys():
-        if subkey.name in (u'FLAGS', u'HELPDIR'):
+        if subkey.name in ('FLAGS', 'HELPDIR'):
           continue
 
         description = self._GetValueAsStringFromKey(
-            subkey, u'')
+            subkey, '')
 
         language_key = None
-        for lcid in (u'0', u'409'):
+        for lcid in ('0', '409'):
           language_key = subkey.GetSubkeyByName(lcid)
           if language_key:
             break
 
         if not language_key:
           for language_key in subkey.GetSubkeys():
-            if language_key.name not in (u'FLAGS', u'HELPDIR'):
+            if language_key.name not in ('FLAGS', 'HELPDIR'):
               break
 
         platform_key = None
         if language_key:
-          for platform in (u'win32', ):
+          for platform in ('win32', ):
             platform_key = language_key.GetSubkeyByName(platform)
             if platform_key:
               break
@@ -83,7 +85,7 @@ class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
             platform_key = language_key.GetSubkeyByIndex(0)
 
         typelib_filename = self._GetValueAsStringFromKey(
-            platform_key, u'')
+            platform_key, '')
 
         type_library = TypeLibrary(
             guid, subkey.name, description, typelib_filename)

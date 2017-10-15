@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Task Cache collector."""
 
+from __future__ import unicode_literals
+
 import datetime
 import logging
 
@@ -90,12 +92,12 @@ class TaskCacheDataParser(object):
       yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
 
   _DYNAMIC_INFO_RECORD = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'dynamic_info_record')
+      'dynamic_info_record')
 
   _DYNAMIC_INFO_RECORD_SIZE = _DYNAMIC_INFO_RECORD.GetByteSize()
 
   _DYNAMIC_INFO2_RECORD = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      u'dynamic_info2_record')
+      'dynamic_info2_record')
 
   _DYNAMIC_INFO2_RECORD_SIZE = _DYNAMIC_INFO2_RECORD.GetByteSize()
 
@@ -124,10 +126,10 @@ class TaskCacheDataParser(object):
       dfdatetime.DateTimeValues: date and time values.
     """
     if filetime == 0:
-      return dfdatetime_semantic_time.SemanticTime(string=u'Not set')
+      return dfdatetime_semantic_time.SemanticTime(string='Not set')
 
     if filetime == 0x7fffffffffffffff:
-      return dfdatetime_semantic_time.SemanticTime(string=u'Never')
+      return dfdatetime_semantic_time.SemanticTime(string='Never')
 
     return dfdatetime_filetime.Filetime(timestamp=filetime)
 
@@ -141,16 +143,16 @@ class TaskCacheDataParser(object):
       str: string representation of the FILETIME timestamp value.
     """
     if filetime == 0:
-      return u'Not set'
+      return 'Not set'
 
     if filetime == 0x7fffffffffffffff:
-      return u'Never'
+      return 'Never'
 
     filetime, _ = divmod(filetime, 10)
     date_time = (datetime.datetime(1601, 1, 1) +
                  datetime.timedelta(microseconds=filetime))
 
-    return u'{0!s}'.format(date_time)
+    return '{0!s}'.format(date_time)
 
   def ParseDynamicInfo(self, value_data, cached_task):
     """Parses the DynamicInfo value data.
@@ -163,14 +165,14 @@ class TaskCacheDataParser(object):
       ParseError: if the value data could not be parsed.
     """
     if self._debug:
-      self._output_writer.WriteDebugData(u'DynamicInfo value data:', value_data)
+      self._output_writer.WriteDebugData('DynamicInfo value data:', value_data)
 
     value_data_size = len(value_data)
 
     dynamic_info_struct = self._DYNAMIC_INFO_RECORDS.get(value_data_size, None)
     if not dynamic_info_struct:
       raise errors.ParseError(
-          u'Unsupported value data size: {0:d}.'.format(value_data_size))
+          'Unsupported value data size: {0:d}.'.format(value_data_size))
 
     try:
       dynamic_info = dynamic_info_struct.MapByteStream(value_data)
@@ -185,44 +187,44 @@ class TaskCacheDataParser(object):
         dynamic_info.launch_time)
 
     if self._debug:
-      value_string = u'0x{0:08x}'.format(dynamic_info.unknown1)
-      self._output_writer.WriteValue(u'Unknown1', value_string)
+      value_string = '0x{0:08x}'.format(dynamic_info.unknown1)
+      self._output_writer.WriteValue('Unknown1', value_string)
 
       # Note this is likely either the last registered time or
       # the update time.
       date_string = self.CopyFiletimeToString(dynamic_info.last_registered_time)
-      value_string = u'{0:s} (0x{1:08x})'.format(
+      value_string = '{0:s} (0x{1:08x})'.format(
           date_string, dynamic_info.last_registered_time)
-      self._output_writer.WriteValue(u'Last registered time', value_string)
+      self._output_writer.WriteValue('Last registered time', value_string)
 
       # Note this is likely the launch time.
       date_string = self.CopyFiletimeToString(dynamic_info.launch_time)
-      value_string = u'{0:s} (0x{1:08x})'.format(
+      value_string = '{0:s} (0x{1:08x})'.format(
           date_string, dynamic_info.launch_time)
-      self._output_writer.WriteValue(u'Launch time', value_string)
+      self._output_writer.WriteValue('Launch time', value_string)
 
-      value_string = u'0x{0:08x}'.format(dynamic_info.unknown2)
-      self._output_writer.WriteValue(u'Unknown2', value_string)
+      value_string = '0x{0:08x}'.format(dynamic_info.unknown2)
+      self._output_writer.WriteValue('Unknown2', value_string)
 
-      value_string = u'0x{0:08x}'.format(dynamic_info.unknown3)
-      self._output_writer.WriteValue(u'Unknown3', value_string)
+      value_string = '0x{0:08x}'.format(dynamic_info.unknown3)
+      self._output_writer.WriteValue('Unknown3', value_string)
 
       unknown_time = dynamic_info.unknown_time
       if unknown_time is not None:
         date_string = self.CopyFiletimeToString(unknown_time)
-        value_string = u'{0:s} (0x{1:08x})'.format(
+        value_string = '{0:s} (0x{1:08x})'.format(
             date_string, dynamic_info.unknown_time)
-        self._output_writer.WriteValue(u'Unknown time', value_string)
+        self._output_writer.WriteValue('Unknown time', value_string)
 
-      self._output_writer.WriteText(u'')
+      self._output_writer.WriteText('')
 
 
 class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
   """Task Cache collector."""
 
   _TASK_CACHE_KEY_PATH = (
-      u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
-      u'Schedule\\TaskCache')
+      'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
+      'Schedule\\TaskCache')
 
   def _GetIdValue(self, registry_key):
     """Retrieves the Id value from Task Cache Tree key.
@@ -234,7 +236,7 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
       tuple[dfwinreg.WinRegistryKey, dfwinreg.WinRegistryValue]: Windows
           Registry key and value.
     """
-    id_value = registry_key.GetValueByName(u'Id')
+    id_value = registry_key.GetValueByName('Id')
     if id_value:
       yield registry_key, id_value
 
@@ -258,8 +260,8 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
     if not task_cache_key:
       return False
 
-    tasks_key = task_cache_key.GetSubkeyByName(u'Tasks')
-    tree_key = task_cache_key.GetSubkeyByName(u'Tree')
+    tasks_key = task_cache_key.GetSubkeyByName('Tasks')
+    tree_key = task_cache_key.GetSubkeyByName('Tree')
 
     if not tasks_key or not tree_key:
       return False
@@ -276,14 +278,14 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
 
         id_value_data_size = len(id_value.data)
         if id_value_data_size != 78:
-          logging.error(u'Unsupported Id value data size: {0:s}.')
+          logging.error('Unsupported Id value data size: {0:s}.')
           continue
 
         guid_string = id_value.GetDataAsObject()
         task_guids[guid_string] = value_key.name
 
     for subkey in tasks_key.GetSubkeys():
-      dynamic_info_value = subkey.GetValueByName(u'DynamicInfo')
+      dynamic_info_value = subkey.GetValueByName('DynamicInfo')
       if not dynamic_info_value:
         continue
 
@@ -296,11 +298,11 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
             task_cache_key.last_written_time.timestamp):
           date_string = parser.CopyFiletimeToString(
               task_cache_key.last_written_time.timestamp)
-          output_writer.WriteValue(u'Last written time', date_string)
+          output_writer.WriteValue('Last written time', date_string)
 
-        output_writer.WriteValue(u'Task', cached_task.name)
-        output_writer.WriteValue(u'Identifier', cached_task.identifier)
-        output_writer.WriteText(u'')
+        output_writer.WriteValue('Task', cached_task.name)
+        output_writer.WriteValue('Identifier', cached_task.identifier)
+        output_writer.WriteText('')
 
       try:
         parser.ParseDynamicInfo(dynamic_info_value.data, cached_task)

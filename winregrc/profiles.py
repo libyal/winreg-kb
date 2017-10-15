@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Windows user profiles collector."""
 
+from __future__ import unicode_literals
+
 from winregrc import interface
 
 
@@ -8,8 +10,8 @@ class UserProfilesCollector(interface.WindowsRegistryKeyCollector):
   """Windows user profiles collector."""
 
   _PROFILE_LIST_KEY_PATH = (
-      u'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
-      u'ProfileList')
+      'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
+      'ProfileList')
 
   def Collect(self, registry, output_writer):
     """Collects the user profiles.
@@ -28,9 +30,9 @@ class UserProfilesCollector(interface.WindowsRegistryKeyCollector):
 
     for subkey in profile_list_key.GetSubkeys():
       profile_image_path = self._GetValueAsStringFromKey(
-          subkey, u'ProfileImagePath')
+          subkey, 'ProfileImagePath')
 
-      output_writer.WriteText(u'{0:s}: {1:s}'.format(
+      output_writer.WriteText('{0:s}: {1:s}'.format(
           subkey.name, profile_image_path))
 
     return True

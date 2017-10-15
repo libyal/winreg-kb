@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Security Account Manager (SAM) collector."""
 
+from __future__ import unicode_literals
+
 import datetime
 
 from dfdatetime import filetime as dfdatetime_filetime
@@ -147,52 +149,52 @@ class SecurityAccountManagerDataParser(object):
   _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
       yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
 
-  _F_VALUE = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'f_value')
+  _F_VALUE = _DATA_TYPE_FABRIC.CreateDataTypeMap('f_value')
 
-  _V_VALUE = _DATA_TYPE_FABRIC.CreateDataTypeMap(u'v_value')
+  _V_VALUE = _DATA_TYPE_FABRIC.CreateDataTypeMap('v_value')
 
   _USER_INFORMATION_DESCRIPTORS = [
-      u'security descriptor',
-      u'username',
-      u'full name',
-      u'comment',
-      u'user comment',
-      u'unknown1',
-      u'home directory',
-      u'home directory connect',
-      u'script path',
-      u'profile path',
-      u'workstations',
-      u'hours allowed',
-      u'unknown2',
-      u'LM hash',
-      u'NTLM hash',
-      u'unknown3',
-      u'unknown4']
+      'security descriptor',
+      'username',
+      'full name',
+      'comment',
+      'user comment',
+      'unknown1',
+      'home directory',
+      'home directory connect',
+      'script path',
+      'profile path',
+      'workstations',
+      'hours allowed',
+      'unknown2',
+      'LM hash',
+      'NTLM hash',
+      'unknown3',
+      'unknown4']
 
   _USER_ACCOUNT_CONTROL_FLAGS = {
-      0x00000001: u'USER_ACCOUNT_DISABLED',
-      0x00000002: u'USER_HOME_DIRECTORY_REQUIRED',
-      0x00000004: u'USER_PASSWORD_NOT_REQUIRED',
-      0x00000008: u'USER_TEMP_DUPLICATE_ACCOUNT',
-      0x00000010: u'USER_NORMAL_ACCOUNT',
-      0x00000020: u'USER_MNS_LOGON_ACCOUNT',
-      0x00000040: u'USER_INTERDOMAIN_TRUST_ACCOUNT',
-      0x00000080: u'USER_WORKSTATION_TRUST_ACCOUNT',
-      0x00000100: u'USER_SERVER_TRUST_ACCOUNT',
-      0x00000200: u'USER_DONT_EXPIRE_PASSWORD',
-      0x00000400: u'USER_ACCOUNT_AUTO_LOCKED',
-      0x00000800: u'USER_ENCRYPTED_TEXT_PASSWORD_ALLOWED',
-      0x00001000: u'USER_SMARTCARD_REQUIRED',
-      0x00002000: u'USER_TRUSTED_FOR_DELEGATION',
-      0x00004000: u'USER_NOT_DELEGATED',
-      0x00008000: u'USER_USE_DES_KEY_ONLY',
-      0x00010000: u'USER_DONT_REQUIRE_PREAUTH',
-      0x00020000: u'USER_PASSWORD_EXPIRED',
-      0x00040000: u'USER_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION',
-      0x00080000: u'USER_NO_AUTH_DATA_REQUIRED',
-      0x00100000: u'USER_PARTIAL_SECRETS_ACCOUNT',
-      0x00200000: u'USER_USE_AES_KEYS'}
+      0x00000001: 'USER_ACCOUNT_DISABLED',
+      0x00000002: 'USER_HOME_DIRECTORY_REQUIRED',
+      0x00000004: 'USER_PASSWORD_NOT_REQUIRED',
+      0x00000008: 'USER_TEMP_DUPLICATE_ACCOUNT',
+      0x00000010: 'USER_NORMAL_ACCOUNT',
+      0x00000020: 'USER_MNS_LOGON_ACCOUNT',
+      0x00000040: 'USER_INTERDOMAIN_TRUST_ACCOUNT',
+      0x00000080: 'USER_WORKSTATION_TRUST_ACCOUNT',
+      0x00000100: 'USER_SERVER_TRUST_ACCOUNT',
+      0x00000200: 'USER_DONT_EXPIRE_PASSWORD',
+      0x00000400: 'USER_ACCOUNT_AUTO_LOCKED',
+      0x00000800: 'USER_ENCRYPTED_TEXT_PASSWORD_ALLOWED',
+      0x00001000: 'USER_SMARTCARD_REQUIRED',
+      0x00002000: 'USER_TRUSTED_FOR_DELEGATION',
+      0x00004000: 'USER_NOT_DELEGATED',
+      0x00008000: 'USER_USE_DES_KEY_ONLY',
+      0x00010000: 'USER_DONT_REQUIRE_PREAUTH',
+      0x00020000: 'USER_PASSWORD_EXPIRED',
+      0x00040000: 'USER_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION',
+      0x00080000: 'USER_NO_AUTH_DATA_REQUIRED',
+      0x00100000: 'USER_PARTIAL_SECRETS_ACCOUNT',
+      0x00200000: 'USER_USE_AES_KEYS'}
 
   def __init__(self, debug=False, output_writer=None):
     """Initializes a Security Account Manager (SAM) data parser.
@@ -215,16 +217,16 @@ class SecurityAccountManagerDataParser(object):
       str: string representation of the FILETIME timestamp value.
     """
     if filetime == 0:
-      return u'Not set'
+      return 'Not set'
 
     if filetime == 0x7fffffffffffffff:
-      return u'Never'
+      return 'Never'
 
     filetime, _ = divmod(filetime, 10)
     date_time = (datetime.datetime(1601, 1, 1) +
                  datetime.timedelta(microseconds=filetime))
 
-    return u'{0!s}'.format(date_time)
+    return '{0!s}'.format(date_time)
 
   def _ParseFiletime(self, filetime):
     """Parses a FILETIME timestamp value.
@@ -236,10 +238,10 @@ class SecurityAccountManagerDataParser(object):
       dfdatetime.DateTimeValues: date and time values.
     """
     if filetime == 0:
-      return dfdatetime_semantic_time.SemanticTime(string=u'Not set')
+      return dfdatetime_semantic_time.SemanticTime(string='Not set')
 
     if filetime == 0x7fffffffffffffff:
-      return dfdatetime_semantic_time.SemanticTime(string=u'Never')
+      return dfdatetime_semantic_time.SemanticTime(string='Never')
 
     return dfdatetime_filetime.Filetime(timestamp=filetime)
 
@@ -261,7 +263,7 @@ class SecurityAccountManagerDataParser(object):
       raise errors.ParseError(exception)
 
     if self._debug:
-      self._output_writer.WriteDebugData(u'F value data:', value_data)
+      self._output_writer.WriteDebugData('F value data:', value_data)
 
     # TODO: change FILETIME timestamps into date time values.
     # date_time = self._ParseFiletime(f_value.last_login_time)
@@ -281,80 +283,80 @@ class SecurityAccountManagerDataParser(object):
 
     if self._debug:
       self._output_writer.WriteIntegerValueAsDecimal(
-          u'Major version', f_value.major_version)
+          'Major version', f_value.major_version)
 
       self._output_writer.WriteIntegerValueAsDecimal(
-          u'Minor version', f_value.minor_version)
+          'Minor version', f_value.minor_version)
 
-      value_string = u'0x{0:08x}'.format(f_value.unknown1)
-      self._output_writer.WriteValue(u'Unknown1', value_string)
+      value_string = '0x{0:08x}'.format(f_value.unknown1)
+      self._output_writer.WriteValue('Unknown1', value_string)
 
       date_string = self._CopyFiletimeToString(f_value.last_login_time)
-      value_string = u'{0:s} (0x{1:08x})'.format(
+      value_string = '{0:s} (0x{1:08x})'.format(
           date_string, f_value.last_login_time)
-      self._output_writer.WriteValue(u'Last login time', value_string)
+      self._output_writer.WriteValue('Last login time', value_string)
 
-      value_string = u'0x{0:08x}'.format(f_value.unknown2)
-      self._output_writer.WriteValue(u'Unknown2', value_string)
+      value_string = '0x{0:08x}'.format(f_value.unknown2)
+      self._output_writer.WriteValue('Unknown2', value_string)
 
       date_string = self._CopyFiletimeToString(f_value.last_password_set_time)
-      value_string = u'{0:s} (0x{1:08x})'.format(
+      value_string = '{0:s} (0x{1:08x})'.format(
           date_string, f_value.last_password_set_time)
-      self._output_writer.WriteValue(u'Last password set time', value_string)
+      self._output_writer.WriteValue('Last password set time', value_string)
 
       date_string = self._CopyFiletimeToString(f_value.account_expiration_time)
-      value_string = u'{0:s} (0x{1:08x})'.format(
+      value_string = '{0:s} (0x{1:08x})'.format(
           date_string, f_value.account_expiration_time)
-      self._output_writer.WriteValue(u'Account expiration time', value_string)
+      self._output_writer.WriteValue('Account expiration time', value_string)
 
       date_string = self._CopyFiletimeToString(
           f_value.last_password_failure_time)
-      value_string = u'{0:s} (0x{1:08x})'.format(
+      value_string = '{0:s} (0x{1:08x})'.format(
           date_string, f_value.last_password_failure_time)
       self._output_writer.WriteValue(
-          u'Last password failure time', value_string)
+          'Last password failure time', value_string)
 
       self._output_writer.WriteIntegerValueAsDecimal(
-          u'Relative identifier (RID)', f_value.rid)
+          'Relative identifier (RID)', f_value.rid)
 
       self._output_writer.WriteIntegerValueAsDecimal(
-          u'Primary group identifier (GID)', f_value.primary_gid)
+          'Primary group identifier (GID)', f_value.primary_gid)
 
-      value_string = u'0x{0:08x}'.format(f_value.user_account_control_flags)
+      value_string = '0x{0:08x}'.format(f_value.user_account_control_flags)
       self._output_writer.WriteValue(
-          u'User account control flags', value_string)
+          'User account control flags', value_string)
 
       if f_value.user_account_control_flags:
         for flag, identifier in sorted(
             self._USER_ACCOUNT_CONTROL_FLAGS.items()):
           if flag & f_value.user_account_control_flags:
-            value_string = u'\t{0:s} (0x{1:08x})'.format(identifier, flag)
+            value_string = '\t{0:s} (0x{1:08x})'.format(identifier, flag)
             self._output_writer.WriteText(value_string)
 
-        self._output_writer.WriteText(u'')
+        self._output_writer.WriteText('')
 
-      value_string = u'0x{0:04x}'.format(f_value.country_code)
-      self._output_writer.WriteValue(u'Country code', value_string)
-
-      self._output_writer.WriteIntegerValueAsDecimal(
-          u'Codepage', f_value.codepage)
+      value_string = '0x{0:04x}'.format(f_value.country_code)
+      self._output_writer.WriteValue('Country code', value_string)
 
       self._output_writer.WriteIntegerValueAsDecimal(
-          u'Number of password failures', f_value.number_of_password_failures)
+          'Codepage', f_value.codepage)
 
       self._output_writer.WriteIntegerValueAsDecimal(
-          u'Number of logons', f_value.number_of_logons)
+          'Number of password failures', f_value.number_of_password_failures)
 
-      value_string = u'0x{0:08x}'.format(f_value.unknown6)
-      self._output_writer.WriteValue(u'Unknown6', value_string)
+      self._output_writer.WriteIntegerValueAsDecimal(
+          'Number of logons', f_value.number_of_logons)
 
-      value_string = u'0x{0:08x}'.format(f_value.unknown7)
-      self._output_writer.WriteValue(u'Unknown7', value_string)
+      value_string = '0x{0:08x}'.format(f_value.unknown6)
+      self._output_writer.WriteValue('Unknown6', value_string)
 
-      value_string = u'0x{0:08x}'.format(f_value.unknown8)
-      self._output_writer.WriteValue(u'Unknown8', value_string)
+      value_string = '0x{0:08x}'.format(f_value.unknown7)
+      self._output_writer.WriteValue('Unknown7', value_string)
 
-      self._output_writer.WriteText(u'')
+      value_string = '0x{0:08x}'.format(f_value.unknown8)
+      self._output_writer.WriteValue('Unknown8', value_string)
+
+      self._output_writer.WriteText('')
 
   def ParseVValue(self, value_data, user_account):
     """Parses the V value data.
@@ -374,7 +376,7 @@ class SecurityAccountManagerDataParser(object):
       raise errors.ParseError(exception)
 
     if self._debug:
-      self._output_writer.WriteDebugData(u'V value data:', value_data)
+      self._output_writer.WriteDebugData('V value data:', value_data)
 
     for index in range(0, 17):
       user_information_descriptor = v_value[index]
@@ -384,61 +386,61 @@ class SecurityAccountManagerDataParser(object):
       descriptor_data = value_data[data_start_offset:data_end_offset]
 
       if self._debug:
-        description_string = u'Descriptor: {0:d} description'.format(index + 1)
+        description_string = 'Descriptor: {0:d} description'.format(index + 1)
         value_string = self._USER_INFORMATION_DESCRIPTORS[index]
         self._output_writer.WriteValue(description_string, value_string)
 
-        value_description = u'Descriptor: {0:d} offset'.format(index + 1)
-        value_string = u'0x{0:08x} (0x{1:08x})'.format(
+        value_description = 'Descriptor: {0:d} offset'.format(index + 1)
+        value_string = '0x{0:08x} (0x{1:08x})'.format(
             user_information_descriptor.offset, data_start_offset)
         self._output_writer.WriteValue(value_description, value_string)
 
-        value_description = u'Descriptor: {0:d} size'.format(index + 1)
+        value_description = 'Descriptor: {0:d} size'.format(index + 1)
         self._output_writer.WriteIntegerValueAsDecimal(
             value_description, user_information_descriptor.size)
 
-        unknown1_string = u'Descriptor: {0:d} unknown1'.format(index + 1)
-        value_string = u'0x{0:08x}'.format(user_information_descriptor.unknown1)
+        unknown1_string = 'Descriptor: {0:d} unknown1'.format(index + 1)
+        value_string = '0x{0:08x}'.format(user_information_descriptor.unknown1)
         self._output_writer.WriteValue(unknown1_string, value_string)
 
-        data_string = u'Descriptor: {0:d} data:'.format(index + 1)
+        data_string = 'Descriptor: {0:d} data:'.format(index + 1)
         self._output_writer.WriteDebugData(data_string, descriptor_data)
 
       if index == 1:
         user_account.username = descriptor_data.decode(
-            u'utf-16-le').rstrip(u'\x00')
+            'utf-16-le').rstrip('\x00')
 
         if self._debug:
-          self._output_writer.WriteValue(u'Username', user_account.username)
-          self._output_writer.WriteText(u'')
+          self._output_writer.WriteValue('Username', user_account.username)
+          self._output_writer.WriteText('')
 
       elif index == 2:
         user_account.full_name = descriptor_data.decode(
-            u'utf-16-le').rstrip(u'\x00')
+            'utf-16-le').rstrip('\x00')
 
         if self._debug:
-          self._output_writer.WriteValue(u'Full name', user_account.full_name)
-          self._output_writer.WriteText(u'')
+          self._output_writer.WriteValue('Full name', user_account.full_name)
+          self._output_writer.WriteText('')
 
       elif index == 3:
         user_account.comment = descriptor_data.decode(
-            u'utf-16-le').rstrip(u'\x00')
+            'utf-16-le').rstrip('\x00')
 
         if self._debug:
-          self._output_writer.WriteValue(u'Comment', user_account.comment)
-          self._output_writer.WriteText(u'')
+          self._output_writer.WriteValue('Comment', user_account.comment)
+          self._output_writer.WriteText('')
 
       elif index == 4:
         user_account.user_comment = descriptor_data.decode(
-            u'utf-16-le').rstrip(u'\x00')
+            'utf-16-le').rstrip('\x00')
 
         if self._debug:
           self._output_writer.WriteValue(
-              u'User comment', user_account.user_comment)
-          self._output_writer.WriteText(u'')
+              'User comment', user_account.user_comment)
+          self._output_writer.WriteText('')
 
     if self._debug:
-      self._output_writer.WriteText(u'')
+      self._output_writer.WriteText('')
 
 
 class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
@@ -455,7 +457,7 @@ class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
       bool: True if the Security Account Manager (SAM) information key was
           found, False if not.
     """
-    key_path = u'HKEY_LOCAL_MACHINE\\SAM\\SAM\\Domains\\Account\\Users'
+    key_path = 'HKEY_LOCAL_MACHINE\\SAM\\SAM\\Domains\\Account\\Users'
     users_key = registry.GetKeyByPath(key_path)
     if not users_key:
       return False
@@ -464,16 +466,16 @@ class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
         debug=self._debug, output_writer=output_writer)
 
     for subkey in users_key.GetSubkeys():
-      if subkey.name == u'Names':
+      if subkey.name == 'Names':
         continue
 
       user_account = UserAccount()
 
-      f_value = subkey.GetValueByName(u'F')
+      f_value = subkey.GetValueByName('F')
       if f_value:
         parser.ParseFValue(f_value.data, user_account)
 
-      v_value = subkey.GetValueByName(u'V')
+      v_value = subkey.GetValueByName('V')
       if v_value:
         parser.ParseVValue(v_value.data, user_account)
 

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Classes to implement an output writer."""
+"""Output writer."""
 
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import abc
 
@@ -93,7 +94,7 @@ class StdoutOutputWriter(OutputWriter):
       description (str): description to write.
       value (int): value to write.
     """
-    value_string = u'{0:d}'.format(value)
+    value_string = '{0:d}'.format(value)
     self.WriteValue(description, value_string)
 
   def WriteValue(self, description, value):
@@ -104,7 +105,7 @@ class StdoutOutputWriter(OutputWriter):
       value (object): value to write.
     """
     alignment = 8 - (len(description) / 8) + 1
-    text = u'{0:s}{1:s}: {2!s}'.format(description, u'\t' * alignment, value)
+    text = '{0:s}{1:s}: {2!s}'.format(description, '\t' * alignment, value)
     self.WriteText(text)
 
   def WriteText(self, text):
@@ -113,4 +114,4 @@ class StdoutOutputWriter(OutputWriter):
     Args:
       text (str): text to write.
     """
-    print(text.encode(u'utf8'))
+    print(text.encode('utf8'))
