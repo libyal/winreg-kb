@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the Windows Registry key and value filters."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from winregrc import filters
@@ -14,7 +16,7 @@ class WindowsRegistryKeyPathFilterTest(shared_test_lib.BaseTestCase):
 
   def testInitialize(self):
     """Tests the initialize function."""
-    test_filter = filters.WindowsRegistryKeyPathFilter(u'test')
+    test_filter = filters.WindowsRegistryKeyPathFilter('test')
     self.assertIsNotNone(test_filter)
 
   # TODO: add test for key_paths.
@@ -26,7 +28,7 @@ class WindowsRegistryKeyPathPrefixFilterTest(shared_test_lib.BaseTestCase):
 
   def testInitialize(self):
     """Tests the initialize function."""
-    test_filter = filters.WindowsRegistryKeyPathPrefixFilter(u'test')
+    test_filter = filters.WindowsRegistryKeyPathPrefixFilter('test')
     self.assertIsNotNone(test_filter)
 
   # TODO: add test for Match.
@@ -37,7 +39,7 @@ class WindowsRegistryKeyPathSuffixFilterTest(shared_test_lib.BaseTestCase):
 
   def testInitialize(self):
     """Tests the initialize function."""
-    test_filter = filters.WindowsRegistryKeyPathSuffixFilter(u'test')
+    test_filter = filters.WindowsRegistryKeyPathSuffixFilter('test')
     self.assertIsNotNone(test_filter)
 
   # TODO: add test for Match.
@@ -48,7 +50,7 @@ class WindowsRegistryKeyWithValuesFilterTest(shared_test_lib.BaseTestCase):
 
   def testInitialize(self):
     """Tests the initialize function."""
-    test_filter = filters.WindowsRegistryKeyWithValuesFilter([u'test'])
+    test_filter = filters.WindowsRegistryKeyWithValuesFilter(['test'])
     self.assertIsNotNone(test_filter)
 
   # TODO: add test for Match.

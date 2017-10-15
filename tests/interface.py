@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the Windows Registry key and value collector."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from dfwinreg import definitions as dfwinreg_definitions
@@ -21,25 +23,25 @@ class WindowsRegistryKeyCollectorTest(shared_test_lib.BaseTestCase):
     """Tests the _GetValueAsStringFromKey function."""
     collector = interface.WindowsRegistryKeyCollector()
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(u'TestKey')
+    registry_key = dfwinreg_fake.FakeWinRegistryKey('TestKey')
 
-    value_data = u'ValueData'.encode(u'utf-16-le')
+    value_data = 'ValueData'.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'TestValue', data=value_data,
+        'TestValue', data=value_data,
         data_type=dfwinreg_definitions.REG_SZ)
     registry_key.AddValue(registry_value)
 
     value = collector._GetValueAsStringFromKey(
-        registry_key, u'TestValue', default_value=u'DefaultValue')
-    self.assertEqual(value, u'ValueData')
+        registry_key, 'TestValue', default_value='DefaultValue')
+    self.assertEqual(value, 'ValueData')
 
     value = collector._GetValueAsStringFromKey(
-        None, u'TestValue', default_value=u'DefaultValue')
-    self.assertEqual(value, u'DefaultValue')
+        None, 'TestValue', default_value='DefaultValue')
+    self.assertEqual(value, 'DefaultValue')
 
     value = collector._GetValueAsStringFromKey(
-        registry_key, u'Bogus', default_value=u'DefaultValue')
-    self.assertEqual(value, u'DefaultValue')
+        registry_key, 'Bogus', default_value='DefaultValue')
+    self.assertEqual(value, 'DefaultValue')
 
 
 if __name__ == '__main__':

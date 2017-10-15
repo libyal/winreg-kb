@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the Windows known folders collector."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from dfwinreg import definitions as dfwinreg_definitions
@@ -38,9 +40,9 @@ class TestOutputWriter(output_writer.StdoutOutputWriter):
 class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Windows known folders collector."""
 
-  _GUID = u'374de290-123f-4565-9164-39c4925e467b'
-  _LOCALIZED_NAME = u'@%SystemRoot%\\system32\\shell32.dll,-21798'
-  _NAME = u'Downloads'
+  _GUID = '374de290-123f-4565-9164-39c4925e467b'
+  _LOCALIZED_NAME = '@%SystemRoot%\\system32\\shell32.dll,-21798'
+  _NAME = 'Downloads'
 
   def _CreateTestRegistry(self):
     """Creates Registry keys and values for testing.
@@ -48,26 +50,26 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
     Returns:
       dfwinreg.WinRegistry: Windows Registry for testing.
     """
-    key_path_prefix = u'HKEY_LOCAL_MACHINE\\Software'
+    key_path_prefix = 'HKEY_LOCAL_MACHINE\\Software'
 
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(u'FolderDescriptions')
+    registry_key = dfwinreg_fake.FakeWinRegistryKey('FolderDescriptions')
     registry_file.AddKeyByPath(
-        u'\\Microsoft\\Windows\\CurrentVersion\\Explorer', registry_key)
+        '\\Microsoft\\Windows\\CurrentVersion\\Explorer', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._GUID)
     registry_key.AddSubkey(subkey)
 
-    value_data = self._NAME.encode(u'utf-16-le')
+    value_data = self._NAME.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'Name', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        'Name', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     subkey.AddValue(registry_value)
 
-    value_data = self._LOCALIZED_NAME.encode(u'utf-16-le')
+    value_data = self._LOCALIZED_NAME.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'LocalizedName', data=value_data,
+        'LocalizedName', data=value_data,
         data_type=dfwinreg_definitions.REG_SZ)
     subkey.AddValue(registry_value)
 

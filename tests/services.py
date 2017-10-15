@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the services collector."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from dfwinreg import definitions as dfwinreg_definitions
@@ -38,10 +40,10 @@ class TestOutputWriter(output_writer.StdoutOutputWriter):
 class WindowsServicesCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the services collector."""
 
-  _DESCRIPTION = u'@%SystemRoot%\\System32\\wwansvc.dll,-258'
-  _DISPLAY_NAME = u'@%SystemRoot%\\System32\\wwansvc.dll,-257'
-  _IMAGE_PATH = u'%SystemRoot%\\system32\\svchost.exe -k LocalServiceNoNetwork'
-  _OBJECT_NAME = u'NT Authority\\LocalService'
+  _DESCRIPTION = '@%SystemRoot%\\System32\\wwansvc.dll,-258'
+  _DISPLAY_NAME = '@%SystemRoot%\\System32\\wwansvc.dll,-257'
+  _IMAGE_PATH = '%SystemRoot%\\system32\\svchost.exe -k LocalServiceNoNetwork'
+  _OBJECT_NAME = 'NT Authority\\LocalService'
 
   def _CreateTestRegistry(self):
     """Creates Registry keys and values for testing.
@@ -49,57 +51,57 @@ class WindowsServicesCollectorTest(shared_test_lib.BaseTestCase):
     Returns:
       dfwinreg.WinRegistry: Windows Registry for testing.
     """
-    key_path_prefix = u'HKEY_LOCAL_MACHINE\\System'
+    key_path_prefix = 'HKEY_LOCAL_MACHINE\\System'
 
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(u'Select')
-    registry_file.AddKeyByPath(u'\\', registry_key)
+    registry_key = dfwinreg_fake.FakeWinRegistryKey('Select')
+    registry_file.AddKeyByPath('\\', registry_key)
 
     value_data = b'\x01\x00\x00\x00'
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'Current', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
+        'Current', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
     registry_key.AddValue(registry_value)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(u'Services')
-    registry_file.AddKeyByPath(u'\\ControlSet001', registry_key)
+    registry_key = dfwinreg_fake.FakeWinRegistryKey('Services')
+    registry_file.AddKeyByPath('\\ControlSet001', registry_key)
 
-    subkey = dfwinreg_fake.FakeWinRegistryKey(u'WwanSvc')
+    subkey = dfwinreg_fake.FakeWinRegistryKey('WwanSvc')
     registry_key.AddSubkey(subkey)
 
-    value_data = self._DESCRIPTION.encode(u'utf-16-le')
+    value_data = self._DESCRIPTION.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'Description', data=value_data,
+        'Description', data=value_data,
         data_type=dfwinreg_definitions.REG_SZ)
     subkey.AddValue(registry_value)
 
-    value_data = self._DISPLAY_NAME.encode(u'utf-16-le')
+    value_data = self._DISPLAY_NAME.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'DisplayName', data=value_data,
+        'DisplayName', data=value_data,
         data_type=dfwinreg_definitions.REG_SZ)
     subkey.AddValue(registry_value)
 
-    value_data = self._IMAGE_PATH.encode(u'utf-16-le')
+    value_data = self._IMAGE_PATH.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'ImagePath', data=value_data,
+        'ImagePath', data=value_data,
         data_type=dfwinreg_definitions.REG_SZ)
     subkey.AddValue(registry_value)
 
-    value_data = self._OBJECT_NAME.encode(u'utf-16-le')
+    value_data = self._OBJECT_NAME.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'ObjectName', data=value_data,
+        'ObjectName', data=value_data,
         data_type=dfwinreg_definitions.REG_SZ)
     subkey.AddValue(registry_value)
 
     value_data = b'\x03\x00\x00\x00'
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'Start', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
+        'Start', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
     subkey.AddValue(registry_value)
 
     value_data = b'\x20\x00\x00\x00'
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'Type', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
+        'Type', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
     subkey.AddValue(registry_value)
 
     registry_file.Open(None)

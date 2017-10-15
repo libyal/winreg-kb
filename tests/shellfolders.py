@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the Windows shell folders collector."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from dfwinreg import definitions as dfwinreg_definitions
@@ -38,10 +40,10 @@ class TestOutputWriter(output_writer.StdoutOutputWriter):
 class ShellFoldersCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Windows shell folders collector."""
 
-  _GUID1 = u'{2227a280-3aea-1069-a2de-08002b30309d}'
-  _GUID2 = u'{e7de9b1a-7533-4556-9484-b26fb486475e}'
-  _LOCALIZED_STRING1 = u'@%SystemRoot%\\system32\\prnfldr.dll,-8036'
-  _NAME1 = u'Printers'
+  _GUID1 = '{2227a280-3aea-1069-a2de-08002b30309d}'
+  _GUID2 = '{e7de9b1a-7533-4556-9484-b26fb486475e}'
+  _LOCALIZED_STRING1 = '@%SystemRoot%\\system32\\prnfldr.dll,-8036'
+  _NAME1 = 'Printers'
 
   def _CreateTestRegistry(self):
     """Creates Registry keys and values for testing.
@@ -49,35 +51,35 @@ class ShellFoldersCollectorTest(shared_test_lib.BaseTestCase):
     Returns:
       dfwinreg.WinRegistry: Windows Registry for testing.
     """
-    key_path_prefix = u'HKEY_LOCAL_MACHINE\\Software'
+    key_path_prefix = 'HKEY_LOCAL_MACHINE\\Software'
 
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(u'CLSID')
-    registry_file.AddKeyByPath(u'\\Classes', registry_key)
+    registry_key = dfwinreg_fake.FakeWinRegistryKey('CLSID')
+    registry_file.AddKeyByPath('\\Classes', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._GUID1)
     registry_key.AddSubkey(subkey)
 
-    shell_folder_key = dfwinreg_fake.FakeWinRegistryKey(u'ShellFolder')
+    shell_folder_key = dfwinreg_fake.FakeWinRegistryKey('ShellFolder')
     subkey.AddSubkey(shell_folder_key)
 
-    value_data = self._NAME1.encode(u'utf-16-le')
+    value_data = self._NAME1.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        '', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     subkey.AddValue(registry_value)
 
-    value_data = self._LOCALIZED_STRING1.encode(u'utf-16-le')
+    value_data = self._LOCALIZED_STRING1.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'LocalizedString', data=value_data,
+        'LocalizedString', data=value_data,
         data_type=dfwinreg_definitions.REG_SZ)
     subkey.AddValue(registry_value)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._GUID2)
     registry_key.AddSubkey(subkey)
 
-    shell_folder_key = dfwinreg_fake.FakeWinRegistryKey(u'ShellFolder')
+    shell_folder_key = dfwinreg_fake.FakeWinRegistryKey('ShellFolder')
     subkey.AddSubkey(shell_folder_key)
 
     registry_file.Open(None)
@@ -112,8 +114,8 @@ class ShellFoldersCollectorTest(shared_test_lib.BaseTestCase):
 
     self.assertIsNotNone(shell_folder)
     self.assertEqual(shell_folder.guid, self._GUID2)
-    self.assertEqual(shell_folder.name, u'')
-    self.assertEqual(shell_folder.localized_string, u'')
+    self.assertEqual(shell_folder.name, '')
+    self.assertEqual(shell_folder.localized_string, '')
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""

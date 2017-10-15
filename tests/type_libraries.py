@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the type libraries collector."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from dfwinreg import definitions as dfwinreg_definitions
@@ -38,10 +40,10 @@ class TestOutputWriter(output_writer.StdoutOutputWriter):
 class TypeLibraryTest(shared_test_lib.BaseTestCase):
   """Tests for the type library."""
 
-  _DESCRIPTION = u'Microsoft Office List 14.0'
-  _FILENAME = u'C:\\PROGRA~1\\MICROS~2\\Office14\\STSLIST.DLL'
-  _GUID = u'{edcd5812-6a06-43c3-afac-46ef5d14e22c}'
-  _VERSION = u'3.0'
+  _DESCRIPTION = 'Microsoft Office List 14.0'
+  _FILENAME = 'C:\\PROGRA~1\\MICROS~2\\Office14\\STSLIST.DLL'
+  _GUID = '{edcd5812-6a06-43c3-afac-46ef5d14e22c}'
+  _VERSION = '3.0'
 
   def testInitialize(self):
     """Tests the initialize function."""
@@ -53,15 +55,15 @@ class TypeLibraryTest(shared_test_lib.BaseTestCase):
 class TypeLibraryCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the type libraries collector."""
 
-  _DESCRIPTION1 = u'Microsoft Office List 14.0'
-  _FILENAME1 = u'C:\\PROGRA~1\\MICROS~2\\Office14\\STSLIST.DLL'
-  _GUID1 = u'{edcd5812-6a06-43c3-afac-46ef5d14e22c}'
-  _VERSION1 = u'3.0'
+  _DESCRIPTION1 = 'Microsoft Office List 14.0'
+  _FILENAME1 = 'C:\\PROGRA~1\\MICROS~2\\Office14\\STSLIST.DLL'
+  _GUID1 = '{edcd5812-6a06-43c3-afac-46ef5d14e22c}'
+  _VERSION1 = '3.0'
 
-  _DESCRIPTION2 = u'IAS SDO Helper 1.0 Type Library'
-  _FILENAME2 = u'%SystemRoot%\\system32\\sdohlp.dll\\1'
-  _GUID2 = u'{e9970f91-b6aa-11d9-b032-000d56c25c27}'
-  _VERSION2 = u'1.0'
+  _DESCRIPTION2 = 'IAS SDO Helper 1.0 Type Library'
+  _FILENAME2 = '%SystemRoot%\\system32\\sdohlp.dll\\1'
+  _GUID2 = '{e9970f91-b6aa-11d9-b032-000d56c25c27}'
+  _VERSION2 = '1.0'
 
   def _CreateTestRegistry(self):
     """Creates Registry keys and values for testing.
@@ -69,53 +71,53 @@ class TypeLibraryCollectorTest(shared_test_lib.BaseTestCase):
     Returns:
       dfwinreg.WinRegistry: Windows Registry for testing.
     """
-    key_path_prefix = u'HKEY_LOCAL_MACHINE\\Software'
+    key_path_prefix = 'HKEY_LOCAL_MACHINE\\Software'
 
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey(self._GUID1)
-    registry_file.AddKeyByPath(u'\\Classes\\TypeLib', registry_key)
+    registry_file.AddKeyByPath('\\Classes\\TypeLib', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._VERSION1)
     registry_key.AddSubkey(subkey)
 
-    value_data = self._DESCRIPTION1.encode(u'utf-16-le')
+    value_data = self._DESCRIPTION1.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        '', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     subkey.AddValue(registry_value)
 
-    language_key = dfwinreg_fake.FakeWinRegistryKey(u'409')
+    language_key = dfwinreg_fake.FakeWinRegistryKey('409')
     subkey.AddSubkey(language_key)
 
-    platform_key = dfwinreg_fake.FakeWinRegistryKey(u'Win32')
+    platform_key = dfwinreg_fake.FakeWinRegistryKey('Win32')
     language_key.AddSubkey(platform_key)
 
-    value_data = self._FILENAME1.encode(u'utf-16-le')
+    value_data = self._FILENAME1.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        '', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     platform_key.AddValue(registry_value)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey(self._GUID2)
-    registry_file.AddKeyByPath(u'\\Classes\\TypeLib', registry_key)
+    registry_file.AddKeyByPath('\\Classes\\TypeLib', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._VERSION2)
     registry_key.AddSubkey(subkey)
 
-    value_data = self._DESCRIPTION1.encode(u'utf-16-le')
+    value_data = self._DESCRIPTION1.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        '', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     subkey.AddValue(registry_value)
 
-    language_key = dfwinreg_fake.FakeWinRegistryKey(u'0')
+    language_key = dfwinreg_fake.FakeWinRegistryKey('0')
     subkey.AddSubkey(language_key)
 
-    platform_key = dfwinreg_fake.FakeWinRegistryKey(u'x64')
+    platform_key = dfwinreg_fake.FakeWinRegistryKey('x64')
     language_key.AddSubkey(platform_key)
 
-    value_data = self._FILENAME1.encode(u'utf-16-le')
+    value_data = self._FILENAME1.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        '', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     platform_key.AddValue(registry_value)
 
     registry_file.Open(None)

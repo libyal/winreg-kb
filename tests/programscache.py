@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the Programs Cache information collector."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from dfwinreg import registry as dfwinreg_registry
@@ -49,12 +51,12 @@ class ProgramsCacheDataParserTest(shared_test_lib.BaseTestCase):
 class ProgramsCacheCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Programs Cache information collector."""
 
-  @shared_test_lib.skipUnlessHasTestFile([u'NTUSER.DAT'])
+  @shared_test_lib.skipUnlessHasTestFile(['NTUSER.DAT'])
   def testCollect(self):
     """Tests the Collect function."""
     registry_collector = collector.WindowsRegistryCollector()
 
-    test_path = self._GetTestFilePath([u'NTUSER.DAT'])
+    test_path = self._GetTestFilePath(['NTUSER.DAT'])
     registry_collector.ScanForWindowsVolume(test_path)
 
     self.assertIsNotNone(registry_collector.registry)

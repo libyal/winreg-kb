@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the user profiles collector."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from dfwinreg import definitions as dfwinreg_definitions
@@ -38,8 +40,8 @@ class TestOutputWriter(output_writer.StdoutOutputWriter):
 class UserProfilesCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Windows user profiles collector."""
 
-  _SID = u'S-1-5-18'
-  _PROFILE_PATH = u'%systemroot%\\system32\\config\\systemprofile'
+  _SID = 'S-1-5-18'
+  _PROFILE_PATH = '%systemroot%\\system32\\config\\systemprofile'
 
   def _CreateTestRegistry(self):
     """Creates Registry keys and values for testing.
@@ -47,21 +49,21 @@ class UserProfilesCollectorTest(shared_test_lib.BaseTestCase):
     Returns:
       dfwinreg.WinRegistry: Windows Registry for testing.
     """
-    key_path_prefix = u'HKEY_LOCAL_MACHINE\\Software'
+    key_path_prefix = 'HKEY_LOCAL_MACHINE\\Software'
 
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(u'ProfileList')
+    registry_key = dfwinreg_fake.FakeWinRegistryKey('ProfileList')
     registry_file.AddKeyByPath(
-        u'\\Microsoft\\Windows NT\\CurrentVersion', registry_key)
+        '\\Microsoft\\Windows NT\\CurrentVersion', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._SID)
     registry_key.AddSubkey(subkey)
 
-    value_data = self._PROFILE_PATH.encode(u'utf-16-le')
+    value_data = self._PROFILE_PATH.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'ProfileImagePath', data=value_data,
+        'ProfileImagePath', data=value_data,
         data_type=dfwinreg_definitions.REG_SZ)
     subkey.AddValue(registry_value)
 

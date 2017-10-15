@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the Task Cache information collector."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from dfwinreg import definitions as dfwinreg_definitions
@@ -73,17 +75,17 @@ class TaskCacheDataParserTest(shared_test_lib.BaseTestCase):
 class TaskCacheCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Task Cache information collector."""
 
-  _GUID1 = u'{8905ECD8-016F-4DC2-90E6-A5F1FA6A841A}'
-  _GUID2 = u'{F93C7104-998A-4A38-B935-775A3138B3C3}'
-  _GUID3 = u'{FE7B674F-2430-40A1-9162-AFC3727E3DC3}'
+  _GUID1 = '{8905ECD8-016F-4DC2-90E6-A5F1FA6A841A}'
+  _GUID2 = '{F93C7104-998A-4A38-B935-775A3138B3C3}'
+  _GUID3 = '{FE7B674F-2430-40A1-9162-AFC3727E3DC3}'
 
-  _NAME1 = u'AD RMS Rights Policy Template Management (Automated)'
-  _NAME2 = u'Notifications'
-  _NAME3 = u'AutoWake'
+  _NAME1 = 'AD RMS Rights Policy Template Management (Automated)'
+  _NAME2 = 'Notifications'
+  _NAME3 = 'AutoWake'
 
   _PATH = (
-      u'\\Microsoft\\Windows\\Active Directory Rights Management Services '
-      u'Client\\AD RMS Rights Policy Template Management (Automated)')
+      '\\Microsoft\\Windows\\Active Directory Rights Management Services '
+      'Client\\AD RMS Rights Policy Template Management (Automated)')
 
   def _CreateTestRegistry(self):
     """Creates Registry keys and values for testing.
@@ -91,73 +93,73 @@ class TaskCacheCollectorTest(shared_test_lib.BaseTestCase):
     Returns:
       dfwinreg.WinRegistry: Windows Registry for testing.
     """
-    key_path_prefix = u'HKEY_LOCAL_MACHINE\\Software'
+    key_path_prefix = 'HKEY_LOCAL_MACHINE\\Software'
 
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey(self._GUID1)
     registry_file.AddKeyByPath(
-        u'\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tasks',
+        '\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tasks',
         registry_key)
 
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'DynamicInfo', data=_DYNAMIC_INFO_DATA,
+        'DynamicInfo', data=_DYNAMIC_INFO_DATA,
         data_type=dfwinreg_definitions.REG_BINARY)
     registry_key.AddValue(registry_value)
 
-    value_data = self._PATH.encode(u'utf-16-le')
+    value_data = self._PATH.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'Path', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        'Path', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     registry_key.AddValue(registry_value)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey(self._NAME1)
     registry_file.AddKeyByPath((
-        u'\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tree\\'
-        u'Microsoft\\Windows\\Active Directory Rights Management Services '
-        u'Client'), registry_key)
+        '\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tree\\'
+        'Microsoft\\Windows\\Active Directory Rights Management Services '
+        'Client'), registry_key)
 
-    value_data = u'{8905ECD8-016F-4DC2-90E6-A5F1FA6A841A}\x00'.encode(
-        u'utf-16-le')
+    value_data = '{8905ECD8-016F-4DC2-90E6-A5F1FA6A841A}\x00'.encode(
+        'utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'Id', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        'Id', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     registry_key.AddValue(registry_value)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey(self._GUID2)
     registry_file.AddKeyByPath(
-        u'\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tasks',
+        '\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tasks',
         registry_key)
 
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'DynamicInfo', data=_DYNAMIC_INFO2_DATA,
+        'DynamicInfo', data=_DYNAMIC_INFO2_DATA,
         data_type=dfwinreg_definitions.REG_BINARY)
     registry_key.AddValue(registry_value)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey(self._NAME2)
     registry_file.AddKeyByPath((
-        u'\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tree\\'
-        u'Microsoft\\Windows\\Location'), registry_key)
+        '\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tree\\'
+        'Microsoft\\Windows\\Location'), registry_key)
 
-    value_data = u'{F93C7104-998A-4A38-B935-775A3138B3C3}\x00'.encode(
-        u'utf-16-le')
+    value_data = '{F93C7104-998A-4A38-B935-775A3138B3C3}\x00'.encode(
+        'utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'Id', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        'Id', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     registry_key.AddValue(registry_value)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey(self._GUID3)
     registry_file.AddKeyByPath(
-        u'\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tasks',
+        '\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tasks',
         registry_key)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey(self._NAME3)
     registry_file.AddKeyByPath((
-        u'\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tree\\'
-        u'Microsoft\\Windows\\SideShow'), registry_key)
+        '\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache\\Tree\\'
+        'Microsoft\\Windows\\SideShow'), registry_key)
 
-    value_data = u'{FE7B674F-2430-40A1-9162-AFC3727E3DC3}\x00'.encode(
-        u'utf-16-le')
+    value_data = '{FE7B674F-2430-40A1-9162-AFC3727E3DC3}\x00'.encode(
+        'utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'Id', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        'Id', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     registry_key.AddValue(registry_value)
 
     registry_file.Open(None)
@@ -172,14 +174,14 @@ class TaskCacheCollectorTest(shared_test_lib.BaseTestCase):
     Returns:
       dfwinreg.WinRegistry: Windows Registry for testing.
     """
-    key_path_prefix = u'HKEY_LOCAL_MACHINE\\Software'
+    key_path_prefix = 'HKEY_LOCAL_MACHINE\\Software'
 
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(u'Tasks')
+    registry_key = dfwinreg_fake.FakeWinRegistryKey('Tasks')
     registry_file.AddKeyByPath(
-        u'\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache',
+        '\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache',
         registry_key)
 
     registry_file.Open(None)

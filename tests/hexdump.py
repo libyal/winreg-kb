@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the hexadecimal representation functions."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from winregrc import hexdump

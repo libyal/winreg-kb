@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the Windows User Assist collector."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from dfwinreg import definitions as dfwinreg_definitions
@@ -63,7 +65,7 @@ class UserAssistDataParserTest(shared_test_lib.BaseTestCase):
 class UserAssistCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Windows User Assist collector."""
 
-  _GUID = u'{5E6AB780-7743-11CF-A12B-00AA004AE837}'
+  _GUID = '{5E6AB780-7743-11CF-A12B-00AA004AE837}'
 
   _UEME_CTLSESSION_VALUE_DATA = bytes(bytearray([
       0xb0, 0xa8, 0x50, 0x0e, 0x01, 0x00, 0x00, 0x00]))
@@ -78,31 +80,31 @@ class UserAssistCollectorTest(shared_test_lib.BaseTestCase):
     Returns:
       dfwinreg.WinRegistry: Windows Registry for testing.
     """
-    key_path_prefix = u'HKEY_CURRENT_USER'
+    key_path_prefix = 'HKEY_CURRENT_USER'
 
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey(self._GUID)
     registry_file.AddKeyByPath(
-        u'\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\UserAssist',
+        '\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\UserAssist',
         registry_key)
 
     value_data = b'\x03\x00\x00\x00'
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'Version', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
+        'Version', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
     registry_key.AddValue(registry_value)
 
-    subkey = dfwinreg_fake.FakeWinRegistryKey(u'Count')
+    subkey = dfwinreg_fake.FakeWinRegistryKey('Count')
     registry_key.AddSubkey(subkey)
 
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'HRZR_PGYFRFFVBA', data=self._UEME_CTLSESSION_VALUE_DATA,
+        'HRZR_PGYFRFFVBA', data=self._UEME_CTLSESSION_VALUE_DATA,
         data_type=dfwinreg_definitions.REG_BINARY)
     subkey.AddValue(registry_value)
 
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'HRZR_EHACVQY:%pfvqy2%\\Jvaqbjf Zrffratre.yax',
+        'HRZR_EHACVQY:%pfvqy2%\\Jvaqbjf Zrffratre.yax',
         data=self._ENTRY_VALUE_DATA, data_type=dfwinreg_definitions.REG_BINARY)
     subkey.AddValue(registry_value)
 

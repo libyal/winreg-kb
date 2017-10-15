@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the Security Account Manager (SAM) collector."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from dfwinreg import definitions as dfwinreg_definitions
@@ -133,7 +135,7 @@ class SecurityAccountManagerDataParserTest(shared_test_lib.BaseTestCase):
 
     data_parser.ParseVValue(_V_VALUE_DATA, user_account)
 
-    self.assertEqual(user_account.username, u'Administrator')
+    self.assertEqual(user_account.username, 'Administrator')
 
     # TODO: tests other values set by ParseVValue.
 
@@ -148,7 +150,7 @@ class SecurityAccountManagerDataParserTest(shared_test_lib.BaseTestCase):
 class SecurityAccountManagerCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Security Account Manager (SAM) collector."""
 
-  _RID = u'000001F4'
+  _RID = '000001F4'
 
   def _CreateTestRegistry(self):
     """Creates Registry keys and values for testing.
@@ -156,23 +158,23 @@ class SecurityAccountManagerCollectorTest(shared_test_lib.BaseTestCase):
     Returns:
       dfwinreg.WinRegistry: Windows Registry for testing.
     """
-    key_path_prefix = u'HKEY_LOCAL_MACHINE\\SAM'
+    key_path_prefix = 'HKEY_LOCAL_MACHINE\\SAM'
 
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(u'Users')
-    registry_file.AddKeyByPath(u'\\SAM\\Domains\\Account', registry_key)
+    registry_key = dfwinreg_fake.FakeWinRegistryKey('Users')
+    registry_file.AddKeyByPath('\\SAM\\Domains\\Account', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._RID)
     registry_key.AddSubkey(subkey)
 
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'F', data=_F_VALUE_DATA, data_type=dfwinreg_definitions.REG_BINARY)
+        'F', data=_F_VALUE_DATA, data_type=dfwinreg_definitions.REG_BINARY)
     subkey.AddValue(registry_value)
 
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'V', data=_V_VALUE_DATA, data_type=dfwinreg_definitions.REG_BINARY)
+        'V', data=_V_VALUE_DATA, data_type=dfwinreg_definitions.REG_BINARY)
     subkey.AddValue(registry_value)
 
     registry_file.Open(None)
@@ -195,7 +197,7 @@ class SecurityAccountManagerCollectorTest(shared_test_lib.BaseTestCase):
 
     user_account = test_output_writer.user_accounts[0]
     self.assertIsNotNone(user_account)
-    self.assertEqual(user_account.username, u'Administrator')
+    self.assertEqual(user_account.username, 'Administrator')
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""

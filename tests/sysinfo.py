@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the system information collector."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from dfwinreg import definitions as dfwinreg_definitions
@@ -40,17 +42,17 @@ class SystemInfoCollectorTest(shared_test_lib.BaseTestCase):
 
   # pylint: disable=protected-access
 
-  _CSD_VERSION = u'Service Pack 1'
-  _CURRENT_BUILD_NUMBER = u'7601'
-  _CURRENT_TYPE = u'Multiprocessor Free'
-  _CURRENT_VERSION = u'6.1'
+  _CSD_VERSION = 'Service Pack 1'
+  _CURRENT_BUILD_NUMBER = '7601'
+  _CURRENT_TYPE = 'Multiprocessor Free'
+  _CURRENT_VERSION = '6.1'
   _INSTALLATION_DATE = 1289406535
-  _PATH_NAME = u'C:\\Windows'
-  _PRODUCT_IDENTIFIER = u'00426-067-1817155-86250'
-  _PRODUCT_NAME = u'Windows 7 Ultimate'
-  _REGISTERED_ORGANIZATION = u''
-  _REGISTERED_OWNER = u'Windows User'
-  _SYSTEM_ROOT = u'C:\\Windows'
+  _PATH_NAME = 'C:\\Windows'
+  _PRODUCT_IDENTIFIER = '00426-067-1817155-86250'
+  _PRODUCT_NAME = 'Windows 7 Ultimate'
+  _REGISTERED_ORGANIZATION = ''
+  _REGISTERED_OWNER = 'Windows User'
+  _SYSTEM_ROOT = 'C:\\Windows'
 
   def _CreateTestRegistry(self):
     """Creates Registry keys and values for testing.
@@ -58,51 +60,51 @@ class SystemInfoCollectorTest(shared_test_lib.BaseTestCase):
     Returns:
       dfwinreg.WinRegistry: Windows Registry for testing.
     """
-    key_path_prefix = u'HKEY_LOCAL_MACHINE\\Software'
+    key_path_prefix = 'HKEY_LOCAL_MACHINE\\Software'
 
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(u'CurrentVersion')
-    registry_file.AddKeyByPath(u'\\Microsoft\\Windows NT', registry_key)
+    registry_key = dfwinreg_fake.FakeWinRegistryKey('CurrentVersion')
+    registry_file.AddKeyByPath('\\Microsoft\\Windows NT', registry_key)
 
-    value_data = self._CSD_VERSION.encode(u'utf-16-le')
+    value_data = self._CSD_VERSION.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'CSDVersion', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        'CSDVersion', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     registry_key.AddValue(registry_value)
 
-    value_data = self._CURRENT_BUILD_NUMBER.encode(u'utf-16-le')
+    value_data = self._CURRENT_BUILD_NUMBER.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'CurrentBuildNumber', data=value_data,
+        'CurrentBuildNumber', data=value_data,
         data_type=dfwinreg_definitions.REG_SZ)
     registry_key.AddValue(registry_value)
 
-    value_data = self._CURRENT_TYPE.encode(u'utf-16-le')
+    value_data = self._CURRENT_TYPE.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'CurrentType', data=value_data,
+        'CurrentType', data=value_data,
         data_type=dfwinreg_definitions.REG_SZ)
     registry_key.AddValue(registry_value)
 
-    value_data = self._CURRENT_VERSION.encode(u'utf-16-le')
+    value_data = self._CURRENT_VERSION.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'CurrentVersion', data=value_data,
+        'CurrentVersion', data=value_data,
         data_type=dfwinreg_definitions.REG_SZ)
     registry_key.AddValue(registry_value)
 
     value_data = b'\x47\xc8\xda\x4c'
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'InstallDate', data=value_data,
+        'InstallDate', data=value_data,
         data_type=dfwinreg_definitions.REG_DWORD)
     registry_key.AddValue(registry_value)
 
-    value_data = self._PRODUCT_IDENTIFIER.encode(u'utf-16-le')
+    value_data = self._PRODUCT_IDENTIFIER.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'ProductId', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        'ProductId', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     registry_key.AddValue(registry_value)
 
-    value_data = self._PRODUCT_NAME.encode(u'utf-16-le')
+    value_data = self._PRODUCT_NAME.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'ProductName', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
+        'ProductName', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     registry_key.AddValue(registry_value)
 
     # TODO: add more values.
@@ -122,7 +124,7 @@ class SystemInfoCollectorTest(shared_test_lib.BaseTestCase):
 
     value_data = b'\x47\xc8\xda\x4c'
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'InstallDate', data=value_data,
+        'InstallDate', data=value_data,
         data_type=dfwinreg_definitions.REG_DWORD)
 
     date_time = collector_object._ParseInstallDate(registry_value)
@@ -130,7 +132,7 @@ class SystemInfoCollectorTest(shared_test_lib.BaseTestCase):
 
     value_data = b'\x00\x00\x00\x00'
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'InstallDate', data=value_data,
+        'InstallDate', data=value_data,
         data_type=dfwinreg_definitions.REG_DWORD)
 
     date_time = collector_object._ParseInstallDate(registry_value)

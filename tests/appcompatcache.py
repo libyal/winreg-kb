@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the Application Compatibility Cache collector."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from dfwinreg import definitions as dfwinreg_definitions
@@ -324,25 +326,25 @@ class AppCompatCacheCollectorTest(shared_test_lib.BaseTestCase):
     Returns:
       dfwinreg.WinRegistry: Windows Registry for testing.
     """
-    key_path_prefix = u'HKEY_LOCAL_MACHINE\\System'
+    key_path_prefix = 'HKEY_LOCAL_MACHINE\\System'
 
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(u'Select')
-    registry_file.AddKeyByPath(u'\\', registry_key)
+    registry_key = dfwinreg_fake.FakeWinRegistryKey('Select')
+    registry_file.AddKeyByPath('\\', registry_key)
 
     value_data = b'\x01\x00\x00\x00'
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'Current', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
+        'Current', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
     registry_key.AddValue(registry_value)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(u'AppCompatibility')
+    registry_key = dfwinreg_fake.FakeWinRegistryKey('AppCompatibility')
     registry_file.AddKeyByPath(
-        u'\\ControlSet001\\Control\\Session Manager', registry_key)
+        '\\ControlSet001\\Control\\Session Manager', registry_key)
 
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        u'AppCompatCache', data=_CACHE_DATA_WINDOWS_XP,
+        'AppCompatCache', data=_CACHE_DATA_WINDOWS_XP,
         data_type=dfwinreg_definitions.REG_BINARY)
     registry_key.AddValue(registry_value)
 

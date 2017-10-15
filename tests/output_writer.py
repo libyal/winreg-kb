@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the output writer."""
 
+from __future__ import unicode_literals
+
 import unittest
 
 from winregrc import output_writer
@@ -25,19 +27,19 @@ class StdoutOutputWriterTest(shared_test_lib.BaseTestCase):
     """Tests the WriteDebugData function."""
     test_output_writer = output_writer.StdoutOutputWriter()
 
-    test_output_writer.WriteDebugData(u'Description', b'DATA')
+    test_output_writer.WriteDebugData('Description', b'DATA')
 
   def testWriteValue(self):
     """Tests the WriteValue function."""
     test_output_writer = output_writer.StdoutOutputWriter()
 
-    test_output_writer.WriteValue(u'Description', u'Value')
+    test_output_writer.WriteValue('Description', 'Value')
 
   def testWriteText(self):
     """Tests the WriteText function."""
     test_output_writer = output_writer.StdoutOutputWriter()
 
-    test_output_writer.WriteText(u'Test')
+    test_output_writer.WriteText('Test')
 
 
 if __name__ == '__main__':
