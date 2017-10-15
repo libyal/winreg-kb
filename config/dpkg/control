@@ -11,13 +11,20 @@ Homepage: https://github.com/libyal/winreg-kb
 Package: python-winregrc
 Architecture: all
 Depends: libbde-python (>= 20140531), libewf-python (>= 20131210), libfsntfs-python (>= 20151130), libfvde-python (>= 20160719), libfwnt-python (>= 20160418), libfwsi-python (>= 20150606), libqcow-python (>= 20131204), libregf-python (>= 20150315), libsigscan-python (>= 20150627), libsmdev-python (>= 20140529), libsmraw-python (>= 20140612), libvhdi-python (>= 20131210), libvmdk-python (>= 20140421), libvshadow-python (>= 20160109), libvslvm-python (>= 20160109), python-backports.lzma, python-construct (>= 2.5.2), python-crypto (>= 2.6.0), python-dfdatetime (>= 20160814), python-dfvfs (>= 20160803), python-dfwinreg (>= 20170519), python-dtfabric (>= 20170524), python-pysqlite, python-pytsk3 (>= 20160721), python-six (>= 1.1.0), python-yaml (>= 3.10), ${python:Depends}, ${misc:Depends}
-Description: Python 2 module for Windows Registry resources (winregrc)
+Description: Python 2 module of Windows Registry resources (winregrc)
  winregrc is a Python module part of winreg-kb to allow reuse of
  Windows Registry Resources.
 
 Package: python3-winregrc
 Architecture: all
 Depends: libbde-python3 (>= 20140531), libewf-python3 (>= 20131210), libfsntfs-python3 (>= 20151130), libfvde-python3 (>= 20160719), libfwnt-python3 (>= 20160418), libfwsi-python3 (>= 20150606), libqcow-python3 (>= 20131204), libregf-python3 (>= 20150315), libsigscan-python3 (>= 20150627), libsmdev-python3 (>= 20140529), libsmraw-python3 (>= 20140612), libvhdi-python3 (>= 20131210), libvmdk-python3 (>= 20140421), libvshadow-python3 (>= 20160109), libvslvm-python3 (>= 20160109), python3-backports.lzma, python3-construct (>= 2.5.2), python3-crypto (>= 2.6.0), python3-dfdatetime (>= 20160814), python3-dfvfs (>= 20160803), python3-dfwinreg (>= 20170519), python3-dtfabric (>= 20170524), python3-pysqlite, python3-pytsk3 (>= 20160721), python3-six (>= 1.1.0), python3-yaml (>= 3.10), ${python3:Depends}, ${misc:Depends}
-Description: Python 3 module for Windows Registry resources (winregrc)
+Description: Python 3 module of Windows Registry resources (winregrc)
+ winregrc is a Python module part of winreg-kb to allow reuse of
+ Windows Registry Resources.
+
+Package: winregrc-tools
+Architecture: all
+Depends: python-winregrc, python (>= 2.7~), ${python:Depends}, ${misc:Depends}
+Description: Tools of Windows Registry resources (winregrc)
  winregrc is a Python module part of winreg-kb to allow reuse of
  Windows Registry Resources.
