@@ -8,7 +8,7 @@ L2TBINARIES_DEPENDENCIES="PyYAML construct dfdatetime dfvfs dfwinreg dtfabric li
 
 L2TBINARIES_TEST_DEPENDENCIES="funcsigs mock pbr";
 
-PYTHON2_DEPENDENCIES="libbde-python libewf-python libfsntfs-python libfvde-python libfwnt-python libfwsi-python libqcow-python libregf-python libsigscan-python libsmdev-python libsmraw-python libvhdi-python libvmdk-python libvshadow-python libvslvm-python python-backports.lzma python-construct python-crypto python-dfdatetime python-dfvfs python-dfwinreg python-dtfabric python-pysqlite python-pytsk3 python-six python-yaml";
+PYTHON2_DEPENDENCIES="libbde-python libewf-python libfsntfs-python libfvde-python libfwnt-python libfwsi-python libqcow-python libregf-python libsigscan-python libsmdev-python libsmraw-python libvhdi-python libvmdk-python libvshadow-python libvslvm-python python-backports.lzma python-construct python-crypto python-dfdatetime python-dfvfs python-dfwinreg python-dtfabric python-pysqlite2 python-pytsk3 python-six python-yaml";
 
 PYTHON2_TEST_DEPENDENCIES="python-mock python-tox";
 
