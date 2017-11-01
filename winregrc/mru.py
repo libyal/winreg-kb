@@ -37,10 +37,6 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
 
   _BAG_MRU_KEY_PATHS = [key_path.upper() for key_path in _BAG_MRU_KEY_PATHS]
 
-  _RECENT_DOCS_KEY_PATH = (
-      'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
-      'Explorer\\RecentDocs').upper()
-
   _SHELL_ITEM_LIST_MRU_KEY_PATHS = [
       ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
        'Explorer\\DesktopStreamMRU'),
@@ -52,12 +48,37 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
   _SHELL_ITEM_LIST_MRU_KEY_PATHS = [
       key_path.upper() for key_path in _SHELL_ITEM_LIST_MRU_KEY_PATHS]
 
+  _STRING_AND_SHELL_ITEM_MRU_KEY_PATHS = [
+      ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
+       'Explorer\\RecentDocs')]
+
+  _STRING_AND_SHELL_ITEM_MRU_KEY_PATHS = [
+      key_path.upper() for key_path in _STRING_AND_SHELL_ITEM_MRU_KEY_PATHS]
+
   _STRING_AND_SHELL_ITEM_LIST_MRU_KEY_PATHS = [
       ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
        'Explorer\\ComDlg32\\LastVisitedPidlMRU')]
 
   _STRING_AND_SHELL_ITEM_LIST_MRU_KEY_PATHS = [
-      key_path.upper() for key_path in _SHELL_ITEM_LIST_MRU_KEY_PATHS]
+      key_path.upper()
+      for key_path in _STRING_AND_SHELL_ITEM_LIST_MRU_KEY_PATHS]
+
+  def _InKeyPaths(self, key_path, key_paths):
+    """Checks if a specific key path is defined in a list of key paths.
+
+    Args:
+      key_path (str): Windows Registry key path.
+      key_paths (list[str]): list of Windows Registry key paths.
+
+    Returns:
+      bool: True if the key path is defined in the list of key paths.
+    """
+    key_path = key_path.upper()
+    for matching_key_path in key_paths:
+      if key_path.startswith(matching_key_path):
+        return True
+
+    return False
 
   def _ProcessKey(self, registry_key, output_writer):
     """Processes a Windows Registry key.
@@ -97,8 +118,6 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
     Returns:
       bool: True if a Most Recently Used (MRU) key was found, False if not.
     """
-    key_path = registry_key.path.upper()
-
     result = False
     for registry_value in registry_key.GetValues():
       if registry_value.name == 'MRUList':
@@ -109,15 +128,11 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
             registry_key.path, registry_value.name)
         output_writer.WriteDebugData(description, registry_value.data)
 
-      is_bag_mru_key = False
-      for bag_mru_key_path in self._BAG_MRU_KEY_PATHS:
-        if key_path.startswith(bag_mru_key_path):
-          is_bag_mru_key = True
-
-      if is_bag_mru_key:
+      if self._InKeyPaths(registry_key.path, self._BAG_MRU_KEY_PATHS):
         self._ProcessMRUEntryShellItem(registry_value.data, output_writer)
 
-      elif key_path in self._SHELL_ITEM_LIST_MRU_KEY_PATHS:
+      elif self._InKeyPaths(
+          registry_key.path, self._SHELL_ITEM_LIST_MRU_KEY_PATHS):
         self._ProcessMRUEntryShellItemList(registry_value.data, output_writer)
 
       else:
@@ -137,7 +152,9 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
     Returns:
       bool: True if a Most Recently Used (MRU) key was found, False if not.
     """
-    key_path = registry_key.path.upper()
+    # TODO: determine what trailing data is in:
+    # HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\
+    # ComDlg32\CIDSizeMRU
 
     result = False
     for registry_value in registry_key.GetValues():
@@ -149,23 +166,22 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
             registry_key.path, registry_value.name)
         output_writer.WriteText(description)
 
-      is_bag_mru_key = False
-      for bag_mru_key_path in self._BAG_MRU_KEY_PATHS:
-        if key_path.startswith(bag_mru_key_path):
-          is_bag_mru_key = True
-
-      if is_bag_mru_key:
+      if self._InKeyPaths(registry_key.path, self._BAG_MRU_KEY_PATHS):
         self._ProcessMRUEntryShellItem(registry_value.data, output_writer)
 
-      elif key_path in self._SHELL_ITEM_LIST_MRU_KEY_PATHS:
+      elif self._InKeyPaths(
+          registry_key.path, self._SHELL_ITEM_LIST_MRU_KEY_PATHS):
         self._ProcessMRUEntryShellItemList(registry_value.data, output_writer)
 
-      elif key_path.startswith(self._RECENT_DOCS_KEY_PATH):
+      elif self._InKeyPaths(
+          registry_key.path, self._STRING_AND_SHELL_ITEM_MRU_KEY_PATHS):
         self._ProcessMRUEntryStringAndShellItem(
             registry_value.data, output_writer)
 
-      elif key_path in self._STRING_AND_SHELL_ITEM_LIST_MRU_KEY_PATHS:
-        self._ProcessMRUEntryShellItemList(registry_value.data, output_writer)
+      elif self._InKeyPaths(
+          registry_key.path, self._STRING_AND_SHELL_ITEM_LIST_MRU_KEY_PATHS):
+        self._ProcessMRUEntryStringAndShellItemList(
+            registry_value.data, output_writer)
 
       else:
         self._ProcessMRUEntryString(registry_value.data, output_writer)
@@ -211,7 +227,7 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
     result = True
 
     for data_offset in range(0, value_data_size, 2):
-      if value_data[data_offset:data_offset + 2] == '\0\0':
+      if value_data[data_offset:data_offset + 2] == b'\0\0':
         data_offset += 2
         break
 
@@ -240,7 +256,7 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
     result = True
 
     for data_offset in range(0, value_data_size, 2):
-      if value_data[data_offset:data_offset + 2] == '\0\0':
+      if value_data[data_offset:data_offset + 2] == b'\0\0':
         data_offset += 2
         break
 
@@ -271,7 +287,7 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
     result = True
 
     for data_offset in range(0, value_data_size, 2):
-      if value_data[data_offset:data_offset + 2] == '\0\0':
+      if value_data[data_offset:data_offset + 2] == b'\0\0':
         data_offset += 2
         break
 
