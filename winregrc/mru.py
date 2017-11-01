@@ -26,7 +26,11 @@ class MostRecentlyUsedEntry(object):
 class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
   """Most Recently Used (MRU) collector."""
 
-  _BAG_MRU_KEY_PATHS = [
+  _SHELL_ITEM_MRU_KEY_PATHS = [
+      ('HKEY_CURRENT_USER\\Local Settings\\Software\\Microsoft\\Windows\\'
+       'Shell\\BagMRU'),
+      ('HKEY_CURRENT_USER\\Local Settings\\Software\\Microsoft\\Windows\\'
+       'ShellNoRoam\\BagMRU'),
       'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\Shell\\BagMRU',
       ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\ShellNoRoam\\'
        'BagMRU'),
@@ -35,11 +39,14 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
       ('HKEY_CURRENT_USER\\Software\\Classes\\Local Settings\\Software\\'
        'Microsoft\\Windows\\ShellNoRoam\\BagMRU')]
 
-  _BAG_MRU_KEY_PATHS = [key_path.upper() for key_path in _BAG_MRU_KEY_PATHS]
+  _SHELL_ITEM_MRU_KEY_PATHS = [
+      key_path.upper() for key_path in _SHELL_ITEM_MRU_KEY_PATHS]
 
   _SHELL_ITEM_LIST_MRU_KEY_PATHS = [
       ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
        'Explorer\\DesktopStreamMRU'),
+      ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
+       'Explorer\\ComDlg32\\OpenSaveMRU'),
       ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
        'Explorer\\ComDlg32\\OpenSavePidlMRU'),
       ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
@@ -120,20 +127,30 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
     """
     result = False
     for registry_value in registry_key.GetValues():
-      if registry_value.name == 'MRUList':
+      if registry_value.name in ('MRUList', 'NodeSlot', 'NodeSlots'):
         continue
 
       if self._debug:
         description = 'Key: {0:s}\nValue: {1:s}'.format(
             registry_key.path, registry_value.name)
-        output_writer.WriteDebugData(description, registry_value.data)
+        output_writer.WriteText(description)
 
-      if self._InKeyPaths(registry_key.path, self._BAG_MRU_KEY_PATHS):
+      if self._InKeyPaths(registry_key.path, self._SHELL_ITEM_MRU_KEY_PATHS):
         self._ProcessMRUEntryShellItem(registry_value.data, output_writer)
 
       elif self._InKeyPaths(
           registry_key.path, self._SHELL_ITEM_LIST_MRU_KEY_PATHS):
         self._ProcessMRUEntryShellItemList(registry_value.data, output_writer)
+
+      elif self._InKeyPaths(
+          registry_key.path, self._STRING_AND_SHELL_ITEM_MRU_KEY_PATHS):
+        self._ProcessMRUEntryStringAndShellItem(
+            registry_value.data, output_writer)
+
+      elif self._InKeyPaths(
+          registry_key.path, self._STRING_AND_SHELL_ITEM_LIST_MRU_KEY_PATHS):
+        self._ProcessMRUEntryStringAndShellItemList(
+            registry_value.data, output_writer)
 
       else:
         self._ProcessMRUEntryString(registry_value.data, output_writer)
@@ -158,7 +175,7 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
 
     result = False
     for registry_value in registry_key.GetValues():
-      if registry_value.name == 'MRUListEx':
+      if registry_value.name in ('MRUListEx', 'NodeSlot', 'NodeSlots'):
         continue
 
       if self._debug:
@@ -166,7 +183,7 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
             registry_key.path, registry_value.name)
         output_writer.WriteText(description)
 
-      if self._InKeyPaths(registry_key.path, self._BAG_MRU_KEY_PATHS):
+      if self._InKeyPaths(registry_key.path, self._SHELL_ITEM_MRU_KEY_PATHS):
         self._ProcessMRUEntryShellItem(registry_value.data, output_writer)
 
       elif self._InKeyPaths(
