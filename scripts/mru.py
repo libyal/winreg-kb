@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""Script to extract information from the Windows Registry."""
+"""Script to extract Most Recently Used (MRU) information."""
 
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -10,22 +10,29 @@ import logging
 import sys
 
 from winregrc import collector
-from winregrc import knownfolders
 from winregrc import output_writer
+from winregrc import mru
 
 
 class StdoutWriter(output_writer.StdoutOutputWriter):
   """Stdout output writer."""
 
-  def WriteKnownFolder(self, known_folder):
-    """Writes a known folder to the output.
+  def WriteText(self, text):
+    """Writes text to stdout.
 
     Args:
-      known_folder (KnownFolder): known folder.
+      text (bytes): text to write.
     """
-    text = '{0:s}\t{1:s}\t{2:s}'.format(
-        known_folder.guid, known_folder.name, known_folder.localized_name)
-    self.WriteText(text)
+    print(text)
+
+  def WriteMostRecentlyUsedEntry(self, mru_entry):
+    """Writes a Most Recently Used (MRU) entry to stdout.
+
+    Args:
+      mru_entry (MostRecentlyUsedEntry): MRU entry to write.
+    """
+    self.WriteValue('String', mru_entry.string)
+    self.WriteText('')
 
 
 def Main():
@@ -35,7 +42,8 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts information for the Windows Registry.'))
+      'Extracts Most Recently Used information from a NTUSER.DAT Registry '
+      'file.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -46,7 +54,7 @@ def Main():
       help=(
           'path of the volume containing C:\\Windows, the filename of '
           'a storage media image containing the C:\\Windows directory,'
-          'or the path of a Windows Registry file.'))
+          'or the path of a NTUSER.DAT Registry file.'))
 
   options = argument_parser.parse_args()
 
@@ -75,12 +83,13 @@ def Main():
     return False
 
   # TODO: map collector to available Registry keys.
-  collector_object = knownfolders.KnownFoldersCollector(debug=options.debug)
+  collector_object = mru.MostRecentlyUsedCollector(
+      debug=options.debug)
 
   result = collector_object.Collect(
       registry_collector.registry, output_writer_object)
   if not result:
-    print('No Folder Descriptions key found.')
+    print('No Most Recently Used key found.')
 
   output_writer_object.Close()
 
