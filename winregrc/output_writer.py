@@ -104,7 +104,8 @@ class StdoutOutputWriter(OutputWriter):
       description (str): description to write.
       value (object): value to write.
     """
-    alignment = 8 - (len(description) / 8) + 1
+    alignment, _ = divmod(len(description), 8)
+    alignment = 8 - alignment + 1
     text = '{0:s}{1:s}: {2!s}'.format(description, '\t' * alignment, value)
     self.WriteText(text)
 
@@ -114,4 +115,5 @@ class StdoutOutputWriter(OutputWriter):
     Args:
       text (str): text to write.
     """
-    print(text.encode('utf8'))
+    text = text.encode('utf8')
+    print(text)
