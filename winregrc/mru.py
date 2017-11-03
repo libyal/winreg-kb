@@ -10,21 +10,32 @@ class MostRecentlyUsedEntry(object):
   """Most Recently Used (MRU) entry.
 
   Attributes:
+    shell_item_data (bytes): Shell Item data.
+    shell_item_list_data (bytes): Shell Item list data.
     string (str): string.
   """
 
-  def __init__(self, string):
+  def __init__(
+      self, shell_item_data=None, shell_item_list_data=None, string=None):
     """Initializes a Most Recently Used (MRU) entry.
 
     Args:
-      string (str): string.
+      shell_item_data (Optional[bytes]): Shell Item data.
+      shell_item_list_data (Optional[bytes]): Shell Item list data.
+      string (Optional[str]): string.
     """
     super(MostRecentlyUsedEntry, self).__init__()
+    self.shell_item_data = shell_item_data
+    self.shell_item_list_data = shell_item_list_data
     self.string = string
 
 
 class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
   """Most Recently Used (MRU) collector."""
+
+  _OPENSAVE_MRU_KEY_PATH = (
+       'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
+       'Explorer\\ComDlg32\\OpenSaveMRU').upper()
 
   _SHELL_ITEM_MRU_KEY_PATHS = [
       ('HKEY_CURRENT_USER\\Local Settings\\Software\\Microsoft\\Windows\\'
@@ -45,8 +56,6 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
   _SHELL_ITEM_LIST_MRU_KEY_PATHS = [
       ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
        'Explorer\\DesktopStreamMRU'),
-      ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
-       'Explorer\\ComDlg32\\OpenSaveMRU'),
       ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
        'Explorer\\ComDlg32\\OpenSavePidlMRU'),
       ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
@@ -220,6 +229,9 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
     if self._debug:
       output_writer.WriteDebugData('Shell item data', value_data)
 
+    mru_entry = MostRecentlyUsedEntry(shell_item_data=value_data)
+    output_writer.WriteMostRecentlyUsedEntry(mru_entry)
+
   def _ProcessMRUEntryShellItemList(self, value_data, output_writer):
     """Processes a shell item list MRUEntry.
 
@@ -232,6 +244,9 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
 
     if self._debug:
       output_writer.WriteDebugData('Shell item list data', value_data)
+
+    mru_entry = MostRecentlyUsedEntry(shell_item_list_data=value_data)
+    output_writer.WriteMostRecentlyUsedEntry(mru_entry)
 
   def _ProcessMRUEntryString(self, value_data, output_writer):
     """Processes a string MRUEntry.
@@ -259,7 +274,7 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
     if self._debug and data_offset < value_data_size:
       output_writer.WriteDebugData('Trailing data', value_data[data_offset:])
 
-    mru_entry = MostRecentlyUsedEntry(string)
+    mru_entry = MostRecentlyUsedEntry(string=string)
     output_writer.WriteMostRecentlyUsedEntry(mru_entry)
 
   def _ProcessMRUEntryStringAndShellItem(self, value_data, output_writer):
@@ -290,7 +305,8 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
         output_writer.WriteDebugData(
             'Shell item data', value_data[data_offset:])
 
-    mru_entry = MostRecentlyUsedEntry(string)
+    mru_entry = MostRecentlyUsedEntry(
+        shell_item_data=value_data[data_offset:], string=string)
     output_writer.WriteMostRecentlyUsedEntry(mru_entry)
 
   def _ProcessMRUEntryStringAndShellItemList(self, value_data, output_writer):
@@ -321,7 +337,8 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
         output_writer.WriteDebugData(
             'Shell item list data', value_data[data_offset:])
 
-    mru_entry = MostRecentlyUsedEntry(string)
+    mru_entry = MostRecentlyUsedEntry(
+        shell_item_list_data=value_data[data_offset:], string=string)
     output_writer.WriteMostRecentlyUsedEntry(mru_entry)
 
   def Collect(self, registry, output_writer):

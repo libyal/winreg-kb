@@ -9,6 +9,8 @@ import argparse
 import logging
 import sys
 
+import pyfwsi
+
 from winregrc import collector
 from winregrc import output_writer
 from winregrc import mru
@@ -25,13 +27,53 @@ class StdoutWriter(output_writer.StdoutOutputWriter):
     """
     print(text)
 
+  def _WriteShellItem(self, shell_item):
+    """Writes a shell item to stdout.
+
+    Args:
+      shell_item (pyfwsi.item): Shell Item to write.
+    """
+    value_string = '0x{0:02x}'.format(shell_item.class_type)
+    self.WriteValue('Shell item', value_string)
+
+    self.WriteIntegerValueAsDecimal(
+        '\tNumber of extension blocks', shell_item.number_of_extension_blocks)
+
+    for extension_block in shell_item.extension_blocks:
+      self._WriteShellItemExtensionBlock(extension_block)
+
+  def _WriteShellItemExtensionBlock(self, extension_block):
+    """Writes a shell item extension block to stdout.
+
+    Args:
+      extension_block (pyfwsi.extension_block): Shell Item extension block to
+          write.
+    """
+    value_string = '0x{0:04x}'.format(extension_block.signature)
+    self.WriteValue('\tExtension block', value_string)
+
   def WriteMostRecentlyUsedEntry(self, mru_entry):
     """Writes a Most Recently Used (MRU) entry to stdout.
 
     Args:
       mru_entry (MostRecentlyUsedEntry): MRU entry to write.
     """
-    self.WriteValue('String', mru_entry.string)
+    if mru_entry.string:
+      self.WriteValue('String', mru_entry.string)
+
+    if mru_entry.shell_item_data:
+      shell_item = pyfwsi.item()
+      shell_item.copy_from_byte_stream(mru_entry.shell_item_data)
+
+      self._WriteShellItem(shell_item)
+
+    elif mru_entry.shell_item_list_data:
+      shell_item_list = pyfwsi.item_list()
+      shell_item_list.copy_from_byte_stream(mru_entry.shell_item_list_data)
+
+      for shell_item in iter(shell_item_list.items):
+        self._WriteShellItem(shell_item)
+
     self.WriteText('')
 
 
