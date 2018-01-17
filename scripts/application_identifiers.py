@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""Script to extract type libraries."""
+"""Script to extract application identifiers."""
 
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -9,23 +9,22 @@ import argparse
 import logging
 import sys
 
+from winregrc import application_identifiers
 from winregrc import collector
 from winregrc import output_writer
-from winregrc import type_libraries
 
 
 class StdoutWriter(output_writer.StdoutOutputWriter):
   """Stdout output writer."""
 
-  def WriteTypeLibrary(self, type_library):
-    """Writes a type library folder to the output.
+  def WriteApplicationIdentifier(self, application_identifier):
+    """Writes an application identifier folder to the output.
 
     Args:
-      type_library (TypeLibrary): type library.
+      application_identifier (ApplicationIdentifier): application identifier.
     """
-    print('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(
-        type_library.guid, type_library.version, type_library.description,
-        type_library.typelib_filename))
+    print('{0:s}\t{1:s}'.format(
+        application_identifier.guid, application_identifier.description))
 
 
 def Main():
@@ -35,7 +34,7 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the type libraries from a SOFTWARE Registry file.'))
+      'Extracts the application identifiers from a SOFTWARE Registry file.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -75,13 +74,13 @@ def Main():
     return False
 
   # TODO: map collector to available Registry keys.
-  collector_object = type_libraries.TypeLibrariesCollector(
+  collector_object = application_identifiers.ApplicationIdentifiersCollector(
       debug=options.debug)
 
   result = collector_object.Collect(
       registry_collector.registry, output_writer_object)
   if not result:
-    print('No TypeLib key found.')
+    print('No AppID key found.')
 
   output_writer_object.Close()
 

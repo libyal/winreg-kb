@@ -91,4 +91,4 @@ class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
             guid, subkey.name, description, typelib_filename)
         output_writer.WriteTypeLibrary(type_library)
 
-    return False
+    return True
