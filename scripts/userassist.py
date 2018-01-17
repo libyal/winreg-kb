@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""Script to extract User Assist information."""
+"""Script to extract UserAssist information."""
 
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -33,7 +33,7 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the User Assist information from a NTUSER.DAT Registry file.'))
+      'Extracts the UserAssist information from a NTUSER.DAT Registry file.'))
 
   argument_parser.add_argument(
       '--codepage', dest='codepage', action='store', metavar='CODEPAGE',
@@ -82,7 +82,7 @@ def Main():
   result = collector_object.Collect(
       registry_collector.registry, output_writer_object)
   if not result:
-    print('No User Assist key found.')
+    print('No UserAssist key found.')
 
   output_writer_object.Close()
 

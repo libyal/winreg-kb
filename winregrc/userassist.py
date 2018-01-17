@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Windows User Assist information collector."""
+"""Windows UserAssist information collector."""
 
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -15,7 +15,7 @@ from winregrc import interface
 
 
 class UserAssistDataParser(object):
-  """User Assist data parser."""
+  """UserAssist data parser."""
 
   _DATA_TYPE_FABRIC_DEFINITION = b'\n'.join([
       b'name: float32',
@@ -104,7 +104,7 @@ class UserAssistDataParser(object):
       'user_assist_entry_v5')
 
   def __init__(self, debug=False, output_writer=None):
-    """Initializes an User Assist data parser.
+    """Initializes an UserAssist data parser.
 
     Args:
       debug (Optional[bool]): True if debug information should be printed.
@@ -208,7 +208,7 @@ class UserAssistDataParser(object):
 
 
 class UserAssistCollector(interface.WindowsRegistryKeyCollector):
-  """Windows User Assist information collector."""
+  """Windows UserAssist information collector."""
 
   _USER_ASSIST_KEY = (
       'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
@@ -216,11 +216,11 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
 
   # TODO: replace print by output_writer.
   def _CollectUserAssistFromKey(self, output_writer, guid_subkey):
-    """Collects the User Assist information from a GUID sub key.
+    """Collects the UserAssist information from a GUID sub key.
 
     Args:
       output_writer (OutputWriter): output writer.
-      guid_subkey (dfwinreg.WinRegistryKey): User Assist GUID Registry key.
+      guid_subkey (dfwinreg.WinRegistryKey): UserAssist GUID Registry key.
     """
     version_value = guid_subkey.GetValueByName('Version')
     if not version_value:
@@ -275,14 +275,14 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
         parser.ParseEntry(format_version, value.data)
 
   def Collect(self, registry, output_writer):
-    """Collects the User Assist information.
+    """Collects the UserAssist information.
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
       output_writer (OutputWriter): output writer.
 
     Returns:
-      bool: True if the User Assist key was found, False if not.
+      bool: True if the UserAssist key was found, False if not.
     """
     user_assist_key = registry.GetKeyByPath(self._USER_ASSIST_KEY)
     if not user_assist_key:
