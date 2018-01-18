@@ -9,6 +9,8 @@ import argparse
 import logging
 import sys
 
+from dfdatetime import filetime as dfdatetime_filetime
+
 from winregrc import appcompatcache
 from winregrc import collector
 from winregrc import output_writer
@@ -24,7 +26,12 @@ class StdoutWriter(output_writer.StdoutOutputWriter):
       cached_entry (AppCompatCacheCachedEntry): Application Compatibility
           Cache cached entry.
     """
-    print('Type\t\t\t: {0:s}'.format(service_type_description))
+    filetime = dfdatetime_filetime.Filetime(
+        timestamp=cached_entry.last_modification_time)
+    date_time_string = filetime.CopyToDateTimeString()
+
+    print('Last modification time\t: {0:s}'.format(date_time_string))
+    print('Path\t\t\t: {0:s}'.format(cached_entry.path))
 
 
 def Main():

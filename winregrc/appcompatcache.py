@@ -13,6 +13,324 @@ from winregrc import errors
 from winregrc import interface
 
 
+_DTFABRIC_YAML = b"""\
+name: byte
+type: integer
+attributes:
+  format: unsigned
+  size: 1
+  units: bytes
+---
+name: uint16
+type: integer
+attributes:
+  format: unsigned
+  size: 2
+  units: bytes
+---
+name: uint32
+type: integer
+attributes:
+  format: unsigned
+  size: 4
+  units: bytes
+---
+name: uint64
+type: integer
+attributes:
+  format: unsigned
+  size: 8
+  units: bytes
+---
+name: uint16le
+type: integer
+attributes:
+  byte_order: little-endian
+  format: unsigned
+  size: 2
+  units: bytes
+---
+name: uint32le
+type: integer
+attributes:
+  byte_order: little-endian
+  format: unsigned
+  size: 4
+  units: bytes
+---
+name: uint64le
+type: integer
+attributes:
+  byte_order: little-endian
+  format: unsigned
+  size: 8
+  units: bytes
+---
+name: appcompatcache_header_xp_32bit
+type: structure
+description: Windows XP 32-bit AppCompatCache header.
+attributes:
+  byte_order: little-endian
+members:
+- name: signature
+  data_type: uint32
+- name: number_of_cached_entries
+  data_type: uint32
+- name: number_of_lru_entries
+  data_type: uint32
+- name: unknown1
+  data_type: uint32
+- name: lru_entries
+  type: sequence
+  element_data_type: uint32
+  number_of_elements: 96
+---
+name: appcompatcache_cached_entry_xp_32bit
+type: structure
+description: Windows XP 32-bit AppCompatCache cached entry.
+attributes:
+  byte_order: little-endian
+members:
+- name: path
+  type: sequence
+  element_data_type: byte
+  number_of_elements: 528
+- name: last_modification_time
+  data_type: uint64
+- name: file_size
+  data_type: uint64
+- name: last_update_time
+  data_type: uint64
+---
+name: appcompatcache_header_2003
+type: structure
+description: Windows 2003 AppCompatCache header.
+attributes:
+  byte_order: little-endian
+members:
+- name: signature
+  data_type: uint32
+- name: number_of_cached_entries
+  data_type: uint32
+---
+name: appcompatcache_cached_entry_2003_common
+type: structure
+description: Windows 2003, Vista, 7 common AppCompatCache cached entry.
+attributes:
+  byte_order: little-endian
+members:
+- name: path_size
+  data_type: uint16
+- name: maximum_path_size
+  data_type: uint16
+- name: path_offset_32bit
+  data_type: uint32
+- name: path_offset_64bit
+  data_type: uint64
+---
+name: appcompatcache_cached_entry_2003_32bit
+type: structure
+description: Windows 2003 32-bit AppCompatCache cached entry.
+attributes:
+  byte_order: little-endian
+members:
+- name: path_size
+  data_type: uint16
+- name: maximum_path_size
+  data_type: uint16
+- name: path_offset
+  data_type: uint32
+- name: last_modification_time
+  data_type: uint64
+- name: file_size
+  data_type: uint64
+---
+name: appcompatcache_cached_entry_2003_64bit
+type: structure
+description: Windows 2003 64-bit AppCompatCache cached entry.
+attributes:
+  byte_order: little-endian
+members:
+- name: path_size
+  data_type: uint16
+- name: maximum_path_size
+  data_type: uint16
+- name: unknown1
+  data_type: uint32
+- name: path_offset
+  data_type: uint64
+- name: last_modification_time
+  data_type: uint64
+- name: file_size
+  data_type: uint64
+---
+name: appcompatcache_header_vista
+type: structure
+description: Windows Vista and 2008 AppCompatCache header.
+attributes:
+  byte_order: little-endian
+members:
+- name: signature
+  data_type: uint32
+- name: number_of_cached_entries
+  data_type: uint32
+---
+name: appcompatcache_cached_entry_vista_32bit
+type: structure
+description: Windows Vista and 2008 32-bit AppCompatCache cached entry.
+attributes:
+  byte_order: little-endian
+members:
+- name: path_size
+  data_type: uint16
+- name: maximum_path_size
+  data_type: uint16
+- name: path_offset
+  data_type: uint32
+- name: last_modification_time
+  data_type: uint64
+- name: insertion_flags
+  data_type: uint32
+- name: shim_flags
+  data_type: uint32
+---
+name: appcompatcache_cached_entry_vista_64bit
+type: structure
+description: Windows Vista and 2008 64-bit AppCompatCache cached entry.
+attributes:
+  byte_order: little-endian
+members:
+- name: path_size
+  data_type: uint16
+- name: maximum_path_size
+  data_type: uint16
+- name: unknown1
+  data_type: uint32
+- name: path_offset
+  data_type: uint64
+- name: last_modification_time
+  data_type: uint64
+- name: insertion_flags
+  data_type: uint32
+- name: shim_flags
+  data_type: uint32
+---
+name: appcompatcache_header_7
+type: structure
+description: Windows 7 AppCompatCache header.
+attributes:
+  byte_order: little-endian
+members:
+- name: signature
+  data_type: uint32
+- name: number_of_cached_entries
+  data_type: uint32
+- name: unknown1
+  type: sequence
+  element_data_type: byte
+  number_of_elements: 120
+---
+name: appcompatcache_cached_entry_7_32bit
+type: structure
+description: Windows 7 and 2008 R2 32-bit AppCompatCache cached entry.
+attributes:
+  byte_order: little-endian
+members:
+- name: path_size
+  data_type: uint16
+- name: maximum_path_size
+  data_type: uint16
+- name: path_offset
+  data_type: uint32
+- name: last_modification_time
+  data_type: uint64
+- name: insertion_flags
+  data_type: uint32
+- name: shim_flags
+  data_type: uint32
+- name: data_size
+  data_type: uint32
+- name: data_offset
+  data_type: uint32
+---
+name: appcompatcache_cached_entry_7_64bit
+type: structure
+description: Windows 7 and 2008 R2 64-bit AppCompatCache cached entry.
+attributes:
+  byte_order: little-endian
+members:
+- name: path_size
+  data_type: uint16
+- name: maximum_path_size
+  data_type: uint16
+- name: unknown1
+  data_type: uint32
+- name: path_offset
+  data_type: uint64
+- name: last_modification_time
+  data_type: uint64
+- name: insertion_flags
+  data_type: uint32
+- name: shim_flags
+  data_type: uint32
+- name: data_size
+  data_type: uint64
+- name: data_offset
+  data_type: uint64
+---
+name: appcompatcache_header_8
+type: structure
+description: Windows 8 AppCompatCache header.
+attributes:
+  byte_order: little-endian
+members:
+- name: signature
+  data_type: uint32
+- name: unknown1
+  data_type: uint32
+- name: unknown2
+  type: sequence
+  element_data_type: byte
+  number_of_elements: 120
+---
+name: appcompatcache_cached_entry_header_8
+type: structure
+description: Windows 8 AppCompatCache header.
+attributes:
+  byte_order: little-endian
+members:
+- name: signature
+  data_type: uint32
+- name: unknown1
+  data_type: uint32
+- name: cached_entry_data_size
+  data_type: uint32
+- name: path_size
+  data_type: uint16
+---
+name: appcompatcache_header_10
+type: structure
+description: Windows 10 AppCompatCache header.
+attributes:
+  byte_order: little-endian
+members:
+- name: signature
+  data_type: uint32
+- name: unknown1
+  data_type: uint32
+- name: unknown2
+  type: sequence
+  element_data_type: byte
+  number_of_elements: 28
+- name: number_of_cached_entries
+  data_type: uint32
+- name: unknown3
+  type: sequence
+  element_data_type: byte
+  number_of_elements: 8
+"""
+
+
 class AppCompatCacheHeader(object):
   """Application Compatibility Cache header.
 
@@ -67,328 +385,8 @@ class AppCompatCacheDataParser(object):
   FORMAT_TYPE_8 = 6
   FORMAT_TYPE_10 = 7
 
-  _DATA_TYPE_FABRIC_DEFINITION = b'\n'.join([
-      b'name: byte',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 1',
-      b'  units: bytes',
-      b'---',
-      b'name: uint16',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 2',
-      b'  units: bytes',
-      b'---',
-      b'name: uint32',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 4',
-      b'  units: bytes',
-      b'---',
-      b'name: uint64',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 8',
-      b'  units: bytes',
-      b'---',
-      b'name: uint16le',
-      b'type: integer',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'  format: unsigned',
-      b'  size: 2',
-      b'  units: bytes',
-      b'---',
-      b'name: uint32le',
-      b'type: integer',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'  format: unsigned',
-      b'  size: 4',
-      b'  units: bytes',
-      b'---',
-      b'name: uint64le',
-      b'type: integer',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'  format: unsigned',
-      b'  size: 8',
-      b'  units: bytes',
-      b'---',
-      b'name: appcompatcache_header_xp_32bit',
-      b'type: structure',
-      b'description: Windows XP 32-bit AppCompatCache header.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: signature',
-      b'  data_type: uint32',
-      b'- name: number_of_cached_entries',
-      b'  data_type: uint32',
-      b'- name: number_of_lru_entries',
-      b'  data_type: uint32',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'- name: lru_entries',
-      b'  type: sequence',
-      b'  element_data_type: uint32',
-      b'  number_of_elements: 96',
-      b'---',
-      b'name: appcompatcache_cached_entry_xp_32bit',
-      b'type: structure',
-      b'description: Windows XP 32-bit AppCompatCache cached entry.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: path',
-      b'  type: sequence',
-      b'  element_data_type: byte',
-      b'  number_of_elements: 528',
-      b'- name: last_modification_time',
-      b'  data_type: uint64',
-      b'- name: file_size',
-      b'  data_type: uint64',
-      b'- name: last_update_time',
-      b'  data_type: uint64',
-      b'---',
-      b'name: appcompatcache_header_2003',
-      b'type: structure',
-      b'description: Windows 2003 AppCompatCache header.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: signature',
-      b'  data_type: uint32',
-      b'- name: number_of_cached_entries',
-      b'  data_type: uint32',
-      b'---',
-      b'name: appcompatcache_cached_entry_2003_common',
-      b'type: structure',
-      (b'description: Windows 2003, Vista, 7 common AppCompatCache cached '
-       b'entry.'),
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: path_size',
-      b'  data_type: uint16',
-      b'- name: maximum_path_size',
-      b'  data_type: uint16',
-      b'- name: path_offset_32bit',
-      b'  data_type: uint32',
-      b'- name: path_offset_64bit',
-      b'  data_type: uint64',
-      b'---',
-      b'name: appcompatcache_cached_entry_2003_32bit',
-      b'type: structure',
-      b'description: Windows 2003 32-bit AppCompatCache cached entry.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: path_size',
-      b'  data_type: uint16',
-      b'- name: maximum_path_size',
-      b'  data_type: uint16',
-      b'- name: path_offset',
-      b'  data_type: uint32',
-      b'- name: last_modification_time',
-      b'  data_type: uint64',
-      b'- name: file_size',
-      b'  data_type: uint64',
-      b'---',
-      b'name: appcompatcache_cached_entry_2003_64bit',
-      b'type: structure',
-      b'description: Windows 2003 64-bit AppCompatCache cached entry.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: path_size',
-      b'  data_type: uint16',
-      b'- name: maximum_path_size',
-      b'  data_type: uint16',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'- name: path_offset',
-      b'  data_type: uint64',
-      b'- name: last_modification_time',
-      b'  data_type: uint64',
-      b'- name: file_size',
-      b'  data_type: uint64',
-      b'---',
-      b'name: appcompatcache_header_vista',
-      b'type: structure',
-      b'description: Windows Vista and 2008 AppCompatCache header.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: signature',
-      b'  data_type: uint32',
-      b'- name: number_of_cached_entries',
-      b'  data_type: uint32',
-      b'---',
-      b'name: appcompatcache_cached_entry_vista_32bit',
-      b'type: structure',
-      (b'description: Windows Vista and 2008 32-bit AppCompatCache '
-       b'cached entry.'),
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: path_size',
-      b'  data_type: uint16',
-      b'- name: maximum_path_size',
-      b'  data_type: uint16',
-      b'- name: path_offset',
-      b'  data_type: uint32',
-      b'- name: last_modification_time',
-      b'  data_type: uint64',
-      b'- name: insertion_flags',
-      b'  data_type: uint32',
-      b'- name: shim_flags',
-      b'  data_type: uint32',
-      b'---',
-      b'name: appcompatcache_cached_entry_vista_64bit',
-      b'type: structure',
-      (b'description: Windows Vista and 2008 64-bit AppCompatCache '
-       b'cached entry.'),
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: path_size',
-      b'  data_type: uint16',
-      b'- name: maximum_path_size',
-      b'  data_type: uint16',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'- name: path_offset',
-      b'  data_type: uint64',
-      b'- name: last_modification_time',
-      b'  data_type: uint64',
-      b'- name: insertion_flags',
-      b'  data_type: uint32',
-      b'- name: shim_flags',
-      b'  data_type: uint32',
-      b'---',
-      b'name: appcompatcache_header_7',
-      b'type: structure',
-      b'description: Windows 7 AppCompatCache header.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: signature',
-      b'  data_type: uint32',
-      b'- name: number_of_cached_entries',
-      b'  data_type: uint32',
-      b'- name: unknown1',
-      b'  type: sequence',
-      b'  element_data_type: byte',
-      b'  number_of_elements: 120',
-      b'---',
-      b'name: appcompatcache_cached_entry_7_32bit',
-      b'type: structure',
-      b'description: Windows 7 and 2008 R2 32-bit AppCompatCache cached entry.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: path_size',
-      b'  data_type: uint16',
-      b'- name: maximum_path_size',
-      b'  data_type: uint16',
-      b'- name: path_offset',
-      b'  data_type: uint32',
-      b'- name: last_modification_time',
-      b'  data_type: uint64',
-      b'- name: insertion_flags',
-      b'  data_type: uint32',
-      b'- name: shim_flags',
-      b'  data_type: uint32',
-      b'- name: data_size',
-      b'  data_type: uint32',
-      b'- name: data_offset',
-      b'  data_type: uint32',
-      b'---',
-      b'name: appcompatcache_cached_entry_7_64bit',
-      b'type: structure',
-      b'description: Windows 7 and 2008 R2 64-bit AppCompatCache cached entry.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: path_size',
-      b'  data_type: uint16',
-      b'- name: maximum_path_size',
-      b'  data_type: uint16',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'- name: path_offset',
-      b'  data_type: uint64',
-      b'- name: last_modification_time',
-      b'  data_type: uint64',
-      b'- name: insertion_flags',
-      b'  data_type: uint32',
-      b'- name: shim_flags',
-      b'  data_type: uint32',
-      b'- name: data_size',
-      b'  data_type: uint64',
-      b'- name: data_offset',
-      b'  data_type: uint64',
-      b'---',
-      b'name: appcompatcache_header_8',
-      b'type: structure',
-      b'description: Windows 8 AppCompatCache header.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: signature',
-      b'  data_type: uint32',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'- name: unknown2',
-      b'  type: sequence',
-      b'  element_data_type: byte',
-      b'  number_of_elements: 120',
-      b'---',
-      b'name: appcompatcache_cached_entry_header_8',
-      b'type: structure',
-      b'description: Windows 8 AppCompatCache header.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: signature',
-      b'  data_type: uint32',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'- name: cached_entry_data_size',
-      b'  data_type: uint32',
-      b'- name: path_size',
-      b'  data_type: uint16',
-      b'---',
-      b'name: appcompatcache_header_10',
-      b'type: structure',
-      b'description: Windows 10 AppCompatCache header.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: signature',
-      b'  data_type: uint32',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'- name: unknown2',
-      b'  type: sequence',
-      b'  element_data_type: byte',
-      b'  number_of_elements: 28',
-      b'- name: number_of_cached_entries',
-      b'  data_type: uint32',
-      b'- name: unknown3',
-      b'  type: sequence',
-      b'  element_data_type: byte',
-      b'  number_of_elements: 8'
-  ])
-
   _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
-      yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
+      yaml_definition=_DTFABRIC_YAML)
 
   _UINT16LE = _DATA_TYPE_FABRIC.CreateDataTypeMap('uint16le')
   _UINT32LE = _DATA_TYPE_FABRIC.CreateDataTypeMap('uint32le')

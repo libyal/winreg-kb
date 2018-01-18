@@ -2,7 +2,7 @@ pip >= 7.0.0
 PyYAML >= 3.10
 backports.lzma
 construct >= 2.5.2,<= 2.5.3
-dfdatetime >= 20160814
+dfdatetime >= 20180110
 dfvfs >= 20160803
 dfwinreg >= 20170519
 dtfabric >= 20170524
