@@ -818,7 +818,7 @@ class AppCompatCacheDataParser(object):
 
     if format_type == self.FORMAT_TYPE_XP:
       string_size = 0
-      for string_index in xrange(0, 528, 2):
+      for string_index in range(0, 528, 2):
         if (ord(cached_entry_data[string_index]) == 0 and
             ord(cached_entry_data[string_index + 1]) == 0):
           break
@@ -1094,7 +1094,7 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
 
     return True
 
-  def Collect(self, registry, output_writer, all_control_sets=False):
+  def Collect(self, registry, output_writer, all_control_sets=False):  # pylint: disable=arguments-differ
     """Collects the Application Compatibility Cache.
 
     Args:

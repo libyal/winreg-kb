@@ -6,7 +6,7 @@
 
 COVERALLS_DEPENDENCIES="python-coverage python-coveralls python-docopt";
 
-L2TBINARIES_DEPENDENCIES="PyYAML construct dfdatetime dfvfs dfwinreg dtfabric libbde libewf libfsntfs libfvde libfwnt libfwsi libqcow libregf libsigscan libsmdev libsmraw libvhdi libvmdk libvshadow libvslvm lzma pycrypto pysqlite pytsk3 six";
+L2TBINARIES_DEPENDENCIES="PyYAML backports.lzma construct dfdatetime dfvfs dfwinreg dtfabric libbde libewf libfsntfs libfvde libfwnt libfwsi libqcow libregf libsigscan libsmdev libsmraw libvhdi libvmdk libvshadow libvslvm pycrypto pysqlite pytsk3 six";
 
 L2TBINARIES_TEST_DEPENDENCIES="funcsigs mock pbr";
 
@@ -14,7 +14,7 @@ PYTHON2_DEPENDENCIES="libbde-python libewf-python libfsntfs-python libfvde-pytho
 
 PYTHON2_TEST_DEPENDENCIES="python-mock python-tox";
 
-PYTHON3_DEPENDENCIES="libbde-python3 libewf-python3 libfsntfs-python3 libfvde-python3 libfwnt-python3 libfwsi-python3 libqcow-python3 libregf-python3 libsigscan-python3 libsmdev-python3 libsmraw-python3 libvhdi-python3 libvmdk-python3 libvshadow-python3 libvslvm-python3 python3-backports.lzma python3-construct python3-crypto python3-dfdatetime python3-dfvfs python3-dfwinreg python3-dtfabric python3-pysqlite2 python3-pytsk3 python3-six python3-yaml";
+PYTHON3_DEPENDENCIES="libbde-python3 libewf-python3 libfsntfs-python3 libfvde-python3 libfwnt-python3 libfwsi-python3 libqcow-python3 libregf-python3 libsigscan-python3 libsmdev-python3 libsmraw-python3 libvhdi-python3 libvmdk-python3 libvshadow-python3 libvslvm-python3 python3-construct python3-crypto python3-dfdatetime python3-dfvfs python3-dfwinreg python3-dtfabric python3-pytsk3 python3-six python3-yaml";
 
 PYTHON3_TEST_DEPENDENCIES="python3-mock python3-setuptools python3-tox";
 

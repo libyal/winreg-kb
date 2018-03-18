@@ -1,6 +1,6 @@
 pip >= 7.0.0
 PyYAML >= 3.10
-backports.lzma
+backports.lzma ; python_version < '3.0'
 construct >= 2.5.2,<= 2.5.3
 dfdatetime >= 20180110
 dfvfs >= 20160803

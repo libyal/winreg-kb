@@ -23,7 +23,7 @@ CONTROL_DESCRIPTIONS = {
     '1004': 'Download unsigned ActiveX controls',
     '1200': 'Run ActiveX controls and plug-ins',
     '1201': ('Initialize and script ActiveX controls not marked as safe for '
-              'scripting'),
+             'scripting'),
     '1206': 'Allow scripting of Internet Explorer Web browser control',
     '1207': 'Reserved',
     '1208': 'Allow previously unused ActiveX controls to run without prompt',
@@ -61,7 +61,7 @@ CONTROL_DESCRIPTIONS = {
     '1A02': 'Allow persistent cookies that are stored on your computer',
     '1A03': 'Allow per-session cookies (not stored)',
     '1A04': ('Don\'t prompt for client certificate selection when no '
-              'certificates or only one certificate exists'),
+             'certificates or only one certificate exists'),
     '1A05': 'Allow 3rd party persistent cookies',
     '1A06': 'Allow 3rd party session cookies',
     '1A10': 'Privacy Settings',
@@ -73,9 +73,9 @@ CONTROL_DESCRIPTIONS = {
     '2004': 'Run components not signed with Authenticode',
     '2100': 'Open files based on content, not file extension',
     '2101': ('Web sites in less privileged web content zone can navigate into '
-              'this zone'),
+             'this zone'),
     '2102': ('Allow script initiated windows without size or position '
-              'constraints'),
+             'constraints'),
     '2103': 'Allow status bar updates via script',
     '2104': 'Allow websites to open windows without address or status bars',
     '2105': 'Allow websites to prompt for information using scripted windows',

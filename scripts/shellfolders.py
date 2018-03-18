@@ -100,17 +100,14 @@ class Sqlite3Writer(object):
     Args:
       shell_folder: the shell folder (instance of ShellFolder).
     """
-    if not self._create_new_database:
+    if self._create_new_database:
+      have_entry = False
+    else:
       sql_query = self._SHELL_FOLDER_SELECT_QUERY.format(shell_folder.guid)
 
       self._cursor.execute(sql_query)
 
-      if self._cursor.fetchone():
-        have_entry = True
-      else:
-        have_entry = False
-    else:
-      have_entry = False
+      have_entry = bool(self._cursor.fetchone())
 
     if not have_entry:
       sql_query = self._SHELL_FOLDER_INSERT_QUERY.format(

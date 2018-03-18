@@ -22,7 +22,7 @@ def Hexdump(data):
 
   lines = []
   data_size = len(data)
-  for block_index in xrange(0, data_size, 16):
+  for block_index in range(0, data_size, 16):
     data_string = data[block_index:block_index + 16]
 
     hexadecimal_string1 = ' '.join([

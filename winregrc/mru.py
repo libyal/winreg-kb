@@ -34,8 +34,8 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
   """Most Recently Used (MRU) collector."""
 
   _OPENSAVE_MRU_KEY_PATH = (
-       'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
-       'Explorer\\ComDlg32\\OpenSaveMRU').upper()
+      'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
+      'Explorer\\ComDlg32\\OpenSaveMRU').upper()
 
   _SHELL_ITEM_MRU_KEY_PATHS = [
       ('HKEY_CURRENT_USER\\Local Settings\\Software\\Microsoft\\Windows\\'
@@ -223,9 +223,6 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
       value_data (bytes): Windows Registry value data.
       output_writer (OutputWriter): output writer.
     """
-    value_data_size = len(value_data)
-    result = True
-
     if self._debug:
       output_writer.WriteDebugData('Shell item data', value_data)
 
@@ -239,9 +236,6 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
       value_data (bytes): Windows Registry value data.
       output_writer (OutputWriter): output writer.
     """
-    value_data_size = len(value_data)
-    result = True
-
     if self._debug:
       output_writer.WriteDebugData('Shell item list data', value_data)
 
@@ -256,8 +250,8 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
       output_writer (OutputWriter): output writer.
     """
     value_data_size = len(value_data)
-    result = True
 
+    data_offset = 0
     for data_offset in range(0, value_data_size, 2):
       if value_data[data_offset:data_offset + 2] == b'\0\0':
         data_offset += 2
@@ -285,8 +279,8 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
       output_writer (OutputWriter): output writer.
     """
     value_data_size = len(value_data)
-    result = True
 
+    data_offset = 0
     for data_offset in range(0, value_data_size, 2):
       if value_data[data_offset:data_offset + 2] == b'\0\0':
         data_offset += 2
@@ -317,8 +311,8 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
       output_writer (OutputWriter): output writer.
     """
     value_data_size = len(value_data)
-    result = True
 
+    data_offset = 0
     for data_offset in range(0, value_data_size, 2):
       if value_data[data_offset:data_offset + 2] == b'\0\0':
         data_offset += 2

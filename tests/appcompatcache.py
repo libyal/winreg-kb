@@ -11,7 +11,6 @@ from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
 from winregrc import appcompatcache
-from winregrc import collector
 from winregrc import output_writer
 
 from tests import test_lib as shared_test_lib

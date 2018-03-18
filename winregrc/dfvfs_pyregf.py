@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 import pyregf
 
-from dfdatetime import posix_time
+from dfdatetime import filetime
 
 from dfvfs.file_io import file_object_io
 from dfvfs.lib import errors
@@ -186,6 +186,7 @@ class RegfFileEntry(file_entry.FileEntry):
         resolver_context, file_system, path_spec, is_root=is_root,
         is_virtual=is_virtual)
     self._name = None
+    self._parent_inode = None
     self._regf_key = regf_key
     self._regf_value = regf_value
 
@@ -221,8 +222,10 @@ class RegfFileEntry(file_entry.FileEntry):
     if self._regf_value:
       timestamp = None
     else:
-      timestamp = posix_time.PosixTimestamp.FromFiletime(
-          self._regf_key.get_last_written_time_as_integer())
+      filetime_object = filetime.Filetime(
+          timestamp=self._regf_key.get_last_written_time_as_integer())
+      # TODO: CopyToStatTimeTuple is to be deprecated.
+      timestamp, _ = filetime_object.CopyToStatTimeTuple()
 
     if timestamp is not None:
       stat_object.mtime = timestamp

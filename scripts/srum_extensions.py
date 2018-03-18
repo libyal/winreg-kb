@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Script to extract System Resource Usage Monitor (SRUM) extension information."""
+"""Script to extract System Resource Usage Monitor (SRUM) extensions."""
 
 from __future__ import print_function
 from __future__ import unicode_literals
