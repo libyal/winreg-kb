@@ -12,7 +12,8 @@ from dfvfs.lib import errors
 from dfvfs.path import factory
 from dfvfs.path import path_spec as dfvfs_path_spec
 from dfvfs.resolver import resolver
-from dfvfs.resolver import resolver_helper
+from dfvfs.resolver_helpers import manager as resolver_helpers_manager
+from dfvfs.resolver_helpers import resolver_helper
 from dfvfs.vfs import file_entry
 from dfvfs.vfs import file_system as dfvfs_file_system
 from dfvfs.vfs import vfs_stat
@@ -459,4 +460,5 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
 factory.Factory.RegisterPathSpec(RegfPathSpec)
 
 # Register the resolver helpers with the resolver.
-resolver.Resolver.RegisterHelper(RegfResolverHelper())
+resolver_helpers_manager.ResolverHelperManager.RegisterHelper(
+    RegfResolverHelper())

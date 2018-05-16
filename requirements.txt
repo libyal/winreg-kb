@@ -2,9 +2,9 @@ pip >= 7.0.0
 PyYAML >= 3.10
 backports.lzma ; python_version < '3.0'
 construct >= 2.5.2,<= 2.5.3
-dfdatetime >= 20180110
-dfvfs >= 20160803
-dfwinreg >= 20170519
+dfdatetime >= 20180510
+dfvfs >= 20180510
+dfwinreg >= 20180329
 dtfabric >= 20170524
 libbde-python >= 20140531
 libewf-python >= 20131210

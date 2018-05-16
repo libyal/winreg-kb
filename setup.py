@@ -3,6 +3,8 @@
 """Installation and deployment script."""
 
 from __future__ import print_function
+
+import glob
 import os
 import sys
 
@@ -90,8 +92,21 @@ else:
           in_description = True
 
         elif line.startswith('%files'):
-          line = '%files -f INSTALLED_FILES -n {0:s}-%{{name}}'.format(
-              python_package)
+          # Cannot use %{_libdir} here since it can expand to "lib64".
+          lines = [
+              '%files -n {0:s}-%{{name}}'.format(python_package),
+              '%defattr(644,root,root,755)',
+              '%doc ACKNOWLEDGEMENTS AUTHORS LICENSE README',
+              '%{_prefix}/lib/python*/site-packages/**/*.py',
+              '%{_prefix}/lib/python*/site-packages/winregrc*.egg-info/*',
+              '',
+              '%exclude %{_prefix}/share/doc/*',
+              '%exclude %{_prefix}/lib/python*/site-packages/**/*.pyc',
+              '%exclude %{_prefix}/lib/python*/site-packages/**/*.pyo',
+              '%exclude %{_prefix}/lib/python*/site-packages/**/__pycache__/*']
+
+          python_spec_file.extend(lines)
+          break
 
         elif line.startswith('%prep'):
           in_description = False
@@ -117,11 +132,11 @@ else:
 
 
 winregrc_description = (
-    'Windows Registry resources (winregrc).')
+    'Windows Registry resources (winregrc)')
 
 winregrc_long_description = (
-    'winregrc is a Python module part of winreg-kb to allow reuse of '
-    'Windows Registry Resources.')
+    'winregrc is a Python module part of winreg-kb to allow reuse of Windows '
+    'Registry resources.')
 
 setup(
     name='winregrc',
@@ -132,22 +147,21 @@ setup(
     url='https://github.com/libyal/winreg-kb',
     maintainer='Joachim Metz',
     maintainer_email='joachim.metz@gmail.com',
+    cmdclass={
+        'bdist_msi': BdistMSICommand,
+        'bdist_rpm': BdistRPMCommand},
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
     ],
-    cmdclass={
-        'bdist_msi': BdistMSICommand,
-        'bdist_rpm': BdistRPMCommand},
     packages=find_packages('.', exclude=[
-        'tests', 'tests.*', 'utils']),
+        'scripts', 'tests', 'tests.*', 'utils']),
     package_dir={
         'winregrc': 'winregrc'
     },
-    scripts=[
-        os.path.join('scripts', 'knownfolders.py')],
+    scripts=glob.glob(os.path.join('scripts', '*.py')),
     data_files=[
         ('share/doc/winregrc', [
             'ACKNOWLEDGEMENTS', 'AUTHORS', 'LICENSE', 'README']),

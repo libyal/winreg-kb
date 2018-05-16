@@ -9,8 +9,6 @@ import argparse
 import logging
 import sys
 
-from dfdatetime import filetime as dfdatetime_filetime
-
 from winregrc import collector
 from winregrc import output_writer
 from winregrc import sam
@@ -18,31 +16,6 @@ from winregrc import sam
 
 class StdoutWriter(output_writer.StdoutOutputWriter):
   """Stdout output writer."""
-
-  def _WriteFiletimeValue(self, description, value):
-    """Writes a FILETIME timestamp value.
-
-    Args:
-      description (str): description to write.
-      value (str): value to write.
-    """
-    if value == 0:
-      date_time_string = 'Not set (0)'
-    elif value == 0x7fffffffffffffff:
-      date_time_string = 'Never'
-    else:
-      date_time = dfdatetime_filetime.Filetime(timestamp=value)
-      date_time_string = date_time.CopyToDateTimeString()
-
-    self.WriteValue(description, date_time_string)
-
-  def WriteText(self, text):
-    """Writes text to stdout.
-
-    Args:
-      text (bytes): text to write.
-    """
-    print(text)
 
   def WriteUserAccount(self, user_account):
     """Writes an user account to stdout.
@@ -63,15 +36,15 @@ class StdoutWriter(output_writer.StdoutOutputWriter):
     if user_account.user_comment:
       self.WriteValue('User comment', user_account.user_comment)
 
-    self._WriteFiletimeValue('Last log-in time', user_account.last_login_time)
+    self.WriteFiletimeValue('Last log-in time', user_account.last_login_time)
 
-    self._WriteFiletimeValue(
+    self.WriteFiletimeValue(
         'Last password set time', user_account.last_password_set_time)
 
-    self._WriteFiletimeValue(
+    self.WriteFiletimeValue(
         'Account expiration time', user_account.account_expiration_time)
 
-    self._WriteFiletimeValue(
+    self.WriteFiletimeValue(
         'Last password failure time', user_account.last_password_failure_time)
 
     self.WriteValue('Number of log-ons', user_account.number_of_logons)

@@ -23,8 +23,8 @@ class StdoutWriter(output_writer.StdoutOutputWriter):
     Args:
       application_identifier (ApplicationIdentifier): application identifier.
     """
-    print('{0:s}\t{1:s}'.format(
-        application_identifier.guid, application_identifier.description))
+    self.WriteValue(
+        application_identifier.guid, application_identifier.description)
 
 
 def Main():
