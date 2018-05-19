@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 
 import datetime
 import logging
+import os
 
 from dfdatetime import filetime as dfdatetime_filetime
 from dfdatetime import semantic_time as dfdatetime_semantic_time
@@ -39,54 +40,11 @@ class CachedTask(object):
 class TaskCacheDataParser(object):
   """Task Cache data parser."""
 
-  _DATA_TYPE_FABRIC_DEFINITION = b'\n'.join([
-      b'name: uint32',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 4',
-      b'  units: bytes',
-      b'---',
-      b'name: uint64',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 8',
-      b'  units: bytes',
-      b'---',
-      b'name: dynamic_info_record',
-      b'type: structure',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'- name: last_registered_time',
-      b'  data_type: uint64',
-      b'- name: launch_time',
-      b'  data_type: uint64',
-      b'- name: unknown2',
-      b'  data_type: uint32',
-      b'- name: unknown3',
-      b'  data_type: uint32',
-      b'---',
-      b'name: dynamic_info2_record',
-      b'type: structure',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'- name: last_registered_time',
-      b'  data_type: uint64',
-      b'- name: launch_time',
-      b'  data_type: uint64',
-      b'- name: unknown2',
-      b'  data_type: uint32',
-      b'- name: unknown3',
-      b'  data_type: uint32',
-      b'- name: unknown_time',
-      b'  data_type: uint64'])
+  _DATA_TYPE_FABRIC_DEFINITION_FILE = os.path.join(
+      os.path.dirname(__file__), 'task_cache.yaml')
+
+  with open(_DATA_TYPE_FABRIC_DEFINITION_FILE, 'rb') as file_object:
+    _DATA_TYPE_FABRIC_DEFINITION = file_object.read()
 
   _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
       yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)

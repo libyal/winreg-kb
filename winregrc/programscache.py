@@ -5,6 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
+import os
 import uuid
 
 import pyfwsi
@@ -19,59 +20,11 @@ from winregrc import interface
 class ProgramsCacheDataParser(object):
   """Programs Cache data parser."""
 
-  _DATA_TYPE_FABRIC_DEFINITION = b'\n'.join([
-      b'name: uint8',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 1',
-      b'  units: bytes',
-      b'---',
-      b'name: uint16',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 2',
-      b'  units: bytes',
-      b'---',
-      b'name: uint32',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 4',
-      b'  units: bytes',
-      b'---',
-      b'name: programscache_header',
-      b'type: structure',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: format_version',
-      b'  data_type: uint32',
-      b'---',
-      b'name: programscache_header9',
-      b'type: structure',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: unknown1',
-      b'  data_type: uint16',
-      b'---',
-      b'name: programscache_entry_header',
-      b'type: structure',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: data_size',
-      b'  data_type: uint32',
-      b'---',
-      b'name: programscache_entry_footer',
-      b'type: structure',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: sentinel',
-      b'  data_type: uint8'])
+  _DATA_TYPE_FABRIC_DEFINITION_FILE = os.path.join(
+      os.path.dirname(__file__), 'programscache.yaml')
+
+  with open(_DATA_TYPE_FABRIC_DEFINITION_FILE, 'rb') as file_object:
+    _DATA_TYPE_FABRIC_DEFINITION = file_object.read()
 
   _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
       yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)

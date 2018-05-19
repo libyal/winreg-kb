@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Security Account Manager (SAM) collector."""
+"""Security Accounts Manager (SAM) collector."""
 
 from __future__ import unicode_literals
 
 import datetime
+import os
 
 from dfdatetime import filetime as dfdatetime_filetime
 from dfdatetime import semantic_time as dfdatetime_semantic_time
@@ -60,91 +61,13 @@ class UserAccount(object):
 
 
 class SecurityAccountManagerDataParser(object):
-  """Security Account Manager (SAM) data parser."""
+  """Security Accounts Manager (SAM) data parser."""
 
-  _DATA_TYPE_FABRIC_DEFINITION = b'\n'.join([
-      b'name: uint16',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 2',
-      b'  units: bytes',
-      b'---',
-      b'name: uint32',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 4',
-      b'  units: bytes',
-      b'---',
-      b'name: uint64',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 8',
-      b'  units: bytes',
-      b'---',
-      b'name: f_value',
-      b'type: structure',
-      b'description: Security Account Manager F value.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: major_version',
-      b'  data_type: uint16',
-      b'- name: minor_version',
-      b'  data_type: uint16',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'- name: last_login_time',
-      b'  data_type: uint64',
-      b'- name: unknown2',
-      b'  data_type: uint64',
-      b'- name: last_password_set_time',
-      b'  data_type: uint64',
-      b'- name: account_expiration_time',
-      b'  data_type: uint64',
-      b'- name: last_password_failure_time',
-      b'  data_type: uint64',
-      b'- name: rid',
-      b'  data_type: uint32',
-      b'- name: primary_gid',
-      b'  data_type: uint32',
-      b'- name: user_account_control_flags',
-      b'  data_type: uint32',
-      b'- name: country_code',
-      b'  data_type: uint16',
-      b'- name: codepage',
-      b'  data_type: uint16',
-      b'- name: number_of_password_failures',
-      b'  data_type: uint16',
-      b'- name: number_of_logons',
-      b'  data_type: uint16',
-      b'- name: unknown6',
-      b'  data_type: uint32',
-      b'- name: unknown7',
-      b'  data_type: uint32',
-      b'- name: unknown8',
-      b'  data_type: uint32',
-      b'---',
-      b'name: user_information_descriptor',
-      b'type: structure',
-      b'description: Security Account Manager user information descriptor.',
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: offset',
-      b'  data_type: uint32',
-      b'- name: size',
-      b'  data_type: uint32',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'---',
-      b'name: v_value',
-      b'type: sequence',
-      b'description: Security Account Manager V value.',
-      b'element_data_type: user_information_descriptor',
-      b'number_of_elements: 17'])
+  _DATA_TYPE_FABRIC_DEFINITION_FILE = os.path.join(
+      os.path.dirname(__file__), 'sam.yaml')
+
+  with open(_DATA_TYPE_FABRIC_DEFINITION_FILE, 'rb') as file_object:
+    _DATA_TYPE_FABRIC_DEFINITION = file_object.read()
 
   _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
       yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
@@ -197,7 +120,7 @@ class SecurityAccountManagerDataParser(object):
       0x00200000: 'USER_USE_AES_KEYS'}
 
   def __init__(self, debug=False, output_writer=None):
-    """Initializes a Security Account Manager (SAM) data parser.
+    """Initializes a Security Accounts Manager (SAM) data parser.
 
     Args:
       debug (Optional[bool]): True if debug information should be printed.
@@ -444,17 +367,17 @@ class SecurityAccountManagerDataParser(object):
 
 
 class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
-  """Security Account Manager (SAM) collector."""
+  """Security Accounts Manager (SAM) collector."""
 
   def Collect(self, registry, output_writer):
-    """Collects the Security Account Manager (SAM) information.
+    """Collects the Security Accounts Manager (SAM) information.
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
       output_writer (OutputWriter): output writer.
 
     Returns:
-      bool: True if the Security Account Manager (SAM) information key was
+      bool: True if the Security Accounts Manager (SAM) information key was
           found, False if not.
     """
     key_path = 'HKEY_LOCAL_MACHINE\\SAM\\SAM\\Domains\\Account\\Users'

@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 import codecs
 import datetime
 import logging
+import os
 
 from dtfabric import errors as dtfabric_errors
 from dtfabric.runtime import fabric as dtfabric_fabric
@@ -18,82 +19,11 @@ from winregrc import interface
 class UserAssistDataParser(object):
   """UserAssist data parser."""
 
-  _DATA_TYPE_FABRIC_DEFINITION = b'\n'.join([
-      b'name: float32',
-      b'type: floating-point',
-      b'attributes:',
-      b'  size: 4',
-      b'  units: bytes',
-      b'---',
-      b'name: uint32',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 4',
-      b'  units: bytes',
-      b'---',
-      b'name: uint64',
-      b'type: integer',
-      b'attributes:',
-      b'  format: unsigned',
-      b'  size: 8',
-      b'  units: bytes',
-      b'---',
-      b'name: user_assist_entry_v3',
-      b'type: structure',
-      (b'description: UserAssist format version used in Windows 2000, XP, '
-       b'2003, Vista.'),
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'- name: execution_count',
-      b'  data_type: uint32',
-      b'- name: last_execution_time',
-      b'  data_type: uint64',
-      b'---',
-      b'name: user_assist_entry_v5',
-      b'type: structure',
-      (b'description: UserAssist format version used in Windows 2008, 7, 8, '
-       b'10.'),
-      b'attributes:',
-      b'  byte_order: little-endian',
-      b'members:',
-      b'- name: unknown1',
-      b'  data_type: uint32',
-      b'- name: execution_count',
-      b'  data_type: uint32',
-      b'- name: application_focus_count',
-      b'  data_type: uint32',
-      b'- name: application_focus_duration',
-      b'  data_type: uint32',
-      b'- name: unknown2',
-      b'  data_type: float32',
-      b'- name: unknown3',
-      b'  data_type: float32',
-      b'- name: unknown4',
-      b'  data_type: float32',
-      b'- name: unknown5',
-      b'  data_type: float32',
-      b'- name: unknown6',
-      b'  data_type: float32',
-      b'- name: unknown7',
-      b'  data_type: float32',
-      b'- name: unknown8',
-      b'  data_type: float32',
-      b'- name: unknown9',
-      b'  data_type: float32',
-      b'- name: unknown10',
-      b'  data_type: float32',
-      b'- name: unknown11',
-      b'  data_type: float32',
-      b'- name: unknown12',
-      b'  data_type: uint32',
-      b'- name: last_execution_time',
-      b'  data_type: uint64',
-      b'- name: unknown13',
-      b'  data_type: uint32'])
+  _DATA_TYPE_FABRIC_DEFINITION_FILE = os.path.join(
+      os.path.dirname(__file__), 'userassist.yaml')
+
+  with open(_DATA_TYPE_FABRIC_DEFINITION_FILE, 'rb') as file_object:
+    _DATA_TYPE_FABRIC_DEFINITION = file_object.read()
 
   _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
       yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)

@@ -161,6 +161,10 @@ setup(
     package_dir={
         'winregrc': 'winregrc'
     },
+    include_package_data=True,
+    package_data={
+        'winregrc': ['*.yaml'],
+    },
     scripts=glob.glob(os.path.join('scripts', '*.py')),
     data_files=[
         ('share/doc/winregrc', [
