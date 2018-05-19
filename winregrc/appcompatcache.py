@@ -497,10 +497,10 @@ class AppCompatCacheDataParser(object):
   }
 
   # AppCompatCache format used in Windows 8.0.
-  _CACHED_ENTRY_SIGNATURE_8_0 = '00ts'
+  _CACHED_ENTRY_SIGNATURE_8_0 = b'00ts'
 
   # AppCompatCache format used in Windows 8.1.
-  _CACHED_ENTRY_SIGNATURE_8_1 = '10ts'
+  _CACHED_ENTRY_SIGNATURE_8_1 = b'10ts'
 
   def __init__(self, debug=False, output_writer=None):
     """Initializes an Application Compatibility Cache parser.
@@ -819,8 +819,8 @@ class AppCompatCacheDataParser(object):
     if format_type == self.FORMAT_TYPE_XP:
       string_size = 0
       for string_index in range(0, 528, 2):
-        if (ord(cached_entry_data[string_index]) == 0 and
-            ord(cached_entry_data[string_index + 1]) == 0):
+        if (cached_entry_data[string_index] == '\0' and
+            cached_entry_data[string_index + 1] == '\0'):
           break
         string_size += 2
 

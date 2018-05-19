@@ -4,6 +4,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import codecs
 import datetime
 import logging
 
@@ -243,17 +244,20 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
         print(output_string.encode('utf-8'))
 
       try:
-        value_name = value.name.decode('rot-13')
+        # Note that Python 2 codecs.decode() does not support keyword arguments
+        # such as encodings='rot-13'.
+        value_name = codecs.decode(value.name, 'rot-13')
       except UnicodeEncodeError as exception:
         characters = []
-        for char in value.name:
-          if ord(char) < 128:
+        for character in value.name:
+          if ord(character) < 128:
             try:
-              characters.append(char.decode('rot-13'))
+              character = codecs.decode(character, 'rot-13')
+              characters.append(character)
             except UnicodeEncodeError:
-              characters.append(char)
+              characters.append(character)
           else:
-            characters.append(char)
+            characters.append(character)
 
         value_name = ''.join(characters)
 
