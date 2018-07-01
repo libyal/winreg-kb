@@ -10,28 +10,39 @@ class MostRecentlyUsedEntry(object):
   """Most Recently Used (MRU) entry.
 
   Attributes:
+    key_path (str): path of the Windows Registry key.
     shell_item_data (bytes): Shell Item data.
     shell_item_list_data (bytes): Shell Item list data.
     string (str): string.
+    value_name (str): name of the Windows Registry value.
   """
 
   def __init__(
-      self, shell_item_data=None, shell_item_list_data=None, string=None):
+      self, key_path=None, shell_item_data=None, shell_item_list_data=None,
+      string=None, value_name=None):
     """Initializes a Most Recently Used (MRU) entry.
 
     Args:
+      key_path (Optional[str]): path of the Windows Registry key.
       shell_item_data (Optional[bytes]): Shell Item data.
       shell_item_list_data (Optional[bytes]): Shell Item list data.
       string (Optional[str]): string.
+      value_name (Optional[str]): name of the Windows Registry value.
     """
     super(MostRecentlyUsedEntry, self).__init__()
+    self.key_path = key_path
     self.shell_item_data = shell_item_data
     self.shell_item_list_data = shell_item_list_data
     self.string = string
+    self.value_name = value_name
 
 
 class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
-  """Most Recently Used (MRU) collector."""
+  """Most Recently Used (MRU) collector.
+
+  Attributes:
+    mru_entries (list[MostRecentlyUsedEntry]): most recently used (MRU) entries.
+  """
 
   _OPENSAVE_MRU_KEY_PATH = (
       'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
@@ -79,6 +90,17 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
       key_path.upper()
       for key_path in _STRING_AND_SHELL_ITEM_LIST_MRU_KEY_PATHS]
 
+  def __init__(self, debug=False, output_writer=None):
+    """Initializes a Most Recently Used (MRU) collector.
+
+    Args:
+      debug (Optional[bool]): True if debug information should be printed.
+      output_writer (Optional[OutputWriter]): output writer.
+    """
+    super(MostRecentlyUsedCollector, self).__init__(debug=debug)
+    self._output_writer = output_writer
+    self.mru_entries = []
+
   def _InKeyPaths(self, key_path, key_paths):
     """Checks if a specific key path is defined in a list of key paths.
 
@@ -96,12 +118,11 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
 
     return False
 
-  def _ProcessKey(self, registry_key, output_writer):
+  def _ProcessKey(self, registry_key):
     """Processes a Windows Registry key.
 
     Args:
       registry_key (dfwinreg.WinRegistryKey): Windows Registry key.
-      output_writer (OutputWriter): output writer.
 
     Returns:
       bool: True if a Most Recently Used (MRU) key was found, False if not.
@@ -111,25 +132,24 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
         registry_value.name for registry_value in registry_key.GetValues()]
 
     if 'MRUList' in value_names:
-      if self._ProcessKeyWithMRUListValue(registry_key, output_writer):
+      if self._ProcessKeyWithMRUListValue(registry_key):
         result = True
 
     elif 'MRUListEx' in value_names:
-      if self._ProcessKeyWithMRUListExValue(registry_key, output_writer):
+      if self._ProcessKeyWithMRUListExValue(registry_key):
         result = True
 
     for subkey in registry_key.GetSubkeys():
-      if self._ProcessKey(subkey, output_writer):
+      if self._ProcessKey(subkey):
         result = True
 
     return result
 
-  def _ProcessKeyWithMRUListValue(self, registry_key, output_writer):
+  def _ProcessKeyWithMRUListValue(self, registry_key):
     """Processes a Windows Registry key that contains a MRUList value.
 
     Args:
       registry_key (dfwinreg.WinRegistryKey): Windows Registry key.
-      output_writer (OutputWriter): output writer.
 
     Returns:
       bool: True if a Most Recently Used (MRU) key was found, False if not.
@@ -142,38 +162,44 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
       if self._debug:
         description = 'Key: {0:s}\nValue: {1:s}'.format(
             registry_key.path, registry_value.name)
-        output_writer.WriteText(description)
+        self._output_writer.WriteText(description)
 
       if self._InKeyPaths(registry_key.path, self._SHELL_ITEM_MRU_KEY_PATHS):
-        self._ProcessMRUEntryShellItem(registry_value.data, output_writer)
+        self._ProcessMRUEntryShellItem(
+            registry_key.path, registry_value.name, registry_value.data)
 
       elif self._InKeyPaths(
           registry_key.path, self._SHELL_ITEM_LIST_MRU_KEY_PATHS):
-        self._ProcessMRUEntryShellItemList(registry_value.data, output_writer)
+        self._ProcessMRUEntryShellItemList(
+            registry_key.path, registry_value.name, registry_value.data)
+
 
       elif self._InKeyPaths(
           registry_key.path, self._STRING_AND_SHELL_ITEM_MRU_KEY_PATHS):
         self._ProcessMRUEntryStringAndShellItem(
-            registry_value.data, output_writer)
+            registry_key.path, registry_value.name, registry_value.data)
+
 
       elif self._InKeyPaths(
           registry_key.path, self._STRING_AND_SHELL_ITEM_LIST_MRU_KEY_PATHS):
         self._ProcessMRUEntryStringAndShellItemList(
-            registry_value.data, output_writer)
+            registry_key.path, registry_value.name, registry_value.data)
+
 
       else:
-        self._ProcessMRUEntryString(registry_value.data, output_writer)
+        self._ProcessMRUEntryString(
+            registry_key.path, registry_value.name, registry_value.data)
+
 
       result = True
 
     return result
 
-  def _ProcessKeyWithMRUListExValue(self, registry_key, output_writer):
+  def _ProcessKeyWithMRUListExValue(self, registry_key):
     """Processes a Windows Registry key that contains a MRUListEx value.
 
     Args:
       registry_key (dfwinreg.WinRegistryKey): Windows Registry key.
-      output_writer (OutputWriter): output writer.
 
     Returns:
       bool: True if a Most Recently Used (MRU) key was found, False if not.
@@ -190,64 +216,73 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
       if self._debug:
         description = 'Key: {0:s}\nValue: {1:s}'.format(
             registry_key.path, registry_value.name)
-        output_writer.WriteText(description)
+        self._output_writer.WriteText(description)
 
       if self._InKeyPaths(registry_key.path, self._SHELL_ITEM_MRU_KEY_PATHS):
-        self._ProcessMRUEntryShellItem(registry_value.data, output_writer)
+        self._ProcessMRUEntryShellItem(
+            registry_key.path, registry_value.name, registry_value.data)
 
       elif self._InKeyPaths(
           registry_key.path, self._SHELL_ITEM_LIST_MRU_KEY_PATHS):
-        self._ProcessMRUEntryShellItemList(registry_value.data, output_writer)
+        self._ProcessMRUEntryShellItemList(
+            registry_key.path, registry_value.name, registry_value.data)
 
       elif self._InKeyPaths(
           registry_key.path, self._STRING_AND_SHELL_ITEM_MRU_KEY_PATHS):
         self._ProcessMRUEntryStringAndShellItem(
-            registry_value.data, output_writer)
+            registry_key.path, registry_value.name, registry_value.data)
 
       elif self._InKeyPaths(
           registry_key.path, self._STRING_AND_SHELL_ITEM_LIST_MRU_KEY_PATHS):
         self._ProcessMRUEntryStringAndShellItemList(
-            registry_value.data, output_writer)
+            registry_key.path, registry_value.name, registry_value.data)
 
       else:
-        self._ProcessMRUEntryString(registry_value.data, output_writer)
+        self._ProcessMRUEntryString(
+            registry_key.path, registry_value.name, registry_value.data)
 
       result = True
 
     return result
 
-  def _ProcessMRUEntryShellItem(self, value_data, output_writer):
+  def _ProcessMRUEntryShellItem(self, key_path, value_name, value_data):
     """Processes a shell item MRUEntry.
 
     Args:
+      key_path (str): path of the Windows Registry key.
+      value_name (str): name of the Windows Registry value.
       value_data (bytes): Windows Registry value data.
-      output_writer (OutputWriter): output writer.
     """
     if self._debug:
-      output_writer.WriteDebugData('Shell item data', value_data)
+      self._output_writer.WriteDebugData('Shell item data', value_data)
 
-    mru_entry = MostRecentlyUsedEntry(shell_item_data=value_data)
-    output_writer.WriteMostRecentlyUsedEntry(mru_entry)
+    mru_entry = MostRecentlyUsedEntry(
+        key_path=key_path, shell_item_data=value_data, value_name=value_name)
+    self.mru_entries.append(mru_entry)
 
-  def _ProcessMRUEntryShellItemList(self, value_data, output_writer):
+  def _ProcessMRUEntryShellItemList(self, key_path, value_name, value_data):
     """Processes a shell item list MRUEntry.
 
     Args:
+      key_path (str): path of the Windows Registry key.
+      value_name (str): name of the Windows Registry value.
       value_data (bytes): Windows Registry value data.
-      output_writer (OutputWriter): output writer.
     """
     if self._debug:
-      output_writer.WriteDebugData('Shell item list data', value_data)
+      self._output_writer.WriteDebugData('Shell item list data', value_data)
 
-    mru_entry = MostRecentlyUsedEntry(shell_item_list_data=value_data)
-    output_writer.WriteMostRecentlyUsedEntry(mru_entry)
+    mru_entry = MostRecentlyUsedEntry(
+        key_path=key_path, shell_item_list_data=value_data,
+        value_name=value_name)
+    self.mru_entries.append(mru_entry)
 
-  def _ProcessMRUEntryString(self, value_data, output_writer):
+  def _ProcessMRUEntryString(self, key_path, value_name, value_data):
     """Processes a string MRUEntry.
 
     Args:
+      key_path (str): path of the Windows Registry key.
+      value_name (str): name of the Windows Registry value.
       value_data (bytes): Windows Registry value data.
-      output_writer (OutputWriter): output writer.
     """
     value_data_size = len(value_data)
 
@@ -258,25 +293,30 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
         break
 
     if self._debug:
-      output_writer.WriteDebugData('String data', value_data[0:data_offset])
+      self._output_writer.WriteDebugData(
+          'String data', value_data[0:data_offset])
 
     string = value_data[0:data_offset - 2].decode('utf-16-le')
 
     if self._debug:
-      output_writer.WriteValue('String', string)
+      self._output_writer.WriteValue('String', string)
 
     if self._debug and data_offset < value_data_size:
-      output_writer.WriteDebugData('Trailing data', value_data[data_offset:])
+      self._output_writer.WriteDebugData(
+          'Trailing data', value_data[data_offset:])
 
-    mru_entry = MostRecentlyUsedEntry(string=string)
-    output_writer.WriteMostRecentlyUsedEntry(mru_entry)
+    mru_entry = MostRecentlyUsedEntry(
+        key_path=key_path, string=string, value_name=value_name)
+    self.mru_entries.append(mru_entry)
 
-  def _ProcessMRUEntryStringAndShellItem(self, value_data, output_writer):
+  def _ProcessMRUEntryStringAndShellItem(
+      self, key_path, value_name, value_data):
     """Processes a string and shell item MRUEntry.
 
     Args:
+      key_path (str): path of the Windows Registry key.
+      value_name (str): name of the Windows Registry value.
       value_data (bytes): Windows Registry value data.
-      output_writer (OutputWriter): output writer.
     """
     value_data_size = len(value_data)
 
@@ -287,28 +327,32 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
         break
 
     if self._debug:
-      output_writer.WriteDebugData('String data', value_data[0:data_offset])
+      self._output_writer.WriteDebugData(
+          'String data', value_data[0:data_offset])
 
     string = value_data[0:data_offset - 2].decode('utf-16-le')
 
     if self._debug:
-      output_writer.WriteValue('String', string)
+      self._output_writer.WriteValue('String', string)
 
     if data_offset < value_data_size:
       if self._debug:
-        output_writer.WriteDebugData(
+        self._output_writer.WriteDebugData(
             'Shell item data', value_data[data_offset:])
 
     mru_entry = MostRecentlyUsedEntry(
-        shell_item_data=value_data[data_offset:], string=string)
-    output_writer.WriteMostRecentlyUsedEntry(mru_entry)
+        key_path=key_path, shell_item_data=value_data[data_offset:],
+        string=string, value_name=value_name)
+    self.mru_entries.append(mru_entry)
 
-  def _ProcessMRUEntryStringAndShellItemList(self, value_data, output_writer):
+  def _ProcessMRUEntryStringAndShellItemList(
+      self, key_path, value_name, value_data):
     """Processes a string and shell item list MRUEntry.
 
     Args:
+      key_path (str): path of the Windows Registry key.
+      value_name (str): name of the Windows Registry value.
       value_data (bytes): Windows Registry value data.
-      output_writer (OutputWriter): output writer.
     """
     value_data_size = len(value_data)
 
@@ -319,28 +363,29 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
         break
 
     if self._debug:
-      output_writer.WriteDebugData('String data', value_data[0:data_offset])
+      self._output_writer.WriteDebugData(
+          'String data', value_data[0:data_offset])
 
     string = value_data[0:data_offset - 2].decode('utf-16-le')
 
     if self._debug:
-      output_writer.WriteValue('String', string)
+      self._output_writer.WriteValue('String', string)
 
     if data_offset < value_data_size:
       if self._debug:
-        output_writer.WriteDebugData(
+        self._output_writer.WriteDebugData(
             'Shell item list data', value_data[data_offset:])
 
     mru_entry = MostRecentlyUsedEntry(
-        shell_item_list_data=value_data[data_offset:], string=string)
-    output_writer.WriteMostRecentlyUsedEntry(mru_entry)
+        key_path=key_path, shell_item_list_data=value_data[data_offset:],
+        string=string, value_name=value_name)
+    self.mru_entries.append(mru_entry)
 
-  def Collect(self, registry, output_writer):
+  def Collect(self, registry):  # pylint: disable=arguments-differ
     """Collects Most Recently Used (MRU) entries.
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
 
     Returns:
       bool: True if a Most Recently Used (MRU) key was found, False if not.
@@ -349,7 +394,7 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
 
     current_user_key = registry.GetKeyByPath('HKEY_CURRENT_USER')
     if current_user_key:
-      if self._ProcessKey(current_user_key, output_writer):
+      if self._ProcessKey(current_user_key):
         result = True
 
     return result

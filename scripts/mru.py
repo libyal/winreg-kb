@@ -12,8 +12,8 @@ import sys
 import pyfwsi
 
 from winregrc import collector
-from winregrc import output_writers
 from winregrc import mru
+from winregrc import output_writers
 
 
 class StdoutWriter(output_writers.StdoutOutputWriter):
@@ -27,7 +27,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     """
     print(text)
 
-  def _WriteShellItem(self, shell_item):
+  def WriteShellItem(self, shell_item):
     """Writes a shell item to stdout.
 
     Args:
@@ -40,41 +40,8 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
         '\tNumber of extension blocks', shell_item.number_of_extension_blocks)
 
     for extension_block in shell_item.extension_blocks:
-      self._WriteShellItemExtensionBlock(extension_block)
-
-  def _WriteShellItemExtensionBlock(self, extension_block):
-    """Writes a shell item extension block to stdout.
-
-    Args:
-      extension_block (pyfwsi.extension_block): Shell Item extension block to
-          write.
-    """
-    value_string = '0x{0:04x}'.format(extension_block.signature)
-    self.WriteValue('\tExtension block', value_string)
-
-  def WriteMostRecentlyUsedEntry(self, mru_entry):
-    """Writes a Most Recently Used (MRU) entry to stdout.
-
-    Args:
-      mru_entry (MostRecentlyUsedEntry): MRU entry to write.
-    """
-    if mru_entry.string:
-      self.WriteValue('String', mru_entry.string)
-
-    if mru_entry.shell_item_data:
-      shell_item = pyfwsi.item()
-      shell_item.copy_from_byte_stream(mru_entry.shell_item_data)
-
-      self._WriteShellItem(shell_item)
-
-    elif mru_entry.shell_item_list_data:
-      shell_item_list = pyfwsi.item_list()
-      shell_item_list.copy_from_byte_stream(mru_entry.shell_item_list_data)
-
-      for shell_item in iter(shell_item_list.items):
-        self._WriteShellItem(shell_item)
-
-    self.WriteText('')
+      value_string = '0x{0:04x}'.format(extension_block.signature)
+      self.WriteValue('\tExtension block', value_string)
 
 
 def Main():
@@ -110,9 +77,9 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer_object = StdoutWriter()
+  output_writer = StdoutWriter()
 
-  if not output_writer_object.Open():
+  if not output_writer.Open():
     print('Unable to open output writer.')
     print('')
     return False
@@ -126,14 +93,35 @@ def Main():
 
   # TODO: map collector to available Registry keys.
   collector_object = mru.MostRecentlyUsedCollector(
-      debug=options.debug)
+      debug=options.debug, output_writer=output_writer)
 
-  result = collector_object.Collect(
-      registry_collector.registry, output_writer_object)
+  result = collector_object.Collect(registry_collector.registry)
   if not result:
     print('No Most Recently Used key found.')
+  else:
+    for mru_entry in collector_object.mru_entries:
+      output_writer.WriteValue('Key path', mru_entry.key_path)
+      output_writer.WriteValue('Value name', mru_entry.value_name)
 
-  output_writer_object.Close()
+      if mru_entry.string:
+        output_writer.WriteValue('String', mru_entry.string)
+
+      if mru_entry.shell_item_data:
+        shell_item = pyfwsi.item()
+        shell_item.copy_from_byte_stream(mru_entry.shell_item_data)
+
+        output_writer.WriteShellItem(shell_item)
+
+      elif mru_entry.shell_item_list_data:
+        shell_item_list = pyfwsi.item_list()
+        shell_item_list.copy_from_byte_stream(mru_entry.shell_item_list_data)
+
+        for shell_item in iter(shell_item_list.items):
+          output_writer.WriteShellItem(shell_item)
+
+      output_writer.WriteText('')
+
+  output_writer.Close()
 
   return True
 
