@@ -10,7 +10,7 @@ from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import output_writer
+from winregrc import output_writers
 from winregrc import userassist
 
 from tests import test_lib as shared_test_lib
@@ -29,7 +29,7 @@ _ENTRY_DATA_V5 = bytes(bytearray([
     0x04, 0xa8, 0x92, 0xd2, 0xab, 0x80, 0xcb, 0x01, 0x00, 0x00, 0x00, 0x00]))
 
 
-class TestOutputWriter(output_writer.StdoutOutputWriter):
+class TestOutputWriter(output_writers.StdoutOutputWriter):
   """Output writer for testing.
 
   Attributes:

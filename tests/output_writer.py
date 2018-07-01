@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 import unittest
 
-from winregrc import output_writer
+from winregrc import output_writers
 
 from tests import test_lib as shared_test_lib
 
@@ -16,7 +16,7 @@ class StdoutOutputWriterTest(shared_test_lib.BaseTestCase):
 
   def testOpenClose(self):
     """Tests the Open and Close functions."""
-    test_output_writer = output_writer.StdoutOutputWriter()
+    test_output_writer = output_writers.StdoutOutputWriter()
 
     result = test_output_writer.Open()
     self.assertTrue(result)
@@ -25,19 +25,19 @@ class StdoutOutputWriterTest(shared_test_lib.BaseTestCase):
 
   def testWriteDebugData(self):
     """Tests the WriteDebugData function."""
-    test_output_writer = output_writer.StdoutOutputWriter()
+    test_output_writer = output_writers.StdoutOutputWriter()
 
     test_output_writer.WriteDebugData('Description', b'DATA')
 
   def testWriteValue(self):
     """Tests the WriteValue function."""
-    test_output_writer = output_writer.StdoutOutputWriter()
+    test_output_writer = output_writers.StdoutOutputWriter()
 
     test_output_writer.WriteValue('Description', 'Value')
 
   def testWriteText(self):
     """Tests the WriteText function."""
-    test_output_writer = output_writer.StdoutOutputWriter()
+    test_output_writer = output_writers.StdoutOutputWriter()
 
     test_output_writer.WriteText('Test')
 

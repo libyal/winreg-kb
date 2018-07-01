@@ -16,7 +16,7 @@ except ImportError:
   import sqlite3
 
 from winregrc import collector
-from winregrc import output_writer
+from winregrc import output_writers
 from winregrc import shellfolders
 
 
@@ -126,7 +126,7 @@ class Sqlite3Writer(object):
       logging.info('Ignoring duplicate: {0:s}'.format(shell_folder.guid))
 
 
-class StdoutWriter(output_writer.StdoutOutputWriter):
+class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
   def WriteShellFolder(self, shell_folder):

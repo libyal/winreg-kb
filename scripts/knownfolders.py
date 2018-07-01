@@ -11,10 +11,10 @@ import sys
 
 from winregrc import collector
 from winregrc import knownfolders
-from winregrc import output_writer
+from winregrc import output_writers
 
 
-class StdoutWriter(output_writer.StdoutOutputWriter):
+class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
   def WriteKnownFolder(self, known_folder):

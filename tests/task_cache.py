@@ -10,7 +10,7 @@ from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import output_writer
+from winregrc import output_writers
 from winregrc import task_cache
 
 from tests import test_lib as shared_test_lib
@@ -27,7 +27,7 @@ _DYNAMIC_INFO2_DATA = bytes(bytearray([
     0x00, 0x00, 0x00, 0x00, 0x0c, 0x1c, 0x7d, 0x12, 0x3f, 0x04, 0xca, 0x01]))
 
 
-class TestOutputWriter(output_writer.StdoutOutputWriter):
+class TestOutputWriter(output_writers.StdoutOutputWriter):
   """Output writer for testing.
 
   Attributes:

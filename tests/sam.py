@@ -11,7 +11,7 @@ from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
 from winregrc import errors
-from winregrc import output_writer
+from winregrc import output_writers
 from winregrc import sam
 
 from tests import test_lib as shared_test_lib
@@ -79,7 +79,7 @@ _V_VALUE_DATA = bytes(bytearray([
     0x03, 0x00, 0x01, 0x00]))
 
 
-class TestOutputWriter(output_writer.StdoutOutputWriter):
+class TestOutputWriter(output_writers.StdoutOutputWriter):
   """Output writer for testing.
 
   Attributes:

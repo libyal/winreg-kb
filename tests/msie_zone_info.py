@@ -10,12 +10,12 @@ from dfwinreg import registry as dfwinreg_registry
 
 from winregrc import collector
 from winregrc import msie_zone_info
-from winregrc import output_writer
+from winregrc import output_writers
 
 from tests import test_lib as shared_test_lib
 
 
-class TestOutputWriter(output_writer.StdoutOutputWriter):
+class TestOutputWriter(output_writers.StdoutOutputWriter):
   """Output writer for testing.
 
   Attributes:

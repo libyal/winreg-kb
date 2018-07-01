@@ -11,10 +11,10 @@ import sys
 
 from winregrc import collector
 from winregrc import msie_zone_info
-from winregrc import output_writer
+from winregrc import output_writers
 
 
-class StdoutWriter(output_writer.StdoutOutputWriter):
+class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
   def WriteText(self, text):

@@ -10,11 +10,11 @@ import logging
 import sys
 
 from winregrc import collector
-from winregrc import output_writer
+from winregrc import output_writers
 from winregrc import sysinfo
 
 
-class StdoutWriter(output_writer.StdoutOutputWriter):
+class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
   def WriteSystemInformation(self, system_information):

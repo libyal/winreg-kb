@@ -12,11 +12,11 @@ import sys
 import pyfwsi
 
 from winregrc import collector
-from winregrc import output_writer
+from winregrc import output_writers
 from winregrc import mru
 
 
-class StdoutWriter(output_writer.StdoutOutputWriter):
+class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
   def WriteText(self, text):
