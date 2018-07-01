@@ -11,10 +11,9 @@ from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
 from winregrc import errors
-from winregrc import output_writers
 from winregrc import sam
 
-from tests import test_lib as shared_test_lib
+from tests import test_lib
 
 
 _F_VALUE_DATA = bytes(bytearray([
@@ -79,28 +78,7 @@ _V_VALUE_DATA = bytes(bytearray([
     0x03, 0x00, 0x01, 0x00]))
 
 
-class TestOutputWriter(output_writers.StdoutOutputWriter):
-  """Output writer for testing.
-
-  Attributes:
-    user_accounts (list[UserAccount]): user accounts.
-  """
-
-  def __init__(self):
-    """Initializes an output writer object."""
-    super(TestOutputWriter, self).__init__()
-    self.user_accounts = []
-
-  def WriteUserAccount(self, user_account):
-    """Writes an user account to stdout.
-
-    Args:
-      user_account: the user account to write.
-    """
-    self.user_accounts.append(user_account)
-
-
-class SecurityAccountManagerDataParserTest(shared_test_lib.BaseTestCase):
+class SecurityAccountManagerDataParserTest(test_lib.BaseTestCase):
   """Tests for the Security Account Manager (SAM) data parser."""
 
   def testParseFValue(self):
@@ -147,7 +125,7 @@ class SecurityAccountManagerDataParserTest(shared_test_lib.BaseTestCase):
   # TODO: add more tests.
 
 
-class SecurityAccountManagerCollectorTest(shared_test_lib.BaseTestCase):
+class SecurityAccountManagerCollectorTest(test_lib.BaseTestCase):
   """Tests for the Security Account Manager (SAM) collector."""
 
   _RID = '000001F4'
@@ -187,15 +165,18 @@ class SecurityAccountManagerCollectorTest(shared_test_lib.BaseTestCase):
     """Tests the Collect function."""
     registry = self._CreateTestRegistry()
 
-    collector_object = sam.SecurityAccountManagerCollector()
+    test_output_writer = test_lib.TestOutputWriter()
+    collector_object = sam.SecurityAccountManagerCollector(
+        output_writer=test_output_writer)
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
+    result = collector_object.Collect(registry)
+    self.assertTrue(result)
+
     test_output_writer.Close()
 
-    self.assertEqual(len(test_output_writer.user_accounts), 1)
+    self.assertEqual(len(collector_object.user_accounts), 1)
 
-    user_account = test_output_writer.user_accounts[0]
+    user_account = collector_object.user_accounts[0]
     self.assertIsNotNone(user_account)
     self.assertEqual(user_account.username, 'Administrator')
 
@@ -203,13 +184,16 @@ class SecurityAccountManagerCollectorTest(shared_test_lib.BaseTestCase):
     """Tests the Collect function on an empty Registry."""
     registry = dfwinreg_registry.WinRegistry()
 
-    collector_object = sam.SecurityAccountManagerCollector()
+    test_output_writer = test_lib.TestOutputWriter()
+    collector_object = sam.SecurityAccountManagerCollector(
+        output_writer=test_output_writer)
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
+    result = collector_object.Collect(registry)
+    self.assertFalse(result)
+
     test_output_writer.Close()
 
-    self.assertEqual(len(test_output_writer.user_accounts), 0)
+    self.assertEqual(len(collector_object.user_accounts), 0)
 
 
 if __name__ == '__main__':

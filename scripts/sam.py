@@ -14,50 +14,6 @@ from winregrc import output_writers
 from winregrc import sam
 
 
-class StdoutWriter(output_writers.StdoutOutputWriter):
-  """Stdout output writer."""
-
-  def WriteUserAccount(self, user_account):
-    """Writes an user account to stdout.
-
-    Args:
-      user_account (UserAccount): user account to write.
-    """
-    self.WriteValue('Username', user_account.username)
-    self.WriteValue('Relative identifier (RID)', user_account.rid)
-    self.WriteValue('Primary group identifier', user_account.primary_gid)
-
-    if user_account.full_name:
-      self.WriteValue('Full name', user_account.full_name)
-
-    if user_account.comment:
-      self.WriteValue('Comment', user_account.comment)
-
-    if user_account.user_comment:
-      self.WriteValue('User comment', user_account.user_comment)
-
-    self.WriteFiletimeValue('Last log-in time', user_account.last_login_time)
-
-    self.WriteFiletimeValue(
-        'Last password set time', user_account.last_password_set_time)
-
-    self.WriteFiletimeValue(
-        'Account expiration time', user_account.account_expiration_time)
-
-    self.WriteFiletimeValue(
-        'Last password failure time', user_account.last_password_failure_time)
-
-    self.WriteValue('Number of log-ons', user_account.number_of_logons)
-    self.WriteValue(
-        'Number of password failures',
-        user_account.number_of_password_failures)
-
-    if user_account.codepage:
-      self.WriteValue('Codepage', user_account.codepage)
-
-    self.WriteText('')
-
-
 def Main():
   """The main program function.
 
@@ -91,9 +47,9 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer_object = StdoutWriter()
+  output_writer = output_writers.StdoutOutputWriter()
 
-  if not output_writer_object.Open():
+  if not output_writer.Open():
     print('Unable to open output writer.')
     print('')
     return False
@@ -107,14 +63,53 @@ def Main():
 
   # TODO: map collector to available Registry keys.
   collector_object = sam.SecurityAccountManagerCollector(
-      debug=options.debug)
+      debug=options.debug, output_writer=output_writer)
 
-  result = collector_object.Collect(
-      registry_collector.registry, output_writer_object)
+  result = collector_object.Collect(registry_collector.registry)
   if not result:
-    print('No Security Account Manager key found.')
+    output_writer.WriteText('No Security Account Manager key found.')
+    output_writer.WriteText('')
 
-  output_writer_object.Close()
+  else:
+    for user_account in collector_object.user_accounts:
+      output_writer.WriteValue('Username', user_account.username)
+      output_writer.WriteValue('Relative identifier (RID)', user_account.rid)
+      output_writer.WriteValue(
+          'Primary group identifier', user_account.primary_gid)
+
+      if user_account.full_name:
+        output_writer.WriteValue('Full name', user_account.full_name)
+
+      if user_account.comment:
+        output_writer.WriteValue('Comment', user_account.comment)
+
+      if user_account.user_comment:
+        output_writer.WriteValue('User comment', user_account.user_comment)
+
+      output_writer.WriteFiletimeValue(
+          'Last log-in time', user_account.last_login_time)
+
+      output_writer.WriteFiletimeValue(
+          'Last password set time', user_account.last_password_set_time)
+
+      output_writer.WriteFiletimeValue(
+          'Account expiration time', user_account.account_expiration_time)
+
+      output_writer.WriteFiletimeValue(
+          'Last password failure time', user_account.last_password_failure_time)
+
+      output_writer.WriteValue(
+          'Number of log-ons', user_account.number_of_logons)
+      output_writer.WriteValue(
+          'Number of password failures',
+          user_account.number_of_password_failures)
+
+      if user_account.codepage:
+        output_writer.WriteValue('Codepage', user_account.codepage)
+
+      output_writer.WriteText('')
+
+  output_writer.Close()
 
   return True
 

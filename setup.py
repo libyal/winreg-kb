@@ -98,6 +98,7 @@ else:
               '%defattr(644,root,root,755)',
               '%doc ACKNOWLEDGEMENTS AUTHORS LICENSE README',
               '%{_prefix}/lib/python*/site-packages/**/*.py',
+              '%{_prefix}/lib/python*/site-packages/**/*.yaml',
               '%{_prefix}/lib/python*/site-packages/winregrc*.egg-info/*',
               '',
               '%exclude %{_prefix}/share/doc/*',

@@ -13,7 +13,7 @@ from dfwinreg import registry as dfwinreg_registry
 from winregrc import appcompatcache
 from winregrc import output_writers
 
-from tests import test_lib as shared_test_lib
+from tests import test_lib
 
 
 _CACHE_DATA_WINDOWS_XP = bytes(bytearray([
@@ -249,7 +249,7 @@ class TestOutputWriter(output_writers.StdoutOutputWriter):
     self.cached_entries.append(cached_entry)
 
 
-class AppCompatCacheDataParserTest(shared_test_lib.BaseTestCase):
+class AppCompatCacheDataParserTest(test_lib.BaseTestCase):
   """Tests for the Application Compatibility Cache data parser."""
 
   def testCheckSignature(self):
@@ -316,7 +316,7 @@ class AppCompatCacheDataParserTest(shared_test_lib.BaseTestCase):
     # TODO: add bogus data tests.
 
 
-class AppCompatCacheCollectorTest(shared_test_lib.BaseTestCase):
+class AppCompatCacheCollectorTest(test_lib.BaseTestCase):
   """Tests for the Application Compatibility Cache collector."""
 
   def _CreateTestRegistry(self):
