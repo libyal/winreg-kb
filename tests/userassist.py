@@ -120,12 +120,11 @@ class UserAssistCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = userassist.UserAssistCollector()
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
+    collector_object.Collect(registry)
 
-    # TODO: return user assist objects.
-    self.assertEqual(len(test_output_writer.text), 0)
+    self.assertEqual(len(collector_object.user_assist_entries), 1)
+
+    # TODO: test user assist entry values.
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
@@ -133,11 +132,9 @@ class UserAssistCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = userassist.UserAssistCollector()
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
+    collector_object.Collect(registry)
 
-    self.assertEqual(len(test_output_writer.text), 0)
+    self.assertEqual(len(collector_object.user_assist_entries), 0)
 
 
 if __name__ == '__main__':

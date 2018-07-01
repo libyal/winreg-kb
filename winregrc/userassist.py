@@ -1,156 +1,176 @@
 # -*- coding: utf-8 -*-
 """Windows UserAssist information collector."""
 
-from __future__ import print_function
 from __future__ import unicode_literals
 
 import codecs
-import datetime
 import logging
-import os
 
-from dtfabric import errors as dtfabric_errors
-from dtfabric.runtime import fabric as dtfabric_fabric
-
+from winregrc import data_format
 from winregrc import errors
 from winregrc import interface
 
 
-class UserAssistDataParser(object):
-  """UserAssist data parser."""
+class UserAssistEntry(object):
+  """UserAssist entry.
 
-  _DATA_TYPE_FABRIC_DEFINITION_FILE = os.path.join(
-      os.path.dirname(__file__), 'userassist.yaml')
+  Attributes:
+    guid (str): GUID.
+    name (str): name.
+    value_name (str): name of the Windows Registry value.
+  """
 
-  with open(_DATA_TYPE_FABRIC_DEFINITION_FILE, 'rb') as file_object:
-    _DATA_TYPE_FABRIC_DEFINITION = file_object.read()
-
-  _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
-      yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
-
-  _USER_ASSIST_ENTRY_V3 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      'user_assist_entry_v3')
-
-  _USER_ASSIST_ENTRY_V5 = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      'user_assist_entry_v5')
-
-  def __init__(self, debug=False, output_writer=None):
-    """Initializes an UserAssist data parser.
+  def __init__(self, guid=None, name=None, value_name=None):
+    """Initializes an UserAssist entry.
 
     Args:
-      debug (Optional[bool]): True if debug information should be printed.
-      output_writer (OutputWriter): output writer.
+      guid (Optional[str]): GUID.
+      name (Optional[str]): name.
+      value_name (Optional[str]): name of the Windows Registry value.
     """
-    super(UserAssistDataParser, self).__init__()
-    self._debug = debug
-    self._output_writer = output_writer
+    super(UserAssistEntry, self).__init__()
+    self.guid = guid
+    self.name = name
+    self.value_name = value_name
+
+
+class UserAssistDataParser(data_format.BinaryDataFormat):
+  """UserAssist data parser."""
+
+  _DEFINITION_FILE = 'userassist.yaml'
+
+  def _DebugPrintEntry(self, format_version, user_assist_entry):
+    """Prints UserAssist entry value debug information.
+
+    Args:
+      format_version (int): format version.
+      user_assist_entry (user_assist_entry_v3|user_assist_entry_v5):
+          UserAssist entry.
+    """
+    value_string = '0x{0:08x}'.format(user_assist_entry.unknown1)
+    self._DebugPrintValue('Unknown1', value_string)
+
+    self._DebugPrintDecimalValue(
+        'Execution count', user_assist_entry.execution_count)
+
+    if format_version == 5:
+      self._DebugPrintDecimalValue(
+          'Application focus count',
+          user_assist_entry.application_focus_count)
+
+      self._DebugPrintDecimalValue(
+          'Application focus duration',
+          user_assist_entry.application_focus_duration)
+
+      value_string = '{0:.2f}'.format(user_assist_entry.unknown2)
+      self._DebugPrintValue('Unknown2', value_string)
+
+      value_string = '{0:.2f}'.format(user_assist_entry.unknown3)
+      self._DebugPrintValue('Unknown3', value_string)
+
+      value_string = '{0:.2f}'.format(user_assist_entry.unknown4)
+      self._DebugPrintValue('Unknown4', value_string)
+
+      value_string = '{0:.2f}'.format(user_assist_entry.unknown5)
+      self._DebugPrintValue('Unknown5', value_string)
+
+      value_string = '{0:.2f}'.format(user_assist_entry.unknown6)
+      self._DebugPrintValue('Unknown6', value_string)
+
+      value_string = '{0:.2f}'.format(user_assist_entry.unknown7)
+      self._DebugPrintValue('Unknown7', value_string)
+
+      value_string = '{0:.2f}'.format(user_assist_entry.unknown8)
+      self._DebugPrintValue('Unknown8', value_string)
+
+      value_string = '{0:.2f}'.format(user_assist_entry.unknown9)
+      self._DebugPrintValue('Unknown9', value_string)
+
+      value_string = '{0:.2f}'.format(user_assist_entry.unknown10)
+      self._DebugPrintValue('Unknown10', value_string)
+
+      value_string = '{0:.2f}'.format(user_assist_entry.unknown11)
+      self._DebugPrintValue('Unknown11', value_string)
+
+      value_string = '0x{0:08x}'.format(user_assist_entry.unknown12)
+      self._DebugPrintValue('Unknown12', value_string)
+
+    self._DebugPrintFiletimeValue(
+        'Last execution time', user_assist_entry.last_execution_time)
+
+    if format_version == 5:
+      value_string = '0x{0:08x}'.format(user_assist_entry.unknown13)
+      self._DebugPrintValue('Unknown13', value_string)
+
+    self._DebugPrintText('')
 
   def ParseEntry(self, format_version, entry_data):
-    """Parses an entry.
+    """Parses an UserAssist entry.
 
     Args:
       format_version (int): format version.
       entry_data (bytes): entry data.
 
+    Returns:
+      user_assist_entry_v3|user_assist_entry_v5: UserAssist entry.
+
     Raises:
       ParseError: if the value data could not be parsed.
     """
     if format_version == 3:
-      data_type_map = self._USER_ASSIST_ENTRY_V3
+      data_type_map = self._GetDataTypeMap('user_assist_entry_v3')
     elif format_version == 5:
-      data_type_map = self._USER_ASSIST_ENTRY_V5
+      data_type_map = self._GetDataTypeMap('user_assist_entry_v5')
 
     entry_data_size = data_type_map.GetByteSize()
     if entry_data_size != len(entry_data):
-      logging.warning((
+      raise errors.ParseError((
           'Version: {0:d} size mismatch (calculated: {1:d}, '
           'stored: {2:d}).').format(
               format_version, entry_data_size, len(entry_data)))
-      return
 
     try:
-      user_assist_entry = data_type_map.MapByteStream(entry_data)
-    except (
-        dtfabric_errors.ByteStreamTooSmallError,
-        dtfabric_errors.MappingError) as exception:
-      raise errors.ParseError(exception)
+      user_assist_entry = self._ReadStructureFromByteStream(
+          entry_data, 0, data_type_map, 'UserAssist entry')
+    except (ValueError, errors.ParseError) as exception:
+      raise errors.ParseError(
+          'Unable to parse UserAssist entry value with error: {0!s}'.format(
+              exception))
 
     if self._debug:
-      value_string = '0x{0:08x}'.format(user_assist_entry.unknown1)
-      self._output_writer.WriteValue('Unknown1', value_string)
+      self._DebugPrintEntry(format_version, user_assist_entry)
 
-      self._output_writer.WriteIntegerValueAsDecimal(
-          'Execution count', user_assist_entry.execution_count)
-
-      if format_version == 5:
-        self._output_writer.WriteIntegerValueAsDecimal(
-            'Application focus count',
-            user_assist_entry.application_focus_count)
-
-        self._output_writer.WriteIntegerValueAsDecimal(
-            'Application focus duration',
-            user_assist_entry.application_focus_duration)
-
-        value_string = '{0:.2f}'.format(user_assist_entry.unknown2)
-        self._output_writer.WriteValue('Unknown2', value_string)
-
-        value_string = '{0:.2f}'.format(user_assist_entry.unknown3)
-        self._output_writer.WriteValue('Unknown3', value_string)
-
-        value_string = '{0:.2f}'.format(user_assist_entry.unknown4)
-        self._output_writer.WriteValue('Unknown4', value_string)
-
-        value_string = '{0:.2f}'.format(user_assist_entry.unknown5)
-        self._output_writer.WriteValue('Unknown5', value_string)
-
-        value_string = '{0:.2f}'.format(user_assist_entry.unknown6)
-        self._output_writer.WriteValue('Unknown6', value_string)
-
-        value_string = '{0:.2f}'.format(user_assist_entry.unknown7)
-        self._output_writer.WriteValue('Unknown7', value_string)
-
-        value_string = '{0:.2f}'.format(user_assist_entry.unknown8)
-        self._output_writer.WriteValue('Unknown8', value_string)
-
-        value_string = '{0:.2f}'.format(user_assist_entry.unknown9)
-        self._output_writer.WriteValue('Unknown9', value_string)
-
-        value_string = '{0:.2f}'.format(user_assist_entry.unknown10)
-        self._output_writer.WriteValue('Unknown10', value_string)
-
-        value_string = '{0:.2f}'.format(user_assist_entry.unknown11)
-        self._output_writer.WriteValue('Unknown11', value_string)
-
-        value_string = '0x{0:08x}'.format(user_assist_entry.unknown12)
-        self._output_writer.WriteValue('Unknown12', value_string)
-
-      timestamp = user_assist_entry.last_execution_time
-      date_string = (datetime.datetime(1601, 1, 1) +
-                     datetime.timedelta(microseconds=timestamp/10))
-
-      value_string = '{0!s} (0x{1:08x})'.format(date_string, timestamp)
-      self._output_writer.WriteValue('Last execution time', value_string)
-
-      if format_version == 5:
-        value_string = '0x{0:08x}'.format(user_assist_entry.unknown13)
-        self._output_writer.WriteValue('Unknown13', value_string)
-
-      self._output_writer.WriteText('')
+    return user_assist_entry
 
 
 class UserAssistCollector(interface.WindowsRegistryKeyCollector):
-  """Windows UserAssist information collector."""
+  """Windows UserAssist information collector.
+
+  Returns:
+    user_assist_entries (list[UserAssistEntry]): UserAssist entries.
+  """
 
   _USER_ASSIST_KEY = (
       'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
       'Explorer\\UserAssist')
 
-  # TODO: replace print by output_writer.
-  def _CollectUserAssistFromKey(self, output_writer, guid_subkey):
+  def __init__(self, debug=False, output_writer=None):
+    """Initializes a Windows UserAssist information collector.
+
+    Args:
+      debug (Optional[bool]): True if debug information should be printed.
+      output_writer (Optional[OutputWriter]): output writer.
+    """
+    super(UserAssistCollector, self).__init__(debug=debug)
+    self._output_writer = output_writer
+    self._parser = UserAssistDataParser(
+        debug=debug, output_writer=output_writer)
+    self.user_assist_entries = []
+
+  def _CollectUserAssistFromKey(self, guid_subkey):
     """Collects the UserAssist information from a GUID sub key.
 
     Args:
-      output_writer (OutputWriter): output writer.
       guid_subkey (dfwinreg.WinRegistryKey): UserAssist GUID Registry key.
     """
     version_value = guid_subkey.GetValueByName('Version')
@@ -162,22 +182,21 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
     format_version = version_value.GetDataAsObject()
 
     if self._debug:
-      print('GUID\t\t: {0:s}'.format(guid_subkey.name))
-      print('Format version\t: {0:d}'.format(format_version))
-      print('')
+      self._output_writer.WriteValue('GUID', guid_subkey.name)
+      self._output_writer.WriteIntegerValueAsDecimal(
+          'Format version', format_version)
+      self._output_writer.WriteText('')
 
     count_subkey = guid_subkey.GetSubkeyByName('Count')
     for value in count_subkey.GetValues():
-      output_string = 'Original name\t: {0:s}'.format(value.name)
-
       if self._debug:
-        print(output_string.encode('utf-8'))
+        self._output_writer.WriteValue('Original name', value.name)
 
       try:
         # Note that Python 2 codecs.decode() does not support keyword arguments
         # such as encodings='rot-13'.
         value_name = codecs.decode(value.name, 'rot-13')
-      except UnicodeEncodeError as exception:
+      except UnicodeEncodeError:
         characters = []
         for character in value.name:
           if ord(character) < 128:
@@ -191,29 +210,22 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
 
         value_name = ''.join(characters)
 
-      try:
-        output_string = 'Converted name\t: {0:s}'.format(value_name)
-
-        if self._debug:
-          print(output_string.encode('utf-8'))
-      except UnicodeEncodeError as exception:
-        logging.warning('Unable to convert: {0:s} with error: {1:s}'.format(
-            value.name, exception))
-
       if self._debug:
-        output_writer.WriteDebugData('Value data:', value.data)
+        self._output_writer.WriteValue('Converted name', value_name)
+        self._output_writer.WriteDebugData('Value data:', value.data)
 
       if value_name != 'UEME_CTLSESSION':
-        parser = UserAssistDataParser(
-            debug=self._debug, output_writer=output_writer)
-        parser.ParseEntry(format_version, value.data)
+        user_assist_entry = self._parser.ParseEntry(format_version, value.data)
 
-  def Collect(self, registry, output_writer):
+        user_assist_entry = UserAssistEntry(
+            guid=guid_subkey.name, name=value_name, value_name=value.name)
+        self.user_assist_entries.append(user_assist_entry)
+
+  def Collect(self, registry):  # pylint: disable=arguments-differ
     """Collects the UserAssist information.
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
 
     Returns:
       bool: True if the UserAssist key was found, False if not.
@@ -222,11 +234,7 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
     if not user_assist_key:
       return False
 
-    if self._debug:
-      print('Key: {0:s}'.format(self._USER_ASSIST_KEY))
-      print('')
-
     for guid_subkey in user_assist_key.GetSubkeys():
-      self._CollectUserAssistFromKey(output_writer, guid_subkey)
+      self._CollectUserAssistFromKey(guid_subkey)
 
     return True
