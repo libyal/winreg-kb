@@ -1,2 +1,3 @@
 usr/lib/python2*/dist-packages/winregrc/*.py
+usr/lib/python2*/dist-packages/winregrc/*.yaml
 usr/lib/python2*/dist-packages/winregrc*.egg-info/*
