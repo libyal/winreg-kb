@@ -31,7 +31,7 @@ attributes:
 members:
 - name: unknown1
   data_type: uint32
-- name: execution_count
+- name: number_of_executions
   data_type: uint32
 - name: last_execution_time
   data_type: uint64
@@ -44,7 +44,7 @@ attributes:
 members:
 - name: unknown1
   data_type: uint32
-- name: execution_count
+- name: number_of_executions
   data_type: uint32
 - name: application_focus_count
   data_type: uint32

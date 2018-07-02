@@ -51,7 +51,7 @@ class UserAssistDataParser(data_format.BinaryDataFormat):
     self._DebugPrintValue('Unknown1', value_string)
 
     self._DebugPrintDecimalValue(
-        'Execution count', user_assist_entry.execution_count)
+        'Number of executions', user_assist_entry.number_of_executions)
 
     if format_version == 5:
       self._DebugPrintDecimalValue(
