@@ -157,7 +157,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
     ],
-    zip_safe=False,
     packages=find_packages('.', exclude=[
         'scripts', 'tests', 'tests.*', 'utils']),
     package_dir={
@@ -167,6 +166,7 @@ setup(
     package_data={
         'winregrc': ['*.yaml'],
     },
+    zip_safe=False,
     scripts=glob.glob(os.path.join('scripts', '*.py')),
     data_files=[
         ('share/doc/winregrc', [
