@@ -145,7 +145,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
           value_string = '\t{0:s} (0x{1:08x})'.format(identifier, flag)
           self._DebugPrintText(value_string)
 
-      self._DebugPrintText('')
+      self._DebugPrintText('\n')
 
     value_string = '0x{0:04x}'.format(f_value.country_code)
     self._DebugPrintValue('Country code', value_string)
@@ -166,7 +166,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
     value_string = '0x{0:08x}'.format(f_value.unknown8)
     self._DebugPrintValue('Unknown8', value_string)
 
-    self._DebugPrintText('')
+    self._DebugPrintText('\n')
 
   def _ParseFiletime(self, filetime):
     """Parses a FILETIME timestamp value.
@@ -276,7 +276,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
 
         if self._debug:
           self._DebugPrintValue('Username', user_account.username)
-          self._DebugPrintText('')
+          self._DebugPrintText('\n')
 
       elif index == 2:
         user_account.full_name = descriptor_data.decode(
@@ -284,7 +284,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
 
         if self._debug:
           self._DebugPrintValue('Full name', user_account.full_name)
-          self._DebugPrintText('')
+          self._DebugPrintText('\n')
 
       elif index == 3:
         user_account.comment = descriptor_data.decode(
@@ -292,7 +292,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
 
         if self._debug:
           self._DebugPrintValue('Comment', user_account.comment)
-          self._DebugPrintText('')
+          self._DebugPrintText('\n')
 
       elif index == 4:
         user_account.user_comment = descriptor_data.decode(
@@ -301,10 +301,10 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
         if self._debug:
           self._DebugPrintValue(
               'User comment', user_account.user_comment)
-          self._DebugPrintText('')
+          self._DebugPrintText('\n')
 
     if self._debug:
-      self._DebugPrintText('')
+      self._DebugPrintText('\n')
 
 
 class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):

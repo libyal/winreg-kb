@@ -102,7 +102,7 @@ class UserAssistDataParser(data_format.BinaryDataFormat):
       value_string = '0x{0:08x}'.format(user_assist_entry.unknown13)
       self._DebugPrintValue('Unknown13', value_string)
 
-    self._DebugPrintText('')
+    self._DebugPrintText('\n')
 
   def ParseEntry(self, format_version, entry_data):
     """Parses an UserAssist entry.
@@ -185,7 +185,8 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
       self._output_writer.WriteValue('GUID', guid_subkey.name)
       self._output_writer.WriteIntegerValueAsDecimal(
           'Format version', format_version)
-      self._output_writer.WriteText('')
+
+      self._output_writer.WriteText('\n')
 
     count_subkey = guid_subkey.GetSubkeyByName('Count')
     for value in count_subkey.GetValues():

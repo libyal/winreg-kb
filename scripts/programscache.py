@@ -14,18 +14,6 @@ from winregrc import output_writers
 from winregrc import programscache
 
 
-class StdoutWriter(output_writers.StdoutOutputWriter):
-  """Stdout output writer."""
-
-  def WriteText(self, text):
-    """Writes text to stdout.
-
-    Args:
-      text (bytes): text to write.
-    """
-    print(text)
-
-
 def Main():
   """The main program function.
 
@@ -58,9 +46,9 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer_object = StdoutWriter()
+  output_writer = output_writers.StdoutOutputWriter()
 
-  if not output_writer_object.Open():
+  if not output_writer.Open():
     print('Unable to open output writer.')
     print('')
     return False
@@ -75,14 +63,13 @@ def Main():
 
   # TODO: map collector to available Registry keys.
   collector_object = programscache.ProgramsCacheCollector(
-      debug=options.debug)
+      debug=options.debug, output_writer=output_writer)
 
-  result = collector_object.Collect(
-      registry_collector.registry, output_writer_object)
+  result = collector_object.Collect(registry_collector.registry)
   if not result:
     print('No Explorer StartPage or StartPage2 keys found.')
 
-  output_writer_object.Close()
+  output_writer.Close()
 
   return True
 

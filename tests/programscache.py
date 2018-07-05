@@ -13,7 +13,7 @@ from winregrc import errors
 from winregrc import output_writers
 from winregrc import programscache
 
-from tests import test_lib as shared_test_lib
+from tests import test_lib
 
 
 class TestOutputWriter(output_writers.StdoutOutputWriter):
@@ -37,7 +37,7 @@ class TestOutputWriter(output_writers.StdoutOutputWriter):
     self.text.append(text)
 
 
-class ProgramsCacheDataParserTest(shared_test_lib.BaseTestCase):
+class ProgramsCacheDataParserTest(test_lib.BaseTestCase):
   """Tests for the Programs Cache data parser."""
 
   def testParse(self):
@@ -48,10 +48,10 @@ class ProgramsCacheDataParserTest(shared_test_lib.BaseTestCase):
       data_parser.Parse(b'')
 
 
-class ProgramsCacheCollectorTest(shared_test_lib.BaseTestCase):
+class ProgramsCacheCollectorTest(test_lib.BaseTestCase):
   """Tests for the Programs Cache information collector."""
 
-  @shared_test_lib.skipUnlessHasTestFile(['NTUSER.DAT'])
+  @test_lib.skipUnlessHasTestFile(['NTUSER.DAT'])
   def testCollect(self):
     """Tests the Collect function."""
     registry_collector = collector.WindowsRegistryCollector()
@@ -61,26 +61,29 @@ class ProgramsCacheCollectorTest(shared_test_lib.BaseTestCase):
 
     self.assertIsNotNone(registry_collector.registry)
 
-    collector_object = programscache.ProgramsCacheCollector()
+    test_output_writer = test_lib.TestOutputWriter()
+    collector_object = programscache.ProgramsCacheCollector(
+        output_writer=test_output_writer)
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry_collector.registry, test_output_writer)
+    result = collector_object.Collect(registry_collector.registry)
+    self.assertTrue(result)
+
     test_output_writer.Close()
 
-    # TODO: fix test.
-    self.assertEqual(test_output_writer.text, [])
+    # TODO: test program cache values.
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
     registry = dfwinreg_registry.WinRegistry()
 
-    collector_object = programscache.ProgramsCacheCollector()
+    test_output_writer = test_lib.TestOutputWriter()
+    collector_object = programscache.ProgramsCacheCollector(
+        output_writer=test_output_writer)
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
     test_output_writer.Close()
 
-    self.assertEqual(len(test_output_writer.text), 0)
+    result = collector_object.Collect(registry)
+    self.assertFalse(result)
 
 
 if __name__ == '__main__':

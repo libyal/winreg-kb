@@ -13,7 +13,7 @@ from dfwinreg import registry as dfwinreg_registry
 from winregrc import output_writers
 from winregrc import userassist
 
-from tests import test_lib as shared_test_lib
+from tests import test_lib
 
 
 _ENTRY_DATA_V3 = bytes(bytearray([
@@ -50,7 +50,7 @@ class TestOutputWriter(output_writers.StdoutOutputWriter):
     self.text.append(text)
 
 
-class UserAssistDataParserTest(shared_test_lib.BaseTestCase):
+class UserAssistDataParserTest(test_lib.BaseTestCase):
   """Tests for the User Assist data parser."""
 
   def testParseEntry(self):
@@ -62,7 +62,7 @@ class UserAssistDataParserTest(shared_test_lib.BaseTestCase):
     data_parser.ParseEntry(5, _ENTRY_DATA_V5)
 
 
-class UserAssistCollectorTest(shared_test_lib.BaseTestCase):
+class UserAssistCollectorTest(test_lib.BaseTestCase):
   """Tests for the Windows User Assist collector."""
 
   _GUID = '{5E6AB780-7743-11CF-A12B-00AA004AE837}'
@@ -118,9 +118,14 @@ class UserAssistCollectorTest(shared_test_lib.BaseTestCase):
     """Tests the Collect function."""
     registry = self._CreateTestRegistry()
 
-    collector_object = userassist.UserAssistCollector()
+    test_output_writer = test_lib.TestOutputWriter()
+    collector_object = userassist.UserAssistCollector(
+        output_writer=test_output_writer)
 
-    collector_object.Collect(registry)
+    result = collector_object.Collect(registry)
+    self.assertTrue(result)
+
+    test_output_writer.Close()
 
     self.assertEqual(len(collector_object.user_assist_entries), 1)
 
@@ -130,9 +135,14 @@ class UserAssistCollectorTest(shared_test_lib.BaseTestCase):
     """Tests the Collect function on an empty Registry."""
     registry = dfwinreg_registry.WinRegistry()
 
-    collector_object = userassist.UserAssistCollector()
+    test_output_writer = test_lib.TestOutputWriter()
+    collector_object = userassist.UserAssistCollector(
+        output_writer=test_output_writer)
 
-    collector_object.Collect(registry)
+    result = collector_object.Collect(registry)
+    self.assertFalse(result)
+
+    test_output_writer.Close()
 
     self.assertEqual(len(collector_object.user_assist_entries), 0)
 

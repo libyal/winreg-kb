@@ -149,4 +149,4 @@ class StdoutOutputWriter(OutputWriter):
       text (str): text to write.
     """
     text = text.encode('utf8')
-    print(text)
+    print(text, end='')
