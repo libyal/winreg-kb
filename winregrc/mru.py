@@ -3,7 +3,10 @@
 
 from __future__ import unicode_literals
 
-from winregrc import interface
+from dtfabric.runtime import data_maps as dtfabric_data_maps
+
+from winregrc import data_format
+from winregrc import errors
 
 
 class MostRecentlyUsedEntry(object):
@@ -37,12 +40,14 @@ class MostRecentlyUsedEntry(object):
     self.value_name = value_name
 
 
-class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
+class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
   """Most Recently Used (MRU) collector.
 
   Attributes:
     mru_entries (list[MostRecentlyUsedEntry]): most recently used (MRU) entries.
   """
+
+  _DEFINITION_FILE = 'mru.yaml'
 
   _OPENSAVE_MRU_KEY_PATH = (
       'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
@@ -154,6 +159,35 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
     Returns:
       bool: True if a Most Recently Used (MRU) key was found, False if not.
     """
+    registry_value = registry_key.GetValueByName('MRUList')
+
+    data_type_map = self._GetDataTypeMap('mrulist_entries')
+
+    context = dtfabric_data_maps.DataTypeMapContext(values={
+        'data_size': len(registry_value.data)})
+
+    try:
+      mrulist_entries = self._ReadStructureFromByteStream(
+          registry_value.data, 0, data_type_map, 'MRUList entries',
+          context=context)
+    except (ValueError, errors.ParseError) as exception:
+      raise errors.ParseError(
+          'Unable to parse MRUList entries with error: {0!s}'.format(exception))
+
+    mrulist = set([])
+    recovered_mrulist = set([])
+    is_recovered = False
+    for entry_letter in mrulist_entries:
+      if entry_letter == 0:
+        is_recovered = True
+
+      entry_letter = chr(entry_letter)
+
+      if is_recovered:
+        recovered_mrulist.add(entry_letter)
+      else:
+        mrulist.add(entry_letter)
+
     result = False
     for registry_value in registry_key.GetValues():
       if registry_value.name in ('MRUList', 'NodeSlot', 'NodeSlots'):
@@ -173,23 +207,19 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
         self._ProcessMRUEntryShellItemList(
             registry_key.path, registry_value.name, registry_value.data)
 
-
       elif self._InKeyPaths(
           registry_key.path, self._STRING_AND_SHELL_ITEM_MRU_KEY_PATHS):
         self._ProcessMRUEntryStringAndShellItem(
             registry_key.path, registry_value.name, registry_value.data)
-
 
       elif self._InKeyPaths(
           registry_key.path, self._STRING_AND_SHELL_ITEM_LIST_MRU_KEY_PATHS):
         self._ProcessMRUEntryStringAndShellItemList(
             registry_key.path, registry_value.name, registry_value.data)
 
-
       else:
         self._ProcessMRUEntryString(
             registry_key.path, registry_value.name, registry_value.data)
-
 
       result = True
 
@@ -207,6 +237,34 @@ class MostRecentlyUsedCollector(interface.WindowsRegistryKeyCollector):
     # TODO: determine what trailing data is in:
     # HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\
     # ComDlg32\CIDSizeMRU
+
+    registry_value = registry_key.GetValueByName('MRUListEx')
+
+    data_type_map = self._GetDataTypeMap('mrulistex_entries')
+
+    context = dtfabric_data_maps.DataTypeMapContext(values={
+        'data_size': len(registry_value.data)})
+
+    try:
+      mrulistex_entries = self._ReadStructureFromByteStream(
+          registry_value.data, 0, data_type_map, 'MRUListEx entries',
+          context=context)
+    except (ValueError, errors.ParseError) as exception:
+      raise errors.ParseError(
+          'Unable to parse MRUListEx entries with error: {0!s}'.format(
+              exception))
+
+    mrulistex = set([])
+    recovered_mrulistex = set([])
+    is_recovered = False
+    for entry_number in mrulistex_entries:
+      if entry_number == 0:
+        is_recovered = True
+
+      if is_recovered:
+        recovered_mrulistex.add(entry_number)
+      else:
+        mrulistex.add(entry_number)
 
     result = False
     for registry_value in registry_key.GetValues():

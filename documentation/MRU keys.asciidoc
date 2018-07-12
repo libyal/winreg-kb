@@ -1,6 +1,6 @@
-The Windows Registry contains various Most Recently Updated (MRU) keys, both 
-used by Windows or specific applications. This page largely focuses on the MRU 
-keys used by Windows and its various sub systems, see the application specific 
+The Windows Registry contains various Most Recently Used (MRU) keys, both
+used by Windows or specific applications. This page largely focuses on the MRU
+keys used by Windows and its various sub systems, see the application specific
 pages for more information on those.
 
 [yellow-background]*TODO work in progress*
@@ -8,8 +8,8 @@ pages for more information on those.
 :toc:
 :toclevels: 4
 
-== Most recently updated (MRU) keys
-There are multiple variants of Most recently updated (MRU) keys, like:
+== Most recently used (MRU) keys
+There are multiple variants of Most recently used (MRU) keys, like:
 
 * Keys with a MRUList value
 * Keys with a MRUListEx value
@@ -21,15 +21,15 @@ Values:
 [cols="1,1,5",options="header"]
 |===
 | Value | Data type | Description
-| MRUList | | Contains a list of the most recently updated (MRU) items. +
+| MRUList | | Contains a list of the most recently used (MRU) items. +
 Consists of an array of UTF-16 little-endian formatted character value. +
-The first value represents the most recently updated item, the second the second recently updated item and so forth. The last value indicates the end of the list and should be 0 (0x0000).
+The first value represents the most recently used item, the second the second recently used item and so forth. The last value indicates the end of the list and should be 0 (0x0000).
 | %ALPHA% | | Where %ALPHA% is a string in the form: "[a-z]" +
 The value name corresponds to a string value in the MRUList value. E.g. a MRUList value of "a" (0x0061) corresponds to the value "a".
 |===
 
 ==== String MRUList values
-The following keys with a MRUList value contain %ALPHA% values that consists of 
+The following keys with a MRUList value contain %ALPHA% values that consists of
 an UTF-16 little-endian formatted string with an end-of-string character.
 
 Sub keys of: `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\`
@@ -54,7 +54,7 @@ Where %EXTENSION% is a file extension like ".exe" or "Folder"
 |===
 
 ==== Shell Item List MRUList values
-The following keys with a MRUList value contain %ALPHA% values that consists of 
+The following keys with a MRUList value contain %ALPHA% values that consists of
 a Shell Item List.
 
 Sub keys of: `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\`
@@ -72,9 +72,9 @@ Values:
 [cols="1,1,5",options="header"]
 |===
 | Value | Data type | Description
-| MRUListEx | | Contains a list of the most recently updated (MRU) items. +
+| MRUListEx | | Contains a list of the most recently used (MRU) items. +
 Consists of an array of 4-byte little-endian values. +
-The first value represents the most recently updated item, the second the second recently updated item and so forth. The last value indicates the end of the list and should be -1 (0xffffffff).
+The first value represents the most recently used item, the second the second recently used item and so forth. The last value indicates the end of the list and should be -1 (0xffffffff).
 | %NUMERIC% | | Where %NUMERIC% is a string in the form: "[0-9]+" +
 The value name corresponds to a 4-byte numeric value in the MRUListEx value. E.g. a MRUListEx value of 0x00000001 corresponds to the value named "1".
 |===
@@ -82,12 +82,12 @@ The value name corresponds to a 4-byte numeric value in the MRUListEx value. E.g
 The value data of the numeric value depends on the sub key.
 
 ==== String MRUListEx values
-The following keys with a MRUListEx value contain %NUMERIC% values that 
-consists of an UTF-16 little-endian formatted string with an end-of-string 
+The following keys with a MRUListEx value contain %NUMERIC% values that
+consists of an UTF-16 little-endian formatted string with an end-of-string
 character.
 
 ==== Shell Item List MRUListEx values
-The following keys with a MRUListEx value contain %NUMERIC% values that 
+The following keys with a MRUListEx value contain %NUMERIC% values that
 consists of a Shell Item List.
 
 Sub keys of: `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\`
@@ -121,8 +121,8 @@ Sub keys of: `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explor
 |===
 
 ==== String and Shell Item List MRUListEx values
-The following keys with a MRUListEx value contain %NUMERIC% values that 
-consists of a String and Shell Item List. The String and Shell Item List is 
+The following keys with a MRUListEx value contain %NUMERIC% values that
+consists of a String and Shell Item List. The String and Shell Item List is
 variable of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -138,7 +138,7 @@ Sub keys of: `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explor
 [cols="3,1,3",options="header"]
 |===
 | Registry key | Windows version | Description
-| ComDlg32\LastVisitedPidlMRU | Vista, 7 | 
+| ComDlg32\LastVisitedPidlMRU | Vista, 7 |
 |===
 
 === BagMRU key
@@ -177,9 +177,9 @@ Values:
 This number corresponds to the sub key name the corresponding Bags sub key. +
 E.g. bag number 1 in HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\BagMRU relates to the Bags sub key HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Bags\1
 | NodeSlots | | Only present in the root BagMRU key.
-| MRUListEx | REG_BINARY | Contains a list of the most recently updated (MRU) items. +
+| MRUListEx | REG_BINARY | Contains a list of the most recently used (MRU) items. +
 Consists of an array of 4-byte little-endian values. +
-The first value represents the most recently updated item, the second the second recently updated item and so forth. The last value indicates the end of the list and should be -1 (0xffffffff).
+The first value represents the most recently used item, the second the second recently used item and so forth. The last value indicates the end of the list and should be -1 (0xffffffff).
 | %NUMERIC% | REG_BINARY | Where %NUMERIC% is a string in the form: "[0-9]+" +
 The value name corresponds to a 4-byte numeric value in the MRUListEx value. E.g. a MRUListEx value of 0x00000001 corresponds to the value named "1". +
 Contains a shell item
