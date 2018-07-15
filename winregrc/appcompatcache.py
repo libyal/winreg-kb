@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 
 import logging
 
+from dtfabric.runtime import data_maps as dtfabric_data_maps
+
 from winregrc import data_format
 from winregrc import errors
 from winregrc import interface
@@ -104,22 +106,106 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
         debug=debug, output_writer=output_writer)
     self._cached_entry_data_type_map = None
 
-  def _DebugPrintCachedEntry(self, format_type, cached_entry):
-    """Prints AppCompatCache cached entry value debug information.
+  def _DebugPrintCachedEntryXP(self, cached_entry):
+    """Prints Windows XP AppCompatCache cached entry value debug information.
 
     Args:
-      format_type (int): AppCompatCache format type.
-      cached_entry (appcompatcache_cached_entry_xp_32bit|
-                    appcompatcache_cached_entry_2003_common|
-                    appcompatcache_cached_entry_2003_32bit|
-                    appcompatcache_cached_entry_2003_64bit|
-                    appcompatcache_cached_entry_vista_32bit|
-                    appcompatcache_cached_entry_vista_64bit|
-                    appcompatcache_cached_entry_7_32bit|
-                    appcompatcache_cached_entry_7_64bit|
-                    appcompatcache_cached_entry_header_8): AppCompatCache
-          cached entry.
+      cached_entry (appcompatcache_cached_entry_xp_32bit): Windows XP
+          AppCompatCache cached entry.
     """
+    # TODO: have dtFabric handle string conversion.
+    string_size = 0
+    for string_index in range(0, 528, 2):
+      if (cached_entry.path[string_index] == 0 and
+          cached_entry.path[string_index + 1] == 0):
+        break
+      string_size += 2
+
+    path = bytearray(cached_entry.path[0:string_size]).decode('utf-16-le')
+    self._DebugPrintValue('Path', path)
+
+    self._DebugPrintDecimalValue('File size', cached_entry.file_size)
+
+    self._DebugPrintFiletimeValue(
+        'Last update time', cached_entry.last_update_time)
+
+  def _DebugPrintCachedEntry2003(self, cached_entry):
+    """Prints Windows 2003 AppCompatCache cached entry value debug information.
+
+    Args:
+      cached_entry_common (appcompatcache_cached_entry_2003_32bit|
+                           appcompatcache_cached_entry_2003_64bit|
+                           appcompatcache_cached_entry_vista_32bit|
+                           appcompatcache_cached_entry_vista_64bit|
+                           appcompatcache_cached_entry_7_32bit|
+                           appcompatcache_cached_entry_7_64bit): Windows 2003,
+          Vista or 7 AppCompatCache cached entry.
+    """
+    self._DebugPrintDecimalValue('Path size', cached_entry.path_size)
+
+    self._DebugPrintDecimalValue(
+        'Maximum path size', cached_entry.maximum_path_size)
+
+    value_string = '0x{0:08x}'.format(cached_entry.path_offset)
+    self._DebugPrintValue('Path offset', value_string)
+
+    if hasattr(cached_entry, 'file_size'):
+      self._DebugPrintDecimalValue('File size', cached_entry.file_size)
+
+    if hasattr(cached_entry, 'insertion_flags'):
+      value_string = '0x{0:08x}'.format(cached_entry.insertion_flags)
+      self._DebugPrintValue('Insertion flags', value_string)
+
+    if hasattr(cached_entry, 'shim_flags'):
+      value_string = '0x{0:08x}'.format(cached_entry.shim_flags)
+      self._DebugPrintValue('Shim flags', value_string)
+
+    if hasattr(cached_entry, 'data_offset'):
+      value_string = '0x{0:08x}'.format(cached_entry.data_offset)
+      self._DebugPrintValue('Data offset', value_string)
+
+    if hasattr(cached_entry, 'data_size'):
+      self._DebugPrintDecimalValue('Data size', cached_entry.data_size)
+
+  def _DebugPrintCachedEntry8(self, cached_entry_header, cached_entry_body):
+    """Prints Windows 8 AppCompatCache cached entry value debug information.
+
+    Args:
+      cached_entry_header (appcompatcache_cached_entry_header_8): Windows 8 or
+          10 AppCompatCache cached entry header.
+      cached_entry_body (appcompatcache_cached_entry_header_8_0|
+                         appcompatcache_cached_entry_header_8_1|
+                         appcompatcache_cached_entry_header_10): Windows 8.0,
+          8.1 or 10 AppCompatCache cached entry body.
+    """
+    self._DebugPrintValue('Signature', cached_entry_header.signature)
+
+    value_string = '0x{0:08x}'.format(cached_entry_header.unknown1)
+    self._DebugPrintValue('Unknown1', value_string)
+
+    self._DebugPrintDecimalValue(
+        'Cached entry data size', cached_entry_header.cached_entry_data_size)
+
+    self._DebugPrintDecimalValue('Path size', cached_entry_body.path_size)
+
+    self._DebugPrintValue('Path', cached_entry_body.path.rstrip('\x00'))
+
+    if hasattr(cached_entry_body, 'insertion_flags'):
+      value_string = '0x{0:08x}'.format(cached_entry_body.insertion_flags)
+      self._DebugPrintValue('Insertion flags', value_string)
+
+    if hasattr(cached_entry_body, 'shim_flags'):
+      value_string = '0x{0:08x}'.format(cached_entry_body.shim_flags)
+      self._DebugPrintValue('Shim flags', value_string)
+
+    if hasattr(cached_entry_body, 'unknown1'):
+      value_string = '0x{0:04x}'.format(cached_entry_body.unknown1)
+      self._DebugPrintValue('Unknown1', value_string)
+
+    self._DebugPrintFiletimeValue(
+        'Last modification time', cached_entry_body.last_modification_time)
+
+    self._DebugPrintDecimalValue('Data size', cached_entry_body.data_size)
 
   def _DebugPrintHeader(self, format_type, header):
     """Prints AppCompatCache header value debug information.
@@ -155,7 +241,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       self._DebugPrintValue('Unknown1', value_string)
 
     if format_type != self._FORMAT_TYPE_XP:
-      self._DebugPrintText('')
+      self._DebugPrintText('\n')
 
   def _GetCachedEntryDataTypeMap(
       self, format_type, value_data, cached_entry_offset):
@@ -163,7 +249,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
     Args:
       format_type (int): format type.
-      value_data (bytess): value data.
+      value_data (bytes): value data.
       cached_entry_offset (int): offset of the first cached entry data
           relative to the start of the value data.
 
@@ -281,7 +367,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
     Args:
       format_type (int): format type.
-      value_data (bytess): value data.
+      value_data (bytes): value data.
       cached_entry_index (int): cached entry index.
       cached_entry_offset (int): offset of the first cached entry data
           relative to the start of the value data.
@@ -304,29 +390,100 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     cached_entry_data = value_data[cached_entry_offset:cached_entry_end_offset]
 
     if self._debug:
-      if format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
-        description = 'Cached entry: {0:d} header data:'.format(
-            cached_entry_index)
-        self._DebugPrintData(description, cached_entry_data[:-2])
-      else:
-        description = 'Cached entry: {0:d} data:'.format(cached_entry_index)
+      if format_type not in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
+        description = 'Cached entry: {0:d} data'.format(cached_entry_index)
         self._DebugPrintData(description, cached_entry_data)
-
-    if format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
-      if cached_entry_data[0:4] not in (
-          self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1):
-        raise errors.ParseError('Unsupported cache entry signature')
 
     try:
       cached_entry = self._ReadStructureFromByteStream(
           cached_entry_data, cached_entry_offset,
           self._cached_entry_data_type_map, 'cached entry')
     except (ValueError, errors.ParseError) as exception:
+      if self._debug:
+        if format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
+          description = 'Cached entry: {0:d} header data'.format(
+              cached_entry_index)
+          self._DebugPrintData(description, cached_entry_data)
+
       raise errors.ParseError(
           'Unable to parse cached entry value with error: {0!s}'.format(
               exception))
 
     if format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
+      if cached_entry.signature not in (
+          self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1):
+        if self._debug:
+          description = 'Cached entry: {0:d} header data'.format(
+              cached_entry_index)
+          self._DebugPrintData(description, cached_entry_data)
+
+        raise errors.ParseError('Unsupported cache entry signature')
+
+    cached_entry_object = AppCompatCacheCachedEntry()
+
+    data_offset = 0
+    data_size = 0
+
+    if format_type == self._FORMAT_TYPE_XP:
+      if self._debug:
+        self._DebugPrintCachedEntryXP(cached_entry)
+
+      # TODO: have dtFabric handle string conversion.
+      string_size = 0
+      for string_index in range(0, 528, 2):
+        if (cached_entry.path[string_index] == 0 and
+            cached_entry.path[string_index + 1] == 0):
+          break
+        string_size += 2
+
+      cached_entry_object.path = bytearray(
+          cached_entry.path[0:string_size]).decode('utf-16-le')
+
+      cached_entry_object.last_modification_time = (
+          cached_entry.last_modification_time)
+      cached_entry_object.file_size = cached_entry.file_size
+      cached_entry_object.last_update_time = cached_entry.last_update_time
+
+      data_offset = cached_entry_offset + cached_entry_size
+
+    elif format_type in (
+        self._FORMAT_TYPE_2003, self._FORMAT_TYPE_VISTA, self._FORMAT_TYPE_7):
+      if self._debug:
+        self._DebugPrintCachedEntry2003(cached_entry)
+
+      cached_entry_object.last_modification_time = (
+          cached_entry.last_modification_time)
+
+      if format_type == self._FORMAT_TYPE_2003:
+        cached_entry_object.file_size = cached_entry.file_size
+
+      elif format_type in (self._FORMAT_TYPE_VISTA, self._FORMAT_TYPE_7):
+        cached_entry_object.insertion_flags = cached_entry.insertion_flags
+        cached_entry_object.shim_flags = cached_entry.shim_flags
+
+      path_size = cached_entry.path_size
+      maximum_path_size = cached_entry.maximum_path_size
+      path_offset = cached_entry.path_offset
+
+      if path_offset > 0 and path_size > 0:
+        path_size += path_offset
+        maximum_path_size += path_offset
+
+        if self._debug:
+          self._DebugPrintData(
+              'Path data', value_data[path_offset:maximum_path_size])
+
+        cached_entry_object.path = value_data[path_offset:path_size].decode(
+            'utf-16-le')
+
+        if self._debug:
+          self._DebugPrintValue('Path', cached_entry_object.path)
+
+      if format_type == self._FORMAT_TYPE_7:
+        data_offset = cached_entry.data_offset
+        data_size = cached_entry.data_size
+
+    elif format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
       cached_entry_data_size = cached_entry.cached_entry_data_size
       cached_entry_size = 12 + cached_entry_data_size
       cached_entry_end_offset = cached_entry_offset + cached_entry_size
@@ -335,210 +492,45 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
           cached_entry_offset:cached_entry_end_offset]
 
       if self._debug:
-        description = 'Cached entry: {0:d} data:'.format(cached_entry_index)
+        description = 'Cached entry: {0:d} data'.format(cached_entry_index)
         self._DebugPrintData(description, cached_entry_data)
 
-    cached_entry_object = AppCompatCacheCachedEntry()
-    cached_entry_object.cached_entry_size = cached_entry_size
+      if format_type == self._FORMAT_TYPE_10:
+        data_type_map_name = 'appcompatcache_cached_entry_body_10'
+      elif cached_entry.signature == self._CACHED_ENTRY_SIGNATURE_8_0:
+        data_type_map_name = 'appcompatcache_cached_entry_body_8_0'
+      elif cached_entry.signature == self._CACHED_ENTRY_SIGNATURE_8_1:
+        data_type_map_name = 'appcompatcache_cached_entry_body_8_1'
 
-    path_offset = 0
-    data_size = 0
-
-    if format_type == self._FORMAT_TYPE_XP:
-      string_size = 0
-      for string_index in range(0, 528, 2):
-        if (cached_entry_data[string_index] == '\0' and
-            cached_entry_data[string_index + 1] == '\0'):
-          break
-        string_size += 2
-
-      cached_entry_object.path = cached_entry_data[0:string_size].decode(
-          'utf-16-le')
-
-      if self._debug:
-        self._DebugPrintValue('Path', cached_entry_object.path)
-
-    elif format_type in (
-        self._FORMAT_TYPE_2003, self._FORMAT_TYPE_VISTA, self._FORMAT_TYPE_7):
-      path_size = cached_entry.path_size
-      maximum_path_size = cached_entry.maximum_path_size
-      path_offset = cached_entry.path_offset
-
-      if self._debug:
-        self._DebugPrintDecimalValue('Path size', path_size)
-
-        self._DebugPrintDecimalValue('Maximum path size', maximum_path_size)
-
-        value_string = '0x{0:08x}'.format(path_offset)
-        self._DebugPrintValue('Path offset', value_string)
-
-    elif format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
-      path_size = cached_entry.path_size
-
-      if self._debug:
-        self._DebugPrintValue('Signature', cached_entry_data[0:4])
-
-        value_string = '0x{0:08x}'.format(cached_entry.unknown1)
-        self._DebugPrintValue('Unknown1', value_string)
-
-        self._DebugPrintDecimalValue(
-            'Cached entry data size', cached_entry_data_size)
-
-        self._DebugPrintDecimalValue('Path size', path_size)
-
-      cached_entry_data_offset = 14 + path_size
-      cached_entry_object.path = cached_entry_data[
-          14:cached_entry_data_offset].decode('utf-16-le')
-
-      if self._debug:
-        self._DebugPrintValue('Path', cached_entry_object.path)
-
-      if format_type == self._FORMAT_TYPE_8:
-        remaining_data = cached_entry_data[cached_entry_data_offset:]
-
-        data_type_map = self._GetDataTypeMap('uint32le')
-
-        try:
-          insertion_flags = self._ReadStructureFromByteStream(
-              remaining_data[0:4], cached_entry_data_offset, data_type_map,
-              'insertion flags')
-        except (ValueError, errors.ParseError) as exception:
-          raise errors.ParseError(
-              'Unable to parse insertion flags value with error: {0!s}'.format(
-                  exception))
-
-        try:
-          shim_flags = self._ReadStructureFromByteStream(
-              remaining_data[4:8], cached_entry_data_offset + 4, data_type_map,
-              'shim flags')
-        except (ValueError, errors.ParseError) as exception:
-          raise errors.ParseError(
-              'Unable to parse shim flags value with error: {0!s}'.format(
-                  exception))
-
-        if self._debug:
-          value_string = '0x{0:08x}'.format(insertion_flags)
-          self._DebugPrintValue('Insertion flags', value_string)
-
-          value_string = '0x{0:08x}'.format(shim_flags)
-          self._DebugPrintValue('Shim flags', value_string)
-
-        cached_entry_object.insertion_flags = insertion_flags
-        cached_entry_object.shim_flags = shim_flags
-
-        if cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_0:
-          cached_entry_data_offset += 8
-
-        elif cached_entry_data[0:4] == self._CACHED_ENTRY_SIGNATURE_8_1:
-          if self._debug:
-            data_type_map = self._GetDataTypeMap('uint16le')
-
-            try:
-              unknown1 = self._ReadStructureFromByteStream(
-                  remaining_data[8:10], 8, data_type_map, 'unknown1')
-            except (ValueError, errors.ParseError) as exception:
-              raise errors.ParseError(
-                  'Unable to parse unknown1 value with error: {0!s}'.format(
-                      exception))
-
-            value_string = '0x{0:04x}'.format(unknown1)
-            self._DebugPrintValue('Unknown1', value_string)
-
-          cached_entry_data_offset += 10
-
-      remaining_data = cached_entry_data[cached_entry_data_offset:]
-
-    if format_type in (
-        self._FORMAT_TYPE_XP, self._FORMAT_TYPE_2003, self._FORMAT_TYPE_VISTA,
-        self._FORMAT_TYPE_7):
-      cached_entry_object.last_modification_time = (
-          cached_entry.last_modification_time)
-
-    elif format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
-      data_type_map = self._GetDataTypeMap('uint64le')
+      data_type_map = self._GetDataTypeMap(data_type_map_name)
+      context = dtfabric_data_maps.DataTypeMapContext()
 
       try:
-        timestamp = self._ReadStructureFromByteStream(
-            remaining_data[0:8], cached_entry_data_offset, data_type_map,
-            'last modification time')
-      except (ValueError, errors.ParseError) as exception:
-        raise errors.ParseError((
-            'Unable to parse last modification time value with error: '
-            '{0!s}').format(exception))
-
-      cached_entry_object.last_modification_time = timestamp
-
-    if self._debug:
-      self._DebugPrintFiletimeValue(
-          'Last modification time', cached_entry_object.last_modification_time)
-
-    if format_type in (self._FORMAT_TYPE_XP, self._FORMAT_TYPE_2003):
-      cached_entry_object.file_size = cached_entry.file_size
-
-      if self._debug:
-        self._DebugPrintDecimalValue('File size', cached_entry_object.file_size)
-
-    elif format_type in (self._FORMAT_TYPE_VISTA, self._FORMAT_TYPE_7):
-      cached_entry_object.insertion_flags = cached_entry.insertion_flags
-      cached_entry_object.shim_flags = cached_entry.shim_flags
-
-      if self._debug:
-        value_string = '0x{0:08x}'.format(cached_entry_object.insertion_flags)
-        self._DebugPrintValue('Insertion flags', value_string)
-
-        value_string = '0x{0:08x}'.format(cached_entry_object.shim_flags)
-        self._DebugPrintValue('Shim flags', value_string)
-
-    if format_type == self._FORMAT_TYPE_XP:
-      cached_entry_object.last_update_time = cached_entry.last_update_time
-
-      if self._debug:
-        self._DebugPrintFiletimeValue(
-            'Last update time', cached_entry_object.last_update_time)
-
-    if format_type == self._FORMAT_TYPE_7:
-      data_offset = cached_entry.data_offset
-      data_size = cached_entry.data_size
-
-      if self._debug:
-        value_string = '0x{0:08x}'.format(data_offset)
-        self._DebugPrintValue('Data offset', value_string)
-
-        self._DebugPrintDecimalValue('Data size', data_size)
-
-    elif format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
-      data_offset = cached_entry_offset + cached_entry_data_offset + 12
-      data_type_map = self._GetDataTypeMap('uint32le')
-
-      try:
-        data_size = self._ReadStructureFromByteStream(
-            remaining_data[8:12], cached_entry_data_offset + 8, data_type_map,
-            'data size')
+        cached_entry_body = self._ReadStructureFromByteStream(
+            cached_entry_data[12:], cached_entry_offset + 12,
+            data_type_map, 'cached entry body', context=context)
       except (ValueError, errors.ParseError) as exception:
         raise errors.ParseError(
-            'Unable to parse data size value with error: {0!s}'.format(
+            'Unable to parse cached entry body with error: {0!s}'.format(
                 exception))
 
       if self._debug:
-        self._DebugPrintDecimalValue('Data size', data_size)
+        self._DebugPrintCachedEntry8(cached_entry, cached_entry_body)
+
+      cached_entry_object.path = cached_entry_body.path
+
+      if format_type == self._FORMAT_TYPE_8:
+        cached_entry_object.insertion_flags = cached_entry_body.insertion_flags
+        cached_entry_object.shim_flags = cached_entry_body.shim_flags
+
+      cached_entry_object.last_modification_time = (
+          cached_entry_body.last_modification_time)
+
+      data_offset = cached_entry_offset + context.byte_size
+      data_size = cached_entry_body.data_size
 
     if self._debug:
-      self._DebugPrintText('')
-
-    if path_offset > 0 and path_size > 0:
-      path_size += path_offset
-      maximum_path_size += path_offset
-
-      if self._debug:
-        self._DebugPrintData(
-            'Path data', value_data[path_offset:maximum_path_size])
-
-      cached_entry_object.path = value_data[path_offset:path_size].decode(
-          'utf-16-le')
-
-      if self._debug:
-        self._DebugPrintValue('Path', cached_entry_object.path)
-        self._DebugPrintText('')
+      self._DebugPrintText('\n')
 
     if data_size > 0:
       data_size += data_offset
@@ -546,7 +538,9 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       cached_entry_object.data = value_data[data_offset:data_size]
 
       if self._debug:
-        self._DebugPrintData('Data:', cached_entry_object.data)
+        self._DebugPrintData('Data', cached_entry_object.data)
+
+    cached_entry_object.cached_entry_size = cached_entry_size
 
     return cached_entry_object
 
@@ -555,7 +549,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
     Args:
       format_type (int): format type.
-      value_data (bytess): value data.
+      value_data (bytes): value data.
 
     Returns:
       AppCompatCacheHeader: header.
@@ -621,10 +615,10 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
             self._DebugPrintValue(description, value_string)
 
         if self._debug:
-          self._DebugPrintText('')
+          self._DebugPrintText('\n')
 
       if self._debug:
-        self._DebugPrintData('Unknown data:', value_data[data_offset:400])
+        self._DebugPrintData('Unknown data', value_data[data_offset:400])
 
     self._cached_entry_data_type_map = None
 
