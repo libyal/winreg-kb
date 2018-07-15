@@ -436,12 +436,9 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
           break
         string_size += 2
 
-      cached_entry_object.path = bytearray(
-          cached_entry.path[0:string_size]).decode('utf-16-le')
+      last_modification_time = cached_entry.last_modification_time
+      path = bytearray(cached_entry.path[0:string_size]).decode('utf-16-le')
 
-      cached_entry_object.last_modification_time = (
-          cached_entry.last_modification_time)
-      cached_entry_object.file_size = cached_entry.file_size
       cached_entry_object.last_update_time = cached_entry.last_update_time
 
       data_offset = cached_entry_offset + cached_entry_size
@@ -451,13 +448,9 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       if self._debug:
         self._DebugPrintCachedEntry2003(cached_entry)
 
-      cached_entry_object.last_modification_time = (
-          cached_entry.last_modification_time)
+      last_modification_time = cached_entry.last_modification_time
 
-      if format_type == self._FORMAT_TYPE_2003:
-        cached_entry_object.file_size = cached_entry.file_size
-
-      elif format_type in (self._FORMAT_TYPE_VISTA, self._FORMAT_TYPE_7):
+      if format_type in (self._FORMAT_TYPE_VISTA, self._FORMAT_TYPE_7):
         cached_entry_object.insertion_flags = cached_entry.insertion_flags
         cached_entry_object.shim_flags = cached_entry.shim_flags
 
@@ -473,11 +466,10 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
           self._DebugPrintData(
               'Path data', value_data[path_offset:maximum_path_size])
 
-        cached_entry_object.path = value_data[path_offset:path_size].decode(
-            'utf-16-le')
+        path = value_data[path_offset:path_size].decode('utf-16-le')
 
         if self._debug:
-          self._DebugPrintValue('Path', cached_entry_object.path)
+          self._DebugPrintValue('Path', path)
 
       if format_type == self._FORMAT_TYPE_7:
         data_offset = cached_entry.data_offset
@@ -517,14 +509,12 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       if self._debug:
         self._DebugPrintCachedEntry8(cached_entry, cached_entry_body)
 
-      cached_entry_object.path = cached_entry_body.path
+      last_modification_time = cached_entry_body.last_modification_time
+      path = cached_entry_body.path
 
       if format_type == self._FORMAT_TYPE_8:
         cached_entry_object.insertion_flags = cached_entry_body.insertion_flags
         cached_entry_object.shim_flags = cached_entry_body.shim_flags
-
-      cached_entry_object.last_modification_time = (
-          cached_entry_body.last_modification_time)
 
       data_offset = cached_entry_offset + context.byte_size
       data_size = cached_entry_body.data_size
@@ -532,15 +522,16 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     if self._debug:
       self._DebugPrintText('\n')
 
-    if data_size > 0:
-      data_size += data_offset
+    cached_entry_object.cached_entry_size = cached_entry_size
+    cached_entry_object.file_size = getattr(cached_entry, 'file_size', None)
+    cached_entry_object.last_modification_time = last_modification_time
+    cached_entry_object.path = path
 
-      cached_entry_object.data = value_data[data_offset:data_size]
+    if data_size > 0:
+      cached_entry_object.data = value_data[data_offset:data_offset + data_size]
 
       if self._debug:
         self._DebugPrintData('Data', cached_entry_object.data)
-
-    cached_entry_object.cached_entry_size = cached_entry_size
 
     return cached_entry_object
 
