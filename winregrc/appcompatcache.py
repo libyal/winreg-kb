@@ -5,8 +5,6 @@ from __future__ import unicode_literals
 
 import logging
 
-from dtfabric import errors as dtfabric_errors
-
 from winregrc import data_format
 from winregrc import errors
 from winregrc import interface
@@ -58,36 +56,36 @@ class AppCompatCacheCachedEntry(object):
 class AppCompatCacheDataParser(data_format.BinaryDataFormat):
   """Application Compatibility Cache data parser."""
 
-  FORMAT_TYPE_2000 = 1
-  FORMAT_TYPE_XP = 2
-  FORMAT_TYPE_2003 = 3
-  FORMAT_TYPE_VISTA = 4
-  FORMAT_TYPE_7 = 5
-  FORMAT_TYPE_8 = 6
-  FORMAT_TYPE_10 = 7
-
   _DEFINITION_FILE = 'appcompatcache.yaml'
+
+  _FORMAT_TYPE_2000 = 1
+  _FORMAT_TYPE_XP = 2
+  _FORMAT_TYPE_2003 = 3
+  _FORMAT_TYPE_VISTA = 4
+  _FORMAT_TYPE_7 = 5
+  _FORMAT_TYPE_8 = 6
+  _FORMAT_TYPE_10 = 7
 
   _HEADER_SIGNATURES = {
       # AppCompatCache format signature used in Windows XP.
-      0xdeadbeef: FORMAT_TYPE_XP,
+      0xdeadbeef: _FORMAT_TYPE_XP,
       # AppCompatCache format signature used in Windows 2003, Vista and 2008.
-      0xbadc0ffe: FORMAT_TYPE_2003,
+      0xbadc0ffe: _FORMAT_TYPE_2003,
       # AppCompatCache format signature used in Windows 7 and 2008 R2.
-      0xbadc0fee: FORMAT_TYPE_7,
+      0xbadc0fee: _FORMAT_TYPE_7,
       # AppCompatCache format used in Windows 8.0 and 8.1.
-      0x00000080: FORMAT_TYPE_8,
+      0x00000080: _FORMAT_TYPE_8,
       # AppCompatCache format used in Windows 10
-      0x00000030: FORMAT_TYPE_10,
-      0x00000034: FORMAT_TYPE_10}
+      0x00000030: _FORMAT_TYPE_10,
+      0x00000034: _FORMAT_TYPE_10}
 
   _HEADER_DATA_TYPE_MAP_NAMES = {
-      FORMAT_TYPE_XP: 'appcompatcache_header_xp_32bit',
-      FORMAT_TYPE_2003: 'appcompatcache_header_2003',
-      FORMAT_TYPE_VISTA: 'appcompatcache_header_vista',
-      FORMAT_TYPE_7: 'appcompatcache_header_7',
-      FORMAT_TYPE_8: 'appcompatcache_header_8',
-      FORMAT_TYPE_10: 'appcompatcache_header_10'}
+      _FORMAT_TYPE_XP: 'appcompatcache_header_xp_32bit',
+      _FORMAT_TYPE_2003: 'appcompatcache_header_2003',
+      _FORMAT_TYPE_VISTA: 'appcompatcache_header_vista',
+      _FORMAT_TYPE_7: 'appcompatcache_header_7',
+      _FORMAT_TYPE_8: 'appcompatcache_header_8',
+      _FORMAT_TYPE_10: 'appcompatcache_header_10'}
 
   # AppCompatCache format used in Windows 8.0.
   _CACHED_ENTRY_SIGNATURE_8_0 = b'00ts'
@@ -132,19 +130,19 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
               appcompatcache_header_7|appcompatcache_header_8|
               appcompatcache_header_10): AppCompatCache header.
     """
-    if format_type == self.FORMAT_TYPE_10:
+    if format_type == self._FORMAT_TYPE_10:
       self._DebugPrintDecimalValue('Header size', header.signature)
     else:
       value_string = '0x{0:08x}'.format(header.signature)
       self._DebugPrintValue('Signature', value_string)
 
     if format_type in (
-        self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
-        self.FORMAT_TYPE_7, self.FORMAT_TYPE_10):
+        self._FORMAT_TYPE_XP, self._FORMAT_TYPE_2003, self._FORMAT_TYPE_VISTA,
+        self._FORMAT_TYPE_7, self._FORMAT_TYPE_10):
       self._DebugPrintDecimalValue(
           'Number of cached entries', header.number_of_cached_entries)
 
-    if format_type == self.FORMAT_TYPE_XP:
+    if format_type == self._FORMAT_TYPE_XP:
       if self._debug:
         value_string = '0x{0:08x}'.format(header.number_of_lru_entries)
         self._DebugPrintValue('Number of LRU entries', value_string)
@@ -152,11 +150,11 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
         value_string = '0x{0:08x}'.format(header.unknown1)
         self._DebugPrintValue('Unknown1', value_string)
 
-    elif format_type == self.FORMAT_TYPE_8:
+    elif format_type == self._FORMAT_TYPE_8:
       value_string = '0x{0:08x}'.format(header.unknown1)
       self._DebugPrintValue('Unknown1', value_string)
 
-    if format_type != self.FORMAT_TYPE_XP:
+    if format_type != self._FORMAT_TYPE_XP:
       self._DebugPrintText('')
 
   def _GetCachedEntryDataTypeMap(
@@ -171,23 +169,24 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
     Returns:
       dtfabric.DataTypeMap: data type map which contains a data type definition,
-          such as a structure, that can be mapped onto binary data.
+          such as a structure, that can be mapped onto binary data or None
+          if the data type map is not defined.
 
     Raises:
       ParseError: if the cached entry data type map cannot be determined.
     """
     if format_type not in (
-        self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
-        self.FORMAT_TYPE_7, self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
+        self._FORMAT_TYPE_XP, self._FORMAT_TYPE_2003, self._FORMAT_TYPE_VISTA,
+        self._FORMAT_TYPE_7, self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
       raise errors.ParseError(
           'Unsupported format type: {0:d}'.format(format_type))
 
     data_type_map_name = ''
 
-    if format_type == self.FORMAT_TYPE_XP:
+    if format_type == self._FORMAT_TYPE_XP:
       data_type_map_name = 'appcompatcache_cached_entry_xp_32bit'
 
-    elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
+    elif format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
       data_type_map_name = 'appcompatcache_cached_entry_header_8'
 
     else:
@@ -206,44 +205,42 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
                 exception))
 
       if cached_entry.path_size > cached_entry.maximum_path_size:
-        errors.ParseError('Path size value out of bounds.')
-        return None
+        raise errors.ParseError('Path size value out of bounds.')
 
       path_end_of_string_size = (
           cached_entry.maximum_path_size - cached_entry.path_size)
       if cached_entry.path_size == 0 or path_end_of_string_size != 2:
-        errors.ParseError('Unsupported path size values.')
-        return None
+        raise errors.ParseError('Unsupported path size values.')
 
       # Assume the entry is 64-bit if the 32-bit path offset is 0 and
       # the 64-bit path offset is set.
       if (cached_entry.path_offset_32bit == 0 and
           cached_entry.path_offset_64bit != 0):
-        if format_type == self.FORMAT_TYPE_2003:
+        if format_type == self._FORMAT_TYPE_2003:
           data_type_map_name = 'appcompatcache_cached_entry_2003_64bit'
-        elif format_type == self.FORMAT_TYPE_VISTA:
+        elif format_type == self._FORMAT_TYPE_VISTA:
           data_type_map_name = 'appcompatcache_cached_entry_vista_64bit'
-        elif format_type == self.FORMAT_TYPE_7:
+        elif format_type == self._FORMAT_TYPE_7:
           data_type_map_name = 'appcompatcache_cached_entry_7_64bit'
 
       else:
-        if format_type == self.FORMAT_TYPE_2003:
+        if format_type == self._FORMAT_TYPE_2003:
           data_type_map_name = 'appcompatcache_cached_entry_2003_32bit'
-        elif format_type == self.FORMAT_TYPE_VISTA:
+        elif format_type == self._FORMAT_TYPE_VISTA:
           data_type_map_name = 'appcompatcache_cached_entry_vista_32bit'
-        elif format_type == self.FORMAT_TYPE_7:
+        elif format_type == self._FORMAT_TYPE_7:
           data_type_map_name = 'appcompatcache_cached_entry_7_32bit'
 
     return self._GetDataTypeMap(data_type_map_name)
 
   def CheckSignature(self, value_data):
-    """Parses the signature.
+    """Parses and validates the signature.
 
     Args:
       value_data (bytes): value data.
 
     Returns:
-      int: format type or None.
+      int: format type or None if format could not be determined.
 
     Raises:
       ParseError: if the value data could not be parsed.
@@ -260,21 +257,21 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
     format_type = self._HEADER_SIGNATURES.get(signature, None)
 
-    if format_type == self.FORMAT_TYPE_2003:
+    if format_type == self._FORMAT_TYPE_2003:
       # TODO: determine which format version is used (2003 or Vista).
-      return self.FORMAT_TYPE_2003
+      return self._FORMAT_TYPE_2003
 
-    elif format_type == self.FORMAT_TYPE_8:
+    elif format_type == self._FORMAT_TYPE_8:
       cached_entry_signature = value_data[signature:signature + 4]
       if cached_entry_signature in (
           self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1):
-        return self.FORMAT_TYPE_8
+        return self._FORMAT_TYPE_8
 
-    elif format_type == self.FORMAT_TYPE_10:
+    elif format_type == self._FORMAT_TYPE_10:
       # Windows 10 uses the same cache entry signature as Windows 8.1
       cached_entry_signature = value_data[signature:signature + 4]
       if cached_entry_signature == self._CACHED_ENTRY_SIGNATURE_8_1:
-        return self.FORMAT_TYPE_10
+        return self._FORMAT_TYPE_10
 
     return format_type
 
@@ -307,7 +304,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     cached_entry_data = value_data[cached_entry_offset:cached_entry_end_offset]
 
     if self._debug:
-      if format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
+      if format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
         description = 'Cached entry: {0:d} header data:'.format(
             cached_entry_index)
         self._DebugPrintData(description, cached_entry_data[:-2])
@@ -315,7 +312,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
         description = 'Cached entry: {0:d} data:'.format(cached_entry_index)
         self._DebugPrintData(description, cached_entry_data)
 
-    if format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
+    if format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
       if cached_entry_data[0:4] not in (
           self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1):
         raise errors.ParseError('Unsupported cache entry signature')
@@ -329,7 +326,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
           'Unable to parse cached entry value with error: {0!s}'.format(
               exception))
 
-    if format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
+    if format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
       cached_entry_data_size = cached_entry.cached_entry_data_size
       cached_entry_size = 12 + cached_entry_data_size
       cached_entry_end_offset = cached_entry_offset + cached_entry_size
@@ -347,7 +344,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     path_offset = 0
     data_size = 0
 
-    if format_type == self.FORMAT_TYPE_XP:
+    if format_type == self._FORMAT_TYPE_XP:
       string_size = 0
       for string_index in range(0, 528, 2):
         if (cached_entry_data[string_index] == '\0' and
@@ -362,7 +359,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
         self._DebugPrintValue('Path', cached_entry_object.path)
 
     elif format_type in (
-        self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA, self.FORMAT_TYPE_7):
+        self._FORMAT_TYPE_2003, self._FORMAT_TYPE_VISTA, self._FORMAT_TYPE_7):
       path_size = cached_entry.path_size
       maximum_path_size = cached_entry.maximum_path_size
       path_offset = cached_entry.path_offset
@@ -375,7 +372,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
         value_string = '0x{0:08x}'.format(path_offset)
         self._DebugPrintValue('Path offset', value_string)
 
-    elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
+    elif format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
       path_size = cached_entry.path_size
 
       if self._debug:
@@ -396,7 +393,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       if self._debug:
         self._DebugPrintValue('Path', cached_entry_object.path)
 
-      if format_type == self.FORMAT_TYPE_8:
+      if format_type == self._FORMAT_TYPE_8:
         remaining_data = cached_entry_data[cached_entry_data_offset:]
 
         data_type_map = self._GetDataTypeMap('uint32le')
@@ -452,17 +449,18 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       remaining_data = cached_entry_data[cached_entry_data_offset:]
 
     if format_type in (
-        self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
-        self.FORMAT_TYPE_7):
+        self._FORMAT_TYPE_XP, self._FORMAT_TYPE_2003, self._FORMAT_TYPE_VISTA,
+        self._FORMAT_TYPE_7):
       cached_entry_object.last_modification_time = (
           cached_entry.last_modification_time)
 
-    elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
+    elif format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
       data_type_map = self._GetDataTypeMap('uint64le')
 
       try:
         timestamp = self._ReadStructureFromByteStream(
-            remaining_data[0:8], 0, data_type_map, 'last modification time')
+            remaining_data[0:8], cached_entry_data_offset, data_type_map,
+            'last modification time')
       except (ValueError, errors.ParseError) as exception:
         raise errors.ParseError((
             'Unable to parse last modification time value with error: '
@@ -474,13 +472,13 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       self._DebugPrintFiletimeValue(
           'Last modification time', cached_entry_object.last_modification_time)
 
-    if format_type in (self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003):
+    if format_type in (self._FORMAT_TYPE_XP, self._FORMAT_TYPE_2003):
       cached_entry_object.file_size = cached_entry.file_size
 
       if self._debug:
         self._DebugPrintDecimalValue('File size', cached_entry_object.file_size)
 
-    elif format_type in (self.FORMAT_TYPE_VISTA, self.FORMAT_TYPE_7):
+    elif format_type in (self._FORMAT_TYPE_VISTA, self._FORMAT_TYPE_7):
       cached_entry_object.insertion_flags = cached_entry.insertion_flags
       cached_entry_object.shim_flags = cached_entry.shim_flags
 
@@ -491,14 +489,14 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
         value_string = '0x{0:08x}'.format(cached_entry_object.shim_flags)
         self._DebugPrintValue('Shim flags', value_string)
 
-    if format_type == self.FORMAT_TYPE_XP:
+    if format_type == self._FORMAT_TYPE_XP:
       cached_entry_object.last_update_time = cached_entry.last_update_time
 
       if self._debug:
         self._DebugPrintFiletimeValue(
             'Last update time', cached_entry_object.last_update_time)
 
-    if format_type == self.FORMAT_TYPE_7:
+    if format_type == self._FORMAT_TYPE_7:
       data_offset = cached_entry.data_offset
       data_size = cached_entry.data_size
 
@@ -508,16 +506,18 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
         self._DebugPrintDecimalValue('Data size', data_size)
 
-    elif format_type in (self.FORMAT_TYPE_8, self.FORMAT_TYPE_10):
+    elif format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
       data_offset = cached_entry_offset + cached_entry_data_offset + 12
       data_type_map = self._GetDataTypeMap('uint32le')
 
       try:
-        data_size = data_type_map.MapByteStream(remaining_data[8:12])
-      except (
-          dtfabric_errors.ByteStreamTooSmallError,
-          dtfabric_errors.MappingError) as exception:
-        raise errors.ParseError(exception)
+        data_size = self._ReadStructureFromByteStream(
+            remaining_data[8:12], cached_entry_data_offset + 8, data_type_map,
+            'data size')
+      except (ValueError, errors.ParseError) as exception:
+        raise errors.ParseError(
+            'Unable to parse data size value with error: {0!s}'.format(
+                exception))
 
       if self._debug:
         self._DebugPrintDecimalValue('Data size', data_size)
@@ -579,7 +579,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
               exception))
 
     header_data_size = data_type_map.GetByteSize()
-    if format_type == self.FORMAT_TYPE_10:
+    if format_type == self._FORMAT_TYPE_10:
       header_data_size = header.signature
 
     cache_header = AppCompatCacheHeader()
@@ -589,11 +589,11 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       self._DebugPrintHeader(format_type, header)
 
     if format_type in (
-        self.FORMAT_TYPE_XP, self.FORMAT_TYPE_2003, self.FORMAT_TYPE_VISTA,
-        self.FORMAT_TYPE_7, self.FORMAT_TYPE_10):
+        self._FORMAT_TYPE_XP, self._FORMAT_TYPE_2003, self._FORMAT_TYPE_VISTA,
+        self._FORMAT_TYPE_7, self._FORMAT_TYPE_10):
       cache_header.number_of_cached_entries = header.number_of_cached_entries
 
-    if format_type == self.FORMAT_TYPE_XP:
+    if format_type == self._FORMAT_TYPE_XP:
       if self._debug:
         self._DebugPrintText('LRU entries:')
 
@@ -625,6 +625,8 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
       if self._debug:
         self._DebugPrintData('Unknown data:', value_data[data_offset:400])
+
+    self._cached_entry_data_type_map = None
 
     return cache_header
 
