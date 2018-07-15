@@ -14,21 +14,6 @@ from winregrc import collector
 from winregrc import output_writers
 
 
-class StdoutWriter(output_writers.StdoutOutputWriter):
-  """Stdout output writer."""
-
-  def WriteCachedEntry(self, cached_entry):
-    """Writes the Application Compatibility Cache cached entry to stdout.
-
-    Args:
-      cached_entry (AppCompatCacheCachedEntry): Application Compatibility
-          Cache cached entry.
-    """
-    self.WriteFiletimeValue(
-        'Last modification time', cached_entry.last_modification_time)
-    self.WriteValue('Path', cached_entry.path)
-
-
 def Main():
   """The main program function.
 
@@ -67,9 +52,9 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer_object = StdoutWriter()
+  output_writer = output_writers.StdoutOutputWriter()
 
-  if not output_writer_object.Open():
+  if not output_writer.Open():
     print('Unable to open output writer.')
     print('')
     return False
@@ -83,15 +68,27 @@ def Main():
 
   # TODO: map collector to available Registry keys.
   collector_object = appcompatcache.AppCompatCacheCollector(
-      debug=options.debug)
+      debug=options.debug, output_writer=output_writer)
 
   result = collector_object.Collect(
-      registry_collector.registry, output_writer_object,
-      all_control_sets=options.all_control_sets)
+      registry_collector.registry, all_control_sets=options.all_control_sets)
   if not result:
-    print('No Application Compatibility Cache key found.')
+    output_writer.WriteText('No Application Compatibility Cache key found.')
+    output_writer.WriteText('')
 
-  output_writer_object.Close()
+  else:
+    for cached_entry in collector_object.cached_entries:
+      output_writer.WriteFiletimeValue(
+          'Last modification time', cached_entry.last_modification_time)
+      output_writer.WriteText('\n')
+
+      output_writer.WriteValue('Path', cached_entry.path)
+      output_writer.WriteText('\n')
+
+      output_writer.WriteText('')
+      output_writer.WriteText('\n')
+
+  output_writer.Close()
 
   return True
 

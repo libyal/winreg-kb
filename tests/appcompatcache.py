@@ -357,26 +357,31 @@ class AppCompatCacheCollectorTest(test_lib.BaseTestCase):
     """Tests the Collect function."""
     registry = self._CreateTestRegistry()
 
-    collector_object = appcompatcache.AppCompatCacheCollector()
-
     test_output_writer = TestOutputWriter()
-    collector_object.Collect(
-        registry, test_output_writer, all_control_sets=True)
+    collector_object = appcompatcache.AppCompatCacheCollector(
+        output_writer=test_output_writer)
+
+    result = collector_object.Collect(registry, all_control_sets=True)
+    self.assertTrue(result)
+
     test_output_writer.Close()
 
-    self.assertEqual(len(test_output_writer.cached_entries), 1)
+    self.assertEqual(len(collector_object.cached_entries), 1)
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
     registry = dfwinreg_registry.WinRegistry()
 
-    collector_object = appcompatcache.AppCompatCacheCollector()
-
     test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
+    collector_object = appcompatcache.AppCompatCacheCollector(
+        output_writer=test_output_writer)
+
+    result = collector_object.Collect(registry)
+    self.assertFalse(result)
+
     test_output_writer.Close()
 
-    self.assertEqual(len(test_output_writer.cached_entries), 0)
+    self.assertEqual(len(collector_object.cached_entries), 0)
 
 
 if __name__ == '__main__':

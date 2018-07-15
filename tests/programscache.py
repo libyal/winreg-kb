@@ -80,10 +80,10 @@ class ProgramsCacheCollectorTest(test_lib.BaseTestCase):
     collector_object = programscache.ProgramsCacheCollector(
         output_writer=test_output_writer)
 
-    test_output_writer.Close()
-
     result = collector_object.Collect(registry)
     self.assertFalse(result)
+
+    test_output_writer.Close()
 
 
 if __name__ == '__main__':
