@@ -33,17 +33,31 @@ class TypeLibrary(object):
 
 
 class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
-  """Windows type libraries collector."""
+  """Windows type libraries collector.
+
+  Attributes:
+    type_libraries (list[TypeLibrary]): type libraries.
+  """
 
   _TYPE_LIBRARIES_KEY_PATH = (
       'HKEY_LOCAL_MACHINE\\Software\\Classes\\TypeLib')
 
-  def Collect(self, registry, output_writer):
+  def __init__(self, debug=False, output_writer=None):
+    """Initializes a Windows type libraries collector.
+
+    Args:
+      debug (Optional[bool]): True if debug information should be printed.
+      output_writer (Optional[OutputWriter]): output writer.
+    """
+    super(TypeLibrariesCollector, self).__init__(debug=debug)
+    self._output_writer = output_writer
+    self.type_libraries = []
+
+  def Collect(self, registry):  # pylint: disable=arguments-differ
     """Collects the type libraries.
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
 
     Returns:
       bool: True if the type libraries key was found, False if not.
@@ -89,6 +103,6 @@ class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
 
         type_library = TypeLibrary(
             guid, subkey.name, description, typelib_filename)
-        output_writer.WriteTypeLibrary(type_library)
+        self.type_libraries.append(type_library)
 
     return True

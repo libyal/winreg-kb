@@ -14,38 +14,6 @@ from winregrc import output_writers
 from winregrc import sysinfo
 
 
-class StdoutWriter(output_writers.StdoutOutputWriter):
-  """Stdout output writer."""
-
-  def WriteSystemInformation(self, system_information):
-    """Writes system information to stdout.
-
-    Args:
-      system_information (SystemInformation): system information to write.
-    """
-    self.WriteValue('Product name', system_information.product_name)
-    self.WriteValue(
-        'Product identifier', system_information.product_identifier)
-
-    self.WriteValue('Current version', system_information.current_version)
-    self.WriteValue('Current type', system_information.current_type)
-    self.WriteValue(
-        'Current build number', system_information.current_build_number)
-    self.WriteValue('CSD version', system_information.csd_version)
-
-    self.WriteValue(
-        'Registered organization', system_information.registered_organization)
-    self.WriteValue('Registered owner', system_information.registered_owner)
-
-    # TODO: write date and time as human readable string.
-    self.WriteValue('Installation date', system_information.installation_date)
-
-    self.WriteValue('Path name', system_information.path_name)
-    self.WriteValue('%SystemRoot%', system_information.system_root)
-
-    self.WriteText('')
-
-
 def Main():
   """The main program function.
 
@@ -78,9 +46,9 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer_object = StdoutWriter()
+  output_writer = output_writers.StdoutOutputWriter()
 
-  if not output_writer_object.Open():
+  if not output_writer.Open():
     print('Unable to open output writer.')
     print('')
     return False
@@ -94,14 +62,48 @@ def Main():
 
   # TODO: map collector to available Registry keys.
   collector_object = sysinfo.SystemInfoCollector(
-      debug=options.debug)
+      debug=options.debug, output_writer=output_writer)
 
-  result = collector_object.Collect(
-      registry_collector.registry, output_writer_object)
+  result = collector_object.Collect(registry_collector.registry)
   if not result:
     print('No Current Version key found.')
+  else:
+    output_writer.WriteValue(
+        'Product name', collector_object.system_information.product_name)
+    output_writer.WriteValue(
+        'Product identifier',
+        collector_object.system_information.product_identifier)
 
-  output_writer_object.Close()
+    output_writer.WriteValue(
+        'Current version', collector_object.system_information.current_version)
+    output_writer.WriteValue(
+        'Current type', collector_object.system_information.current_type)
+    output_writer.WriteValue(
+        'Current build number',
+        collector_object.system_information.current_build_number)
+    output_writer.WriteValue(
+        'CSD version', collector_object.system_information.csd_version)
+
+    output_writer.WriteValue(
+        'Registered organization',
+        collector_object.system_information.registered_organization)
+    output_writer.WriteValue(
+        'Registered owner',
+        collector_object.system_information.registered_owner)
+
+    # TODO: write date and time as human readable string.
+    output_writer.WriteValue(
+        'Installation date',
+        collector_object.system_information.installation_date)
+
+    output_writer.WriteValue(
+        'Path name', collector_object.system_information.path_name)
+    output_writer.WriteValue(
+        '%SystemRoot%', collector_object.system_information.system_root)
+
+    output_writer.WriteText('')
+
+  output_writer.Close()
 
   return True
 

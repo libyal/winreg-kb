@@ -43,7 +43,11 @@ class SystemInformation(object):
 
 
 class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
-  """System information collector."""
+  """System information collector.
+
+  Attributes:
+    system_information (SystemInformation): system information.
+  """
 
   _CURRENT_VERSION_KEY_PATH = (
       'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')
@@ -59,6 +63,17 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
       'RegisteredOrganization': 'registered_organization',
       'RegisteredOwner': 'registered_owner',
       'SystemRoot': 'system_root'}
+
+  def __init__(self, debug=False, output_writer=None):
+    """Initializes a System information collector.
+
+    Args:
+      debug (Optional[bool]): True if debug information should be printed.
+      output_writer (Optional[OutputWriter]): output writer.
+    """
+    super(SystemInfoCollector, self).__init__(debug=debug)
+    self._output_writer = output_writer
+    self.system_information = None
 
   def _ParseInstallDate(self, registry_value):
     """Parses the InstallDate value.
@@ -78,12 +93,11 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
 
     return dfdatetime_posix_time.PosixTime(timestamp=timestamp)
 
-  def Collect(self, registry, output_writer):
+  def Collect(self, registry):  # pylint: disable=arguments-differ
     """Collects system information.
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
 
     Returns:
       bool: True if the system information key was found, False if not.
@@ -93,18 +107,16 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
     if not current_version_key:
       return False
 
-    system_information = SystemInformation()
+    self.system_information = SystemInformation()
 
     for value_name, attribute_name in self._STRING_VALUES.items():
       value_string = self._GetValueAsStringFromKey(
           current_version_key, value_name)
 
-      setattr(system_information, attribute_name, value_string)
+      setattr(self.system_information, attribute_name, value_string)
 
     registry_value = current_version_key.GetValueByName('InstallDate')
-    system_information.installation_date = self._ParseInstallDate(
+    self.system_information.installation_date = self._ParseInstallDate(
         registry_value)
-
-    output_writer.WriteSystemInformation(system_information)
 
     return True

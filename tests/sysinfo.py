@@ -10,34 +10,12 @@ from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import output_writers
 from winregrc import sysinfo
 
-from tests import test_lib as shared_test_lib
+from tests import test_lib
 
 
-class TestOutputWriter(output_writers.StdoutOutputWriter):
-  """Output writer for testing.
-
-  Attributes:
-    system_information (list[SystemInformation]): system information.
-  """
-
-  def __init__(self):
-    """Initializes an output writer object."""
-    super(TestOutputWriter, self).__init__()
-    self.system_information = []
-
-  def WriteSystemInformation(self, system_information):
-    """Writes system information to stdout.
-
-    Args:
-      system_information (SystemInformation): system information to write.
-    """
-    self.system_information.append(system_information)
-
-
-class SystemInfoCollectorTest(shared_test_lib.BaseTestCase):
+class SystemInfoCollectorTest(test_lib.BaseTestCase):
   """Tests for the system information collector."""
 
   # pylint: disable=protected-access
@@ -142,26 +120,33 @@ class SystemInfoCollectorTest(shared_test_lib.BaseTestCase):
     """Tests the Collect function."""
     registry = self._CreateTestRegistry()
 
-    collector_object = sysinfo.SystemInfoCollector()
+    test_output_writer = test_lib.TestOutputWriter()
+    collector_object = sysinfo.SystemInfoCollector(
+        output_writer=test_output_writer)
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
+    result = collector_object.Collect(registry)
+    self.assertTrue(result)
+
     test_output_writer.Close()
 
-    self.assertEqual(len(test_output_writer.system_information), 1)
+    self.assertIsNotNone(collector_object.system_information)
 
-    system_information = test_output_writer.system_information[0]
-
-    self.assertIsNotNone(system_information)
-    self.assertEqual(system_information.csd_version, self._CSD_VERSION)
     self.assertEqual(
-        system_information.current_build_number, self._CURRENT_BUILD_NUMBER)
-    self.assertEqual(system_information.current_type, self._CURRENT_TYPE)
-    self.assertEqual(system_information.current_version, self._CURRENT_VERSION)
-    self.assertIsNotNone(system_information.installation_date)
+        collector_object.system_information.csd_version, self._CSD_VERSION)
     self.assertEqual(
-        system_information.product_identifier, self._PRODUCT_IDENTIFIER)
-    self.assertEqual(system_information.product_name, self._PRODUCT_NAME)
+        collector_object.system_information.current_build_number,
+        self._CURRENT_BUILD_NUMBER)
+    self.assertEqual(
+        collector_object.system_information.current_type, self._CURRENT_TYPE)
+    self.assertEqual(
+        collector_object.system_information.current_version,
+        self._CURRENT_VERSION)
+    self.assertIsNotNone(collector_object.system_information.installation_date)
+    self.assertEqual(
+        collector_object.system_information.product_identifier,
+        self._PRODUCT_IDENTIFIER)
+    self.assertEqual(
+        collector_object.system_information.product_name, self._PRODUCT_NAME)
 
     # TODO: add more values.
 
@@ -169,13 +154,16 @@ class SystemInfoCollectorTest(shared_test_lib.BaseTestCase):
     """Tests the Collect function on an empty Registry."""
     registry = dfwinreg_registry.WinRegistry()
 
-    collector_object = sysinfo.SystemInfoCollector()
+    test_output_writer = test_lib.TestOutputWriter()
+    collector_object = sysinfo.SystemInfoCollector(
+        output_writer=test_output_writer)
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
+    result = collector_object.Collect(registry)
+    self.assertFalse(result)
+
     test_output_writer.Close()
 
-    self.assertEqual(len(test_output_writer.system_information), 0)
+    self.assertIsNone(collector_object.system_information)
 
 
 if __name__ == '__main__':

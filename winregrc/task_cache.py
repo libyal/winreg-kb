@@ -3,16 +3,14 @@
 
 from __future__ import unicode_literals
 
-import datetime
 import logging
-import os
 
 from dfdatetime import filetime as dfdatetime_filetime
 from dfdatetime import semantic_time as dfdatetime_semantic_time
 
 from dtfabric import errors as dtfabric_errors
-from dtfabric.runtime import fabric as dtfabric_fabric
 
+from winregrc import data_format
 from winregrc import errors
 from winregrc import interface
 
@@ -37,31 +35,10 @@ class CachedTask(object):
     self.name = None
 
 
-class TaskCacheDataParser(object):
+class TaskCacheDataParser(data_format.BinaryDataFormat):
   """Task Cache data parser."""
 
-  _DATA_TYPE_FABRIC_DEFINITION_FILE = os.path.join(
-      os.path.dirname(__file__), 'task_cache.yaml')
-
-  with open(_DATA_TYPE_FABRIC_DEFINITION_FILE, 'rb') as file_object:
-    _DATA_TYPE_FABRIC_DEFINITION = file_object.read()
-
-  _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
-      yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
-
-  _DYNAMIC_INFO_RECORD = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      'dynamic_info_record')
-
-  _DYNAMIC_INFO_RECORD_SIZE = _DYNAMIC_INFO_RECORD.GetByteSize()
-
-  _DYNAMIC_INFO2_RECORD = _DATA_TYPE_FABRIC.CreateDataTypeMap(
-      'dynamic_info2_record')
-
-  _DYNAMIC_INFO2_RECORD_SIZE = _DYNAMIC_INFO2_RECORD.GetByteSize()
-
-  _DYNAMIC_INFO_RECORDS = {
-      _DYNAMIC_INFO_RECORD_SIZE: _DYNAMIC_INFO_RECORD,
-      _DYNAMIC_INFO2_RECORD_SIZE: _DYNAMIC_INFO2_RECORD}
+  _DEFINITION_FILE = 'task_cache.yaml'
 
   def __init__(self, debug=False, output_writer=None):
     """Initializes a Task Cache data parser.
@@ -91,27 +68,6 @@ class TaskCacheDataParser(object):
 
     return dfdatetime_filetime.Filetime(timestamp=filetime)
 
-  def CopyFiletimeToString(self, filetime):
-    """Retrieves a string representation of the FILETIME timestamp value.
-
-    Args:
-      filetime (int): a FILETIME timestamp value.
-
-    Returns:
-      str: string representation of the FILETIME timestamp value.
-    """
-    if filetime == 0:
-      return 'Not set'
-
-    if filetime == 0x7fffffffffffffff:
-      return 'Never'
-
-    filetime, _ = divmod(filetime, 10)
-    date_time = (datetime.datetime(1601, 1, 1) +
-                 datetime.timedelta(microseconds=filetime))
-
-    return '{0!s}'.format(date_time)
-
   def ParseDynamicInfo(self, value_data, cached_task):
     """Parses the DynamicInfo value data.
 
@@ -127,13 +83,17 @@ class TaskCacheDataParser(object):
 
     value_data_size = len(value_data)
 
-    dynamic_info_struct = self._DYNAMIC_INFO_RECORDS.get(value_data_size, None)
-    if not dynamic_info_struct:
+    if value_data_size == 28:
+      data_type_map = self._GetDataTypeMap('dynamic_info_record')
+    elif value_data_size == 36:
+      data_type_map = self._GetDataTypeMap('dynamic_info2_record')
+
+    if not data_type_map:
       raise errors.ParseError(
           'Unsupported value data size: {0:d}.'.format(value_data_size))
 
     try:
-      dynamic_info = dynamic_info_struct.MapByteStream(value_data)
+      dynamic_info = data_type_map.MapByteStream(value_data)
     except (
         dtfabric_errors.ByteStreamTooSmallError,
         dtfabric_errors.MappingError) as exception:
@@ -150,16 +110,11 @@ class TaskCacheDataParser(object):
 
       # Note this is likely either the last registered time or
       # the update time.
-      date_string = self.CopyFiletimeToString(dynamic_info.last_registered_time)
-      value_string = '{0:s} (0x{1:08x})'.format(
-          date_string, dynamic_info.last_registered_time)
-      self._output_writer.WriteValue('Last registered time', value_string)
+      self._DebugPrintFiletimeValue(
+          'Last registered time', dynamic_info.last_registered_time)
 
       # Note this is likely the launch time.
-      date_string = self.CopyFiletimeToString(dynamic_info.launch_time)
-      value_string = '{0:s} (0x{1:08x})'.format(
-          date_string, dynamic_info.launch_time)
-      self._output_writer.WriteValue('Launch time', value_string)
+      self._DebugPrintFiletimeValue('Launch time', dynamic_info.launch_time)
 
       value_string = '0x{0:08x}'.format(dynamic_info.unknown2)
       self._output_writer.WriteValue('Unknown2', value_string)
@@ -167,22 +122,34 @@ class TaskCacheDataParser(object):
       value_string = '0x{0:08x}'.format(dynamic_info.unknown3)
       self._output_writer.WriteValue('Unknown3', value_string)
 
-      unknown_time = dynamic_info.unknown_time
-      if unknown_time is not None:
-        date_string = self.CopyFiletimeToString(unknown_time)
-        value_string = '{0:s} (0x{1:08x})'.format(
-            date_string, dynamic_info.unknown_time)
-        self._output_writer.WriteValue('Unknown time', value_string)
+      if dynamic_info.unknown_time is not None:
+        self._DebugPrintFiletimeValue('Unknown time', dynamic_info.unknown_time)
 
       self._output_writer.WriteText('')
 
 
 class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
-  """Task Cache collector."""
+  """Task Cache collector.
+
+  Attributes:
+    cached_tasks (list[CachedTask]): cached tasks.
+  """
 
   _TASK_CACHE_KEY_PATH = (
       'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
       'Schedule\\TaskCache')
+
+  def __init__(self, debug=False, output_writer=None):
+    """Initializes a Task Cache collector.
+
+    Args:
+      debug (Optional[bool]): True if debug information should be printed.
+      output_writer (Optional[OutputWriter]): output writer.
+    """
+    super(TaskCacheCollector, self).__init__(debug=debug)
+    self._parser = TaskCacheDataParser(debug=debug, output_writer=output_writer)
+    self._output_writer = output_writer
+    self.cached_tasks = []
 
   def _GetIdValue(self, registry_key):
     """Retrieves the Id value from Task Cache Tree key.
@@ -202,12 +169,11 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
       for value_key, id_value in self._GetIdValue(subkey):
         yield value_key, id_value
 
-  def Collect(self, registry, output_writer):
+  def Collect(self, registry):  # pylint: disable=arguments-differ
     """Collects the Task Cache.
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
 
     Returns:
       bool: True if the Task Cache key was found, False if not.
@@ -223,9 +189,6 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
 
     if not tasks_key or not tree_key:
       return False
-
-    parser = TaskCacheDataParser(
-        debug=self._debug, output_writer=output_writer)
 
     task_guids = {}
     for subkey in tree_key.GetSubkeys():
@@ -254,22 +217,21 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
       if self._debug:
         if (task_cache_key.last_written_time and
             task_cache_key.last_written_time.timestamp):
-          date_string = parser.CopyFiletimeToString(
-              task_cache_key.last_written_time.timestamp)
-          output_writer.WriteValue('Last written time', date_string)
+          self._output_writer.WriteFiletimeValue(
+              'Last written time', task_cache_key.last_written_time.timestamp)
 
-        output_writer.WriteValue('Task', cached_task.name)
-        output_writer.WriteValue('Identifier', cached_task.identifier)
-        output_writer.WriteText('')
+        self._output_writer.WriteValue('Task', cached_task.name)
+        self._output_writer.WriteValue('Identifier', cached_task.identifier)
+        self._output_writer.WriteText('')
 
       try:
-        parser.ParseDynamicInfo(dynamic_info_value.data, cached_task)
+        self._parser.ParseDynamicInfo(dynamic_info_value.data, cached_task)
       except errors.ParseError as exception:
         if not dynamic_info_size_error_reported:
           logging.error(exception)
           dynamic_info_size_error_reported = True
         continue
 
-      output_writer.WriteCachedTask(cached_task)
+      self.cached_tasks.append(cached_task)
 
     return True

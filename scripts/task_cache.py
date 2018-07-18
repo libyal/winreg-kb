@@ -14,25 +14,6 @@ from winregrc import output_writers
 from winregrc import task_cache
 
 
-class StdoutWriter(output_writers.StdoutOutputWriter):
-  """Stdout output writer."""
-
-  def WriteCachedTask(self, cached_task):
-    """Writes a cached task to stdout.
-
-    Args:
-      cached_task (CachedTask): the cached task to write.
-    """
-    self.WriteValue('Task', cached_task.name)
-    self.WriteValue('Identifier', cached_task.identifier)
-
-    # TODO: write date and time as human readable string.
-    self.WriteValue('Last registered time', cached_task.last_registered_time)
-    self.WriteValue('Launch time', cached_task.launch_time)
-
-    self.WriteText('')
-
-
 def Main():
   """The main program function.
 
@@ -66,9 +47,9 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer_object = StdoutWriter()
+  output_writer = output_writers.StdoutOutputWriter()
 
-  if not output_writer_object.Open():
+  if not output_writer.Open():
     print('Unable to open output writer.')
     print('')
     return False
@@ -82,14 +63,13 @@ def Main():
 
   # TODO: map collector to available Registry keys.
   collector_object = task_cache.TaskCacheCollector(
-      debug=options.debug)
+      debug=options.debug, output_writer=output_writer)
 
-  result = collector_object.Collect(
-      registry_collector.registry, output_writer_object)
+  result = collector_object.Collect(registry_collector.registry)
   if not result:
     print('No Task Cache key found.')
 
-  output_writer_object.Close()
+  output_writer.Close()
 
   return True
 

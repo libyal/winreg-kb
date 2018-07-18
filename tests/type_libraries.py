@@ -10,34 +10,12 @@ from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import output_writers
 from winregrc import type_libraries
 
-from tests import test_lib as shared_test_lib
+from tests import test_lib
 
 
-class TestOutputWriter(output_writers.StdoutOutputWriter):
-  """Output writer for testing.
-
-  Attributes:
-    type_libraries (list[TypeLibrary]): type libraries.
-  """
-
-  def __init__(self):
-    """Initializes an output writer object."""
-    super(TestOutputWriter, self).__init__()
-    self.type_libraries = []
-
-  def WriteTypeLibrary(self, type_library):
-    """Writes a type library folder to the output.
-
-    Args:
-      type_library (TypeLibrary): type library.
-    """
-    self.type_libraries.append(type_library)
-
-
-class TypeLibraryTest(shared_test_lib.BaseTestCase):
+class TypeLibraryTest(test_lib.BaseTestCase):
   """Tests for the type library."""
 
   _DESCRIPTION = 'Microsoft Office List 14.0'
@@ -52,7 +30,7 @@ class TypeLibraryTest(shared_test_lib.BaseTestCase):
     self.assertIsNotNone(type_library)
 
 
-class TypeLibraryCollectorTest(shared_test_lib.BaseTestCase):
+class TypeLibraryCollectorTest(test_lib.BaseTestCase):
   """Tests for the type libraries collector."""
 
   _DESCRIPTION1 = 'Microsoft Office List 14.0'
@@ -130,15 +108,16 @@ class TypeLibraryCollectorTest(shared_test_lib.BaseTestCase):
     """Tests the Collect function."""
     registry = self._CreateTestRegistry()
 
-    collector_object = type_libraries.TypeLibrariesCollector()
+    test_output_writer = test_lib.TestOutputWriter()
+    collector_object = type_libraries.TypeLibrariesCollector(
+        output_writer=test_output_writer)
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
+    result = collector_object.Collect(registry)
+    self.assertTrue(result)
 
-    self.assertEqual(len(test_output_writer.type_libraries), 2)
+    self.assertEqual(len(collector_object.type_libraries), 2)
 
-    type_library = test_output_writer.type_libraries[0]
+    type_library = collector_object.type_libraries[0]
 
     self.assertIsNotNone(type_library)
     self.assertEqual(type_library.description, self._DESCRIPTION1)
@@ -150,13 +129,14 @@ class TypeLibraryCollectorTest(shared_test_lib.BaseTestCase):
     """Tests the Collect function on an empty Registry."""
     registry = dfwinreg_registry.WinRegistry()
 
-    collector_object = type_libraries.TypeLibrariesCollector()
+    test_output_writer = test_lib.TestOutputWriter()
+    collector_object = type_libraries.TypeLibrariesCollector(
+        output_writer=test_output_writer)
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
+    result = collector_object.Collect(registry)
+    self.assertFalse(result)
 
-    self.assertEqual(len(test_output_writer.type_libraries), 0)
+    self.assertEqual(len(collector_object.type_libraries), 0)
 
 
 if __name__ == '__main__':

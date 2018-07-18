@@ -10,10 +10,9 @@ from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import output_writers
 from winregrc import task_cache
 
-from tests import test_lib as shared_test_lib
+from tests import test_lib
 
 
 _DYNAMIC_INFO_DATA = bytes(bytearray([
@@ -27,28 +26,7 @@ _DYNAMIC_INFO2_DATA = bytes(bytearray([
     0x00, 0x00, 0x00, 0x00, 0x0c, 0x1c, 0x7d, 0x12, 0x3f, 0x04, 0xca, 0x01]))
 
 
-class TestOutputWriter(output_writers.StdoutOutputWriter):
-  """Output writer for testing.
-
-  Attributes:
-    cached_tasks (list[CachedTask]): cached tasks.
-  """
-
-  def __init__(self):
-    """Initializes an output writer object."""
-    super(TestOutputWriter, self).__init__()
-    self.cached_tasks = []
-
-  def WriteCachedTask(self, cached_task):
-    """Writes a cached task to stdout.
-
-    Args:
-      cached_task (CachedTask): the cached task to write.
-    """
-    self.cached_tasks.append(cached_task)
-
-
-class TaskCacheDataParserTest(shared_test_lib.BaseTestCase):
+class TaskCacheDataParserTest(test_lib.BaseTestCase):
   """Tests for the Task Cache data parser."""
 
   def testParseDynamicInfo(self):
@@ -72,7 +50,7 @@ class TaskCacheDataParserTest(shared_test_lib.BaseTestCase):
     self.assertIsNotNone(cached_task.launch_time)
 
 
-class TaskCacheCollectorTest(shared_test_lib.BaseTestCase):
+class TaskCacheCollectorTest(test_lib.BaseTestCase):
   """Tests for the Task Cache information collector."""
 
   _GUID1 = '{8905ECD8-016F-4DC2-90E6-A5F1FA6A841A}'
@@ -194,16 +172,19 @@ class TaskCacheCollectorTest(shared_test_lib.BaseTestCase):
     """Tests the Collect function."""
     registry = self._CreateTestRegistry()
 
-    collector_object = task_cache.TaskCacheCollector()
+    test_output_writer = test_lib.TestOutputWriter()
+    collector_object = task_cache.TaskCacheCollector(
+        output_writer=test_output_writer)
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
+    result = collector_object.Collect(registry)
+    self.assertTrue(result)
+
     test_output_writer.Close()
 
-    self.assertEqual(len(test_output_writer.cached_tasks), 2)
+    self.assertEqual(len(collector_object.cached_tasks), 2)
 
     cached_tasks = sorted(
-        test_output_writer.cached_tasks, key=lambda task: task.identifier)
+        collector_object.cached_tasks, key=lambda task: task.identifier)
 
     cached_task = cached_tasks[0]
 
@@ -223,23 +204,16 @@ class TaskCacheCollectorTest(shared_test_lib.BaseTestCase):
     """Tests the Collect function on an empty Registry."""
     registry = dfwinreg_registry.WinRegistry()
 
-    collector_object = task_cache.TaskCacheCollector()
+    test_output_writer = test_lib.TestOutputWriter()
+    collector_object = task_cache.TaskCacheCollector(
+        output_writer=test_output_writer)
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
+    result = collector_object.Collect(registry)
+    self.assertFalse(result)
+
     test_output_writer.Close()
 
-    self.assertEqual(len(test_output_writer.cached_tasks), 0)
-
-    registry = self._CreateTestRegistryEmpty()
-
-    collector_object = task_cache.TaskCacheCollector()
-
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
-
-    self.assertEqual(len(test_output_writer.cached_tasks), 0)
+    self.assertEqual(len(collector_object.cached_tasks), 0)
 
 
 if __name__ == '__main__':

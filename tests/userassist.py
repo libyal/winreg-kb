@@ -10,7 +10,6 @@ from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import output_writers
 from winregrc import userassist
 
 from tests import test_lib
@@ -27,27 +26,6 @@ _ENTRY_DATA_V5 = bytes(bytearray([
     0x00, 0x00, 0x80, 0xbf, 0x00, 0x00, 0x80, 0xbf, 0x00, 0x00, 0x80, 0xbf,
     0x00, 0x00, 0x80, 0xbf, 0x00, 0x00, 0x80, 0xbf, 0xff, 0xff, 0xff, 0xff,
     0x04, 0xa8, 0x92, 0xd2, 0xab, 0x80, 0xcb, 0x01, 0x00, 0x00, 0x00, 0x00]))
-
-
-class TestOutputWriter(output_writers.StdoutOutputWriter):
-  """Output writer for testing.
-
-  Attributes:
-    text (list[str]): text.
-  """
-
-  def __init__(self):
-    """Initializes an output writer object."""
-    super(TestOutputWriter, self).__init__()
-    self.text = []
-
-  def WriteText(self, text):
-    """Writes text to stdout.
-
-    Args:
-      text: the text to write.
-    """
-    self.text.append(text)
 
 
 class UserAssistDataParserTest(test_lib.BaseTestCase):
