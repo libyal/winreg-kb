@@ -89,6 +89,8 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       _FORMAT_TYPE_8: 'appcompatcache_header_8',
       _FORMAT_TYPE_10: 'appcompatcache_header_10'}
 
+  _SUPPORTED_FORMAT_TYPES = frozenset(_HEADER_DATA_TYPE_MAP_NAMES.keys())
+
   # AppCompatCache format used in Windows 8.0.
   _CACHED_ENTRY_SIGNATURE_8_0 = b'00ts'
 
@@ -261,11 +263,9 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     Raises:
       ParseError: if the cached entry data type map cannot be determined.
     """
-    if format_type not in (
-        self._FORMAT_TYPE_XP, self._FORMAT_TYPE_2003, self._FORMAT_TYPE_VISTA,
-        self._FORMAT_TYPE_7, self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
-      raise errors.ParseError(
-          'Unsupported format type: {0:d}'.format(format_type))
+    if format_type not in self._SUPPORTED_FORMAT_TYPES:
+      raise errors.ParseError('Unsupported format type: {0:d}'.format(
+          format_type))
 
     data_type_map_name = ''
 
@@ -276,48 +276,67 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       data_type_map_name = 'appcompatcache_cached_entry_header_8'
 
     else:
-      cached_entry_data = value_data[cached_entry_offset:]
-
-      data_type_map = self._GetDataTypeMap(
-          'appcompatcache_cached_entry_2003_common')
-
-      try:
-        cached_entry = self._ReadStructureFromByteStream(
-            cached_entry_data, cached_entry_offset, data_type_map,
-            'cached entry')
-      except (ValueError, errors.ParseError) as exception:
-        raise errors.ParseError(
-            'Unable to parse cached entry value with error: {0!s}'.format(
-                exception))
-
-      if cached_entry.path_size > cached_entry.maximum_path_size:
-        raise errors.ParseError('Path size value out of bounds.')
-
-      path_end_of_string_size = (
-          cached_entry.maximum_path_size - cached_entry.path_size)
-      if cached_entry.path_size == 0 or path_end_of_string_size != 2:
-        raise errors.ParseError('Unsupported path size values.')
+      cached_entry = self._ParseCommon2003CachedEntry(
+          value_data, cached_entry_offset)
 
       # Assume the entry is 64-bit if the 32-bit path offset is 0 and
       # the 64-bit path offset is set.
       if (cached_entry.path_offset_32bit == 0 and
           cached_entry.path_offset_64bit != 0):
-        if format_type == self._FORMAT_TYPE_2003:
-          data_type_map_name = 'appcompatcache_cached_entry_2003_64bit'
-        elif format_type == self._FORMAT_TYPE_VISTA:
-          data_type_map_name = 'appcompatcache_cached_entry_vista_64bit'
-        elif format_type == self._FORMAT_TYPE_7:
-          data_type_map_name = 'appcompatcache_cached_entry_7_64bit'
-
+        number_of_bits = '64'
       else:
-        if format_type == self._FORMAT_TYPE_2003:
-          data_type_map_name = 'appcompatcache_cached_entry_2003_32bit'
-        elif format_type == self._FORMAT_TYPE_VISTA:
-          data_type_map_name = 'appcompatcache_cached_entry_vista_32bit'
-        elif format_type == self._FORMAT_TYPE_7:
-          data_type_map_name = 'appcompatcache_cached_entry_7_32bit'
+        number_of_bits = '32'
+
+      if format_type == self._FORMAT_TYPE_2003:
+        data_type_map_name = (
+            'appcompatcache_cached_entry_2003_{0:s}bit'.format(number_of_bits))
+      elif format_type == self._FORMAT_TYPE_VISTA:
+        data_type_map_name = (
+            'appcompatcache_cached_entry_vista_{0:s}bit'.format(number_of_bits))
+      elif format_type == self._FORMAT_TYPE_7:
+        data_type_map_name = (
+            'appcompatcache_cached_entry_7_{0:s}bit'.format(number_of_bits))
 
     return self._GetDataTypeMap(data_type_map_name)
+
+  def _ParseCommon2003CachedEntry(self, value_data, cached_entry_offset):
+    """Parses the cached entry structure common for Windows 2003, Vista and 7.
+
+    Args:
+      value_data (bytes): value data.
+      cached_entry_offset (int): offset of the first cached entry data
+          relative to the start of the value data.
+
+    Returns:
+      appcompatcache_cached_entry_2003_common: cached entry structure common
+          for Windows 2003, Windows Vista and Windows 7.
+
+    Raises:
+      ParseError: if the value data could not be parsed.
+    """
+    cached_entry_data = value_data[cached_entry_offset:]
+
+    data_type_map = self._GetDataTypeMap(
+        'appcompatcache_cached_entry_2003_common')
+
+    try:
+      cached_entry = self._ReadStructureFromByteStream(
+          cached_entry_data, cached_entry_offset, data_type_map,
+          'cached entry')
+    except (ValueError, errors.ParseError) as exception:
+      raise errors.ParseError(
+          'Unable to parse cached entry value with error: {0!s}'.format(
+              exception))
+
+    if cached_entry.path_size > cached_entry.maximum_path_size:
+      raise errors.ParseError('Path size value out of bounds.')
+
+    path_end_of_string_size = (
+        cached_entry.maximum_path_size - cached_entry.path_size)
+    if cached_entry.path_size == 0 or path_end_of_string_size != 2:
+      raise errors.ParseError('Unsupported path size values.')
+
+    return cached_entry
 
   def CheckSignature(self, value_data):
     """Parses and validates the signature.
@@ -440,8 +459,6 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       path = bytearray(cached_entry.path[0:string_size]).decode('utf-16-le')
 
       cached_entry_object.last_update_time = cached_entry.last_update_time
-
-      data_offset = cached_entry_offset + cached_entry_size
 
     elif format_type in (
         self._FORMAT_TYPE_2003, self._FORMAT_TYPE_VISTA, self._FORMAT_TYPE_7):
@@ -569,14 +586,11 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
     cache_header = AppCompatCacheHeader()
     cache_header.header_size = header_data_size
+    cache_header.number_of_cached_entries = getattr(
+        header, 'number_of_cached_entries', None)
 
     if self._debug:
       self._DebugPrintHeader(format_type, header)
-
-    if format_type in (
-        self._FORMAT_TYPE_XP, self._FORMAT_TYPE_2003, self._FORMAT_TYPE_VISTA,
-        self._FORMAT_TYPE_7, self._FORMAT_TYPE_10):
-      cache_header.number_of_cached_entries = header.number_of_cached_entries
 
     if format_type == self._FORMAT_TYPE_XP:
       if self._debug:
