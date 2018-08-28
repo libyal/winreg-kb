@@ -1,10 +1,9 @@
 pip >= 7.0.0
 PyYAML >= 3.10
 backports.lzma ; python_version < '3.0'
-construct >= 2.5.2,<= 2.5.3
-dfdatetime >= 20180510
-dfvfs >= 20180510
-dfwinreg >= 20180329
+dfdatetime >= 20180324
+dfvfs >= 20180703
+dfwinreg >= 20180712
 dtfabric >= 20170524
 libbde-python >= 20140531
 libewf-python >= 20131210
@@ -21,6 +20,5 @@ libvhdi-python >= 20131210
 libvmdk-python >= 20140421
 libvshadow-python >= 20160109
 libvslvm-python >= 20160109
-pycrypto >= 2.6.0
+pycrypto >= 2.6
 pytsk3 >= 20160721
-six >= 1.1.0
