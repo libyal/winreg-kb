@@ -142,7 +142,7 @@ class StdoutOutputWriter(OutputWriter):
     description_no_tabs = description.replace('\t', ' ' * 8)
     alignment, _ = divmod(len(description_no_tabs), 8)
     alignment = 8 - alignment + 1
-    text = '{0:s}{1:s}: {2!s}'.format(description, '\t' * alignment, value)
+    text = '{0:s}{1:s}: {2!s}\n'.format(description, '\t' * alignment, value)
     self.WriteText(text)
 
   def WriteText(self, text):

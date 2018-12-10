@@ -3,23 +3,14 @@
 
 from __future__ import unicode_literals
 
-import dfvfs
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 from dfvfs.lib import definitions as dfvfs_definitions
 from dfvfs.path import factory as dfvfs_path_spec_factory
 from dfvfs.resolver import resolver as dfvfs_resolver
 
-import dfwinreg
 from dfwinreg import interface as dfwinreg_interface
 from dfwinreg import regf as dfwinreg_regf
 from dfwinreg import registry as dfwinreg_registry
-
-
-if dfvfs.__version__ < '20160306':
-  raise ImportWarning('collector.py requires dfvfs 20160306 or later.')
-
-if dfwinreg.__version__ < '20151026':
-  raise ImportWarning('collector.py requires dfwinreg 20151026 or later.')
 
 
 class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):

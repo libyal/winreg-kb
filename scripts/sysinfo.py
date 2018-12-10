@@ -9,6 +9,8 @@ import argparse
 import logging
 import sys
 
+from dfvfs.helpers import command_line as dfvfs_command_line
+
 from winregrc import collector
 from winregrc import output_writers
 from winregrc import sysinfo
@@ -24,12 +26,11 @@ def Main():
       'Extracts the system information from a SOFTWARE Registry file.'))
 
   argument_parser.add_argument(
-      '-d', '--debug', dest='debug', action='store_true', default=False,
-      help='enable debug output.')
+      '-d', '--debug', dest='debug', action='store_true', default=False, help=(
+          'enable debug output.'))
 
   argument_parser.add_argument(
-      'source', nargs='?', action='store', metavar='PATH', default=None,
-      help=(
+      'source', nargs='?', action='store', metavar='PATH', default=None, help=(
           'path of the volume containing C:\\Windows, the filename of '
           'a storage media image containing the C:\\Windows directory,'
           'or the path of a SOFTWARE Registry file.'))
@@ -53,7 +54,9 @@ def Main():
     print('')
     return False
 
-  registry_collector = collector.WindowsRegistryCollector()
+  volume_scanner_mediator = dfvfs_command_line.CLIVolumeScannerMediator()
+  registry_collector = collector.WindowsRegistryCollector(
+      mediator=volume_scanner_mediator)
   if not registry_collector.ScanForWindowsVolume(options.source):
     print('Unable to retrieve the Windows Registry from: {0:s}.'.format(
         options.source))
@@ -91,17 +94,16 @@ def Main():
         'Registered owner',
         collector_object.system_information.registered_owner)
 
-    # TODO: write date and time as human readable string.
-    output_writer.WriteValue(
-        'Installation date',
-        collector_object.system_information.installation_date)
+    date_time_value = collector_object.system_information.installation_date
+    date_time_string = date_time_value.CopyToDateTimeString()
+    output_writer.WriteValue('Installation date', date_time_string)
 
     output_writer.WriteValue(
         'Path name', collector_object.system_information.path_name)
     output_writer.WriteValue(
         '%SystemRoot%', collector_object.system_information.system_root)
 
-    output_writer.WriteText('')
+    output_writer.WriteText('\n')
 
   output_writer.Close()
 

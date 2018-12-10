@@ -9,6 +9,8 @@ import argparse
 import logging
 import sys
 
+from dfvfs.helpers import command_line as dfvfs_command_line
+
 from winregrc import collector
 from winregrc import msie_zone_info
 from winregrc import output_writers
@@ -66,7 +68,9 @@ def Main():
     print('')
     return False
 
-  registry_collector = collector.WindowsRegistryCollector()
+  volume_scanner_mediator = dfvfs_command_line.CLIVolumeScannerMediator()
+  registry_collector = collector.WindowsRegistryCollector(
+      mediator=volume_scanner_mediator)
   if not registry_collector.ScanForWindowsVolume(options.source):
     print('Unable to retrieve the Windows Registry from: {0:s}.'.format(
         options.source))

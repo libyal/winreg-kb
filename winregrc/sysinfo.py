@@ -82,7 +82,7 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
       registry_value (dfwinreg.WinRegistryValue): Windows Registry value.
 
     Returns:
-      dfdatetime.DateTimeValues: installation date and time or None.
+      dfdatetime.PosixTime: installation date and time or None if not available.
     """
     if not registry_value:
       return None
