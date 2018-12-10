@@ -43,7 +43,7 @@ class ShellFoldersCollector(interface.WindowsRegistryKeyCollector):
     class_identifiers_key = registry.GetKeyByPath(
         self._CLASS_IDENTIFIERS_KEY_PATH)
     if not class_identifiers_key:
-      return
+      return None
 
     for class_identifier_key in class_identifiers_key.GetSubkeys():
       guid = class_identifier_key.name.lower()

@@ -85,7 +85,7 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
       dfdatetime.DateTimeValues: installation date and time or None.
     """
     if not registry_value:
-      return
+      return None
 
     timestamp = registry_value.GetDataAsObject()
     if not timestamp:

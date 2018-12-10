@@ -54,8 +54,8 @@ class Sqlite3Writer(object):
     """Initializes the output writer object.
 
     Args:
-      database_file: the name of the database file.
-      windows_version: the Windows version.
+      database_file (str): the name of the database file.
+      windows_version (str): the Windows version.
     """
     super(Sqlite3Writer, self).__init__()
     self._connection = None
@@ -68,7 +68,7 @@ class Sqlite3Writer(object):
     """Opens the output writer object.
 
     Returns:
-      A boolean containing True if successful or False if not.
+      bool: True if successful or False if not.
     """
     if os.path.exists(self._database_file):
       self._create_new_database = False
@@ -98,7 +98,7 @@ class Sqlite3Writer(object):
     """Writes the shell folder to the database.
 
     Args:
-      shell_folder: the shell folder (instance of ShellFolder).
+      shell_folder (ShellFolder): the shell folder.
     """
     if self._create_new_database:
       have_entry = False
@@ -133,7 +133,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     """Writes the shell folder to stdout.
 
     Args:
-      shell_folder: the shell folder (instance of ShellFolder).
+      shell_folder (ShellFolder): the shell folder.
     """
     print('{0:s}\t{1:s}\t{2:s}'.format(
         shell_folder.guid, shell_folder.name, shell_folder.localized_string))

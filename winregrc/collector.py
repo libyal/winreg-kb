@@ -45,11 +45,12 @@ class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
       ascii_codepage (Optional[str]): ASCII string codepage.
 
     Returns:
-      WinRegistryFile: Windows Registry file or None.
+      WinRegistryFile: Windows Registry file or None the file does not exist or
+          cannot be opened.
     """
     file_object = self._volume_scanner.OpenFile(path)
     if file_object is None:
-      return
+      return None
 
     registry_file = dfwinreg_regf.REGFWinRegistryFile(
         ascii_codepage=ascii_codepage)
@@ -58,7 +59,7 @@ class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
       registry_file.Open(file_object)
     except IOError:
       file_object.close()
-      return
+      return None
 
     return registry_file
 
@@ -99,7 +100,7 @@ class WindowsRegistryCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
     path_spec = dfvfs_path_spec_factory.Factory.NewPathSpec(
         dfvfs_definitions.TYPE_INDICATOR_OS, location=self._source_path)
     if path_spec is None:
-      return
+      return None
 
     return dfvfs_resolver.Resolver.OpenFileObject(path_spec)
 

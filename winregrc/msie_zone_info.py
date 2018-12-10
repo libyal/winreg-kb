@@ -157,7 +157,7 @@ class MSIEZoneInfoCollector(interface.WindowsRegistryKeyCollector):
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
-      lockdown_key_path (str): zones Registry key path.
+      zones_key_path (str): zones Registry key path.
       output_mode (Optional[int]): output mode.
     """
     zones_key = registry.GetKeyByPath(zones_key_path)
@@ -205,20 +205,16 @@ class MSIEZoneInfoCollector(interface.WindowsRegistryKeyCollector):
                 '1609', '1800', '1802', '1803', '1804', '1809', '1A04',
                 '2000', '2001', '2004', '2100', '2101', '2102', '2200',
                 '2201', '2300']:
-              if value in CONTROL_VALUES_COMMON_ENABLE:
-                value_desc = CONTROL_VALUES_COMMON_ENABLE[value]
+              value_desc = CONTROL_VALUES_COMMON_ENABLE.get(value, '')
 
             elif setting_value.name == '1A00':
-              if value in CONTROL_VALUES_1A00:
-                value_desc = CONTROL_VALUES_1A00[value]
+              value_desc = CONTROL_VALUES_1A00.get(value, '')
 
             elif setting_value.name == '1C00':
-              if value in CONTROL_VALUES_1C00:
-                value_desc = CONTROL_VALUES_1C00[value]
+              value_desc = CONTROL_VALUES_1C00.get(value, '')
 
             elif setting_value.name == '1E05':
-              if value in CONTROL_VALUES_COMMON_SAFETY:
-                value_desc = CONTROL_VALUES_COMMON_SAFETY[value]
+              value_desc = CONTROL_VALUES_COMMON_SAFETY.get(value, '')
 
           if output_mode == 0:
             if setting_value.name in CONTROL_DESCRIPTIONS:

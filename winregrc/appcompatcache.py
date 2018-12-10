@@ -169,6 +169,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     if hasattr(cached_entry, 'data_size'):
       self._DebugPrintDecimalValue('Data size', cached_entry.data_size)
 
+  # pylint: disable=missing-type-doc
   def _DebugPrintCachedEntry8(self, cached_entry_header, cached_entry_body):
     """Prints Windows 8 AppCompatCache cached entry value debug information.
 
@@ -176,9 +177,9 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       cached_entry_header (appcompatcache_cached_entry_header_8): Windows 8 or
           10 AppCompatCache cached entry header.
       cached_entry_body (appcompatcache_cached_entry_header_8_0|
-                         appcompatcache_cached_entry_header_8_1|
-                         appcompatcache_cached_entry_header_10): Windows 8.0,
-          8.1 or 10 AppCompatCache cached entry body.
+          appcompatcache_cached_entry_header_8_1|
+          appcompatcache_cached_entry_header_10): Windows 8.0, 8.1 or 10
+          AppCompatCache cached entry body.
     """
     self._DebugPrintValue('Signature', cached_entry_header.signature)
 
@@ -209,14 +210,15 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
     self._DebugPrintDecimalValue('Data size', cached_entry_body.data_size)
 
+  # pylint: disable=missing-type-doc
   def _DebugPrintHeader(self, format_type, header):
     """Prints AppCompatCache header value debug information.
 
     Args:
       format_type (int): AppCompatCache format type.
       header (appcompatcache_header_xp_32bit|appcompatcache_header_vista|
-              appcompatcache_header_7|appcompatcache_header_8|
-              appcompatcache_header_10): AppCompatCache header.
+          appcompatcache_header_7|appcompatcache_header_8|
+          appcompatcache_header_10): AppCompatCache header.
     """
     if format_type == self._FORMAT_TYPE_10:
       self._DebugPrintDecimalValue('Header size', header.signature)
@@ -366,7 +368,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       # TODO: determine which format version is used (2003 or Vista).
       return self._FORMAT_TYPE_2003
 
-    elif format_type == self._FORMAT_TYPE_8:
+    if format_type == self._FORMAT_TYPE_8:
       cached_entry_signature = value_data[signature:signature + 4]
       if cached_entry_signature in (
           self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1):
@@ -598,7 +600,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
       data_offset = 16
       number_of_lru_entries = header.number_of_lru_entries
-      if number_of_lru_entries > 0 and number_of_lru_entries <= 96:
+      if 0 <= number_of_lru_entries <= 96:
         data_type_map = self._GetDataTypeMap('uint32le')
 
         for lru_entry_index in range(number_of_lru_entries):

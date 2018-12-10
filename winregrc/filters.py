@@ -9,6 +9,9 @@ import abc
 class BaseWindowsRegistryKeyFilter(object):
   """Windows Registry key filter interface."""
 
+  # Note that redundant-returns-doc is broken for pylint 1.7.x
+  # pylint: disable=redundant-returns-doc
+
   @property
   def key_paths(self):
     """List of key paths defined by the filter."""
@@ -116,9 +119,7 @@ class WindowsRegistryKeyPathFilter(BaseWindowsRegistryKeyFilter):
           # TODO: check if control_set is in bounds.
           return control_set is not None
 
-    return (
-        key_path == self._key_path_upper or
-        key_path == self._wow64_key_path_upper)
+    return key_path in (self._key_path_upper, self._wow64_key_path_upper)
 
 
 class WindowsRegistryKeyPathPrefixFilter(BaseWindowsRegistryKeyFilter):
@@ -152,7 +153,7 @@ class WindowsRegistryKeyPathSuffixFilter(BaseWindowsRegistryKeyFilter):
     """Initializes a Windows Registry key filter.
 
     Args:
-      key_path_prefix (str): key path prefix.
+      key_path_suffix (str): key path suffix.
     """
     super(WindowsRegistryKeyPathSuffixFilter, self).__init__()
     self._key_path_suffix = key_path_suffix

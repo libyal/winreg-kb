@@ -39,6 +39,7 @@ class UserAssistDataParser(data_format.BinaryDataFormat):
 
   _DEFINITION_FILE = 'userassist.yaml'
 
+  # pylint: disable=missing-type-doc
   def _DebugPrintEntry(self, format_version, user_assist_entry):
     """Prints UserAssist entry value debug information.
 
@@ -104,6 +105,7 @@ class UserAssistDataParser(data_format.BinaryDataFormat):
 
     self._DebugPrintText('\n')
 
+  # pylint: disable=missing-return-type-doc
   def ParseEntry(self, format_version, entry_data):
     """Parses an UserAssist entry.
 

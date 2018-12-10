@@ -21,7 +21,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     """Writes text to stdout.
 
     Args:
-      text: the text to write.
+      text (str): text to write.
     """
     print(text)
 
@@ -30,7 +30,7 @@ def Main():
   """The main program function.
 
   Returns:
-    A boolean containing True if successful or False if not.
+    bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
       'Extracts the user profiles from a SOFTWARE Registry file.'))

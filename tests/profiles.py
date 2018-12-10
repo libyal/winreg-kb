@@ -32,7 +32,7 @@ class TestOutputWriter(output_writers.StdoutOutputWriter):
     """Writes text to stdout.
 
     Args:
-      text: the text to write.
+      text (str): text to write.
     """
     self.text.append(text)
 

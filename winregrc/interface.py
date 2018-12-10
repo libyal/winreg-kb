@@ -9,6 +9,9 @@ import abc
 class WindowsRegistryKeyCollector(object):
   """Windows Registry key and value collector."""
 
+  # Note that redundant-returns-doc is broken for pylint 1.7.x
+  # pylint: disable=redundant-returns-doc
+
   def __init__(self, debug=False):
     """Initializes a Windows Registry key and value collector.
 

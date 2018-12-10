@@ -14,6 +14,9 @@ from winregrc import hexdump
 class OutputWriter(object):
   """Output writer interface."""
 
+  # Note that redundant-returns-doc is broken for pylint 1.7.x
+  # pylint: disable=redundant-returns-doc
+
   @abc.abstractmethod
   def Close(self):
     """Closes the output writer."""

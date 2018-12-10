@@ -218,8 +218,6 @@ class BinaryDataFormat(object):
       data_type_map (dtfabric.DataTypeMap): data type map of the structure.
       description (str): description of the structure.
       context (Optional[dtfabric.DataTypeMapContext]): data type map context.
-      suppress_debug_output (Optional[bool]): True if debug output should be
-          suppressed.
 
     Returns:
       object: structure values object.
