@@ -26,12 +26,12 @@ class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
     self._volume_scanner = volume_scanner
 
   def Open(self, path, ascii_codepage='cp1252'):
-    """Opens the Windows Registry file specificed by the path.
+    """Opens the Windows Registry file specified by the path.
 
     Args:
       path (str): path of the Windows Registry file. The path is a Windows
           path relative to the root of the file system that contains the
-          specfic Windows Registry file, such as:
+          specific Windows Registry file, such as:
           C:\\Windows\\System32\\config\\SYSTEM
       ascii_codepage (Optional[str]): ASCII string codepage.
 
@@ -76,7 +76,7 @@ class WindowsRegistryCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
         registry_file_reader=registry_file_reader)
 
   def OpenFile(self, windows_path):
-    """Opens the file specificed by the Windows path.
+    """Opens the file specified by the Windows path.
 
     Args:
       windows_path (str): Windows path to the file.

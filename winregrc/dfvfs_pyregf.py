@@ -73,7 +73,7 @@ class RegfPathSpec(dfvfs_path_spec.PathSpec):
       value_name (Optional[str]): Windows Registry value name.
       parent (dfvfs.PathSpec): parent path specification.
       kwargs (dict[str, object]): a dictionary of keyword arguments
-          dependending on the path specification
+          depending on the path specification
 
     Raises:
       ValueError: when key_path or parent is not set.
@@ -209,7 +209,7 @@ class RegfFileEntry(file_entry.FileEntry):
     """Retrieves the stat object.
 
     Returns:
-      dfvvfs.VFSStat: a stat object.
+      dfvfs.VFSStat: a stat object.
 
     Raises:
       BackEndError: when the regf key is missing.
