@@ -81,43 +81,73 @@ else:
         spec_file = bdist_rpm._make_spec_file(self)
 
       if sys.version_info[0] < 3:
-        python_package = 'python'
+        python_package = 'python2'
       else:
         python_package = 'python3'
 
       description = []
+      requires = ''
       summary = ''
       in_description = False
 
       python_spec_file = []
       for line in iter(spec_file):
         if line.startswith('Summary: '):
-          summary = line
+          summary = line[9:]
 
         elif line.startswith('BuildRequires: '):
-          line = 'BuildRequires: {0:s}-setuptools'.format(python_package)
+          line = 'BuildRequires: {0:s}-setuptools, {0:s}-devel'.format(
+              python_package)
 
         elif line.startswith('Requires: '):
+          requires = line[10:]
           if python_package == 'python3':
-            line = line.replace('python', 'python3')
+            requires = requires.replace('python-', 'python3-')
+            requires = requires.replace('python2-', 'python3-')
+          continue
 
         elif line.startswith('%description'):
           in_description = True
 
+        elif line.startswith('python setup.py build'):
+          if python_package == 'python3':
+            line = '%py3_build'
+          else:
+            line = '%py2_build'
+
+        elif line.startswith('python setup.py install'):
+          if python_package == 'python3':
+            line = '%py3_install'
+          else:
+            line = '%py2_install'
+
         elif line.startswith('%files'):
-          # Cannot use %{_libdir} here since it can expand to "lib64".
           lines = [
               '%files -n {0:s}-%{{name}}'.format(python_package),
               '%defattr(644,root,root,755)',
-              '%doc ACKNOWLEDGEMENTS AUTHORS LICENSE README',
-              '%{_prefix}/lib/python*/site-packages/**/*.py',
-              '%{_prefix}/lib/python*/site-packages/**/*.yaml',
-              '%{_prefix}/lib/python*/site-packages/winregrc*.egg-info/*',
-              '',
-              '%exclude %{_prefix}/share/doc/*',
-              '%exclude %{_prefix}/lib/python*/site-packages/**/*.pyc',
-              '%exclude %{_prefix}/lib/python*/site-packages/**/*.pyo',
-              '%exclude %{_prefix}/lib/python*/site-packages/**/__pycache__/*']
+              '%license LICENSE',
+              '%doc ACKNOWLEDGEMENTS AUTHORS README']
+
+          if python_package == 'python3':
+            lines.extend([
+                '%{python3_sitelib}/winregrc/*.py',
+                '%{python3_sitelib}/winregrc/*.yaml',
+                '%{python3_sitelib}/winregrc*.egg-info/*',
+                '',
+                '%exclude %{_prefix}/share/doc/*',
+                '%exclude %{python3_sitelib}/winregrc/__pycache__/*',
+                '%exclude %{_bindir}/*.py'])
+
+          else:
+            lines.extend([
+                '%{python2_sitelib}/winregrc/*.py',
+                '%{python2_sitelib}/winregrc/*.yaml',
+                '%{python2_sitelib}/winregrc*.egg-info/*',
+                '',
+                '%exclude %{_prefix}/share/doc/*',
+                '%exclude %{python2_sitelib}/winregrc/*.pyc',
+                '%exclude %{python2_sitelib}/winregrc/*.pyo',
+                '%exclude %{_bindir}/*.py'])
 
           python_spec_file.extend(lines)
           break
@@ -127,10 +157,22 @@ else:
 
           python_spec_file.append(
               '%package -n {0:s}-%{{name}}'.format(python_package))
-          python_spec_file.append('{0:s}'.format(summary))
-          python_spec_file.append('')
-          python_spec_file.append(
-              '%description -n {0:s}-%{{name}}'.format(python_package))
+          if python_package == 'python2':
+            python_spec_file.extend([
+                'Obsoletes: python-winregrc < %{version}',
+                'Provides: python-winregrc = %{version}'])
+            python_summary = 'Python 2 module of {0:s}'.format(summary)
+          else:
+            python_summary = 'Python 3 module of {0:s}'.format(summary)
+
+          if requires:
+            python_spec_file.append('Requires: {0:s}'.format(requires))
+
+          python_spec_file.extend([
+              'Summary: {0:s}'.format(python_summary),
+              '',
+              '%description -n {0:s}-%{{name}}'.format(python_package)])
+
           python_spec_file.extend(description)
 
         elif in_description:

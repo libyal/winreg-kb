@@ -79,7 +79,7 @@ class StdoutOutputWriter(OutputWriter):
 
   def Close(self):
     """Closes the output writer."""
-    pass
+    return
 
   def Open(self):
     """Opens the output writer.
