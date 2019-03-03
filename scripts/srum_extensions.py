@@ -50,7 +50,7 @@ def Main():
       'source', nargs='?', action='store', metavar='PATH', default=None,
       help=(
           'path of the volume containing C:\\Windows, the filename of '
-          'a storage media image containing the C:\\Windows directory,'
+          'a storage media image containing the C:\\Windows directory, '
           'or the path of a NTUSER.DAT Registry file.'))
 
   options = argument_parser.parse_args()

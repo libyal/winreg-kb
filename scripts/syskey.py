@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Script to extract UserAssist information."""
+"""Script to extract system key."""
 
 from __future__ import print_function
 from __future__ import unicode_literals
 
 import argparse
+import codecs
 import logging
 import sys
 
@@ -13,7 +14,7 @@ from dfvfs.helpers import command_line as dfvfs_command_line
 
 from winregrc import collector
 from winregrc import output_writers
-from winregrc import userassist
+from winregrc import syskey
 
 
 def Main():
@@ -23,22 +24,17 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the UserAssist information from a NTUSER.DAT Registry file.'))
+      'Extracts the system key from a SYSTEM Registry file.'))
 
   argument_parser.add_argument(
-      '--codepage', dest='codepage', action='store', metavar='CODEPAGE',
-      default='cp1252', help='the codepage of the extended ASCII strings.')
+      '-d', '--debug', dest='debug', action='store_true', default=False, help=(
+          'enable debug output.'))
 
   argument_parser.add_argument(
-      '-d', '--debug', dest='debug', action='store_true', default=False,
-      help='enable debug output.')
-
-  argument_parser.add_argument(
-      'source', nargs='?', action='store', metavar='PATH', default=None,
-      help=(
+      'source', nargs='?', action='store', metavar='PATH', default=None, help=(
           'path of the volume containing C:\\Windows, the filename of '
           'a storage media image containing the C:\\Windows directory, '
-          'or the path of a NTUSER.DAT Registry file.'))
+          'or the path of a SYSTEM Registry file.'))
 
   options = argument_parser.parse_args()
 
@@ -69,22 +65,18 @@ def Main():
     return False
 
   # TODO: map collector to available Registry keys.
-  collector_object = userassist.UserAssistCollector(debug=options.debug)
+  collector_object = syskey.SystemKeyCollector(
+      debug=options.debug, output_writer=output_writer)
 
   result = collector_object.Collect(registry_collector.registry)
   if not result:
-    print('No UserAssist key found.')
+    print('No LSA key found.')
   else:
-    guid = None
-    for user_assist_entry in collector_object.user_assist_entries:
-      if user_assist_entry.guid != guid:
-        print('GUID\t\t: {0:s}'.format(user_assist_entry.guid))
-        guid = user_assist_entry.guid
+    boot_key = codecs.encode(collector_object.system_key.boot_key, 'hex')
+    output_writer.WriteValue('Boot key', boot_key)
 
-      print('Original name\t: {0:s}'.format(user_assist_entry.value_name))
-      print('Converted name\t: {0:s}'.format(user_assist_entry.name))
+    output_writer.WriteText('\n')
 
-  print('')
   output_writer.Close()
 
   return True

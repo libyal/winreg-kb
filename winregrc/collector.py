@@ -75,6 +75,14 @@ class WindowsRegistryCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
     self.registry = dfwinreg_registry.WinRegistry(
         registry_file_reader=registry_file_reader)
 
+  def IsSingleFileRegistry(self):
+    """Determines if the Registry consists of a single file.
+
+    Returns:
+      bool: True if the Registry consists of a single file.
+    """
+    return self._single_file
+
   def OpenFile(self, windows_path):
     """Opens the file specified by the Windows path.
 

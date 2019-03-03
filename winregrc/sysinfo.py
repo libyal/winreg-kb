@@ -65,7 +65,7 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
       'SystemRoot': 'system_root'}
 
   def __init__(self, debug=False, output_writer=None):
-    """Initializes a System information collector.
+    """Initializes a system information collector.
 
     Args:
       debug (Optional[bool]): True if debug information should be printed.
