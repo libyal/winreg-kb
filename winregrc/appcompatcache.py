@@ -746,7 +746,12 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
       key_path = (
           'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\'
           'Session Manager\\AppCompatibility')
-      app_compat_cache_key = registry.GetKeyByPath(key_path)
+
+      try:
+        app_compat_cache_key = registry.GetKeyByPath(key_path)
+      except RuntimeError:
+        app_compat_cache_key = None
+
       if app_compat_cache_key:
         if self._CollectAppCompatCacheFromKey(app_compat_cache_key):
           result = True
@@ -755,7 +760,12 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
       key_path = (
           'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\'
           'Session Manager\\AppCompatCache')
-      app_compat_cache_key = registry.GetKeyByPath(key_path)
+
+      try:
+        app_compat_cache_key = registry.GetKeyByPath(key_path)
+      except RuntimeError:
+        app_compat_cache_key = None
+
       if app_compat_cache_key:
         if self._CollectAppCompatCacheFromKey(app_compat_cache_key):
           result = True

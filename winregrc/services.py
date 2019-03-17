@@ -207,8 +207,12 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
               output_writer.WriteWindowsService(windows_service)
 
     else:
-      services_key = registry.GetKeyByPath(
-          'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services')
+      try:
+        services_key = registry.GetKeyByPath(
+            'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services')
+      except RuntimeError:
+        services_key = None
+
       if services_key:
         result = True
 

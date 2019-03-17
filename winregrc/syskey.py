@@ -51,7 +51,11 @@ class SystemKeyCollector(interface.WindowsRegistryKeyCollector):
     Returns:
       bytes: boot key or None if not found.
     """
-    lsa_key = registry.GetKeyByPath(self._LSA_KEY_PATH)
+    try:
+      lsa_key = registry.GetKeyByPath(self._LSA_KEY_PATH)
+    except RuntimeError:
+      lsa_key = None
+
     if not lsa_key:
       return None
 
