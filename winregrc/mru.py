@@ -158,6 +158,9 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
 
     Returns:
       bool: True if a Most Recently Used (MRU) key was found, False if not.
+
+    Raises:
+      ParseError: if the MRUList value could not be parsed.
     """
     registry_value = registry_key.GetValueByName('MRUList')
 
@@ -233,6 +236,9 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
 
     Returns:
       bool: True if a Most Recently Used (MRU) key was found, False if not.
+
+    Raises:
+      ParseError: if the MRUListEx value could not be parsed.
     """
     # TODO: determine what trailing data is in:
     # HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\

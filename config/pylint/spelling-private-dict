@@ -1,6 +1,7 @@
 appcompatcachecachedentry
 argparse
 args
+backports
 bool
 cachedtask
 codecs
@@ -12,6 +13,7 @@ datatypefabric
 datatypemap
 datatypemapcontext
 datetimevalues
+des
 dev
 dfdatetime
 dfvfs
@@ -30,11 +32,14 @@ guid
 knownfolder
 kwargs
 lockdown
+lsa
+lzma
 macos
 mappingerror
 mostrecentlyusedentry
 mru
 msi
+nl
 ons
 os
 outputwriter
@@ -56,6 +61,7 @@ stdout
 str
 subkeys
 sys
+syskey
 timestamp
 timestamps
 tuple
