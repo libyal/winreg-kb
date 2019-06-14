@@ -1,7 +1,5 @@
-:toc:
-:toclevels: 4
-
 == Explorer ProgramsCache Registry values
+
 The Explorer ProgramsCache Registry values can be stored in the following 
 Registry keys.
 
@@ -9,6 +7,7 @@ Registry keys.
 * Explorer StartPage2 Registry key
 
 === Explorer StartPage Registry key
+
 The Explorer StartPage Registry key:
 ....
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage
@@ -24,7 +23,9 @@ Seen in Windows XP, 2003 and Vista.
 |===
 
 === Explorer StartPage2 Registry key
+
 The Explorer StartPage2 Registry key:
+
 ....
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage2
 ....
@@ -46,7 +47,8 @@ Contains a Jump list.
 The format of the ProgramsCache value data slightly differs from that of the
 ProgramsCacheSMP and ProgramsCacheTBP value data.
 
-=== ProgramsCache value data format 
+=== ProgramsCache value data format
+
 *TODO: describe containter format*
 
 ProgramsCacheSMP - Empty list
@@ -255,4 +257,3 @@ Contains a shell item list
 
 [yellow-background]*if sentinel is 0x02 and there is more data then look
 for 0x00 which should be followed by 02 00 00 00 00 00 01*
-
