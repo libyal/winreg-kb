@@ -2,6 +2,7 @@
 :toclevels: 4
 
 == Time zone information
+
 The time zone information is stored in the following Registry key:
 
 [source]
@@ -54,6 +55,7 @@ UTC = local time + bias
 The values in this key corresponds with the http://msdn.microsoft.com/en-us/library/windows/desktop/ms725481(v=vs.85).aspx[TIME_ZONE_INFORMATION] and http://msdn.microsoft.com/en-us/library/windows/desktop/ms724253(v=vs.85).aspx[DYNAMIC_TIME_ZONE_INFORMATION] structures.
 
 === Time Zones key
+
 The time zones definitions are store in the Registry key:
 
 [source]
@@ -209,10 +211,11 @@ Values:
 | MUI_Std | REG_SZ | The description for standard time in the https://github.com/libyal/winreg-kb/wiki/MUI-form[MUI form]
 | Std | REG_SZ | The description for standard time
 | TZI | REG_BINARY | Time zone information +
-Contains a _REG_TZI_FORMAT structure
+Contains a <<reg_tzi_structure,Registry Time Zone information structure>>
 |===
 
 ==== Dynamic Daylight Saving Time sub key
+
 The Dynamic Daylight Saving Time sub key contains time zone information for time zones that apply different daylight saving per year.
 
 Values:
@@ -222,14 +225,18 @@ Values:
 | FirstEntry | REG_DWORD | The first year in the key
 | LastEntry | REG_DWORD | The last year in the key
 | %YEAR% | REG_BINARY | Time zone information +
-Contains a _REG_TZI_FORMAT structure
+Contains a <<reg_tzi_structure,Registry Time Zone information structure>>
 |===
 
-Where %YEAR% represents the year the dynamic daylight saving time zone information applies to, e.g. 2006.
+Where %YEAR% represents the year the dynamic daylight saving time zone
+information applies to, e.g. 2006.
 
 == Data Structures
-=== SYSTEMTIME
-The SYSTEMTIME is 16 bytes of size and consists of: 
+
+=== [[systemtime]]SYSTEMTIME structure
+
+The SYSTEMTIME structure is 16 bytes of size and consists of:
+
 [options="header"]
 |===
 | Offset | Size | Value | Description
@@ -250,21 +257,31 @@ Where seconds ranges from 0 to 59
 Where milli seconds ranges from 0 to 999
 |===
 
-=== _REG_TZI_FORMAT
-The _REG_TZI_FORMAT is 44 bytes of size and consists of: 
+=== [[reg_tzi_structure]]Registry Time Zone information structure
+
+The Registry Time Zone information (_REG_TZI_FORMAT) structure is 44 bytes of
+size and consists of:
+
 [options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | 4 | | Bias
-| 4 | 4 | | StandardBias
+| 0 | 4 | | Bias +
+Contains the difference between UTC and local time, in minutes
+| 4 | 4 | | StandardBias +
+Contains the difference between UTC and local time, in minutes, or 0 if not set
 | 8 | 4 | | DaylightBias
+Contains the difference between standard and daylight savings time, in minutes +
+The total difference is: Bias + DaylightBias
 | 12 | 16 | | StandardDate +
-Contains a SYSTEMTIME structure.
+Date and time when the daylight savings time switches to standard time, in local time
+Contains a <<systemtime,SYSTEMTIME structure>>
 | 28 | 16 | | DaylightDate +
-Contains a SYSTEMTIME structure.
+Date and time when the standard time switches to daylight savings time, in local time
+Contains a <<systemtime,SYSTEMTIME structure>>
 |===
 
 == External Links
+
 * http://msdn.microsoft.com/en-us/library/ff794720(v=winembedded.60).aspx[MSDN: Computer Time Management and Embedded Systems (Standard 7 SP1)]
 * http://msdn.microsoft.com/en-us/library/windows/desktop/ms725481(v=vs.85).aspx[TIME_ZONE_INFORMATION structure ]
 * http://msdn.microsoft.com/en-us/library/windows/desktop/ms724253(v=vs.85).aspx[DYNAMIC_TIME_ZONE_INFORMATION structure]
