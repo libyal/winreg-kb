@@ -24,6 +24,6 @@ Description: Python 3 module of Windows Registry resources (winregrc)
 
 Package: winreg-kb-tools
 Architecture: all
-Depends: python-winregrc (>= ${binary:Version}), python (>= 2.7~), ${python:Depends}, ${misc:Depends}
+Depends: python-winregrc (>= ${binary:Version}), ${python:Depends}, ${misc:Depends}
 Description: Tools for Windows Registry knowledge base (winevt-kb)
  Winreg-kb is a project to build a Windows Registry Knowledge Base.
