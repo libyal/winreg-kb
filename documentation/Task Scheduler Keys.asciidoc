@@ -109,7 +109,7 @@ Values:
 |===
 | Value | Data type | Description
 | DynamicInfo | |
-| Hash | |
+| Hash | | SHA-256 (CRC32 before KB2305420) of decoded task XML file contents (from %windir%\System32\Tasks). I.E. if the file is encoded in UTF-16LE with BOM (0xFFFE) - it just strips the BOM from the beginning of the file and calculates the hash from the rest of the file contents
 | Path | | Path of the corresponding Registry key in the TaskCache Tree sub key
 | Triggers | |
 |===
