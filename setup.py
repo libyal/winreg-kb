@@ -5,7 +5,6 @@
 from __future__ import print_function
 
 import glob
-import locale
 import os
 import sys
 
@@ -25,19 +24,9 @@ except ImportError:
   bdist_rpm = None
 
 version_tuple = (sys.version_info[0], sys.version_info[1])
-if version_tuple[0] not in (2, 3):
-  print('Unsupported Python version: {0:s}.'.format(sys.version))
-  sys.exit(1)
-
-elif version_tuple[0] == 2 and version_tuple < (2, 7):
+if version_tuple < (3, 5):
   print((
-      'Unsupported Python 2 version: {0:s}, version 2.7 or higher '
-      'required.').format(sys.version))
-  sys.exit(1)
-
-elif version_tuple[0] == 3 and version_tuple < (3, 4):
-  print((
-      'Unsupported Python 3 version: {0:s}, version 3.4 or higher '
+      'Unsupported Python version: {0:s}, version 3.5 or higher '
       'required.').format(sys.version))
   sys.exit(1)
 
@@ -80,10 +69,7 @@ else:
       else:
         spec_file = bdist_rpm._make_spec_file(self)
 
-      if sys.version_info[0] < 3:
-        python_package = 'python2'
-      else:
-        python_package = 'python3'
+      python_package = 'python3'
 
       description = []
       requires = ''
@@ -101,9 +87,6 @@ else:
 
         elif line.startswith('Requires: '):
           requires = line[10:]
-          if python_package == 'python3':
-            requires = requires.replace('python-', 'python3-')
-            requires = requires.replace('python2-', 'python3-')
           continue
 
         elif line.startswith('%description'):
@@ -128,26 +111,14 @@ else:
               '%license LICENSE',
               '%doc ACKNOWLEDGEMENTS AUTHORS README']
 
-          if python_package == 'python3':
-            lines.extend([
-                '%{python3_sitelib}/winregrc/*.py',
-                '%{python3_sitelib}/winregrc/*.yaml',
-                '%{python3_sitelib}/winregrc*.egg-info/*',
-                '',
-                '%exclude %{_prefix}/share/doc/*',
-                '%exclude %{python3_sitelib}/winregrc/__pycache__/*',
-                '%exclude %{_bindir}/*.py'])
-
-          else:
-            lines.extend([
-                '%{python2_sitelib}/winregrc/*.py',
-                '%{python2_sitelib}/winregrc/*.yaml',
-                '%{python2_sitelib}/winregrc*.egg-info/*',
-                '',
-                '%exclude %{_prefix}/share/doc/*',
-                '%exclude %{python2_sitelib}/winregrc/*.pyc',
-                '%exclude %{python2_sitelib}/winregrc/*.pyo',
-                '%exclude %{_bindir}/*.py'])
+          lines.extend([
+              '%{python3_sitelib}/winregrc/*.py',
+              '%{python3_sitelib}/winregrc/*.yaml',
+              '%{python3_sitelib}/winregrc*.egg-info/*',
+              '',
+              '%exclude %{_prefix}/share/doc/*',
+              '%exclude %{python3_sitelib}/winregrc/__pycache__/*',
+              '%exclude %{_bindir}/*.py'])
 
           python_spec_file.extend(lines)
           break
@@ -157,13 +128,7 @@ else:
 
           python_spec_file.append(
               '%package -n {0:s}-%{{name}}'.format(python_package))
-          if python_package == 'python2':
-            python_spec_file.extend([
-                'Obsoletes: python-winregrc < %{version}',
-                'Provides: python-winregrc = %{version}'])
-            python_summary = 'Python 2 module of {0:s}'.format(summary)
-          else:
-            python_summary = 'Python 3 module of {0:s}'.format(summary)
+          python_summary = 'Python 3 module of {0:s}'.format(summary)
 
           if requires:
             python_spec_file.append('Requires: {0:s}'.format(requires))
@@ -185,20 +150,6 @@ else:
         python_spec_file.append(line)
 
       return python_spec_file
-
-
-if version_tuple[0] == 2:
-  encoding = sys.stdin.encoding  # pylint: disable=invalid-name
-
-  # Note that sys.stdin.encoding can be None.
-  if not encoding:
-    encoding = locale.getpreferredencoding()
-
-  # Make sure the default encoding is set correctly otherwise on Python 2
-  # setup.py sdist will fail to include filenames with Unicode characters.
-  reload(sys)  # pylint: disable=undefined-variable
-
-  sys.setdefaultencoding(encoding)  # pylint: disable=no-member
 
 
 winregrc_description = (
