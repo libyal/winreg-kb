@@ -1,23 +1,24 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@ --buildsystem=python_distutils --with=python2,python3
+	dh $@ --buildsystem=python_distutils --with=python3
 
 .PHONY: override_dh_auto_clean
 override_dh_auto_clean:
-	dh_auto_clean
-	rm -rf build dtformats.egg-info/SOURCES.txt dtformats.egg-info/PKG-INFO
+	set -ex; for python in $(shell py3versions -r); do \
+		$$python setup.py clean -a; \
+	done;
+	rm -rf build winregrc.egg-info/SOURCES.txt winregrc.egg-info/PKG-INFO
+	find . -name __pycache__ -type d -exec rm -rf {} \; || true
 
 .PHONY: override_dh_auto_build
 override_dh_auto_build:
-	dh_auto_build
 	set -ex; for python in $(shell py3versions -r); do \
 		$$python setup.py build; \
 	done;
 
 .PHONY: override_dh_auto_install
 override_dh_auto_install:
-	dh_auto_install --destdir $(CURDIR)
 	set -ex; for python in $(shell py3versions -r); do \
 		$$python setup.py install --root=$(CURDIR) --install-layout=deb; \
 	done;

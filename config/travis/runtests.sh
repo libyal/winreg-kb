@@ -66,9 +66,9 @@ then
 
 elif test "${TRAVIS_OS_NAME}" = "osx";
 then
-	# Set the following environment variables to build pycrypto.
-	export CFLAGS="-I/usr/local/include ${CFLAGS}";
-	export LDFLAGS="-L/usr/local/lib ${LDFLAGS}";
+	# Set the following environment variables to build pycrypto and yara-python.
+	export CFLAGS="-I/usr/local/include -I/usr/local/opt/openssl@1.1/include ${CFLAGS}";
+	export LDFLAGS="-L/usr/local/lib -L/usr/local/opt/openssl@1.1/lib ${LDFLAGS}";
 	export TOX_TESTENV_PASSENV="CFLAGS LDFLAGS";
 
 	tox -e ${TOXENV};
