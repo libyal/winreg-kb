@@ -14,6 +14,7 @@ libfsntfs-python >= 20151130
 libfvde-python >= 20160719
 libfwnt-python >= 20160418
 libfwsi-python >= 20150606
+libluksde-python >= 20200101
 libqcow-python >= 20131204
 libregf-python >= 20180303
 libsigscan-python >= 20150627
