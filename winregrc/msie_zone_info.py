@@ -182,7 +182,7 @@ class MSIEZoneInfoCollector(interface.WindowsRegistryKeyCollector):
         if not setting_value.name:
           continue
 
-        elif setting_value.name in [
+        if setting_value.name in [
             'Description', 'DisplayName', 'PMDisplayName']:
           if output_mode == 0:
             if self._debug:
