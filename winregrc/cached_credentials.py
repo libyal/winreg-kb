@@ -6,10 +6,12 @@ from __future__ import unicode_literals
 import codecs
 import struct
 
-from Crypto.Cipher import ARC4
-from Crypto.Cipher import DES
-from Crypto.Hash import HMAC
-from Crypto.Hash import MD5
+from cryptography.hazmat import backends
+from cryptography.hazmat.primitives.ciphers import algorithms
+from cryptography.hazmat.primitives.ciphers import modes
+from cryptography.hazmat.primitives import ciphers
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hmac
 
 from winregrc import hexdump
 from winregrc import interface
@@ -60,6 +62,39 @@ class CachedCredentialsKeyCollector(interface.WindowsRegistryKeyCollector):
     super(CachedCredentialsKeyCollector, self).__init__(debug=debug)
     self._output_writer = output_writer
 
+  def _DecryptARC4(self, key, data):
+    """Decrypts ARC4 encrypted data.
+
+    Args:
+      key (str): key used to decrypt the data.
+      data (bytes): data to decrypt.
+
+    Returns:
+      bytes: decrypted data.
+    """
+    algorithm = algorithms.ARC4(key)
+    backend = backends.default_backend()
+    cipher = ciphers.Cipher(algorithm, mode=None, backend=backend)
+    cipher_context = cipher.decryptor()
+    return cipher_context.update(data)
+
+  def _DecryptTripleDES(self, key, data):
+    """Decrypts Triple DES-ECB encrypted data.
+
+    Args:
+      key (str): key used to decrypt the data.
+      data (bytes): data to decrypt.
+
+    Returns:
+      bytes: decrypted data.
+    """
+    algorithm = algorithms.TripleDES(key)
+    mode = modes.ECB()
+    backend = backends.default_backend()
+    cipher = ciphers.Cipher(algorithm, mode=mode, backend=backend)
+    cipher_context = cipher.decryptor()
+    return cipher_context.update(data)
+
   def _GetBootKey(self, registry):
     """Retrieves the boot key.
 
@@ -106,7 +141,7 @@ class CachedCredentialsKeyCollector(interface.WindowsRegistryKeyCollector):
         8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7]):
       key[index] = scrambled_key[scrambled_index]
 
-    return b''.join(key)
+    return bytes(key)
 
   def _GetLSAKey(self, registry, boot_key):
     """Retrieves the LSA key.
@@ -129,19 +164,19 @@ class CachedCredentialsKeyCollector(interface.WindowsRegistryKeyCollector):
 
     value_data = policy_encryption_value.data
 
-    md5 = MD5.new()
-    md5.update(boot_key)
+    algorithm = hashes.MD5()
+    backend = backends.default_backend()
+    digest_context = hashes.Hash(algorithm, backend=backend)
+
+    digest_context.update(boot_key)
 
     iteration = 0
     while iteration < 1000:
-      md5.update(value_data[60:76])
+      digest_context.update(value_data[60:76])
       iteration += 1
 
-    rc4_key = md5.digest()
-
-    rc4 = ARC4.new(rc4_key)
-    decrypted_data = rc4.decrypt(value_data[12:60])
-
+    rc4_key = digest_context.finalize()
+    decrypted_data = self._DecryptARC4(rc4_key, value_data[12:60])
     return decrypted_data[16:32]
 
   def _GetNLKey(self, registry, lsa_key):
@@ -174,9 +209,8 @@ class CachedCredentialsKeyCollector(interface.WindowsRegistryKeyCollector):
       value_data_end_offset = value_data_offset + 8
 
       des_key = self._UnpackLSAKey(lsa_key[key_offset:key_end_offset])
-      des = DES.new(des_key, DES.MODE_ECB)
-      decrypted_data = des.decrypt(
-          value_data[value_data_offset:value_data_end_offset])
+      decrypted_data = self._DecryptTripleDES(
+          des_key, value_data[value_data_offset:value_data_end_offset])
       decrypted_value_data.append(decrypted_data)
 
       key_offset = key_end_offset
@@ -194,13 +228,13 @@ class CachedCredentialsKeyCollector(interface.WindowsRegistryKeyCollector):
     return decrypted_value_data[8:data_size]
 
   def _UnpackLSAKey(self, lsa_key):
-    """Unpacks 7 bytes of the LSA key as a 8-byte DES decryption key.
+    """Unpacks 7 bytes of the LSA key as a 8-byte Triple DES decryption key.
 
     Args:
       lsa_key (bytes): LSA key.
 
     Returns:
-      bytes: DES decryption key.
+      bytes: Triple DES decryption key.
     """
     lsa_key = bytearray(lsa_key)
     des_key = [
@@ -250,13 +284,15 @@ class CachedCredentialsKeyCollector(interface.WindowsRegistryKeyCollector):
 
       value_data = value.data
 
+      algorithm = hashes.MD5()
+      backend = backends.default_backend()
+      hmac_context = hmac.HMAC(nl_key, algorithm, backend=backend)
+
       ch = value_data[64:80]
+      hmac_context.update(ch)
 
-      hmac_md5 = HMAC.new(nl_key, ch)
-      rc4_key = hmac_md5.digest()
-
-      rc4 = ARC4.new(rc4_key)
-      decrypted_data = rc4.encrypt(value_data[96:])
+      rc4_key = hmac_context.finalize()
+      decrypted_data = self._DecryptARC4(rc4_key, value_data[96:])
 
       print(value.name)
       print(hexdump.Hexdump(value_data))
