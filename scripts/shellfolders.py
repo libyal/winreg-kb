@@ -8,12 +8,8 @@ from __future__ import unicode_literals
 import argparse
 import logging
 import os
+import sqlite3
 import sys
-
-try:
-  from pysqlite2 import dbapi2 as sqlite3
-except ImportError:
-  import sqlite3
 
 from dfvfs.helpers import command_line as dfvfs_command_line
 
