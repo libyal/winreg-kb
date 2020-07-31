@@ -4,13 +4,6 @@ os: linux
 dist: bionic
 jobs:
   include:
-  - name: "Pylint on Ubuntu Bionic (20.04) (Docker) with Python 3.8"
-    env: [TARGET="pylint", UBUNTU_VERSION="20.04"]
-    group: edge
-    language: python
-    python: 3.8
-    services:
-    - docker
   - name: "Fedora 31 (Docker) with Python 3.7"
     env: FEDORA_VERSION="31"
     group: edge
@@ -39,38 +32,46 @@ jobs:
     python: 3.8
     services:
     - docker
-  - name: "Ubuntu Focal (20.04) (Docker) with Python 3.5 (tox)"
-    env: [TOXENV="py35", UBUNTU_VERSION="20.04"]
-    group: edge
-    language: python
-    python: 3.5
-    services:
-    - docker
   - name: "Ubuntu Focal (20.04) (Docker) with Python 3.6 (tox)"
-    env: [TOXENV="py36", UBUNTU_VERSION="20.04"]
+    env:
+    - TOXENV="py36"
+    - UBUNTU_VERSION="20.04"
     group: edge
     language: python
     python: 3.6
     services:
     - docker
   - name: "Ubuntu Focal (20.04) (Docker) with Python 3.7 (tox)"
-    env: [TOXENV="py37", UBUNTU_VERSION="20.04"]
+    env:
+    - TOXENV="py37"
+    - UBUNTU_VERSION="20.04"
     group: edge
     language: python
     python: 3.7
     services:
     - docker
   - name: "Ubuntu Focal (20.04) (Docker) with Python 3.8 (tox)"
-    env: [TOXENV="py38", UBUNTU_VERSION="20.04"]
+    env:
+    - TOXENV="py38,coverage,codecov"
+    - UBUNTU_VERSION="20.04"
     group: edge
     language: python
     python: 3.8
     services:
     - docker
-  - name: "MacOS 10.14 with Python 3.7 (tox)"
-    env: TOXENV="py37"
+  - name: "Pylint on Ubuntu Focal (20.04) (Docker) with Python 3.8 (tox)"
+    env:
+    - TOXENV="pylint"
+    - UBUNTU_VERSION="20.04"
+    group: edge
+    language: python
+    python: 3.8
+    services:
+    - docker
+  - name: "MacOS 10.14 with Python 3.8 (tox)"
+    env: TOXENV="py38"
     os: osx
-    osx_image: xcode10
+    osx_image: xcode11
 install:
 - ./config/travis/install.sh
 script:

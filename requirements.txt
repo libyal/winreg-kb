@@ -8,6 +8,7 @@ dfwinreg >= 20180712
 dtfabric >= 20170524
 idna >= 2.5
 libbde-python >= 20140531
+libcreg-python >= 20200725
 libewf-python >= 20131210
 libfsapfs-python >= 20181205
 libfsntfs-python >= 20151130
