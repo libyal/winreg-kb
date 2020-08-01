@@ -3,63 +3,22 @@
 :toc:
 :toclevels: 4
 
-== Current Control Set
-The Windows Registry contains the Current Control Set key:
-....
-HKEY_LOCAL_MACHINE\System\CurrentControlSet
-....
-
-This key is only present at run-time.
-
-The Current Control Set key is stored in the SYSTEM Registry file and can be 
-determined by reading the Current value from the key:
-....
-<RootKey>\Select
-....
-
-The Current value contains number of the current control set. Normally 1 or 2 
-but other values like 3 or 47 are known to be used. E.g. a value of 1 maps to 
-the Control Set key:
-....
-<RootKey>\ControlSet001
-....
-
-Normally there are multiple Control Set keys according to 
-http://support.microsoft.com/kb/100010[kb100010] the role each of the Control 
-Set keys can be different:
-[quote]
-____
-ControlSet001 may be the last control set you booted with, while ControlSet002 
-could be what is known as the last known good control set, or the control set 
-that last successfully booted Windows.
-____
-
-These roles are defined by the other values in the Select key:
-
-[cols="1,1,5",options="header"]
-|===
-| Value | Data type | Description
-| Current | REG_DWORD | Current Control Set
-| Default | REG_DWORD | Default Control Set
-| Failed | REG_DWORD | Control Set that failed to boot
-| LastKnownGood | REG_DWORD | Last known good Control Set
-|===
-
-[yellow-background]*TODO 0 indicates not set? Also speculations that 9 is the 
-largest value ControlSet00#*
-
 = Boot Verification = 
+
 *TODO add some description*
 
 The boot verification settings are stored in the key:
+
 ....
 CurrentControlSet\Control\BootVerificationProgram
 ....
 
 == Session Manager
+
 *TODO add some description*
 
 The session manager settings are stored in the key:
+
 ....
 CurrentControlSet\Control\Session Manager
 ....
@@ -71,8 +30,11 @@ CurrentControlSet\Control\Session Manager
 |===
 
 == Language and codepage
+
 === Codepage
+
 The codepage settings are stored in the key:
+
 ....
 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage
 ....
@@ -94,34 +56,42 @@ Contains a string with the name of the corresponding file e.g. vgaoem.fon
 |===
 
 == Environment variables
+
 The environment variables are stored in the key:
+
 ....
 CurrentControlSet\Control\Session Manager\Environment
 ....
 
 The names of the values in this key represent the name of the environment variable, e.g.
+
 ....
 CurrentControlSet\Control\Session Manager\Environment\windir
 ....
 
 The contents of the value should be a string, e.g.
+
 ....
 %SystemRoot%
 ....
 
 === SystemRoot environment variable
+
 The value of %SystemRoot% environment variable is stored in the SystemRoot 
 value of the following Registry key:
+
 ....
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion
 ....
 
 This key is stored in the SOFTWARE Registry file as:
+
 ....
 <RootKey>\Microsoft\Windows NT\CurrentVersion
 ....
 
 The contents of the value should be a string, e.g.
+
 ....
 C:\Windows\
 ....
@@ -129,22 +99,27 @@ C:\Windows\
 *TODO what about the PathName value*
 
 === User specific environment variables
+
 *TODO*
+
 ....
 HKEY_CURRENT_USER\Environment
 ....
 
 == Run and Run Once keys
+
 Run and Run Once keys cause programs to run each time a user logs on. There a 
 per-user and per-system Run and Run Once keys.
 
 Per-user Run and Run Once keys
+
 ....
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce
 ....
 
 Per-system Run and Run Once keys
+
 ....
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce
@@ -154,6 +129,7 @@ Only on Windows 95, 98, Me.
 
 Run in the background when the logon dialog box first appears, or at the boot 
 process stage if there is no logon.
+
 ....
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunServices
 ....
@@ -163,11 +139,13 @@ HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce
 
 Contains first-boot activities after setup or when the Add/Remove Programs 
 Wizard was used.
+
 ....
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce\Setup
 ....
 
 *TODO add description of sub keys and values*
+
 ....
 description-string=commandline
 ....
@@ -187,15 +165,18 @@ the program to run even in Safe mode.
 ____
 
 *TODO what about*
+
 ....
 HKLM\Software\Microsoft\Windows\CurrentVersion\policies\Explorer\Run
 HKCU\Software\Microsoft\Windows NT\CurrentVersion\Windows\Run
 ....
 
 == Services key
+
 *TODO fine tune rough notes*
 
 Settings to load/run drivers and services are stored in the Services key:
+
 ....
 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services
 ....
@@ -244,6 +225,7 @@ Values:
 |===
 
 ==== ObjectName value data
+
 The ObjectName value has a different meaning for different types of Driver or Service Name sub keys.
 
 * For a driver type the ObjectName value contains the Windows NT driver object name that the I/O Manager uses to load the device driver.
@@ -283,12 +265,15 @@ Windows Services shows this value as "Startup Type".
 |===
 
 == Notes
+
 Installed "Programs and Features"
+
 ....
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer
 ....
 
 === USBSTOR
+
 ....
 HKEY_LOCAL_MACHINE\System\CurrentControlSet\Enum\USBSTOR
 ....
@@ -322,11 +307,13 @@ Sub key level 2: 1002131402536a&0
 * Service
 
 === System restore
+
 ....
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\SystemRestore
 ....
 
 === Windows system locations
+
 ....
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion
 ....
@@ -349,6 +336,7 @@ HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion
 |===
 
 === Windows version information
+
 ....
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion
 ....
@@ -378,13 +366,13 @@ HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion
 |===
 
 == Also see
+
 * https://github.com/libyal/winreg-kb/wiki/Time-zone-keys[Time Zone Keys]
 
 == External Links
+
 * http://technet.microsoft.com/en-us/library/cc963230.aspx[MSDN: BootExecute]
 * http://msdn.microsoft.com/en-us/library/aa376977(v=vs.85).aspx[MSDN: Run and RunOnce Registry Keys]
-* https://support.microsoft.com/en-us/kb/102987[kb102987: REG: CurrentControlSet, PART 1]
-* http://support.microsoft.com/kb/103000[kb103000: CurrentControlSet\Services Subkey Entries]
 * http://support.microsoft.com/kb/137367[kb137367: Definition of the RunOnce Keys in the Registry]
 * http://blogs.technet.com/b/mrsnrub/archive/2011/05/25/how-does-last-known-good-work.aspx[Technet: How does Last Known Good work?]
 
