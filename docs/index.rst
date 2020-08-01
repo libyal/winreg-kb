@@ -16,6 +16,11 @@ The source code is available from the `project page <https://github.com/libyal/w
 .. toctree::
    :maxdepth: 2
 
+   Windows Registry files <sources/Registry-files>
+
+.. toctree::
+   :maxdepth: 2
+
    API documentation <sources/api/winregrc>
 
 
