@@ -4,5 +4,5 @@ winregrc is a Python module part of winreg-kb to allow reuse of Windows
 Registry Resources.
 
 For more information see:
-* Project documentation: https://github.com/libyal/winreg-kb/wiki/Home
+* Project documentation: https://winreg-kb.readthedocs.io/en/latest/
 

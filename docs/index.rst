@@ -11,7 +11,7 @@ The source code is available from the `project page <https://github.com/libyal/w
 .. toctree::
    :maxdepth: 2
 
-   sources/keys-and-values/index
+   sources/system-keys/index
 
 .. toctree::
    :maxdepth: 2
