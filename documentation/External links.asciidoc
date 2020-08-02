@@ -1,4 +1,0 @@
-== External Links
-
-* http://amnesia.gtisc.gatech.edu/~moyix/suzibandit.ltd.uk/MSc/[The Internal Structure of the Windows Registry], by Peter Norris, February 2009
-

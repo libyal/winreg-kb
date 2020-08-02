@@ -1,35 +1,43 @@
 # Windows Registry files
 
-There are multiple types of Windows Registry File formats:
+## Windows Registry files - Windows 3.1
 
-* SHCC used by Windows 3.1
-* [CREG](https://github.com/libyal/libcreg/blob/master/documentation/Windows%209x%20Registry%20File%20(CREG)%20format.asciidoc) used by Windows 9x/Me
-* [REGF](https://github.com/libyal/libregf/blob/master/documentation/Windows%20NT%20Registry%20File%20(REGF)%20format.asciidoc) used by Windows NT 4 and later
+On Windows 3.1 the SHCC file format is used to store Windows Registry data.
 
-*TODO what about earlier versions of Windows?*
-
-## File paths
-
-### File paths - Windows 3.1
+Paths of known Windows Registry files:
 
 Filename | Path | Description
 --- | --- | ---
 REG.DAT | %SystemRoot% | Entire registry
 
-### File paths - Windows 9x/Me
+## Windows Registry files - Windows 9x/Me
+
+On Windows 9x/Me the [CREG](https://github.com/libyal/libcreg/blob/master/documentation/Windows%209x%20Registry%20File%20(CREG)%20format.asciidoc)
+file format is used to store Windows Registry data.
+
+Paths of known Windows Registry files:
 
 Filename | Path | Description | Corresponding Registry Key
 --- | --- | --- | ---
 SYSTEM.DAT | %SystemRoot% | System specific part of the Registry | `HKEY_LOCAL_MACHINE`
 USER.DAT | %SystemRoot% | User specific part of the Registry | `HKEY_USERS`
 
-### File paths - Windows NT
+### Root keys
+
+The root key of both SYSTEM.DAT and USER.DAT contains an empty name string.
+
+## Windows Registry files - Windows NT
+
+On Windows NT and later the [REGF](https://github.com/libyal/libregf/blob/master/documentation/Windows%20NT%20Registry%20File%20(REGF)%20format.asciidoc)
+file format is used to store Windows Registry data.
+
+Paths of known Windows Registry files:
 
 Filename | Path | Description | Corresponding Registry Key | Windows version
 --- | --- | --- | --- | ---
 Amcache.hve | %SystemRoot%\AppCompat\Programs | *TODO* | | 8, 10
 BBI | %SystemRoot%\System32\config | *TODO* | | 10
-BCD | \Boot on boot volume | Boot Configuration Data (BCD) | | Vista, 7
+BCD | \Boot (on boot volume) | Boot Configuration Data (BCD) | | Vista, 7
 default | %SystemRoot%\System32\config | *TODO* | | NT 4 and later
 DRIVERS | %SystemRoot%\System32\config | *TODO* | | 10
 ELAM | %SystemRoot%\System32\config | *TODO* | | 10
@@ -49,16 +57,16 @@ UsrClass.dat | %UserProfile%\AppData\Local\Microsoft\Windows | File associations
 *TODO what about \Windows\profiles\user profile\user.dat ?*
 *TODO what about \Windows\System32\SMI\Store\Machine\SCHEMA.DAT (Windows 7)*
 
-## Root key
+### Root keys
 
 The root key names of the different Windows Registry files differ per version
 of Windows.
 
-### Root key - default
+#### Root key - default
 
 *TODO*
 
-### Root key - NTUSER.DAT
+#### Root key - NTUSER.DAT
 
 Windows version | Root key name
 --- | ---
@@ -72,7 +80,7 @@ Vista | CMI-CreateHive{B01E557D-7818-4BA7-9885-E6592398B44E}
 8 | CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}
 10 | *TODO*
 
-### Root key - SAM
+#### Root key - SAM
 
 Windows version | Root key name
 --- | ---
@@ -85,7 +93,7 @@ Vista | CMI-CreateHive{87E016C8-C811-4B12-9C3A-CDA552F3458D}
 8 | *TODO*
 10 | *TODO*
 
-### Root key - SECURITY
+#### Root key - SECURITY
 
 Windows version | Root key name
 --- | ---
@@ -98,7 +106,7 @@ Vista | *TODO*
 8 | *TODO*
 10 | *TODO*
 
-### Root key - SOFTWARE
+#### Root key - SOFTWARE
 
 Windows version | Root key name
 --- | ---
@@ -113,7 +121,7 @@ Vista | CMI-CreateHive{29EE1162-53C9-4474-A2B6-D90A7F6B0A7C}
 8 | CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}
 10 | *TODO*
 
-### Root key - Syscache.hve
+#### Root key - Syscache.hve
 
 Windows version | Root key name
 --- | ---
@@ -127,7 +135,7 @@ Where {%GUID%} is a placeholder for a random GUID in the form: {00000000-0000-00
 
 *Note how consistent are the GUIDs icw CreateHive ?*
 
-### Root key - SYSTEM
+#### Root key - SYSTEM
 
 Windows version | Root key name
 --- | ---
@@ -138,23 +146,11 @@ Vista | CMI-CreateHive{C619BFE8-791A-4B77-922B-F114AB570920}
 7 | CMI-CreateHive{2A7FB991-7BBE-4F9D-B91E-7CB51D4737F5}
 8 | CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}
 
-### Root key - SYSTEM.DAT
-
-Windows version | Root key name
---- | ---
-95, 98, Me | *TODO*
-
-### Root key - USER.DAT
-
-Windows version | Root key name
---- | ---
-95, 98, Me | *TODO*
-
-### Root key - userdiff
+#### Root key - userdiff
 
 *TODO*
 
-### Root key - UsrClass.dat
+#### Root key - UsrClass.dat
 
 Windows version | Root key name
 --- | ---
@@ -165,4 +161,8 @@ Vista, 7 | %SID%_Classes, where %SID%_Classes is a string of the SID of the user
 2019 | *TODO*
 8 | *TODO*
 10 | *TODO*
+
+## Notes
+
+*TODO what about earlier versions of Windows?*
 

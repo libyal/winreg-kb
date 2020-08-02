@@ -3,17 +3,11 @@
 The environment variables are stored in the key:
 
 ```
-CurrentControlSet\Control\Session Manager\Environment
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment\
 ```
 
 The names of the values in this key represent the name of the environment
-variable, for example:
-
-```
-CurrentControlSet\Control\Session Manager\Environment\windir
-```
-
-The contents of the value should be a string, for example:
+variable, for example the "windir" value that contains the follow string:
 
 ```
 %SystemRoot%
@@ -34,7 +28,7 @@ On Windows NT this key is stored in the SOFTWARE Registry file as:
 <RootKey>\Microsoft\Windows NT\CurrentVersion
 ```
 
-The contents of the value should be a string, e.g.
+The contents of the value should be a string, for example:
 
 ```
 C:\Windows\

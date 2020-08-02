@@ -1,6 +1,6 @@
-############################
-Windows Registry system keys
-############################
+###################
+Windows system keys
+###################
 
 .. toctree::
    :maxdepth: 2

@@ -57,8 +57,8 @@ napoleon_include_special_with_doc = True
 
 # General information about the project.
 # pylint: disable=redefined-builtin
-project = 'dfDateTime'
-copyright = 'The dfDateTime Project Authors'
+project = 'winreg-kb'
+copyright = 'The winreg-kb Project Authors'
 version = winregrc.__version__
 release = winregrc.__version__
 
