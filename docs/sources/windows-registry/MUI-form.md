@@ -58,6 +58,6 @@ Yet another variation seen in Windows 2000.
 
 ## External Links
 
-* http://msdn.microsoft.com/en-us/library/windows/desktop/dd319073(v=vs.85).aspx[MSDN: Multilingual User Interface]
-* http://msdn.microsoft.com/library/dd374120(VS.85).aspx[MSDN: Using Registry String Redirection]
+* [MSDN: Multilingual User Interface](http://msdn.microsoft.com/en-us/library/windows/desktop/dd319073(v=vs.85).aspx
+* [MSDN: Using Registry String Redirection](http://msdn.microsoft.com/library/dd374120(VS.85).aspx)
 

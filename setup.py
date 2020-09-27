@@ -180,7 +180,7 @@ setup(
         'Programming Language :: Python',
     ],
     packages=find_packages('.', exclude=[
-        'scripts', 'tests', 'tests.*', 'utils']),
+        'docs', 'scripts', 'tests', 'tests.*', 'utils']),
     package_dir={
         'winregrc': 'winregrc'
     },
