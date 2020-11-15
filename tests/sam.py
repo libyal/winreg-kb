@@ -145,7 +145,7 @@ class SecurityAccountManagerCollectorTest(test_lib.BaseTestCase):
     registry_file.AddKeyByPath('\\SAM\\Domains\\Account', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._RID)
-    registry_key.AddSubkey(subkey)
+    registry_key.AddSubkey(self._RID, subkey)
 
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
         'F', data=_F_VALUE_DATA, data_type=dfwinreg_definitions.REG_BINARY)

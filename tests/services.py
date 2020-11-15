@@ -68,7 +68,7 @@ class WindowsServicesCollectorTest(shared_test_lib.BaseTestCase):
     registry_file.AddKeyByPath('\\ControlSet001', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey('WwanSvc')
-    registry_key.AddSubkey(subkey)
+    registry_key.AddSubkey('WwanSvc', subkey)
 
     value_data = self._DESCRIPTION.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(

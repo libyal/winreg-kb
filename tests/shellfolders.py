@@ -60,10 +60,10 @@ class ShellFoldersCollectorTest(shared_test_lib.BaseTestCase):
     registry_file.AddKeyByPath('\\Classes', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._GUID1)
-    registry_key.AddSubkey(subkey)
+    registry_key.AddSubkey(self._GUID1, subkey)
 
     shell_folder_key = dfwinreg_fake.FakeWinRegistryKey('ShellFolder')
-    subkey.AddSubkey(shell_folder_key)
+    subkey.AddSubkey('ShellFolder', shell_folder_key)
 
     value_data = self._NAME1.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
@@ -77,10 +77,10 @@ class ShellFoldersCollectorTest(shared_test_lib.BaseTestCase):
     subkey.AddValue(registry_value)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._GUID2)
-    registry_key.AddSubkey(subkey)
+    registry_key.AddSubkey(self._GUID2, subkey)
 
     shell_folder_key = dfwinreg_fake.FakeWinRegistryKey('ShellFolder')
-    subkey.AddSubkey(shell_folder_key)
+    subkey.AddSubkey('ShellFolder', shell_folder_key)
 
     registry_file.Open(None)
 

@@ -60,7 +60,7 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
         '\\Microsoft\\Windows\\CurrentVersion\\Explorer', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._GUID)
-    registry_key.AddSubkey(subkey)
+    registry_key.AddSubkey(self._GUID, subkey)
 
     value_data = self._NAME.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(

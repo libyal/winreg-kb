@@ -189,6 +189,7 @@ class RegfFileEntry(file_entry.FileEntry):
     self._parent_inode = None
     self._regf_key = regf_key
     self._regf_value = regf_value
+    self._stat_object = None
 
   def _GetDirectory(self):
     """Retrieves a directory .

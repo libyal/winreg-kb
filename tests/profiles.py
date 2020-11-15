@@ -59,7 +59,7 @@ class UserProfilesCollectorTest(shared_test_lib.BaseTestCase):
         '\\Microsoft\\Windows NT\\CurrentVersion', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._SID)
-    registry_key.AddSubkey(subkey)
+    registry_key.AddSubkey(self._SID, subkey)
 
     value_data = self._PROFILE_PATH.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(

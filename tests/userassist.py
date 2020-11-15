@@ -74,7 +74,7 @@ class UserAssistCollectorTest(test_lib.BaseTestCase):
     registry_key.AddValue(registry_value)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey('Count')
-    registry_key.AddSubkey(subkey)
+    registry_key.AddSubkey('Count', subkey)
 
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
         'HRZR_PGYFRFFVBA', data=self._UEME_CTLSESSION_VALUE_DATA,

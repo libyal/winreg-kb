@@ -102,28 +102,24 @@ class CachedCredentialsKeyCollectorTest(test_lib.BaseTestCase):
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey('Select')
-    registry_file.AddKeyByPath('\\', registry_key)
-
-    value_data = b'\x01\x00\x00\x00'
-    registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        'Current', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
-    registry_key.AddValue(registry_value)
-
     registry_key = dfwinreg_fake.FakeWinRegistryKey(
         'Data', class_name='902a3f2c')
-    registry_file.AddKeyByPath('\\ControlSet001\\Control\\Lsa', registry_key)
+    registry_file.AddKeyByPath(
+        '\\CurrentControlSet\\Control\\Lsa', registry_key)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey(
         'GBG', class_name='c0d054a4')
-    registry_file.AddKeyByPath('\\ControlSet001\\Control\\Lsa', registry_key)
+    registry_file.AddKeyByPath(
+        '\\CurrentControlSet\\Control\\Lsa', registry_key)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey('JD', class_name='1ae33251')
-    registry_file.AddKeyByPath('\\ControlSet001\\Control\\Lsa', registry_key)
+    registry_file.AddKeyByPath(
+        '\\CurrentControlSet\\Control\\Lsa', registry_key)
 
     registry_key = dfwinreg_fake.FakeWinRegistryKey(
         'Skew1', class_name='be6a589c')
-    registry_file.AddKeyByPath('\\ControlSet001\\Control\\Lsa', registry_key)
+    registry_file.AddKeyByPath(
+        '\\CurrentControlSet\\Control\\Lsa', registry_key)
 
     registry_file.Open(None)
     registry.MapFile(key_path_prefix, registry_file)

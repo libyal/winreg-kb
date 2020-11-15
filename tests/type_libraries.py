@@ -58,7 +58,7 @@ class TypeLibraryCollectorTest(test_lib.BaseTestCase):
     registry_file.AddKeyByPath('\\Classes\\TypeLib', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._VERSION1)
-    registry_key.AddSubkey(subkey)
+    registry_key.AddSubkey(self._VERSION1, subkey)
 
     value_data = self._DESCRIPTION1.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
@@ -66,10 +66,10 @@ class TypeLibraryCollectorTest(test_lib.BaseTestCase):
     subkey.AddValue(registry_value)
 
     language_key = dfwinreg_fake.FakeWinRegistryKey('409')
-    subkey.AddSubkey(language_key)
+    subkey.AddSubkey('409', language_key)
 
     platform_key = dfwinreg_fake.FakeWinRegistryKey('Win32')
-    language_key.AddSubkey(platform_key)
+    language_key.AddSubkey('Win32', platform_key)
 
     value_data = self._FILENAME1.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
@@ -80,7 +80,7 @@ class TypeLibraryCollectorTest(test_lib.BaseTestCase):
     registry_file.AddKeyByPath('\\Classes\\TypeLib', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._VERSION2)
-    registry_key.AddSubkey(subkey)
+    registry_key.AddSubkey(self._VERSION2, subkey)
 
     value_data = self._DESCRIPTION1.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
@@ -88,10 +88,10 @@ class TypeLibraryCollectorTest(test_lib.BaseTestCase):
     subkey.AddValue(registry_value)
 
     language_key = dfwinreg_fake.FakeWinRegistryKey('0')
-    subkey.AddSubkey(language_key)
+    subkey.AddSubkey('0', language_key)
 
     platform_key = dfwinreg_fake.FakeWinRegistryKey('x64')
-    language_key.AddSubkey(platform_key)
+    language_key.AddSubkey('x64', platform_key)
 
     value_data = self._FILENAME1.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(

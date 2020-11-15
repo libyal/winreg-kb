@@ -50,14 +50,7 @@ then
 
 elif test "${TARGET}" = "dockerfile";
 then
-	SOURCE_PATH=${PWD};
-	CONTAINER_NAME="test";
-
-	cd config/docker
-
-	docker build --build-arg PPA_TRACK="dev" -f Dockerfile -t ${CONTAINER_NAME} .
-
-	# TODO: add tests
+	cd config/docker && docker build --build-arg PPA_TRACK="dev" -f Dockerfile .
 
 elif test "${TRAVIS_OS_NAME}" = "osx";
 then
@@ -65,6 +58,9 @@ then
 	export CFLAGS="-I/usr/local/include -I/usr/local/opt/openssl@1.1/include ${CFLAGS}";
 	export LDFLAGS="-L/usr/local/lib -L/usr/local/opt/openssl@1.1/lib ${LDFLAGS}";
 	export TOX_TESTENV_PASSENV="CFLAGS LDFLAGS";
+
+	# Set the following environment variables to ensure tox can find Python 3.8.
+	export PATH="/usr/local/opt/python@3.8/bin:${PATH}";
 
 	tox -e ${TOXENV};
 fi

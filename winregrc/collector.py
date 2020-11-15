@@ -9,6 +9,7 @@ from dfvfs.path import factory as dfvfs_path_spec_factory
 from dfvfs.resolver import resolver as dfvfs_resolver
 
 from dfwinreg import interface as dfwinreg_interface
+from dfwinreg import creg as dfwinreg_creg
 from dfwinreg import regf as dfwinreg_regf
 from dfwinreg import registry as dfwinreg_registry
 
@@ -39,18 +40,29 @@ class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
       WinRegistryFile: Windows Registry file or None the file does not exist or
           cannot be opened.
     """
+    registry_file = None
+
     file_object = self._volume_scanner.OpenFile(path)
-    if file_object is None:
-      return None
+    if file_object:
+      try:
+        registry_file = dfwinreg_regf.REGFWinRegistryFile(
+            ascii_codepage=ascii_codepage)
 
-    registry_file = dfwinreg_regf.REGFWinRegistryFile(
-        ascii_codepage=ascii_codepage)
+        registry_file.Open(file_object)
+      except IOError:
+        registry_file = None
 
-    try:
-      registry_file.Open(file_object)
-    except IOError:
-      file_object.close()
-      return None
+      if not registry_file:
+        try:
+          registry_file = dfwinreg_creg.CREGWinRegistryFile(
+              ascii_codepage=ascii_codepage)
+
+          registry_file.Open(file_object)
+        except IOError:
+          registry_file = None
+
+      if not registry_file:
+        file_object.close()
 
     return registry_file
 
