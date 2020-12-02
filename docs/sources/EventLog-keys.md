@@ -55,13 +55,13 @@ TypesSupported | | Bitmask of supported types
 
 Value | Identifier | Description
 --- | --- | ---
-0x0001 | `EVENTLOG_ERROR_TYPE` |
-0x0002 | `EVENTLOG_WARNING_TYPE` |
-0x0004 | `EVENTLOG_INFORMATION_TYPE` |
-0x0008 | `EVENTLOG_AUDIT_SUCCESS` |
-0x0010 | `EVENTLOG_AUDIT_FAILURE` |
+0x0001 | EVENTLOG_ERROR_TYPE |
+0x0002 | EVENTLOG_WARNING_TYPE |
+0x0004 | EVENTLOG_INFORMATION_TYPE |
+0x0008 | EVENTLOG_AUDIT_SUCCESS |
+0x0010 | EVENTLOG_AUDIT_FAILURE |
 
 ## External Links
 
-* [MSDN: Eventlog Key](http://msdn.microsoft.com/en-us/library/windows/desktop/aa363648(v=vs.85).aspx)
+* [MSDN: Eventlog Key](https://docs.microsoft.com/en-us/windows/win32/eventlog/eventlog-key)
 

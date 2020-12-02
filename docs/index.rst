@@ -21,6 +21,11 @@ The source code is available from the `project page <https://github.com/libyal/w
 .. toctree::
    :maxdepth: 2
 
+   sources/explorer-keys/index
+
+.. toctree::
+   :maxdepth: 2
+
    Windows EventLog keys <sources/EventLog-keys>
 
 .. toctree::

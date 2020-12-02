@@ -12,7 +12,7 @@ REG.DAT | %SystemRoot% | Entire registry
 
 ## Windows Registry files - Windows 9x/Me
 
-On Windows 9x/Me the [CREG](https://github.com/libyal/libcreg/blob/master/documentation/Windows%209x%20Registry%20File%20(CREG)%20format.asciidoc)
+On Windows 9x/Me the [CREG](https://github.com/libyal/libcreg/blob/main/documentation/Windows%209x%20Registry%20File%20(CREG)%20format.asciidoc)
 file format is used to store Windows Registry data.
 
 Paths of known Windows Registry files:
