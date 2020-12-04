@@ -97,6 +97,7 @@ class StdoutOutputWriter(OutputWriter):
       data (bytes): data to write.
     """
     self.WriteText(description)
+    self.WriteText('\n')
 
     hexdump_text = hexdump.Hexdump(data)
     self.WriteText(hexdump_text)
@@ -151,5 +152,4 @@ class StdoutOutputWriter(OutputWriter):
     Args:
       text (str): text to write.
     """
-    text = text.encode('utf8')
     print(text, end='')

@@ -9,7 +9,7 @@ import argparse
 import logging
 import sys
 
-from dfvfs.helpers import command_line as dfvfs_command_line
+from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
 from winregrc import collector
 from winregrc import output_writers
@@ -34,8 +34,7 @@ def Main():
       help='enable debug output.')
 
   argument_parser.add_argument(
-      'source', nargs='?', action='store', metavar='PATH', default=None,
-      help=(
+      'source', nargs='?', action='store', metavar='PATH', default=None, help=(
           'path of the volume containing C:\\Windows, the filename of '
           'a storage media image containing the C:\\Windows directory, '
           'or the path of a NTUSER.DAT Registry file.'))
@@ -59,17 +58,25 @@ def Main():
     print('')
     return False
 
-  volume_scanner_mediator = dfvfs_command_line.CLIVolumeScannerMediator()
+  volume_scanner_mediator = collector.WindowsRegistryCollectorMediator()
+
+  volume_scanner_options = dfvfs_volume_scanner.VolumeScannerOptions()
+  volume_scanner_options.partitions = ['all']
+  volume_scanner_options.snapshots = ['none']
+  volume_scanner_options.volumes = ['none']
+
   registry_collector = collector.WindowsRegistryCollector(
       mediator=volume_scanner_mediator)
-  if not registry_collector.ScanForWindowsVolume(options.source):
+  if not registry_collector.ScanForWindowsVolume(
+      options.source, options=volume_scanner_options):
     print('Unable to retrieve the Windows Registry from: {0:s}.'.format(
         options.source))
     print('')
     return False
 
   # TODO: map collector to available Registry keys.
-  collector_object = userassist.UserAssistCollector(debug=options.debug)
+  collector_object = userassist.UserAssistCollector(
+      debug=options.debug, output_writer=output_writer)
 
   result = collector_object.Collect(registry_collector.registry)
   if not result:
@@ -81,8 +88,8 @@ def Main():
         print('GUID\t\t: {0:s}'.format(user_assist_entry.guid))
         guid = user_assist_entry.guid
 
+      print('Name\t\t: {0:s}'.format(user_assist_entry.name))
       print('Original name\t: {0:s}'.format(user_assist_entry.value_name))
-      print('Converted name\t: {0:s}'.format(user_assist_entry.name))
 
   print('')
   output_writer.Close()

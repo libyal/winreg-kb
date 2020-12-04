@@ -20,19 +20,18 @@ Note that the Settings sub key does not exist by default.
 
 GUID | Windows Versions | Description
 --- | --- | ---
-GUID | Windows Versions | Description
 {0D6D4F41-2994-4BA0-8FEF-620E43CD2812} | XP, Vista | *TODO assumed as: IE7*
 {5E6AB780-7743-11CF-A12B-00AA004AE837} | 2000, XP, 2003, Vista | Microsoft Internet Toolbar
 {75048700-EF1F-11D0-9888-006097DEACF9} | 2000, XP, 2003, Vista | ActiveDesktop
-{9E04CAB2-CC14-11DF-BB8C-A2F1DED72085} | 8 |
-{A3D53349-6E61-4557-8FC7-0028EDCEEBF6} | 8 |
+{9E04CAB2-CC14-11DF-BB8C-A2F1DED72085} | 8, 10 |
+{A3D53349-6E61-4557-8FC7-0028EDCEEBF6} | 8, 10 |
 {B267E3AD-A825-4A09-82B9-EEC22AA3B847} | 8 |
 {BCB48336-4DDD-48FF-BB0B-D3190DACB3E2} | 8.1 |
 {CAA59E3C-4792-41A5-9909-6A6A8D32490E} | 8 |
-{CEBFF5CD-ACE2-4F4F-9178-9926F41749EA} | 2008 (R2?), 7, 8 | *TODO assumed as: Executable File Execution*
-{F2A1CB5A-E3CC-4A2E-AF9D-505A7009D442} | 8 |
-{F4E57C4B-2036-45F0-A9AB-443BCFE33D9F} | 2008 (R2?), 7, 8 | *TODO assumed as: Shortcut File Execution*
-{FA99DFC7-6AC2-453A-A5E2-5E2AFF4507BD} | 8 |
+{CEBFF5CD-ACE2-4F4F-9178-9926F41749EA} | 2008 (R2?), 7, 8, 10 | *TODO assumed as: Application or Executable File Execution*
+{F2A1CB5A-E3CC-4A2E-AF9D-505A7009D442} | 8, 10 |
+{F4E57C4B-2036-45F0-A9AB-443BCFE33D9F} | 2008 (R2?), 7, 8, 10 | *TODO assumed as: Shortcut File Execution*
+{FA99DFC7-6AC2-453A-A5E2-5E2AFF4507BD} | 8, 10 |
 
 Note that the User Assist key does not seem to be present on NT4, therefore this
 functionality was likely introduced in Windows 2000.
@@ -84,7 +83,6 @@ Values outside of this range e.g. `[0-9]` and values outside the basic ASCII ran
 Value | Description
 --- | ---
 UEME_CTLSESSION | Session identifier
-UEME_CTLCUACount |
 UEME_CTLCUACount:ctor |
 UEME_RUNCPL | Executed control applets (.cpl)
 UEME_RUNPATH | Executed programs
@@ -94,6 +92,10 @@ UEME_UIHOTKEY | Programs started via a Hotkey
 UEME_UIQCUT | Programs started via a Quick Launch menu shortcut
 UEME_UISCUT | Programs started via a Desktop shortcut
 UEME_UITOOLBAR | Programs started via Windows Explorer Toolbar buttons
+
+Note does UEME stand for User Experience Monitoring Element/Extension?
+Note does CTL stand for client?
+Note does CUA stand for current user (file) associations?
 
 With the exception of the UEME_CTLSESSION value, these values appear to use
 a similar data types. The structure of a data type depends on the Version value
@@ -111,7 +113,7 @@ The UEME_CTLSESSION value data - version 3 is 8 bytes of size and consists of:
 Offset | Size | Value | Description
 --- | --- | --- | ---
 0 | 4 | | Unknown
-4 | 4 | | Unknown (Session identifier ?)
+4 | 4 | | Current session identifier
 
 ##### UEME_CTLSESSION value data - version 5
 
@@ -132,7 +134,8 @@ Offset | Size | Value | Description
 0 | 4 | | Unknown
 8 | 4 | | Unknown
 12 | 4 | | Unknown
-16 | ... | | Unknown (UTF-16 little-endian string)
+16 | ... | | Unknown (UTF-16 little-endian string with end-of-string character)
+... | ... | | Unknown
 
 #### Other value data
 

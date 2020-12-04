@@ -3,8 +3,10 @@
 
 from __future__ import unicode_literals
 
+from dfvfs.helpers import command_line as dfvfs_command_line
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 from dfvfs.lib import definitions as dfvfs_definitions
+from dfvfs.lib import errors as dfvfs_errors
 from dfvfs.path import factory as dfvfs_path_spec_factory
 from dfvfs.resolver import resolver as dfvfs_resolver
 
@@ -103,23 +105,49 @@ class WindowsRegistryCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
 
     Returns:
       dfvfs.FileIO: file-like object or None if the file does not exist.
+
+    Raises:
+      ScannerError: if the scan node is invalid or the scanner does not know
+          how to proceed.
     """
-    if not self._single_file:
-      return super(WindowsRegistryCollector, self).OpenFile(windows_path)
+    if self._single_file:
+      # TODO: check name of single file.
+      path_spec = dfvfs_path_spec_factory.Factory.NewPathSpec(
+          dfvfs_definitions.TYPE_INDICATOR_OS, location=self._source_path)
+      if path_spec is None:
+        return None
 
-    # TODO: check name of single file.
-    path_spec = dfvfs_path_spec_factory.Factory.NewPathSpec(
-        dfvfs_definitions.TYPE_INDICATOR_OS, location=self._source_path)
-    if path_spec is None:
-      return None
+      return dfvfs_resolver.Resolver.OpenFileObject(path_spec)
 
-    return dfvfs_resolver.Resolver.OpenFileObject(path_spec)
+    windows_path_upper = windows_path.upper()
+    if windows_path_upper.startswith('%USERPROFILE%'):
+      if not self._mediator:
+        raise dfvfs_errors.ScannerError(
+            'Unable to proceed. %UserProfile% found in Windows path but no '
+            'mediator to determine which user to select.')
 
-  def ScanForWindowsVolume(self, source_path):
+      users_path_spec = self._path_resolver.ResolvePath('\\Users')
+      # TODO: handle alternative users path locations
+      if users_path_spec is None:
+        raise dfvfs_errors.ScannerError(
+            'Unable to proceed. %UserProfile% found in Windows path but no '
+            'users path found to determine which user to select.')
+
+      users_file_entry = dfvfs_resolver.Resolver.OpenFileEntry(users_path_spec)
+      self._mediator.PrintUsersSubDirectoriesOverview(users_file_entry)
+
+      # TODO: list users and determine corresponding windows_path
+
+    return super(WindowsRegistryCollector, self).OpenFile(windows_path)
+
+  def ScanForWindowsVolume(self, source_path, options=None):
     """Scans for a Windows volume.
 
     Args:
       source_path (str): source path.
+      options (Optional[VolumeScannerOptions]): volume scanner options. If None
+          the default volume scanner options are used, which are defined in the
+          VolumeScannerOptions class.
 
     Returns:
       bool: True if a Windows volume was found.
@@ -130,10 +158,38 @@ class WindowsRegistryCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
           the source file is not supported.
     """
     result = super(WindowsRegistryCollector, self).ScanForWindowsVolume(
-        source_path)
+        source_path, options=options)
 
     if self._source_type == dfvfs_definitions.SOURCE_TYPE_FILE:
       self._single_file = True
       return True
 
     return result
+
+
+class WindowsRegistryCollectorMediator(
+    dfvfs_command_line.CLIVolumeScannerMediator):
+  """Windows Registry collector mediator."""
+
+  def PrintUsersSubDirectoriesOverview(self, users_file_entry):
+    """Prints an overview of the Users sub directories.
+
+    Args:
+      users_file_entry (dfvfs.FileEntry): file entry of the Users directory.
+    """
+    if users_file_entry.IsLink():
+      users_file_entry = users_file_entry.GetLinkedFileEntry()
+
+    # TODO: handle missing sub directories
+
+    if users_file_entry:
+      column_names = ['Username']
+      table_view = dfvfs_command_line.CLITabularTableView(
+          column_names=column_names)
+
+      for sub_file_entry in users_file_entry.sub_file_entries:
+        if sub_file_entry.IsDirectory():
+          table_view.AddRow([sub_file_entry.name])
+
+      self._output_writer.Write('\n')
+      # table_view.Write(self._output_writer)

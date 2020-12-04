@@ -18,9 +18,6 @@ from dfvfs.vfs import file_entry
 from dfvfs.vfs import file_system as dfvfs_file_system
 from dfvfs.vfs import vfs_stat
 
-if pyregf.get_version() < '20150411':
-  raise ImportWarning('dfVFS pyregf requires at least pyregf 20150411.')
-
 
 # The type indicator definition.
 TYPE_INDICATOR_REGF = 'REGF'
