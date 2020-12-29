@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """System information collector."""
 
-from __future__ import unicode_literals
-
 from dfdatetime import posix_time as dfdatetime_posix_time
 from dfdatetime import semantic_time as dfdatetime_semantic_time
 

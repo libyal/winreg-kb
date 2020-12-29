@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Binary data format."""
 
-from __future__ import unicode_literals
-
 import os
 
 from dfdatetime import filetime as dfdatetime_filetime

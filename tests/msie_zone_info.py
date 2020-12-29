@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """Tests for the Microsoft Internet Explorer (MSIE) zone collector."""
 
-from __future__ import unicode_literals
-
 import unittest
 
 from dfwinreg import registry as dfwinreg_registry

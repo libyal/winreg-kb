@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """Tests for the Security Account Manager (SAM) collector."""
 
-from __future__ import unicode_literals
-
 import unittest
 
 from dfwinreg import definitions as dfwinreg_definitions

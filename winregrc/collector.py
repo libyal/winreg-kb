@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Windows volume collector."""
 
-from __future__ import unicode_literals
-
 from dfvfs.helpers import command_line as dfvfs_command_line
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 from dfvfs.lib import definitions as dfvfs_definitions

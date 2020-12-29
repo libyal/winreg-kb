@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Windows Programs Cache information collector."""
 
-from __future__ import unicode_literals
-
 import logging
 import uuid
 

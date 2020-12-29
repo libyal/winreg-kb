@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """System Resource Usage Monitor (SRUM) extension collector."""
 
-from __future__ import unicode_literals
-
 from winregrc import interface
 
 

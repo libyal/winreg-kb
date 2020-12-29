@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 """Script to extract system key."""
 
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import argparse
 import codecs
 import logging

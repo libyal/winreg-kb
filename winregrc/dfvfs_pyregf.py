@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """The pyregf Windows Registry extension for dfVFS."""
 
-from __future__ import unicode_literals
-
 import pyregf
 
 from dfdatetime import filetime

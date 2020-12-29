@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Most Recently Used (MRU) collector."""
 
-from __future__ import unicode_literals
-
 from dtfabric.runtime import data_maps as dtfabric_data_maps
 
 from winregrc import data_format

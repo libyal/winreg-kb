@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Windows application identifiers (AppID) collector."""
 
-from __future__ import unicode_literals
-
 from winregrc import interface
 
 

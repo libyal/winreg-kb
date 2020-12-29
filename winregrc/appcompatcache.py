@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Application Compatibility Cache collector."""
 
-from __future__ import unicode_literals
-
 import logging
 
 from dtfabric.runtime import data_maps as dtfabric_data_maps

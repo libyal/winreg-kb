@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Windows Registry key and value collector."""
 
-from __future__ import unicode_literals
-
 import abc
 
 

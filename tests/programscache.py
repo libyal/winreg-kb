@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """Tests for the Programs Cache information collector."""
 
-from __future__ import unicode_literals
-
 import unittest
 
 from dfwinreg import registry as dfwinreg_registry

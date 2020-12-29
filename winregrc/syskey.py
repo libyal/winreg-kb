@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """System key (syskey) collector."""
 
-from __future__ import unicode_literals
-
 import codecs
 
 from winregrc import interface

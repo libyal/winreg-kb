@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """Tests for the Python 2 and 3 compatible type definitions."""
 
-from __future__ import unicode_literals
-
 import sys
 import unittest
 

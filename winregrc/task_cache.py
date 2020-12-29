@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Task Cache collector."""
 
-from __future__ import unicode_literals
-
 import logging
 
 from dfdatetime import filetime as dfdatetime_filetime

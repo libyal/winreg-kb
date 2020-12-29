@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 """Microsoft Internet Explorer (MSIE) zone information collector."""
 
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from winregrc import interface
 
 

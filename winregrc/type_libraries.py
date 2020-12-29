@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Windows type libraries collector."""
 
-from __future__ import unicode_literals
-
 from winregrc import interface
 
 

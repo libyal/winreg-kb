@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Domain cached credentials collector."""
 
-from __future__ import unicode_literals
-
 import codecs
 import struct
 

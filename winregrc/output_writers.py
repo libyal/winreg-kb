@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 """Output writer."""
 
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import abc
 
 from dfdatetime import filetime as dfdatetime_filetime

@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 """Script to extract Security Account Manager (SAM) information."""
 
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import argparse
 import logging
 import sys

@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """Tests for the output writer."""
 
-from __future__ import unicode_literals
-
 import unittest
 
 from winregrc import output_writers

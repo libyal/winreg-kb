@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Tests for binary data format and file."""
 
-from __future__ import unicode_literals
-
 import io
 import unittest
 

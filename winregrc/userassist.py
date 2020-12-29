@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Windows UserAssist information collector."""
 
-from __future__ import unicode_literals
-
 import codecs
 import logging
 

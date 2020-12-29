@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """Tests for the Windows Registry key and value filters."""
 
-from __future__ import unicode_literals
-
 import unittest
 
 from winregrc import filters
