@@ -52,6 +52,7 @@ userdiff | %SystemRoot%\System32\config | *TODO* | | NT 4 and later
 UsrClass.dat | %UserProfile%\Local Settings\Application Data\Microsoft\Windows | File associations and COM Registry entries | | 2000, XP, 2003
 UsrClass.dat | %UserProfile%\AppData\Local\Microsoft\Windows | File associations and COM Registry entries | `HKEY_CURRENT_USER\Software\Classes` | Vista and later
 
+*TODO Windows NT 3.1 user specific file under %SystemRoot%\System32\config*
 *TODO BCD check Windows 8 and 10*
 *TODO userdiff no longer present in Windows 10 ?*
 *TODO what about \Windows\profiles\user profile\user.dat ?*

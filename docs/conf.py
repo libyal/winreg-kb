@@ -11,7 +11,7 @@ from sphinx.ext import apidoc
 from docutils import nodes
 from docutils import transforms
 
-# Change PYTHONPATH to include winreg-kb module and dependencies.
+# Change PYTHONPATH to include winregrc module and dependencies.
 sys.path.insert(0, os.path.abspath('..'))
 
 import winregrc  # pylint: disable=wrong-import-position
@@ -42,7 +42,8 @@ extensions = [
 pip_installed_modules = set(['six'])
 
 dependency_helper = utils.dependencies.DependencyHelper(
-    configuration_file=os.path.join('..', 'dependencies.ini'))
+    dependencies_file=os.path.join('..', 'dependencies.ini'),
+    test_dependencies_file=os.path.join('..', 'test_dependencies.ini'))
 modules_to_mock = set(dependency_helper.dependencies.keys())
 modules_to_mock = modules_to_mock.difference(pip_installed_modules)
 
@@ -131,8 +132,9 @@ class MarkdownLinkFixer(transforms.Transform):
     if isinstance(node, nodes.reference) and 'refuri' in node:
       reference_uri = node['refuri']
       for uri_prefix in self._URI_PREFIXES:
-        if (reference_uri.startswith(uri_prefix) and
-            not reference_uri.endswith('.asciidoc')):
+        if (reference_uri.startswith(uri_prefix) and not (
+            reference_uri.endswith('.asciidoc') or
+            reference_uri.endswith('.md'))):
           node['refuri'] = reference_uri + '.md'
           break
 
