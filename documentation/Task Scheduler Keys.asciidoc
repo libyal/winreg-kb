@@ -96,7 +96,11 @@ Values:
 |===
 | Value | Data type | Description
 | Id | | Contains a GUID that corresponds to an entry in the Task Cache
-| Index | |
+| Index | |Known values: +
+0: when the task has no corresponding TaskCache\Tasks\\{GUID} entry pointing to xml file +
+1: ??? +
+2: ??? +
+3: ???
 |===
 
 ....
