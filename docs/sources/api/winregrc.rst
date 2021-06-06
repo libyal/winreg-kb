@@ -28,6 +28,14 @@ winregrc.cached\_credentials module
    :undoc-members:
    :show-inheritance:
 
+winregrc.catalog module
+-----------------------
+
+.. automodule:: winregrc.catalog
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 winregrc.collector module
 -------------------------
 

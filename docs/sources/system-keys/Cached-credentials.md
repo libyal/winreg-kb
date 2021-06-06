@@ -1,81 +1,68 @@
-*NOTE this page largely contains some notes for now*
+# Cached Credentials
 
-:toc:
-:toclevels: 4
-
-== Cached Credentials
-
-....
-HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\
-....
+```
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon
+```
 
 Values:
 
-[cols="1,1,5",options="header"]
-|===
-| Value | Data type | Description
-| CachedLogonsCount | REG_SZ | Number of cached log-ons +
-According to MSDN the value must be in the range "0" - "50"
-|===
+Value | Data type | Description
+--- | --- | ---
+CachedLogonsCount | REG_SZ | Number of cached log-ons. <br/> According to MSDN the value must be in the range "0" - "50"
 
-=== Credentials cache
+## Credentials cache
 
-....
+```
 HKEY_LOCAL_MACHINE\Security\Cache
-....
+```
 
 Values:
 
-[cols="1,5",options="header"]
-|===
-| Name | Description
-| NL$Control |
-| NL$%NUMBER% | Cached credential
-|===
+Name | Description
+--- | ---
+NL$Control |
+NL$%NUMBER% | Cached credential
 
 Where %NUMBER% contains the number of the cached credential.
 
-==== NL$Control value
+### NL$Control value
 
-....
+```
 00000000  04 00 01 00 0a 00 00 00                           |........|
-....
+```
 
-==== NL$%NUMBER% value
+### NL$%NUMBER% value
 
-[cols="1,1,1,5",options="header"]
-|===
-| Offset | Size | Value | Description
-4+| _Metadata_
-| 0 | 2 | | Username string size
-| 2 | 2 | | Hostname string size
-| 4 | 2 | | [yellow-background]*Unknown (username string size)*
-| 6 | 2 | | [yellow-background]*Unknown (Full name string size)*
-| 8 | 4 | | [yellow-background]*Unknown*
-| 12 | 2 | | [yellow-background]*Unknown (Profile path string size)*
-| 14 | 2 | | [yellow-background]*Unknown (Profile mount drive letter string size)*
-| 16 | 4 | | [yellow-background]*Unknown*
-| 20 | 4 | | [yellow-background]*Unknown*
-| 24 | 4 | | [yellow-background]*Unknown*
-| 28 | 2 | | [yellow-background]*Unknown*
-| 30 | 2 | | [yellow-background]*Unknown*
-| 32 | 8 | | [yellow-background]*Unknown (date and time)* +
-Contains a FILETIME timestamp
-| 40 | 2 | | [yellow-background]*Unknown*
-| 42 | 2 | | [yellow-background]*Unknown*
-| 44 | 4 | | [yellow-background]*Unknown*
-| 48 | 4 | | [yellow-background]*Unknown*
-| 52 | 4 | | [yellow-background]*Unknown*
-| 56 | 4 | | [yellow-background]*Unknown*
-| 60 | 2 | | Hostname with domain string size
-| 62 | 2 | | [yellow-background]*Unknown*
-4+| _Data_
-| 64 | 16 | | [yellow-background]*Unknown (CH)*
-| 80 | 16 | | [yellow-background]*Unknown (T)*
-| 96 | ... | | Encrypted data
-|===
+Offset | Size | Value | Description
+--- | --- | --- | ---
+<td colspan=4> _Metadata_
+0 | 2 | | Username string size
+2 | 2 | | Hostname string size
+4 | 2 | | <mark style="background-color: yellow">**Unknown (username string size)**</mark>
+6 | 2 | | <mark style="background-color: yellow">**Unknown (Full name string size)**</mark>
+8 | 4 | | <mark style="background-color: yellow">**Unknown**</mark>
+12 | 2 | | <mark style="background-color: yellow">**Unknown (Profile path string size)**</mark>
+14 | 2 | | <mark style="background-color: yellow">**Unknown (Profile mount drive letter string size)**</mark>
+16 | 4 | | <mark style="background-color: yellow">**Unknown**</mark>
+20 | 4 | | <mark style="background-color: yellow">**Unknown**</mark>
+24 | 4 | | <mark style="background-color: yellow">**Unknown**</mark>
+28 | 2 | | <mark style="background-color: yellow">**Unknown**</mark>
+30 | 2 | | <mark style="background-color: yellow">**Unknown**</mark>
+32 | 8 | | <mark style="background-color: yellow">**Unknown (date and time)**</mark> <br/> Contains a FILETIME timestamp
+40 | 2 | | <mark style="background-color: yellow">**Unknown**</mark>
+42 | 2 | | <mark style="background-color: yellow">**Unknown**</mark>
+44 | 4 | | <mark style="background-color: yellow">**Unknown**</mark>
+48 | 4 | | <mark style="background-color: yellow">**Unknown**</mark>
+52 | 4 | | <mark style="background-color: yellow">**Unknown**</mark>
+56 | 4 | | <mark style="background-color: yellow">**Unknown**</mark>
+60 | 2 | | Hostname with domain string size
+62 | 2 | | <mark style="background-color: yellow">**Unknown**</mark>
+<td colspan=4> _Data_
+64 | 16 | | <mark style="background-color: yellow">**Unknown (CH)**</mark>
+80 | 16 | | <mark style="background-color: yellow">**Unknown (T)**</mark>
+96 | ... | | Encrypted data
 
-....
+```
 metadata
 * username size
 * domain size
@@ -120,31 +107,29 @@ Encrypted data
 0x000001a0  37 18 53 33 61 3e 21 7a  e6 08 e3 f2 d5 1c 81 ce  7.S3a>!z........
 0x000001b0  9a 45 71 85 bf a6 e9 fd  ea 7e b7 2f 01 0d 7d c7  .Eq......~./..}.
 0x000001c0  46 9f e5 73                                       F..s
-....
+```
 
-[cols="1,1,1,5",options="header"]
-|===
-| Offset | Size | Value | Description
-| 0 | 16 | | [yellow-background]*Unknown (password hash)*
-| 16 | 16 | | [yellow-background]*Unknown*
-| 32 | 8 | | [yellow-background]*Unknown*
-| 40 | 4 | | [yellow-background]*Unknown*
-| 44 | 4 | | [yellow-background]*Unknown*
-| 48 | 8 | | [yellow-background]*Unknown*
-| 56 | 16 | | [yellow-background]*Unknown*
-| 72 | ... | | Username string
-| ... | ... | | 32-bit alignment padding
-| ... | ... | | Hostname string
-| ... | ... | | 32-bit alignment padding
-| ... | ... | | Hostname and domain string
-| ... | ... | | 32-bit alignment padding
-| ... | ... | | Profile path string
-| ... | ... | | 32-bit alignment padding
-| ... | ... | | Profile mount drive letter string
-| ... | ... | | 32-bit alignment padding
-|===
+Offset | Size | Value | Description
+--- | --- | --- | ---
+0 | 16 | | <mark style="background-color: yellow">**Unknown (password hash)**</mark>
+16 | 16 | | <mark style="background-color: yellow">**Unknown**</mark>
+32 | 8 | | <mark style="background-color: yellow">**Unknown**</mark>
+40 | 4 | | <mark style="background-color: yellow">**Unknown**</mark>
+44 | 4 | | <mark style="background-color: yellow">**Unknown**</mark>
+48 | 8 | | <mark style="background-color: yellow">**Unknown**</mark>
+56 | 16 | | <mark style="background-color: yellow">**Unknown**</mark>
+72 | ... | | Username string
+... | ... | | 32-bit alignment padding
+... | ... | | Hostname string
+... | ... | | 32-bit alignment padding
+... | ... | | Hostname and domain string
+... | ... | | 32-bit alignment padding
+... | ... | | Profile path string
+... | ... | | 32-bit alignment padding
+... | ... | | Profile mount drive letter string
+... | ... | | 32-bit alignment padding
 
-....
+```
 Decrypted data:
 0x00000000  6e 37 5e e6 a7 99 6c 5c  55 85 74 67 09 af a0 65  n7^...l\U.tg...e
 0x00000010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
@@ -188,10 +173,11 @@ Sizes from metadata
 0x00000140  15 00 00 00 97 2a 67 79  a0 54 4a b6 19 87 28 7e  .....*gy.TJ...(~
 0x00000150  43 00 4f 00 4e 00 54 00  52 00 4f 00 4c 00 4c 00  C.O.N.T.R.O.L.L.
 0x00000160  45 00 52 00                                       E.R.
-....
+```
 
 NL$7
-....
+
+```
 00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 00000010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 00000020  00 00 00 00 00 00 00 00  04 00 01 00 00 00 00 00  |................|
@@ -203,10 +189,9 @@ NL$7
 00000080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 00000090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 000000a0  00 00 00 00 00 00 00 00                           |........|
-....
+```
 
+## External Links
 
-== External Links
-
-* http://support.microsoft.com/kb/172931[KB172931: Cached domain logon information]
+* [Cached domain logon information](https://docs.microsoft.com/en-US/troubleshoot/windows-server/user-profiles-and-logon/cached-domain-logon-information)
 

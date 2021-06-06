@@ -8,17 +8,20 @@ from dfwinreg import regf as dfwinreg_regf
 class CatalogCollector(object):
   """Catalog collector."""
 
-  def _CollectCatalogDescriptors(self, registry_key):
+  def _CollectCatalogDescriptors(self, registry_key, output_writer):
     """Collects the catalog descriptors from a Windows Registry key.
 
     Args:
       registry_key (dfwinreg.WinRegistryKey): Windows Registry key.
+      output_writer (OutputWriter): output writer.
     """
     for registry_value in registry_key.GetValues():
-      print(registry_key.key_path, registry_value.name, registry_value.data_type_string)
+      output_writer.WriteValueDescriptor(
+          registry_key.key_path, registry_value.name,
+          registry_value.data_type_string)
 
     for sub_key in registry_key.GetSubKeys():
-      self._CollectCatalogDescriptors(sub_key)
+      self._CollectCatalogDescriptors(sub_key, output_writer)
 
   def Collect(self, path, output_writer):
     """Collects the catalog descriptors from a Windows Registry file.
@@ -30,7 +33,7 @@ class CatalogCollector(object):
     Returns:
       bool: True if a root key was found, False if not.
     """
-    with open(options.source, 'rb') as file_object:
+    with open(path, 'rb') as file_object:
       try:
         registry_file = dfwinreg_regf.REGFWinRegistryFile()
 
@@ -52,5 +55,7 @@ class CatalogCollector(object):
       root_key = registry_file.GetRootKey()
       if not root_key:
         return False
+
+      self._CollectCatalogDescriptors(root_key, output_writer)
 
       return True

@@ -28,7 +28,7 @@ The root key of both SYSTEM.DAT and USER.DAT contains an empty name string.
 
 ## Windows Registry files - Windows NT
 
-On Windows NT and later the [REGF](https://github.com/libyal/libregf/blob/master/documentation/Windows%20NT%20Registry%20File%20(REGF)%20format.asciidoc)
+On Windows NT and later the [REGF](https://github.com/libyal/libregf/blob/main/documentation/Windows%20NT%20Registry%20File%20(REGF)%20format.asciidoc)
 file format is used to store Windows Registry data.
 
 Paths of known Windows Registry files:

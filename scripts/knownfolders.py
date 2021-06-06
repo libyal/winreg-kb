@@ -22,7 +22,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       known_folder (KnownFolder): known folder.
     """
-    text = '{0:s}\t{1:s}\t{2:s}'.format(
+    text = '{0:s}\t{1:s}\t{2:s}\n'.format(
         known_folder.guid, known_folder.name, known_folder.localized_name)
     self.WriteText(text)
 

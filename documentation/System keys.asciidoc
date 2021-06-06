@@ -19,32 +19,6 @@ CurrentControlSet\Control\Session Manager
 | BootExecute | REG_BINARY, REG_MULTI_SZ | The applications, services, and commands executed during start-up.
 |===
 
-== Language and codepage
-
-=== Codepage
-
-The codepage settings are stored in the key:
-
-....
-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage
-....
-
-[cols="1,1,5",options="header"]
-|===
-| Value | Data type | Description
-| # | REG_SZ | The code page file name +
-Where # is the code page number, e.g. 1252 +
-Contains a string with the name of the corresponding file e.g. c_1252.nls
-| ACP | REG_SZ | The default ANSI (extended ASCII) code page +
-Contains a string with the number of the corresponding code page e.g. 1252
-| MACCP | REG_SZ | The default Macintosh code page +
-Contains a string with the number of the corresponding code page e.g. 1252
-| OEMCP | REG_SZ | The default OEM code page +
-Contains a string with the number of the corresponding code page e.g. 1252
-| OEMHAL | REG_SZ | [yellow-background]*Unknown* +
-Contains a string with the name of the corresponding file e.g. vgaoem.fon
-|===
-
 == Run and Run Once keys
 
 Run and Run Once keys cause programs to run each time a user logs on. There a 

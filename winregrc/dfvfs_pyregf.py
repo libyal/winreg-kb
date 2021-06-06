@@ -99,27 +99,29 @@ class RegfResolverHelper(resolver_helper.ResolverHelper):
 
   TYPE_INDICATOR = TYPE_INDICATOR_REGF
 
-  def NewFileObject(self, resolver_context):
-    """Creates a new file-like object.
+  def NewFileObject(self, resolver_context, path_spec):
+    """Creates a new file input/output (IO) object.
 
     Args:
-      resolver_context (dfvfs.Context): a resolver context.
+      resolver_context (Context): resolver context.
+      path_spec (PathSpec): a path specification.
 
     Returns:
       RegfFile: a file-like object.
     """
-    return RegfFile(resolver_context)
+    return RegfFile(resolver_context, path_spec)
 
-  def NewFileSystem(self, resolver_context):
-    """Creates a new file system object.
+  def NewFileSystem(self, resolver_context, path_spec):
+    """Creates a new file system.
 
     Args:
-      resolver_context (dfvfs.Context): a resolver context.
+      resolver_context (Context): resolver context.
+      path_spec (PathSpec): a path specification.
 
     Returns:
       RegfFileSystem: a file system.
     """
-    return RegfFileSystem(resolver_context)
+    return RegfFileSystem(resolver_context, path_spec)
 
 
 # The file entry.
@@ -313,13 +315,14 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
 
   TYPE_INDICATOR = TYPE_INDICATOR_REGF
 
-  def __init__(self, resolver_context):
-    """Initializes the file system object.
+  def __init__(self, resolver_context, path_spec):
+    """Initializes a file system.
 
     Args:
-      resolver_context (dfvfs.Context): a resolver context.
+      resolver_context (Context): resolver context.
+      path_spec (PathSpec): a path specification.
     """
-    super(RegfFileSystem, self).__init__(resolver_context)
+    super(RegfFileSystem, self).__init__(resolver_context, path_spec)
     self._file_object = None
     self._regf_base_key = None
     self._regf_file = None
@@ -339,27 +342,25 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
     self._file_object.close()
     self._file_object = None
 
-  def _Open(self, path_spec=None, mode='rb'):
+  def _Open(self, mode='rb'):
     """Opens the file system object defined by path specification.
 
     Args:
-      path_spec (Optional[dfvfs.PathSpec]): a path specification.
-      mode (Optional[str]): file access mode. The default is 'rb' read-only
-          binary.
+      mode (Optional[str]): file access mode. The default is 'rb' which
+          represents read-only binary.
 
     Raises:
       AccessError: if the access to open the file was denied.
       IOError: if the file system object could not be opened.
-      OSError: if the file system object could not be opened.
       PathSpecError: if the path specification is incorrect.
       ValueError: if the path specification is invalid.
     """
-    if not path_spec.HasParent():
+    if not self._path_spec.HasParent():
       raise errors.PathSpecError(
           'Unsupported path specification without parent.')
 
     file_object = resolver.Resolver.OpenFileObject(
-        path_spec.parent, resolver_context=self._resolver_context)
+        self._path_spec.parent, resolver_context=self._resolver_context)
 
     regf_file = pyregf.file()
     regf_file.open_file_object(file_object)

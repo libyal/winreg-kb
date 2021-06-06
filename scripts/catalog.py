@@ -13,6 +13,21 @@ from winregrc import catalog
 from winregrc import output_writers
 
 
+class StdoutWriter(output_writers.StdoutOutputWriter):
+  """Stdout output writer."""
+
+  def WriteValueDescriptor(self, key_path, value_name, value_data_type):
+    """Writes a value descriptor to the output.
+
+    Args:
+      key_path (str): key path.
+      value_name (str): name of the value.
+      value_data_type (str): data type of the value.
+    """
+    text = '{0:s}\t{1:s}\t{2:s}\n'.format(key_path, value_name, value_data_type)
+    self.WriteText(text)
+
+
 def Main():
   """The main program function.
 
@@ -38,12 +53,20 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
+  output_writer_object = StdoutWriter()
+
+  if not output_writer_object.Open():
+    print('Unable to open output writer.')
+    print('')
+    return False
+
   collector_object = catalog.CatalogCollector()
 
-  result = collector_object.Collect(
-      registry_collector.registry, output_writer_object)
+  result = collector_object.Collect(options.source, output_writer_object)
   if not result:
-    print('No shell folder identifier keys found.')
+    print('No catalog keys and values found.')
+
+  output_writer_object.Close()
 
   return True
 
