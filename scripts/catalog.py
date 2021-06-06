@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 """Script to extract a catalog of Windows Registry keys and values."""
 
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import argparse
 import logging
 import sys
+
+from dfwinreg import creg as dfwinreg_creg
+from dfwinreg import regf as dfwinreg_regf
+from dfwinreg import registry as dfwinreg_registry
 
 from winregrc import catalog
 from winregrc import output_writers
@@ -16,15 +17,23 @@ from winregrc import output_writers
 class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
-  def WriteValueDescriptor(self, key_path, value_name, value_data_type):
-    """Writes a value descriptor to the output.
+  def WriteKeyPath(self, key_path):
+    """Writes a key path to the output.
 
     Args:
       key_path (str): key path.
+    """
+    text = '{0:s}\n'.format(key_path)
+    self.WriteText(text)
+
+  def WriteValueDescriptor(self, value_name, value_data_type):
+    """Writes a value descriptor to the output.
+
+    Args:
       value_name (str): name of the value.
       value_data_type (str): data type of the value.
     """
-    text = '{0:s}\t{1:s}\t{2:s}\n'.format(key_path, value_name, value_data_type)
+    text = '\t{0:s}\t{1:s}\n'.format(value_name, value_data_type)
     self.WriteText(text)
 
 
@@ -60,11 +69,46 @@ def Main():
     print('')
     return False
 
-  collector_object = catalog.CatalogCollector()
+  file_object = open(options.source, 'rb')
 
-  result = collector_object.Collect(options.source, output_writer_object)
-  if not result:
-    print('No catalog keys and values found.')
+  try:
+    try:
+      registry_file = dfwinreg_regf.REGFWinRegistryFile()
+
+      registry_file.Open(file_object)
+    except IOError:
+      registry_file = None
+
+    if not registry_file:
+      try:
+        registry_file = dfwinreg_creg.CREGWinRegistryFile()
+
+        registry_file.Open(file_object)
+      except IOError:
+        registry_file = None
+
+    if not registry_file:
+      print('Unable to open Windows Registry file.')
+      return False
+
+    # Using dfWinReg to determine Windows native key paths if available.
+    registry = dfwinreg_registry.WinRegistry()
+
+    key_path_prefix = registry.GetRegistryFileMapping(registry_file)
+    registry_file.SetKeyPathPrefix(key_path_prefix)
+
+    root_key = registry_file.GetRootKey()
+
+    result = False
+    if root_key:
+      collector_object = catalog.CatalogCollector()
+      result = collector_object.Collect(root_key, output_writer_object)
+
+    if not result:
+      print('No catalog keys and values found.')
+
+  finally:
+    file_object.close()
 
   output_writer_object.Close()
 

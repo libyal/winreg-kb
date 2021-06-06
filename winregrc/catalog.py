@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """Catalog collector."""
 
-from dfwinreg import creg as dfwinreg_creg
-from dfwinreg import regf as dfwinreg_regf
+import re
 
 
 class CatalogCollector(object):
@@ -15,47 +14,34 @@ class CatalogCollector(object):
       registry_key (dfwinreg.WinRegistryKey): Windows Registry key.
       output_writer (OutputWriter): output writer.
     """
-    for registry_value in registry_key.GetValues():
-      output_writer.WriteValueDescriptor(
-          registry_key.key_path, registry_value.name,
-          registry_value.data_type_string)
+    alphanumeric_compare = lambda key: [
+        int(text) if text.isdigit() else text.lower()
+        for text in re.split('([0-9]+)', key[0])]
 
-    for sub_key in registry_key.GetSubKeys():
+    output_writer.WriteKeyPath(registry_key.path)
+    value_descriptors = []
+    for registry_value in registry_key.GetValues():
+      value_descriptor = (
+          registry_value.name or '', registry_value.data_type_string)
+      value_descriptors.append(value_descriptor)
+
+    for value_name, data_type_string in sorted(
+          value_descriptors, key=alphanumeric_compare):
+      output_writer.WriteValueDescriptor(
+          value_name or '(default)', data_type_string)
+
+    for sub_key in registry_key.GetSubkeys():
       self._CollectCatalogDescriptors(sub_key, output_writer)
 
-  def Collect(self, path, output_writer):
+  def Collect(self, root_key, output_writer):
     """Collects the catalog descriptors from a Windows Registry file.
 
     Args:
-      path (str): path to Windows Registry file.
+      root_key (dfwinreg.WinRegistryKey): root Windows Registry key.
       output_writer (OutputWriter): output writer.
 
     Returns:
-      bool: True if a root key was found, False if not.
+      bool: True if the catalog could be collected, False if not.
     """
-    with open(path, 'rb') as file_object:
-      try:
-        registry_file = dfwinreg_regf.REGFWinRegistryFile()
-
-        registry_file.Open(file_object)
-      except IOError:
-        registry_file = None
-
-      if not registry_file:
-        try:
-          registry_file = dfwinreg_creg.CREGWinRegistryFile()
-
-          registry_file.Open(file_object)
-        except IOError:
-          registry_file = None
-
-      if not registry_file:
-        return False
-
-      root_key = registry_file.GetRootKey()
-      if not root_key:
-        return False
-
-      self._CollectCatalogDescriptors(root_key, output_writer)
-
-      return True
+    self._CollectCatalogDescriptors(root_key, output_writer)
+    return True
