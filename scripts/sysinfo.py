@@ -20,7 +20,7 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the system information from a SOFTWARE Registry file.'))
+      'Extracts the system information from the Windows Registry.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False, help=(

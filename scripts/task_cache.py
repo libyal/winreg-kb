@@ -20,8 +20,8 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts Task Scheduler Task Cache information from '
-      'a SOFTWARE Registry file.'))
+      'Extracts Task Scheduler Task Cache information from the Windows '
+      'Registry.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,

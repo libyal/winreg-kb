@@ -14,9 +14,106 @@ class OutputWriter(object):
   # Note that redundant-returns-doc is broken for pylint 1.7.x
   # pylint: disable=redundant-returns-doc
 
+  _HEXDUMP_CHARACTER_MAP = [
+      '.' if byte < 0x20 or byte > 0x7e else chr(byte) for byte in range(256)]
+
+  def _FormatDataInHexadecimal(self, data):
+    """Formats data in a hexadecimal representation.
+
+    Args:
+      data (bytes): data.
+
+    Returns:
+      str: hexadecimal representation of the data.
+    """
+    in_group = False
+    previous_hexadecimal_string = None
+
+    lines = []
+    data_size = len(data)
+    for block_index in range(0, data_size, 16):
+      data_string = data[block_index:block_index + 16]
+
+      hexadecimal_byte_values = []
+      printable_values = []
+      for byte_value in data_string:
+        if isinstance(byte_value, str):
+          byte_value = ord(byte_value)
+
+        hexadecimal_byte_value = '{0:02x}'.format(byte_value)
+        hexadecimal_byte_values.append(hexadecimal_byte_value)
+
+        printable_value = self._HEXDUMP_CHARACTER_MAP[byte_value]
+        printable_values.append(printable_value)
+
+      remaining_size = 16 - len(data_string)
+      if remaining_size == 0:
+        whitespace = ''
+      elif remaining_size >= 8:
+        whitespace = ' ' * ((3 * remaining_size) - 1)
+      else:
+        whitespace = ' ' * (3 * remaining_size)
+
+      hexadecimal_string_part1 = ' '.join(hexadecimal_byte_values[0:8])
+      hexadecimal_string_part2 = ' '.join(hexadecimal_byte_values[8:16])
+      hexadecimal_string = '{0:s}  {1:s}{2:s}'.format(
+          hexadecimal_string_part1, hexadecimal_string_part2, whitespace)
+
+      if (previous_hexadecimal_string is not None and
+          previous_hexadecimal_string == hexadecimal_string and
+          block_index + 16 < data_size):
+
+        if not in_group:
+          in_group = True
+
+          lines.append('...')
+
+      else:
+        printable_string = ''.join(printable_values)
+
+        lines.append('0x{0:08x}  {1:s}  {2:s}'.format(
+            block_index, hexadecimal_string, printable_string))
+
+        in_group = False
+        previous_hexadecimal_string = hexadecimal_string
+
+    lines.extend(['', ''])
+    return '\n'.join(lines)
+
   @abc.abstractmethod
   def Close(self):
     """Closes the output writer."""
+
+  def DebugPrintData(self, description, data):
+    """Prints data for debugging.
+
+    Args:
+      description (str): description.
+      data (bytes): data.
+    """
+    self.WriteText('{0:s}:\n'.format(description))
+    self.WriteText(self._FormatDataInHexadecimal(data))
+
+  def DebugPrintValue(self, description, value):
+    """Prints a value for debugging.
+
+    Args:
+      description (str): description.
+      value (object): value.
+    """
+    alignment, _ = divmod(len(description), 8)
+    alignment = 8 - alignment + 1
+    text = '{0:s}{1:s}: {2!s}\n'.format(
+        description, '\t' * alignment, value)
+    self.WriteText(text)
+
+  def DebugPrintText(self, text):
+    """Prints text for debugging.
+
+    Args:
+      text (str): text.
+    """
+    self.WriteText(text)
 
   @abc.abstractmethod
   def Open(self):

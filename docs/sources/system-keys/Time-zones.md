@@ -171,7 +171,7 @@ Name | Data type | Description
 --- | --- | ---
 TzVersion | REG_DWORD |
 
-### Time Zones name sub key
+### Time Zones %TIMEZONENAME% sub key
 
 Sub keys:
 
@@ -188,6 +188,8 @@ Name | Data type | Description
 --- | --- | ---
 Display | REG_SZ | The display name
 Dlt | REG_SZ | The description for daylight time
+Index | |
+MapID | |
 MUI_Display | REG_SZ | The display name in [MUI Form](https://winreg-kb.readthedocs.io/en/latest/sources/windows-registry/MUI-form.html)
 MUI_Dlt | REG_SZ | The description for daylight time in [MUI Form](https://winreg-kb.readthedocs.io/en/latest/sources/windows-registry/MUI-form.html)
 MUI_Std | REG_SZ | The description for standard time in [MUI Form](https://winreg-kb.readthedocs.io/en/latest/sources/windows-registry/MUI-form.html)
@@ -228,16 +230,27 @@ Offset | Size | Value | Description
 
 #### Registry Time Zone information structure
 
-The Registry Time Zone information (`_REG_TZI_FORMAT`) structure is 44 bytes of
-size and consists of:
+The Registry Time Zone information (`TIME_ZONE_INFORMATION` or
+`_REG_TZI_FORMAT`) structure is 44 bytes of size and consists of:
 
 Offset | Size | Value | Description
 --- | --- | --- | ---
 0 | 4 | | Bias <br/> Contains the difference between UTC and local time, in minutes
 4 | 4 | | StandardBias <br/> Contains the difference between UTC and local time, in minutes, or 0 if not set
 8 | 4 | | DaylightBias <br/>Contains the difference between standard and daylight savings time, in minutes <br/> The total difference is: Bias + DaylightBias
-12 | 16 | | StandardDate <br/> Date and time when the daylight savings time switches to standard time, in local time <br/> Contains a SYSTEMTIME structure
-28 | 16 | | DaylightDate <br/> Date and time when the standard time switches to daylight savings time, in local time <br/> Contains a SYSTEMTIME structure
+12 | 16 | | StandardDate <br/> Date and time when the daylight savings time switches to standard time, in local time <br/> Contains a SYSTEMTIME structure with year set to 0
+28 | 16 | | DaylightDate <br/> Date and time when the standard time switches to daylight savings time, in local time <br/> Contains a SYSTEMTIME structure with year set to 0
+
+The wDayOfWeek member of a SYSTEMTIME structure represents the appropriate
+weekday, and the wDay member represents the occurrence of the day of the week
+within the month, where 5 indicates the final occurrence during the month if
+that day of the week only occurs 4 times in the month.
+
+If the wYear member is 0, the date is relative, meaning the daylight savings
+occurs yearly. Otherwise the date is abosule, meaning daylight savings only
+changes once.
+
+Note that DaylightBias can be set when DaylightDate is not set.
 
 ## External Links
 

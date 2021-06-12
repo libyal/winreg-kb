@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Script to extract information from the Windows Registry."""
+"""Script to extract known folder information from the Windows Registry."""
 
 import argparse
 import logging
@@ -34,7 +34,7 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts information for the Windows Registry.'))
+      'Extracts known folder information from the Windows Registry.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -45,7 +45,7 @@ def Main():
       help=(
           'path of the volume containing C:\\Windows, the filename of '
           'a storage media image containing the C:\\Windows directory, '
-          'or the path of a Windows Registry file.'))
+          'or the path of a SOFTWARE Registry file.'))
 
   options = argument_parser.parse_args()
 
@@ -81,7 +81,7 @@ def Main():
   result = collector_object.Collect(
       registry_collector.registry, output_writer_object)
   if not result:
-    print('No Folder Descriptions key found.')
+    print('No "FolderDescriptions" key found.')
 
   output_writer_object.Close()
 

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Function to provide hexadecimal representation of data."""
 
-from winregrc import py2to3
-
 
 _HEXDUMP_CHARACTER_MAP = [
     '.' if byte < 0x20 or byte > 0x7e else chr(byte) for byte in range(256)]
@@ -28,7 +26,7 @@ def Hexdump(data):
     hexadecimal_byte_values = []
     printable_values = []
     for byte_value in data_string:
-      if isinstance(byte_value, py2to3.STRING_TYPES):
+      if isinstance(byte_value, str):
         byte_value = ord(byte_value)
 
       hexadecimal_byte_value = '{0:02x}'.format(byte_value)

@@ -32,8 +32,7 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the MSIE zone information from a NTUSER.DAT or SYSTEM '
-      'Registry file.'))
+      'Extracts the MSIE zone information from the Windows Registry.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -44,7 +43,7 @@ def Main():
       help=(
           'path of the volume containing C:\\Windows, the filename of '
           'a storage media image containing the C:\\Windows directory, '
-          'or the path of a SOFTWARE Registry file.'))
+          'or the path of a NTUSER.DAT or SOFTWARE Registry file.'))
 
   options = argument_parser.parse_args()
 

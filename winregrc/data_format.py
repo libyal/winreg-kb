@@ -9,7 +9,6 @@ from dtfabric import errors as dtfabric_errors
 from dtfabric.runtime import fabric as dtfabric_fabric
 
 from winregrc import errors
-from winregrc import py2to3
 
 
 class BinaryDataFormat(object):
@@ -21,9 +20,6 @@ class BinaryDataFormat(object):
   # Preserve the absolute path value of __file__ in case it is changed
   # at run-time.
   _DEFINITION_FILES_PATH = os.path.dirname(__file__)
-
-  _HEXDUMP_CHARACTER_MAP = [
-      '.' if byte < 0x20 or byte > 0x7e else chr(byte) for byte in range(256)]
 
   def __init__(self, debug=False, output_writer=None):
     """Initializes a binary data format.
@@ -46,8 +42,7 @@ class BinaryDataFormat(object):
       data (bytes): data.
     """
     if self._output_writer:
-      self._output_writer.WriteText('{0:s}:\n'.format(description))
-      self._output_writer.WriteText(self._FormatDataInHexadecimal(data))
+      self._output_writer.DebugPrintData(description, data)
 
   def _DebugPrintDecimalValue(self, description, value):
     """Prints a decimal value for debugging.
@@ -80,19 +75,15 @@ class BinaryDataFormat(object):
 
     self._DebugPrintValue(description, date_time_string)
 
-  def _DebugPrintValue(self, description, value):
-    """Prints a value for debugging.
+  def _DebugPrintStructureObject(self, structure_object, debug_info):
+    """Prints structure object debug information.
 
     Args:
-      description (str): description.
-      value (object): value.
+      structure_object (object): structure object.
+      debug_info (list[tuple[str, str, int]]): debug information.
     """
-    if self._output_writer:
-      alignment, _ = divmod(len(description), 8)
-      alignment = 8 - alignment + 1
-      text = '{0:s}{1:s}: {2!s}\n'.format(
-          description, '\t' * alignment, value)
-      self._output_writer.WriteText(text)
+    text = self._FormatStructureObject(structure_object, debug_info)
+    self._output_writer.WriteText(text)
 
   def _DebugPrintText(self, text):
     """Prints text for debugging.
@@ -101,70 +92,78 @@ class BinaryDataFormat(object):
       text (str): text.
     """
     if self._output_writer:
-      self._output_writer.WriteText(text)
+      self._output_writer.DebugPrintText(text)
 
-  def _FormatDataInHexadecimal(self, data):
-    """Formats data in a hexadecimal representation.
+  def _DebugPrintValue(self, description, value):
+    """Prints a value for debugging.
 
     Args:
-      data (bytes): data.
+      description (str): description.
+      value (object): value.
+    """
+    if self._output_writer:
+      self._output_writer.DebugPrintValue(description, value)
+
+  def _FormatIntegerAsDecimal(self, integer):
+    """Formats an integer as a decimal.
+
+    Args:
+      integer (int): integer.
 
     Returns:
-      str: hexadecimal representation of the data.
+      str: integer formatted as a decimal.
     """
-    in_group = False
-    previous_hexadecimal_string = None
+    return '{0:d}'.format(integer)
 
+  def _FormatStructureObject(self, structure_object, debug_info):
+    """Formats a structure object debug information.
+
+    Args:
+      structure_object (object): structure object.
+      debug_info (list[tuple[str, str, int]]): debug information.
+
+    Returns:
+      str: structure object debug information.
+    """
     lines = []
-    data_size = len(data)
-    for block_index in range(0, data_size, 16):
-      data_string = data[block_index:block_index + 16]
 
-      hexadecimal_byte_values = []
-      printable_values = []
-      for byte_value in data_string:
-        if isinstance(byte_value, py2to3.STRING_TYPES):
-          byte_value = ord(byte_value)
+    attribute_value = ''
+    for attribute_name, description, value_format_callback in debug_info:
+      attribute_value = getattr(structure_object, attribute_name, None)
+      if attribute_value is None:
+        continue
 
-        hexadecimal_byte_value = '{0:02x}'.format(byte_value)
-        hexadecimal_byte_values.append(hexadecimal_byte_value)
+      value_format_function = None
+      if value_format_callback:
+        value_format_function = getattr(self, value_format_callback, None)
+      if value_format_function:
+        attribute_value = value_format_function(attribute_value)
 
-        printable_value = self._HEXDUMP_CHARACTER_MAP[byte_value]
-        printable_values.append(printable_value)
-
-      remaining_size = 16 - len(data_string)
-      if remaining_size == 0:
-        whitespace = ''
-      elif remaining_size >= 8:
-        whitespace = ' ' * ((3 * remaining_size) - 1)
+      if isinstance(attribute_value, str) and '\n' in attribute_value:
+        text = '{0:s}:\n{1:s}'.format(description, attribute_value)
       else:
-        whitespace = ' ' * (3 * remaining_size)
+        text = self._FormatValue(description, attribute_value)
 
-      hexadecimal_string_part1 = ' '.join(hexadecimal_byte_values[0:8])
-      hexadecimal_string_part2 = ' '.join(hexadecimal_byte_values[8:16])
-      hexadecimal_string = '{0:s}  {1:s}{2:s}'.format(
-          hexadecimal_string_part1, hexadecimal_string_part2, whitespace)
+      lines.append(text)
 
-      if (previous_hexadecimal_string is not None and
-          previous_hexadecimal_string == hexadecimal_string and
-          block_index + 16 < data_size):
+    if not attribute_value or attribute_value[:-2] != '\n\n':
+      lines.append('\n')
 
-        if not in_group:
-          in_group = True
+    return ''.join(lines)
 
-          lines.append('...')
+  def _FormatValue(self, description, value):
+    """Formats a value for debugging.
 
-      else:
-        printable_string = ''.join(printable_values)
+    Args:
+      description (str): description.
+      value (object): value.
 
-        lines.append('0x{0:08x}  {1:s}  {2:s}'.format(
-            block_index, hexadecimal_string, printable_string))
-
-        in_group = False
-        previous_hexadecimal_string = hexadecimal_string
-
-    lines.extend(['', ''])
-    return '\n'.join(lines)
+    Returns:
+      str: formatted value.
+    """
+    alignment, _ = divmod(len(description), 8)
+    alignment = 8 - alignment + 1
+    return '{0:s}{1:s}: {2!s}\n'.format(description, '\t' * alignment, value)
 
   def _GetDataTypeMap(self, name):
     """Retrieves a data type map defined by the definition file.

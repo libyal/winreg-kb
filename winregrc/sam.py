@@ -238,7 +238,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
           value_data, 0, data_type_map, 'V value')
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse F value with error: {0!s}'.format(exception))
+          'Unable to parse V value with error: {0!s}'.format(exception))
 
     for index in range(0, 17):
       user_information_descriptor = v_value[index]

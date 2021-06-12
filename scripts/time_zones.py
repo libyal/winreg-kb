@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Script to extract user profiles."""
+"""Script to extract tize zone information from the Windows Registry."""
 
 import argparse
 import logging
@@ -9,20 +9,33 @@ import sys
 from dfvfs.helpers import command_line as dfvfs_command_line
 
 from winregrc import collector
+from winregrc import time_zones
 from winregrc import output_writers
-from winregrc import profiles
 
 
 class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
-  def WriteText(self, text):
-    """Writes text to stdout.
+  def WriteTimeZone(self, time_zone):
+    """Writes a time zone to the output.
 
     Args:
-      text (str): text to write.
+      time_zone (TimeZone): time zone.
     """
-    print(text)
+    hours_from_utc, minutes_from_utc = divmod(time_zone.offset, 60)
+
+    if hours_from_utc < 0:
+      hours_from_utc *= -1
+      sign = '-'
+    else:
+      sign = '+'
+
+    time_zone_offset_string = '{0:s}{1:02d}:{2:02d}'.format(
+        sign, hours_from_utc, minutes_from_utc)
+
+    text = '{0:s}\t{1:s}\n'.format(
+        time_zone.name, time_zone_offset_string)
+    self.WriteText(text)
 
 
 def Main():
@@ -32,7 +45,7 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the user profiles from the Windows Registry.'))
+      'Extracts time zone information for the Windows Registry.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -74,13 +87,12 @@ def Main():
     return False
 
   # TODO: map collector to available Registry keys.
-  collector_object = profiles.UserProfilesCollector(
-      debug=options.debug)
+  collector_object = time_zones.TimeZonesCollector(debug=options.debug)
 
   result = collector_object.Collect(
       registry_collector.registry, output_writer_object)
   if not result:
-    print('No Profile List key found.')
+    print('No "Time Zones" key found.')
 
   output_writer_object.Close()
 
