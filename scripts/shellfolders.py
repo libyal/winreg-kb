@@ -15,8 +15,8 @@ from winregrc import output_writers
 from winregrc import shellfolders
 
 
-class Sqlite3Writer(object):
-  """SQLite3 output writer."""
+class Sqlite3DatabaseFileWriter(object):
+  """SQLite3 database file output writer."""
 
   _SHELL_FOLDER_CREATE_QUERY = (
       'CREATE TABLE shell_folder ( guid TEXT, name TEXT )')
@@ -45,18 +45,18 @@ class Sqlite3Writer(object):
   _VERSION_SELECT_QUERY = (
       'SELECT windows_version FROM version WHERE guid = "{0:s}"')
 
-  def __init__(self, database_file, windows_version):
-    """Initializes the output writer object.
+  def __init__(self, path, windows_version):
+    """Initializes a SQLite3 database output writer.
 
     Args:
-      database_file (str): the name of the database file.
+      path (str): path of the SQLite3 database file.
       windows_version (str): the Windows version.
     """
-    super(Sqlite3Writer, self).__init__()
+    super(Sqlite3DatabaseFileWriter, self).__init__()
     self._connection = None
     self._create_new_database = False
     self._cursor = None
-    self._database_file = database_file
+    self._path = path
     self._windows_version = windows_version
 
   def Open(self):
@@ -65,12 +65,12 @@ class Sqlite3Writer(object):
     Returns:
       bool: True if successful or False if not.
     """
-    if os.path.exists(self._database_file):
+    if os.path.exists(self._path):
       self._create_new_database = False
     else:
       self._create_new_database = True
 
-    self._connection = sqlite3.connect(self._database_file)
+    self._connection = sqlite3.connect(self._path)
     if not self._connection:
       return False
 
@@ -182,11 +182,11 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  if not options.database:
-    output_writer_object = StdoutWriter()
-  else:
-    output_writer_object = Sqlite3Writer(
+  if options.database:
+    output_writer_object = Sqlite3DatabaseFileWriter(
         options.database, options.windows_version)
+  else:
+    output_writer_object = StdoutWriter()
 
   if not output_writer_object.Open():
     print('Unable to open output writer.')

@@ -13,6 +13,64 @@ from winregrc import time_zones
 from winregrc import output_writers
 
 
+class CSVFileWriter(output_writers.OutputWriter):
+  """CSV file output writer."""
+
+  def __init__(self, path):
+    """Initializes a CSV file output writer.
+
+    Args:
+      path (str): path of the CSV file to write to.
+    """
+    super(CSVFileWriter, self).__init__()
+    self._file_object = None
+    self._path = path
+
+  def Close(self):
+    """Closes the output writer."""
+    self._file_object.close()
+    self._file_object = None
+
+  def Open(self):
+    """Opens the output writer.
+
+    Returns:
+      bool: True if successful or False if not.
+    """
+    # self._file_object = open(self._path, 'wt')
+    self._file_object = open(self._path, 'at')
+    return True
+
+  def WriteTimeZone(self, time_zone):
+    """Writes a time zone to the output.
+
+    Args:
+      time_zone (TimeZone): time zone.
+    """
+    hours_from_utc, minutes_from_utc = divmod(time_zone.offset, 60)
+
+    if hours_from_utc < 0:
+      hours_from_utc *= -1
+      sign = '-'
+    else:
+      sign = '+'
+
+    time_zone_offset_string = '{0:s}{1:02d}:{2:02d}'.format(
+        sign, hours_from_utc, minutes_from_utc)
+
+    text = '{0:s},{1:s}\n'.format(
+        time_zone.name, time_zone_offset_string)
+    self._file_object.write(text)
+
+  def WriteText(self, text):
+    """Writes text.
+
+    Args:
+      text (str): text to write.
+    """
+    return
+
+
 class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
@@ -52,6 +110,10 @@ def Main():
       help='enable debug output.')
 
   argument_parser.add_argument(
+      '--csv', dest='csv_file', action='store', metavar='time_zones.csv',
+      default=None, help='path of the CSV file to write to.')
+
+  argument_parser.add_argument(
       'source', nargs='?', action='store', metavar='PATH', default=None,
       help=(
           'path of the volume containing C:\\Windows, the filename of '
@@ -70,7 +132,10 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer_object = StdoutWriter()
+  if options.csv_file:
+    output_writer_object = CSVFileWriter(options.csv_file)
+  else:
+    output_writer_object = StdoutWriter()
 
   if not output_writer_object.Open():
     print('Unable to open output writer.')

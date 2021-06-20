@@ -60,110 +60,9 @@ Name | Description
 --- | ---
 %TIMEZONENAME% |
 
-%TIMEZONENAME% represents the name of the time zone, for example values
-seen on Windows 2008:
-
-* Afghanistan Standard Time
-* Alaskan Standard Time
-* Arabian Standard Time
-* Arabic Standard Time
-* Arab Standard Time
-* Argentina Standard Time
-* Atlantic Standard Time
-* AUS Central Standard Time
-* AUS Eastern Standard Time
-* Azerbaijan Standard Time
-* Azores Standard Time
-* Bahia Standard Time
-* Bangladesh Standard Time
-* Canada Central Standard Time
-* Cape Verde Standard Time
-* Caucasus Standard Time
-* Cen. Australia Standard Time
-* Central America Standard Time
-* Central Asia Standard Time
-* Central Brazilian Standard Time
-* Central European Standard Time
-* Central Europe Standard Time
-* Central Pacific Standard Time
-* Central Standard Time
-* Central Standard Time (Mexico)
-* China Standard Time
-* Dateline Standard Time
-* E. Africa Standard Time
-* Eastern Standard Time
-* E. Australia Standard Time
-* E. Europe Standard Time
-* Egypt Standard Time
-* Ekaterinburg Standard Time
-* E. South America Standard Time
-* Fiji Standard Time
-* FLE Standard Time
-* Georgian Standard Time
-* GMT Standard Time
-* Greenland Standard Time
-* Greenwich Standard Time
-* GTB Standard Time
-* Hawaiian Standard Time
-* India Standard Time
-* Iran Standard Time
-* Israel Standard Time
-* Jordan Standard Time
-* Kaliningrad Standard Time
-* Kamchatka Standard Time
-* Korea Standard Time
-* Magadan Standard Time
-* Mauritius Standard Time
-* Mid-Atlantic Standard Time
-* Middle East Standard Time
-* Montevideo Standard Time
-* Morocco Standard Time
-* Mountain Standard Time
-* Mountain Standard Time (Mexico)
-* Myanmar Standard Time
-* Namibia Standard Time
-* N. Central Asia Standard Time
-* Nepal Standard Time
-* Newfoundland Standard Time
-* New Zealand Standard Time
-* North Asia East Standard Time
-* North Asia Standard Time
-* Pacific SA Standard Time
-* Pacific Standard Time
-* Pacific Standard Time (Mexico)
-* Pakistan Standard Time
-* Paraguay Standard Time
-* Romance Standard Time
-* Russian Standard Time
-* SA Eastern Standard Time
-* Samoa Standard Time
-* SA Pacific Standard Time
-* SA Western Standard Time
-* SE Asia Standard Time
-* Singapore Standard Time
-* South Africa Standard Time
-* Sri Lanka Standard Time
-* Syria Standard Time
-* Taipei Standard Time
-* Tasmania Standard Time
-* Tokyo Standard Time
-* Tonga Standard Time
-* Turkey Standard Time
-* Ulaanbaatar Standard Time
-* US Eastern Standard Time
-* US Mountain Standard Time
-* UTC
-* UTC-02
-* UTC-11
-* UTC+12
-* Venezuela Standard Time
-* Vladivostok Standard Time
-* W. Australia Standard Time
-* W. Central Africa Standard Time
-* West Asia Standard Time
-* West Pacific Standard Time
-* W. Europe Standard Time
-* Yakutsk Standard Time
+%TIMEZONENAME% represents the name of the Windows name of the time zone. The
+Unicode organization maintains windowsZones.xml to map the Windows names to
+corresponding IANA names.
 
 Values:
 
@@ -258,4 +157,5 @@ Note that DaylightBias can be set when DaylightDate is not set.
 * [TIME_ZONE_INFORMATION structure (timezoneapi.h)](https://docs.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-time_zone_information)
 * [DYNAMIC_TIME_ZONE_INFORMATION structure (timezoneapi.h)](https://docs.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-dynamic_time_zone_information)
 * [SYSTEMTIME structure (minwinbase.h)](https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime)
+* [windowsZones.xml](https://github.com/unicode-org/cldr/blob/master/common/supplemental/windowsZones.xml)
 

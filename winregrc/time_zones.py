@@ -59,7 +59,6 @@ class TimeZoneInformationDataParser(data_format.BinaryDataFormat):
       str: formatted SYSTEMTIME structure.
     """
     if systemtime.month and systemtime.day_of_month:
-
       occurance = self._OCCURANCE[systemtime.day_of_month]
       weekday = self._WEEKDAYS[systemtime.weekday]
       month = self._MONTHS[systemtime.month]
@@ -133,23 +132,47 @@ class TimeZonesCollector(interface.WindowsRegistryKeyCollector):
       if self._debug and output_writer:
         output_writer.DebugPrintValue('Name', subkey.name)
 
-        string = self._GetValueAsStringFromKey(subkey, 'Display')
-        output_writer.DebugPrintValue('Display', string)
+        string = self._GetValueAsStringFromKey(
+            subkey, 'Display', default_value=None)
+        if string is not None:
+          output_writer.DebugPrintValue('Display', string)
 
-        string = self._GetValueAsStringFromKey(subkey, 'Dlt')
-        output_writer.DebugPrintValue('Dlt', string)
+        string = self._GetValueAsStringFromKey(
+            subkey, 'Dlt', default_value=None)
+        if string is not None:
+          output_writer.DebugPrintValue('Dlt', string)
 
-        string = self._GetValueAsStringFromKey(subkey, 'Std')
-        output_writer.DebugPrintValue('Std', string)
+        string = self._GetValueAsStringFromKey(
+            subkey, 'Std', default_value=None)
+        if string is not None:
+          output_writer.DebugPrintValue('Std', string)
 
-        string = self._GetValueAsStringFromKey(subkey, 'MapID')
-        output_writer.DebugPrintValue('MapID', string)
+        string = self._GetValueAsStringFromKey(
+            subkey, 'MapID', default_value=None)
+        if string is not None:
+          output_writer.DebugPrintValue('MapID', string)
+
+        string = self._GetValueAsStringFromKey(
+            subkey, 'MUI_Display', default_value=None)
+        if string is not None:
+          output_writer.DebugPrintValue('MUI_Display', string)
+
+        string = self._GetValueAsStringFromKey(
+            subkey, 'MUI_Dlt', default_value=None)
+        if string is not None:
+          output_writer.DebugPrintValue('MUI_Dlt', string)
+
+        string = self._GetValueAsStringFromKey(
+            subkey, 'MUI_Std', default_value=None)
+        if string is not None:
+          output_writer.DebugPrintValue('MUI_Std', string)
 
         data = self._GetValueDataFromKey(subkey, 'Index')
-        output_writer.DebugPrintData('Index', data)
+        if data is not None:
+          output_writer.DebugPrintData('Index', data)
 
       data = self._GetValueDataFromKey(subkey, 'TZI')
-      if self._debug and output_writer:
+      if self._debug and output_writer and data is not None:
         output_writer.DebugPrintData('TZI', data)
 
       time_zone_information_parser.ParseTZIValue(data, time_zone)
