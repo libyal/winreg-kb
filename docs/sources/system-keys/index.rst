@@ -12,6 +12,7 @@ Windows system keys
    Current control set <Current-control-set>
    Environment variables <Environment-variables>
    File system <File-system>
+   Language <Language>
    Prefetch <Prefetch>
    Services and drivers <Services-and-drivers>
    Time zones <Time-zones>

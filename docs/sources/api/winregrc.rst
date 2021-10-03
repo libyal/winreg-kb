@@ -140,14 +140,6 @@ winregrc.programscache module
    :undoc-members:
    :show-inheritance:
 
-winregrc.py2to3 module
-----------------------
-
-.. automodule:: winregrc.py2to3
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 winregrc.sam module
 -------------------
 
@@ -200,6 +192,14 @@ winregrc.task\_cache module
 ---------------------------
 
 .. automodule:: winregrc.task_cache
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+winregrc.time\_zones module
+---------------------------
+
+.. automodule:: winregrc.time_zones
    :members:
    :undoc-members:
    :show-inheritance:
