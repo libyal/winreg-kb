@@ -69,7 +69,7 @@ def Main():
     print('')
     return False
 
-  file_object = open(options.source, 'rb')
+  file_object = open(options.source, 'rb')  # pylint: disable=consider-using-with
 
   try:
     try:

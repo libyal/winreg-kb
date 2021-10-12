@@ -704,7 +704,7 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
 
     return True
 
-  def Collect(self, registry, all_control_sets=False):  # pylint: disable=arguments-differ
+  def Collect(self, registry, all_control_sets=False):  # pylint: disable=arguments-differ,arguments-renamed
     """Collects the Application Compatibility Cache.
 
     Args:
