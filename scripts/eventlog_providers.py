@@ -49,7 +49,7 @@ def Main():
       help=(
           'path of the volume containing C:\\Windows, the filename of '
           'a storage media image containing the C:\\Windows directory, '
-          'or the path of a SYSTEM Registry file.'))
+          'or the path of a SOFTWARE or SYSTEM Registry file.'))
 
   options = argument_parser.parse_args()
 
@@ -86,7 +86,7 @@ def Main():
   result = collector_object.Collect(
       registry_collector.registry, output_writer_object)
   if not result:
-    print('No "EventLog" key found.')
+    print('No "Services\\EventLog" and "WINEVT\\Publishers" keys found.')
 
   output_writer_object.Close()
 

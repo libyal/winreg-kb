@@ -44,6 +44,10 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
   _SERVICES_EVENTLOG_KEY_PATH = (
       'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\EventLog')
 
+  _WINEVT_PUBLISHERS_KEY_PATH = (
+      'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\'
+      'WINEVT\\Publishers')
+
   def Collect(self, registry, output_writer):
     """Collects the EventLog providers.
 
@@ -56,29 +60,45 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
     """
     sevices_eventlog_key = registry.GetKeyByPath(
         self._SERVICES_EVENTLOG_KEY_PATH)
-    if not sevices_eventlog_key:
+    winevt_publishers_key = registry.GetKeyByPath(
+        self._WINEVT_PUBLISHERS_KEY_PATH)
+
+    if not sevices_eventlog_key and not winevt_publishers_key:
       return False
 
-    for log_type_key in sevices_eventlog_key.GetSubkeys():
-      for provider_key in log_type_key.GetSubkeys():
-        log_source = provider_key.name
-        log_type = log_type_key.name
+    if sevices_eventlog_key:
+      for log_type_key in sevices_eventlog_key.GetSubkeys():
+        for provider_key in log_type_key.GetSubkeys():
+          log_source = provider_key.name
+          log_type = log_type_key.name
 
-        category_message_files = self._GetValueAsStringFromKey(
-            provider_key, 'CategoryMessageFile', default_value='')
-        category_message_files = category_message_files.split(';') or None
+          category_message_files = self._GetValueAsStringFromKey(
+              provider_key, 'CategoryMessageFile', default_value='')
+          category_message_files = category_message_files.split(';')
+
+          event_message_files = self._GetValueAsStringFromKey(
+              provider_key, 'EventMessageFile', default_value='')
+          event_message_files = event_message_files.split(';')
+
+          parameter_message_files = self._GetValueAsStringFromKey(
+              provider_key, 'ParameterMessageFile', default_value='')
+          parameter_message_files = parameter_message_files.split(';')
+
+          eventlog_provider = EventLogProvider(
+              category_message_files, event_message_files, log_source, log_type,
+              parameter_message_files)
+          output_writer.WriteEventLogProvider(eventlog_provider)
+
+    if winevt_publishers_key:
+      for guid_key in winevt_publishers_key.GetSubkeys():
+        log_source = self._GetValueAsStringFromKey(guid_key, '')
 
         event_message_files = self._GetValueAsStringFromKey(
-            provider_key, 'EventMessageFile', default_value='')
-        event_message_files = event_message_files.split(';') or None
-
-        parameter_message_files = self._GetValueAsStringFromKey(
-            provider_key, 'ParameterMessageFile', default_value='')
-        parameter_message_files = parameter_message_files.split(';') or None
+            guid_key, 'MessageFileName', default_value='')
+        event_message_files = event_message_files.split(';')
 
         eventlog_provider = EventLogProvider(
-            category_message_files, event_message_files, log_source, log_type,
-            parameter_message_files)
+            [], event_message_files, log_source, '', [])
         output_writer.WriteEventLogProvider(eventlog_provider)
 
     return True
