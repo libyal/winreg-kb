@@ -1,5 +1,29 @@
 # EventLog keys
 
+## EventLog providers
+
+Information about EventLog providers is stored across multiple keys:
+
+* the Services\EventLog key, which has been around since at least Windows NT 3.5
+* the WINEVT\Publishers key, which was introduced in Windows Vista
+
+Note that the combined information of both keys can be needed, for example
+the Services\EventLog key:
+
+```
+Log source              : WinMgmt
+Identifier              : {1edeee53-0afe-4609-b846-d8c0b2075b1f}
+Log type                : Application
+```
+
+In combination with the corresponding WINEVT\Publishers key:
+
+```
+Log source              : Microsoft-Windows-WMI
+Identifier              : {1edeee53-0afe-4609-b846-d8c0b2075b1f}
+Event message files     : %SystemRoot%\system32\wbem\WinMgmtR.dll
+```
+
 ## Services\EventLog key
 
 The event sources are stored in the Services\EventLog key:
@@ -50,11 +74,12 @@ Values:
 
 Value | Data type | Description
 --- | --- | ---
-CategoryCount | | Number of event categories supported
-CategoryMessageFile | | Path to the category message file. A category message file contains language-dependent strings that describe the categories.
-EventMessageFile | | Path to event message files. An event message file contains language-dependent strings that describe the events. Note that this value can contain multiple filenames, for example "C:\WINDOWS\system32\COMRES.DLL;C:\WINDOWS\system32\xpsp2res.dll". Multiple files are delimited using a semicolon.
-ParameterMessageFile | | Path to the parameter message file. A parameter message file contains language-independent strings that are to be inserted into the event description strings.
-TypesSupported | | Bitmask of supported types
+CategoryCount | REG_DWORD_LITTLE_ENDIAN | Number of event categories supported
+CategoryMessageFile | REG_EXPAND_SZ | Path to the category message file. A category message file contains language-dependent strings that describe the categories.
+EventMessageFile | REG_EXPAND_SZ | Path to event message files. An event message file contains language-dependent strings that describe the events. Note that this value can contain multiple filenames, for example "C:\WINDOWS\system32\COMRES.DLL;C:\WINDOWS\system32\xpsp2res.dll". Multiple files are delimited using a semicolon.
+ParameterMessageFile | REG_EXPAND_SZ | Path to the parameter message file. A parameter message file contains language-independent strings that are to be inserted into the event description strings.
+ProviderGuid | REG_SZ | Identifier, in the form "{%GUID%}", of the event provider.
+TypesSupported | REG_DWORD_LITTLE_ENDIAN | Bitmask of supported types
 
 ##### TypesSupported value data
 
