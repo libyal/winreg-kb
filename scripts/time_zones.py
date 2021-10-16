@@ -16,6 +16,8 @@ from winregrc import output_writers
 class CSVFileWriter(output_writers.OutputWriter):
   """CSV file output writer."""
 
+  # pylint: disable=abstract-method
+
   def __init__(self, path):
     """Initializes a CSV file output writer.
 
@@ -38,7 +40,7 @@ class CSVFileWriter(output_writers.OutputWriter):
       bool: True if successful or False if not.
     """
     # self._file_object = open(self._path, 'wt')
-    self._file_object = open(self._path, 'at')
+    self._file_object = open(self._path, 'at')  # pylint: disable=consider-using-with
     return True
 
   def WriteTimeZone(self, time_zone):

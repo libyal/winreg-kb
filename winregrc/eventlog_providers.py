@@ -10,6 +10,7 @@ class EventLogProvider(object):
   Attributes:
     category_message_files (list[str]): filenames of the category message files.
     event_message_files (list[str]): filenames of the event message files.
+    identifier (str): identifier of the provider, contains a GUID.
     log_source (str): Windows EventLog source.
     log_type (str): Windows EventLog type.
     parameter_message_files (list[str]): filenames of the parameter message
@@ -17,14 +18,15 @@ class EventLogProvider(object):
   """
 
   def __init__(
-      self, category_message_files, event_message_files, log_source, log_type,
-      parameter_message_files):
+      self, category_message_files, event_message_files, identifier,
+      log_source, log_type, parameter_message_files):
     """Initializes a Windows EventLog provider.
 
     Args:
       category_message_files (list[str]): filenames of the category message
           files.
       event_message_files (list[str]): filenames of the event message files.
+      identifier (str): identifier of the provider, contains a GUID.
       log_source (str): Windows EventLog source.
       log_type (str): Windows EventLog type.
       parameter_message_files (list[str]): filenames of the parameter message
@@ -33,6 +35,7 @@ class EventLogProvider(object):
     super(EventLogProvider, self).__init__()
     self.category_message_files = category_message_files
     self.event_message_files = event_message_files
+    self.identifier = identifier
     self.log_source = log_source
     self.log_type = log_type
     self.parameter_message_files = parameter_message_files
@@ -85,8 +88,8 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
           parameter_message_files = parameter_message_files.split(';')
 
           eventlog_provider = EventLogProvider(
-              category_message_files, event_message_files, log_source, log_type,
-              parameter_message_files)
+              category_message_files, event_message_files, None,
+              log_source, log_type, parameter_message_files)
           output_writer.WriteEventLogProvider(eventlog_provider)
 
     if winevt_publishers_key:
@@ -97,8 +100,10 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
             guid_key, 'MessageFileName', default_value='')
         event_message_files = event_message_files.split(';')
 
+        provider_identifier = guid_key.name.lower()
+
         eventlog_provider = EventLogProvider(
-            [], event_message_files, log_source, '', [])
+            [], event_message_files, provider_identifier, log_source, '', [])
         output_writer.WriteEventLogProvider(eventlog_provider)
 
     return True

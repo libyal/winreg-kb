@@ -22,13 +22,33 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       eventlog_provider (EventLogProvider): EventLog provider.
     """
-    text = '{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\n'.format(
-        eventlog_provider.log_source,
-        eventlog_provider.log_type,
-        ';'.join(eventlog_provider.category_message_files),
-        ';'.join(eventlog_provider.event_message_files),
-        ';'.join(eventlog_provider.parameter_message_files))
+    text = 'Log source\t\t: {0:s}\n'.format(eventlog_provider.log_source)
     self.WriteText(text)
+
+    if eventlog_provider.identifier:
+      text = 'Identifier\t\t: {0:s}\n'.format(eventlog_provider.identifier)
+      self.WriteText(text)
+
+    if eventlog_provider.log_type:
+      text = 'Log type\t\t: {0:s}\n'.format(eventlog_provider.log_type)
+      self.WriteText(text)
+
+    if eventlog_provider.category_message_files:
+      text = 'Category message files\t: {0:s}\n'.format(
+          ';'.join(eventlog_provider.category_message_files))
+      self.WriteText(text)
+
+    if eventlog_provider.event_message_files:
+      text = 'Event message files\t: {0:s}\n'.format(
+          ';'.join(eventlog_provider.event_message_files))
+      self.WriteText(text)
+
+    if eventlog_provider.parameter_message_files:
+      text = 'Parameter message files\t: {0:s}\n'.format(
+          ';'.join(eventlog_provider.parameter_message_files))
+      self.WriteText(text)
+
+    self.WriteText('\n')
 
 
 def Main():

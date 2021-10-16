@@ -68,7 +68,7 @@ Value | Identifier | Description
 
 ## WINEVT\Publishers key
 
-The event providers (or publishers) are stored in the WINEVT\Publishers key:
+The event publishers (or providers) are stored in the WINEVT\Publishers key:
 
 ```
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\WINEVT\Publishers
@@ -77,7 +77,7 @@ HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\WINEVT\Publishers
 On Windows Vista or later it can be found in the SOFTWARE Registry file.
 
 The WINEVT\Publishers key contains a GUID type sub key, for example
-"{de513a55-c345-438b-9a74-e18cac5c5cc5":
+"{de513a55-c345-438b-9a74-e18cac5c5cc5}":
 
 ```
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\WINEVT\Publishers\%GUID%
@@ -86,7 +86,7 @@ HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\WINEVT\Publishers\%
 ### WINEVT\Publishers GUID sub key
 
 A WINEVT\Publishers GUID sub key contains information about a single event
-provider.
+publisher.
 
 Values:
 
