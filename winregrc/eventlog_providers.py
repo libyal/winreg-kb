@@ -94,8 +94,13 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
           parameter_message_files = list(filter(None, [
               path.strip() for path in parameter_message_files.split(';')]))
 
+          provider_identifier = self._GetValueAsStringFromKey(
+              provider_key, 'ProviderGuid')
+          if provider_identifier:
+            provider_identifier = provider_identifier.lower()
+
           eventlog_provider = EventLogProvider(
-              category_message_files, event_message_files, None,
+              category_message_files, event_message_files, provider_identifier,
               log_source, log_type, parameter_message_files)
 
           if log_source not in eventlog_providers:
@@ -130,7 +135,7 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
 
           # TODO: compare values if set
 
-    for eventlog_provider in eventlog_providers.values():
+    for _, eventlog_provider in sorted(eventlog_providers.items()):
         output_writer.WriteEventLogProvider(eventlog_provider)
 
     return True
