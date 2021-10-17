@@ -22,9 +22,17 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       known_folder (KnownFolder): known folder.
     """
-    text = '{0:s}\t{1:s}\t{2:s}\n'.format(
-        known_folder.guid, known_folder.name, known_folder.localized_name)
+    text = 'Identifier\t\t: {0:s}\n'.format(known_folder.guid)
     self.WriteText(text)
+
+    text = 'Name\t\t\t: {0:s}\n'.format(known_folder.name)
+    self.WriteText(text)
+
+    if known_folder.localized_name:
+      text = 'Localize name\t\t: {0:s}\n'.format(known_folder.localized_name)
+      self.WriteText(text)
+
+    self.WriteText('\n')
 
 
 def Main():
