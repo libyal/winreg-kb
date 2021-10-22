@@ -6,7 +6,6 @@ import argparse
 import logging
 import sys
 
-from dfvfs.helpers import command_line as dfvfs_command_line
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
 from winregrc import appcompatcache
@@ -59,7 +58,7 @@ def Main():
     print('')
     return False
 
-  mediator = dfvfs_command_line.CLIVolumeScannerMediator()
+  mediator = collector.WindowsRegistryCollectorMediator()
   registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
 
   volume_scanner_options = dfvfs_volume_scanner.VolumeScannerOptions()
@@ -88,12 +87,7 @@ def Main():
     for cached_entry in collector_object.cached_entries:
       output_writer.WriteFiletimeValue(
           'Last modification time', cached_entry.last_modification_time)
-      output_writer.WriteText('\n')
-
       output_writer.WriteValue('Path', cached_entry.path)
-      output_writer.WriteText('\n')
-
-      output_writer.WriteText('')
       output_writer.WriteText('\n')
 
   output_writer.Close()

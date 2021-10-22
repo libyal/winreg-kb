@@ -80,13 +80,13 @@ class SystemKeyCollector(interface.WindowsRegistryKeyCollector):
         lsa_data_class_name])
 
     scrambled_key = codecs.decode(class_name_string, 'hex')
-    key = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    key = bytearray([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
     for index, scrambled_index in enumerate([
         8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7]):
       key[index] = scrambled_key[scrambled_index]
 
-    return b''.join(key)
+    return bytes(key)
 
   def Collect(self, registry):  # pylint: disable=arguments-differ
     """Collects system information.

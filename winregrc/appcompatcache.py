@@ -179,7 +179,8 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
           appcompatcache_cached_entry_header_10): Windows 8.0, 8.1 or 10
           AppCompatCache cached entry body.
     """
-    self._DebugPrintValue('Signature', cached_entry_header.signature)
+    self._DebugPrintValue(
+        'Signature', cached_entry_header.signature.decode('ascii'))
 
     value_string = '0x{0:08x}'.format(cached_entry_header.unknown1)
     self._DebugPrintValue('Unknown1', value_string)

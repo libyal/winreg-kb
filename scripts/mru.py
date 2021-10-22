@@ -6,7 +6,6 @@ import argparse
 import logging
 import sys
 
-from dfvfs.helpers import command_line as dfvfs_command_line
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
 import pyfwsi
@@ -84,7 +83,7 @@ def Main():
     print('')
     return False
 
-  mediator = dfvfs_command_line.CLIVolumeScannerMediator()
+  mediator = collector.WindowsRegistryCollectorMediator()
   registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
 
   volume_scanner_options = dfvfs_volume_scanner.VolumeScannerOptions()
