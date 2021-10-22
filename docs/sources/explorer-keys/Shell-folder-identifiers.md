@@ -65,6 +65,18 @@ Has a LocalizedString value with the following data:
 Which is the [MUI Form](https://winreg-kb.readthedocs.io/en/latest/sources/windows-registry/MUI-form.html)
 for "My Documents".
 
+## Notes
+
+TODO: add information about
+
+```
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders
+```
+
+```
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders
+```
+
 ## External Links
 
 * [libfwsi: Shell Folder identifiers](https://github.com/libyal/libfwsi/wiki/Shell-Folder-identifiers)

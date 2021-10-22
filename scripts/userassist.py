@@ -55,15 +55,14 @@ def Main():
     print('')
     return False
 
-  volume_scanner_mediator = collector.WindowsRegistryCollectorMediator()
+  mediator = collector.WindowsRegistryCollectorMediator()
+  registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
 
   volume_scanner_options = dfvfs_volume_scanner.VolumeScannerOptions()
   volume_scanner_options.partitions = ['all']
   volume_scanner_options.snapshots = ['none']
   volume_scanner_options.volumes = ['none']
 
-  registry_collector = collector.WindowsRegistryCollector(
-      mediator=volume_scanner_mediator)
   if not registry_collector.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
     print('Unable to retrieve the Windows Registry from: {0:s}.'.format(

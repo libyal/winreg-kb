@@ -7,6 +7,7 @@ import logging
 import sys
 
 from dfvfs.helpers import command_line as dfvfs_command_line
+from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
 from winregrc import collector
 from winregrc import output_writers
@@ -52,10 +53,16 @@ def Main():
     print('')
     return False
 
-  volume_scanner_mediator = dfvfs_command_line.CLIVolumeScannerMediator()
-  registry_collector = collector.WindowsRegistryCollector(
-      mediator=volume_scanner_mediator)
-  if not registry_collector.ScanForWindowsVolume(options.source):
+  mediator = dfvfs_command_line.CLIVolumeScannerMediator()
+  registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
+
+  volume_scanner_options = dfvfs_volume_scanner.VolumeScannerOptions()
+  volume_scanner_options.partitions = ['all']
+  volume_scanner_options.snapshots = ['none']
+  volume_scanner_options.volumes = ['none']
+
+  if not registry_collector.ScanForWindowsVolume(
+      options.source, options=volume_scanner_options):
     print('Unable to retrieve the Windows Registry from: {0:s}.'.format(
         options.source))
     print('')
