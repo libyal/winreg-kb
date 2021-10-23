@@ -36,6 +36,30 @@ C:\Windows\
 
 *TODO describe PathName value*
 
+### Profile path environment variables
+
+Values of environment variables such as %AllUsersProfile% and %ProgramData% can
+be derived from values in the the ProfileList key:
+
+```
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\ProfileList
+```
+
+Values:
+
+Value | Data type | Description
+--- | --- | ---
+AllUsersProfile | REG_SZ | Value of the %AllUsersProfile% environment variable (Seen on Windows XP)
+Default | REG_SZ | (Seen on Windows Vista)
+DefaultUserProfile | REG_SZ | (Seen on Windows XP)
+ProfilesDirectory | REG_EXPAND_SZ | Profiles directory, for example "C:\Documents and Settings" on Windows XP or "C:\Users" on Windows Vista.
+ProgramData | REG_SZ | Value of the %ProgramData% environment variable (Seen on Windows Vista)
+Public | REG_SZ |
+
+If the AllUsersProfile value does not start with an environment variable or
+an absolute path, but a relative path, it is currently assumed that the value
+should be prefixed with the value in ProfilesDirectory.
+
 ## User specific environment variables
 
 *TODO add description*
