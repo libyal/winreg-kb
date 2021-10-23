@@ -65,19 +65,19 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
     Returns:
       bool: True if the EventLog providers key was found, False if not.
     """
-    sevices_eventlog_key = registry.GetKeyByPath(
+    services_eventlog_key = registry.GetKeyByPath(
         self._SERVICES_EVENTLOG_KEY_PATH)
     winevt_publishers_key = registry.GetKeyByPath(
         self._WINEVT_PUBLISHERS_KEY_PATH)
 
-    if not sevices_eventlog_key and not winevt_publishers_key:
+    if not services_eventlog_key and not winevt_publishers_key:
       return False
 
     eventlog_providers_per_identifier = {}
     eventlog_providers_per_log_source = {}
 
-    if sevices_eventlog_key:
-      for log_type_key in sevices_eventlog_key.GetSubkeys():
+    if services_eventlog_key:
+      for log_type_key in services_eventlog_key.GetSubkeys():
         for provider_key in log_type_key.GetSubkeys():
           log_source = provider_key.name
           log_type = log_type_key.name
@@ -196,7 +196,7 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
             logging.warning((
                 'Mismatch in event message files of alternate definition: '
                 '{0:s} for EventLog provider: {1:s}').format(
-                    existing_eventlog_provider.log_source_alias,
+                    existing_eventlog_provider.log_source_alias or '',
                     existing_eventlog_provider.log_source))
 
           if not existing_eventlog_provider.identifier:
@@ -205,7 +205,7 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
             logging.warning((
                 'Mismatch in provider identifier of alternate definition: '
                 '{0:s} for EventLog provider: {1:s}').format(
-                    existing_eventlog_provider.log_source_alias,
+                    existing_eventlog_provider.log_source_alias or '',
                     existing_eventlog_provider.log_source))
 
         else:

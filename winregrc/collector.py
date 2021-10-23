@@ -61,9 +61,6 @@ class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
         except IOError:
           registry_file = None
 
-      if not registry_file:
-        file_object.close()
-
     return registry_file
 
 

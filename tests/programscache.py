@@ -49,12 +49,13 @@ class ProgramsCacheDataParserTest(test_lib.BaseTestCase):
 class ProgramsCacheCollectorTest(test_lib.BaseTestCase):
   """Tests for the Programs Cache information collector."""
 
-  @test_lib.skipUnlessHasTestFile(['NTUSER.DAT'])
   def testCollect(self):
     """Tests the Collect function."""
+    test_path = self._GetTestFilePath(['NTUSER.DAT'])
+    self._SkipIfPathNotExists(test_path)
+
     registry_collector = collector.WindowsRegistryCollector()
 
-    test_path = self._GetTestFilePath(['NTUSER.DAT'])
     registry_collector.ScanForWindowsVolume(test_path)
 
     self.assertIsNotNone(registry_collector.registry)

@@ -37,12 +37,13 @@ class TestOutputWriter(output_writers.StdoutOutputWriter):
 class MSIEZoneInfoCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Microsoft Internet Explorer (MSIE) zone collector."""
 
-  @shared_test_lib.skipUnlessHasTestFile(['SOFTWARE'])
   def testCollect(self):
     """Tests the Collect function."""
+    test_path = self._GetTestFilePath(['SOFTWARE'])
+    self._SkipIfPathNotExists(test_path)
+
     registry_collector = collector.WindowsRegistryCollector()
 
-    test_path = self._GetTestFilePath(['SOFTWARE'])
     registry_collector.ScanForWindowsVolume(test_path)
 
     self.assertIsNotNone(registry_collector.registry)
