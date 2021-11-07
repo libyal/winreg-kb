@@ -108,6 +108,14 @@ winregrc.knownfolders module
    :undoc-members:
    :show-inheritance:
 
+winregrc.mounted\_devices module
+--------------------------------
+
+.. automodule:: winregrc.mounted_devices
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 winregrc.mru module
 -------------------
 

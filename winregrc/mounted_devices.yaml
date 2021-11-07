@@ -16,9 +16,9 @@ attributes:
   size: 8
   units: bytes
 ---
-name: mounted_devices_fixed_disk
+name: mounted_devices_mbr_partition
 type: structure
-description: Mounted devices fixed disk value data
+description: Mounted devices MBR partition value data
 attributes:
   byte_order: little-endian
 members:
