@@ -10,7 +10,7 @@ Value | Data type | Description
 --- | --- | ---
 %IDENTIFIER% | REG_BINARY | 
 
-Where the following forms of %IDENTIFIER% have been observed:
+Where the following variants of %IDENTIFIER% have been observed:
 
 * "\DosDevices\C:"
 * "\??\Volume{01234567-89ab-cdef-0123-456789abcdef}"
