@@ -1,0 +1,28 @@
+name: mounted_devices
+type: format
+description: Mounted devices format
+---
+name: uint32
+type: integer
+attributes:
+  format: unsigned
+  size: 4
+  units: bytes
+---
+name: uint64
+type: integer
+attributes:
+  format: unsigned
+  size: 8
+  units: bytes
+---
+name: mounted_devices_fixed_disk
+type: structure
+description: Mounted devices fixed disk value data
+attributes:
+  byte_order: little-endian
+members:
+- name: disk_identity
+  data_type: uint32
+- name: partition_offset
+  data_type: uint64

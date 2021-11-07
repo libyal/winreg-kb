@@ -13,6 +13,7 @@ Windows system keys
    Environment variables <Environment-variables>
    File system <File-system>
    Language <Language>
+   Mounted devices <Mounted-devices>
    Prefetch <Prefetch>
    Services and drivers <Services-and-drivers>
    Time zones <Time-zones>
