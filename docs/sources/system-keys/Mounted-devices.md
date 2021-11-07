@@ -6,6 +6,19 @@ The mounted devices settings are stored in the key:
 HKEY_LOCAL_MACHINE\SYSTEM\MountedDevices
 ```
 
+Seen on:
+
+* Windows 2000
+* Windows XP
+* Windows 2003
+* Windows Vista
+* Windows 2008
+* Windows 7
+* Windows 8.0
+* Windows 8.1
+* Windows 10
+* Windows 11
+
 Value | Data type | Description
 --- | --- | ---
 %IDENTIFIER% | REG_BINARY | 
@@ -18,7 +31,8 @@ Where the following variants of %IDENTIFIER% have been observed:
 Where the value data consist of either:
 
 * Device string value data
-* Fixed-disk value data
+* GPT partition value data
+* MBR partition value data
 
 ## Device string value data
 
@@ -38,9 +52,18 @@ For example:
 _??_USBSTOR#Disk&Ven_Generic&Prod_Flash_Disk&Rev_8.07#01234567&0#{01234567-89ab-cdef-0123-456789abcdef}
 ```
 
-## Fixed-disk value data
+## GPT partition value data
 
-The fixed-disk value data is 12 bytes of size and consists of:
+The GPT partition value data is 24 bytes of size and consists of:
+
+Offset | Size | Value | Description
+--- | --- | --- | ---
+0 | 8 | "DMIO:ID:" | Signature, where DMIO is presumed to refer to Disk Manager I/O Driver
+8 | 16 | | GUID Partition Table (GPT) partition identifier (GUID)
+
+## MBR fixed-disk value data
+
+The MBR partition value data is 12 bytes of size and consists of:
 
 Offset | Size | Value | Description
 --- | --- | --- | ---
