@@ -68,6 +68,14 @@ winregrc.errors module
    :undoc-members:
    :show-inheritance:
 
+winregrc.eventlog\_providers module
+-----------------------------------
+
+.. automodule:: winregrc.eventlog_providers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 winregrc.filters module
 -----------------------
 

@@ -1,6 +1,6 @@
 # Services and drivers
 
-*TODO fine tune rough notes*
+**TODO this page currently contains rough notes, fine tune these**
 
 Settings to load/run drivers and services are stored in the Services key:
 
