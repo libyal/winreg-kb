@@ -1,3 +1,12 @@
-Acknowledgements: winevtrc
+Acknowledgements: winreg-kb
 
-Copyright (c) 2013-2016, Joachim Metz <joachim.metz@gmail.com>
+Copyright (c) 2013-2021, Joachim Metz <joachim.metz@gmail.com>
+
+Copied with permission from [the Greendale data set](https://github.com/dfirlabs/greendale-specimens).
+* regf/studentpc8/NTUSER.DAT
+* regf/studentpc8/NTUSER.DAT.LOG
+* regf/studentpc8/SAM
+* regf/studentpc8/SECURITY
+* regf/studentpc8/SOFTWARE
+* regf/studentpc8/SYSTEM
+* regf/studentpc8/UsrClass.dat

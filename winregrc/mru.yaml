@@ -1,7 +1,6 @@
 name: mru
 type: format
 description: Most recently used (MRU) formats
-urls: ["https://github.com/libyal/winreg-kb/blob/master/documentation/MRU%20keys.asciidoc"]
 ---
 name: byte
 type: integer

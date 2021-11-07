@@ -1,7 +1,6 @@
 name: userassist
 type: format
 description: UserAssist format
-urls: ["https://github.com/libyal/winreg-kb/blob/master/documentation/User%20Assist%20keys.asciidoc"]
 ---
 name: float32
 type: floating-point
