@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Windows mounted devices collector."""
 
-from dtfabric.runtime import data_maps as dtfabric_data_maps
-
 from winregrc import data_format
 from winregrc import errors
 
@@ -12,9 +10,10 @@ class MountedDevice(object):
 
   Attributes:
     device (str): device.
-    disk_identity (int): disk identity.
+    disk_identity (int): MBR disk identity.
     identifier (str): identifier.
-    partition_offset (int): partition offset.
+    partition_identifier (str): GPT partition identifier.
+    partition_offset (int): MBR partition offset.
   """
 
   def __init__(self, identifier):
@@ -27,6 +26,7 @@ class MountedDevice(object):
     self.device = None
     self.disk_identity = None
     self.identifier = identifier
+    self.partition_identifier = None
     self.partition_offset = None
 
 
@@ -63,13 +63,10 @@ class MountedDevicesCollector(data_format.BinaryDataFormat):
       if value_data_size == 12:
         data_type_map = self._GetDataTypeMap('mounted_devices_mbr_partition')
 
-        context = dtfabric_data_maps.DataTypeMapContext(values={
-            'data_size': len(registry_value.data)})
-
         try:
           partition_values = self._ReadStructureFromByteStream(
               registry_value.data, 0, data_type_map,
-              'Mounted devices MBR partition values', context=context)
+              'Mounted devices MBR partition values')
         except (ValueError, errors.ParseError) as exception:
           raise errors.ParseError((
               'Unable to parse Mounted devices MBR partition values with '
@@ -78,9 +75,20 @@ class MountedDevicesCollector(data_format.BinaryDataFormat):
         mounted_device.disk_identity = partition_values.disk_identity
         mounted_device.partition_offset = partition_values.partition_offset
 
-      elif value_data_size == 24 and registry_value.data[:8] == b'DMIO:ID:':
-        # TODO: add support
-        pass
+      elif value_data_size == 24:
+        data_type_map = self._GetDataTypeMap('mounted_devices_gpt_partition')
+
+        try:
+          partition_values = self._ReadStructureFromByteStream(
+              registry_value.data, 0, data_type_map,
+              'Mounted devices GPT partition values')
+        except (ValueError, errors.ParseError) as exception:
+          raise errors.ParseError((
+              'Unable to parse Mounted devices GPT partition values with '
+              'error: {0!s}').format(exception))
+
+        mounted_device.partition_identifier = (
+            partition_values.partition_identifier)
 
       else:
         mounted_device.device = registry_value.data.decode('utf-16-le')

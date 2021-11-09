@@ -22,20 +22,25 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       mounted_device (MountedDevice): mounted device.
     """
-    text = 'Identifier\t\t: {0:s}\n'.format(mounted_device.identifier)
+    text = 'Identifier\t\t\t: {0:s}\n'.format(mounted_device.identifier)
     self.WriteText(text)
 
     if mounted_device.disk_identity:
-      text = 'Disk identity\t\t: 0x{0:08x}\n'.format(
+      text = 'MBR disk identity\t\t: 0x{0:08x}\n'.format(
           mounted_device.disk_identity)
       self.WriteText(text)
 
-      text = 'Partition offset\t: {0:d} (0x{0:08x})\n'.format(
+      text = 'MBR dartition offset\t\t: {0:d} (0x{0:08x})\n'.format(
           mounted_device.partition_offset)
       self.WriteText(text)
 
+    elif mounted_device.partition_identifier:
+      text = 'GPT partition identifier\t: {0!s}\n'.format(
+          mounted_device.partition_identifier)
+      self.WriteText(text)
+
     elif mounted_device.device:
-      text = 'Device\t\t\t: {0:s}\n'.format(mounted_device.device)
+      text = 'Device\t\t\t\t: {0:s}\n'.format(mounted_device.device)
       self.WriteText(text)
 
     self.WriteText('\n')
