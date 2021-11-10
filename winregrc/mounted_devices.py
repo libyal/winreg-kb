@@ -38,6 +38,57 @@ class MountedDevicesCollector(data_format.BinaryDataFormat):
   _MOUNTED_DEVICES_KEY_PATH = (
       'HKEY_LOCAL_MACHINE\\System\\MountedDevices')
 
+  def _ParseValue(self, registry_value):
+    """Parses a mounted devices Windows Registry value.
+
+    Args:
+      registry (dfwinreg.WinRegistryValue): a mounted devices Windows Registry
+          value.
+
+    Returns:
+      MountedDevice: a mounted device attribute container.
+
+    Raises:
+      ParseError: if the value could not be parsed.
+    """
+    mounted_device = MountedDevice(registry_value.name)
+    value_data_size = len(registry_value.data)
+
+    if value_data_size == 12:
+      data_type_map = self._GetDataTypeMap('mounted_devices_mbr_partition')
+
+      try:
+        partition_values = self._ReadStructureFromByteStream(
+            registry_value.data, 0, data_type_map,
+            'Mounted devices MBR partition values')
+      except (ValueError, errors.ParseError) as exception:
+        raise errors.ParseError((
+            'Unable to parse Mounted devices MBR partition values with '
+            'error: {0!s}').format(exception))
+
+      mounted_device.disk_identity = partition_values.disk_identity
+      mounted_device.partition_offset = partition_values.partition_offset
+
+    elif value_data_size == 24:
+      data_type_map = self._GetDataTypeMap('mounted_devices_gpt_partition')
+
+      try:
+        partition_values = self._ReadStructureFromByteStream(
+            registry_value.data, 0, data_type_map,
+            'Mounted devices GPT partition values')
+      except (ValueError, errors.ParseError) as exception:
+        raise errors.ParseError((
+            'Unable to parse Mounted devices GPT partition values with '
+            'error: {0!s}').format(exception))
+
+      mounted_device.partition_identifier = (
+          partition_values.partition_identifier)
+
+    else:
+      mounted_device.device = registry_value.data.decode('utf-16-le')
+
+    return mounted_device
+
   def Collect(self, registry, output_writer):
     """Collects the mounted devices.
 
@@ -49,7 +100,7 @@ class MountedDevicesCollector(data_format.BinaryDataFormat):
       bool: True if the mounted devices key was found, False if not.
 
     Raises:
-      ParseError: if a mounted devices MBR partition values could not be parsed.
+      ParseError: if a mounted devices value could not be parsed.
     """
     mounted_devices_key = registry.GetKeyByPath(
         self._MOUNTED_DEVICES_KEY_PATH)
@@ -57,42 +108,7 @@ class MountedDevicesCollector(data_format.BinaryDataFormat):
       return False
 
     for registry_value in mounted_devices_key.GetValues():
-      mounted_device = MountedDevice(registry_value.name)
-      value_data_size = len(registry_value.data)
-
-      if value_data_size == 12:
-        data_type_map = self._GetDataTypeMap('mounted_devices_mbr_partition')
-
-        try:
-          partition_values = self._ReadStructureFromByteStream(
-              registry_value.data, 0, data_type_map,
-              'Mounted devices MBR partition values')
-        except (ValueError, errors.ParseError) as exception:
-          raise errors.ParseError((
-              'Unable to parse Mounted devices MBR partition values with '
-              'error: {0!s}').format(exception))
-
-        mounted_device.disk_identity = partition_values.disk_identity
-        mounted_device.partition_offset = partition_values.partition_offset
-
-      elif value_data_size == 24:
-        data_type_map = self._GetDataTypeMap('mounted_devices_gpt_partition')
-
-        try:
-          partition_values = self._ReadStructureFromByteStream(
-              registry_value.data, 0, data_type_map,
-              'Mounted devices GPT partition values')
-        except (ValueError, errors.ParseError) as exception:
-          raise errors.ParseError((
-              'Unable to parse Mounted devices GPT partition values with '
-              'error: {0!s}').format(exception))
-
-        mounted_device.partition_identifier = (
-            partition_values.partition_identifier)
-
-      else:
-        mounted_device.device = registry_value.data.decode('utf-16-le')
-
+      mounted_device = self._ParseValue(registry_value)
       output_writer.WriteMountedDevice(mounted_device)
 
     return True
