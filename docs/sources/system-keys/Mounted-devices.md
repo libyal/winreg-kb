@@ -45,6 +45,7 @@ Offset | Size | Value | Description
 For example:
 
 ```
+\??\FDC#GENERIC_FLOPPY_DRIVE#6&12345678&0&0#{01234567-89ab-cdef-0123-456789abcdef}
 \??\IDE#CdRomQEMU_QEMU_DVD-ROM_______________________1.6.____#5&12345678&0&0.1.0#{01234567-89ab-cdef-0123-456789abcdef}
 \??\SCSI#CdRom&Ven_VBOX&Prod_CD-ROM#4&0123456&0&010000#{01234567-89ab-cdef-0123-456789abcdef}
 _??_USBSTOR#Disk&Ven_Generic&Prod_Flash_Disk&Rev_8.07#01234567&0#{01234567-89ab-cdef-0123-456789abcdef}
