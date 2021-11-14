@@ -3,10 +3,11 @@
 
 import pyregf
 
-from dfdatetime import filetime
+from dfdatetime import filetime as dfdatetime_filetime
 
 from dfvfs.file_io import file_object_io
-from dfvfs.lib import errors
+from dfvfs.lib import definitions as dfvfs_definitions
+from dfvfs.lib import errors as dfvfs_errors
 from dfvfs.path import factory
 from dfvfs.path import path_spec as dfvfs_path_spec
 from dfvfs.resolver import resolver
@@ -14,7 +15,6 @@ from dfvfs.resolver_helpers import manager as resolver_helpers_manager
 from dfvfs.resolver_helpers import resolver_helper
 from dfvfs.vfs import file_entry
 from dfvfs.vfs import file_system as dfvfs_file_system
-from dfvfs.vfs import vfs_stat
 
 
 # The type indicator definition.
@@ -39,7 +39,7 @@ class RegfFile(file_object_io.FileObjectIO):
       PathSpecError: if the path specification is incorrect.
     """
     if not path_spec.HasParent():
-      raise errors.PathSpecError(
+      raise dfvfs_errors.PathSpecError(
           'Unsupported path specification without parent.')
 
     file_object = resolver.Resolver.OpenFileObject(
@@ -186,7 +186,11 @@ class RegfFileEntry(file_entry.FileEntry):
     self._parent_inode = None
     self._regf_key = regf_key
     self._regf_value = regf_value
-    self._stat_object = None
+
+    if regf_value:
+      self.entry_type = dfvfs_definitions.FILE_ENTRY_TYPE_FILE
+    else:
+      self.entry_type = dfvfs_definitions.FILE_ENTRY_TYPE_DIRECTORY
 
   def _GetDirectory(self):
     """Retrieves a directory .
@@ -194,61 +198,10 @@ class RegfFileEntry(file_entry.FileEntry):
     Returns:
       RegfDirectory: a directory.
     """
-    if self._stat_object is None:
-      self._stat_object = self._GetStat()
-
-    if (self._stat_object and
-        self._stat_object.type == self._stat_object.TYPE_DIRECTORY):
+    if self.entry_type == dfvfs_definitions.FILE_ENTRY_TYPE_DIRECTORY:
       return RegfDirectory(self._file_system, self.path_spec)
 
     return None
-
-  def _GetStat(self):
-    """Retrieves the stat object.
-
-    Returns:
-      dfvfs.VFSStat: a stat object.
-
-    Raises:
-      BackEndError: when the regf key is missing.
-    """
-    if not self._regf_key:
-      raise errors.BackEndError('Missing regf key.')
-
-    stat_object = vfs_stat.VFSStat()
-
-    # File data stat information.
-    if self._regf_value:
-      stat_object.size = self._regf_value.get_data_size()
-
-    # Date and time stat information.
-    if self._regf_value:
-      timestamp = None
-    else:
-      filetime_object = filetime.Filetime(
-          timestamp=self._regf_key.get_last_written_time_as_integer())
-      # TODO: CopyToStatTimeTuple is to be deprecated.
-      timestamp, _ = filetime_object.CopyToStatTimeTuple()
-
-    if timestamp is not None:
-      stat_object.mtime = timestamp
-
-    # Ownership and permissions stat information.
-    # TODO: add support for security key.
-
-    # File entry type stat information.
-    if self._regf_value:
-      stat_object.type = stat_object.TYPE_FILE
-    else:
-      stat_object.type = stat_object.TYPE_DIRECTORY
-
-    # TODO: add support for a link:
-    # stat_object.type = stat_object.TYPE_LINK
-
-    # Other stat information.
-    stat_object.is_allocated = True
-
-    return stat_object
 
   def _GetSubFileEntries(self):
     """Retrieves sub file entries.
@@ -276,6 +229,12 @@ class RegfFileEntry(file_entry.FileEntry):
         self._name = self._regf_key.name
 
     return self._name
+
+  @property
+  def modification_time(self):
+    """dfdatetime.DateTimeValues: modification time or None if not available."""
+    timestamp = self._regf_key.get_last_written_time_as_integer()
+    return dfdatetime_filetime.Filetime(timestamp=timestamp)
 
   # TODO: implement GetLinkedFileEntry.
 
@@ -356,7 +315,7 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
       ValueError: if the path specification is invalid.
     """
     if not self._path_spec.HasParent():
-      raise errors.PathSpecError(
+      raise dfvfs_errors.PathSpecError(
           'Unsupported path specification without parent.')
 
     file_object = resolver.Resolver.OpenFileObject(
@@ -384,7 +343,7 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
     """
     key_path = getattr(path_spec, 'key_path', None)
     if not key_path:
-      raise errors.PathSpecError(
+      raise dfvfs_errors.PathSpecError(
           'Unsupported path specification without key path.')
 
     regf_key = self.GetRegfKey(key_path)
@@ -412,7 +371,7 @@ class RegfFileSystem(dfvfs_file_system.FileSystem):
     """
     key_path = getattr(path_spec, 'key_path', None)
     if not key_path:
-      raise errors.PathSpecError(
+      raise dfvfs_errors.PathSpecError(
           'Unsupported path specification without key path.')
 
     value_name = getattr(path_spec, 'value_name', None)
