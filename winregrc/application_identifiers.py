@@ -54,8 +54,7 @@ class ApplicationIdentifiersCollector(interface.WindowsRegistryKeyCollector):
 
       description = self._GetValueAsStringFromKey(subkey, '')
 
-      application_identifier = ApplicationIdentifier(
-          guid, description)
+      application_identifier = ApplicationIdentifier(guid, description)
       output_writer.WriteApplicationIdentifier(application_identifier)
 
     return True
