@@ -10,12 +10,26 @@ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services
 
 Sub keys:
 
-Value | Data type | Description
---- | --- | ---
 Name | Description
+--- | ---
 %NAME% | The driver or service sub key. Where %NAME% corresponds with the name of the driver or service.
 
-## Driver or Service Name sub key
+## Name sub key
+
+Sub keys:
+
+Name | Description
+--- | ---
+Cache |
+DeviceInRange |
+Linkage |
+Options |
+Parameters |
+Performance |
+Security |
+Settings |
+StartOverride |
+tracing |
 
 Values:
 
@@ -36,6 +50,35 @@ Start | `REG_DWORD` | The start control value.
 ServiceSidType | |
 Tag | `REG_DWORD` |
 Type | `REG_DWORD` | The driver or service type.
+
+### Parameters sub key
+
+Sub keys:
+
+Name | Description
+--- | ---
+PnpInterface |
+Policy |
+TriggerInfo |
+WakeUp |
+Wdf |
+
+Values:
+
+Value | Data type | Description
+--- | --- | ---
+AmdXataOptions | `REG_DWORD_LITTLE_ENDIAN` | 
+AMLIMaxCTObjs | `REG_BINARY` | 
+APEIOSCGranted | `REG_BINARY` | 
+AthDfuWaitInfinite | `REG_DWORD_LITTLE_ENDIAN` | 
+BusType | `REG_DWORD_LITTLE_ENDIAN` | 
+DebugFlags | `REG_DWORD_LITTLE_ENDIAN` | 
+IoTimeoutValue | `REG_DWORD_LITTLE_ENDIAN` | 
+MaintainServerList | `REG_SZ` | 
+ServiceDll | `REG_EXPAND_SZ` | 
+ServiceDllUnloadOnStop | `REG_DWORD_LITTLE_ENDIAN` | 
+ServiceMain | `REG_SZ` | 
+WHEAOSCImplemented | `REG_BINARY` | 
 
 ### ErrorControl value
 
