@@ -6,6 +6,7 @@ Windows system keys
    :maxdepth: 2
 
    Application compatibility cache <Application-compatibility-cache>
+   Background activity moderator <Background-activity-moderator>
    Boot verification <Boot-verification>
    Cached credentials <Cached-credentials>
    Certificates <Certificates>
