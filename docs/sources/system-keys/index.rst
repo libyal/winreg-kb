@@ -5,6 +5,7 @@ Windows system keys
 .. toctree::
    :maxdepth: 2
 
+   Application compatibility cache <Application-compatibility-cache>
    Boot verification <Boot-verification>
    Cached credentials <Cached-credentials>
    Certificates <Certificates>
