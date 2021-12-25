@@ -35,21 +35,21 @@ Values:
 
 Value | Data type | Description
 --- | --- | ---
-DependOnGroup | `REG_MULTI_SZ` | Other groups the device or service is dependent on.
-DependOnService | `REG_MULTI_SZ` | Other services the device or service is dependent on.
-Description | `REG_SZ` | Description.
-DisplayName | `REG_SZ`, `REG_MULTI_SZ` | Display name.
+DependOnGroup | REG_MULTI_SZ | Other groups the device or service is dependent on.
+DependOnService | REG_MULTI_SZ | Other services the device or service is dependent on.
+Description | REG_SZ | Description.
+DisplayName | REG_SZ, REG_MULTI_SZ | Display name.
 DriverPackageId | |
-ErrorControl | `REG_DWORD` | The level of error control.
+ErrorControl | REG_DWORD | The level of error control.
 FailureActions | |
-Group | `REG_SZ` | Name of the group the device or service is part of.
-ImagePath | `REG_SZ` | Path and filename of device or service executable file (or image).
-ObjectName | `REG_SZ` | See section: ObjectName value
+Group | REG_SZ | Name of the group the device or service is part of.
+ImagePath | REG_SZ | Path and filename of device or service executable file (or image).
+ObjectName | REG_SZ | See section: ObjectName value
 RequiredPrivileges | |
-Start | `REG_DWORD` | The start control value.
+Start | REG_DWORD | The start control value.
 ServiceSidType | |
-Tag | `REG_DWORD` |
-Type | `REG_DWORD` | The driver or service type.
+Tag | REG_DWORD |
+Type | REG_DWORD | The driver or service type.
 
 ### Parameters sub key
 
@@ -67,18 +67,18 @@ Values:
 
 Value | Data type | Description
 --- | --- | ---
-AmdXataOptions | `REG_DWORD_LITTLE_ENDIAN` | 
-AMLIMaxCTObjs | `REG_BINARY` | 
-APEIOSCGranted | `REG_BINARY` | 
-AthDfuWaitInfinite | `REG_DWORD_LITTLE_ENDIAN` | 
-BusType | `REG_DWORD_LITTLE_ENDIAN` | 
-DebugFlags | `REG_DWORD_LITTLE_ENDIAN` | 
-IoTimeoutValue | `REG_DWORD_LITTLE_ENDIAN` | 
-MaintainServerList | `REG_SZ` | 
-ServiceDll | `REG_EXPAND_SZ` | 
-ServiceDllUnloadOnStop | `REG_DWORD_LITTLE_ENDIAN` | 
-ServiceMain | `REG_SZ` | 
-WHEAOSCImplemented | `REG_BINARY` | 
+AmdXataOptions | REG_DWORD | 
+AMLIMaxCTObjs | REG_BINARY | 
+APEIOSCGranted | REG_BINARY | 
+AthDfuWaitInfinite | REG_DWORD | 
+BusType | REG_DWORD | 
+DebugFlags | REG_DWORD | 
+IoTimeoutValue | REG_DWORD | 
+MaintainServerList | REG_SZ | 
+ServiceDll | REG_EXPAND_SZ | 
+ServiceDllUnloadOnStop | REG_DWORD | 
+ServiceMain | REG_SZ | 
+WHEAOSCImplemented | REG_BINARY | 
 
 ### ErrorControl value
 

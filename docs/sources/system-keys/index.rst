@@ -20,3 +20,4 @@ Windows system keys
    Services and drivers <Services-and-drivers>
    Time zones <Time-zones>
    Volume shadow copies <Volume-shadow-copies>
+   Windows error reporting <Windows-error-reporting>

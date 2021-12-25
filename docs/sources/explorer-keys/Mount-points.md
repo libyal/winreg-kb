@@ -36,7 +36,7 @@ Value | Data type | Description
 --- | --- | ---
 `_UB` | REG_BINARY | 
 BaseClass | REG_SZ | 
-Version | REG_DWORD_LITTLE_ENDIAN | 
+Version | REG_DWORD | 
 
 ## MountPoints2
 
