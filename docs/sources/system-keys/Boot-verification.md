@@ -12,11 +12,11 @@ Known values of the BootVerification key:
 
 Value | Data type | Description
 --- | --- | ---
-ErrorControl | `REG_DWORD` | Known value: 1
-%SERVICE%\ImagePath | `REG_EXPAND_SZ` | Known value: "Bootvrfy.exe"
-ObjectName | `REG_SZ` | Known value: "LocalSystem"
-Start Entry | `REG_DWORD` | Known value: 3
-Type Entry | `REG_DWORD` | Known value: 2
+ErrorControl | REG_DWORD | Known value: 1
+%SERVICE%\ImagePath | REG_EXPAND_SZ | Known value: "Bootvrfy.exe"
+ObjectName | REG_SZ | Known value: "LocalSystem"
+Start Entry | REG_DWORD | Known value: 3
+Type Entry | REG_DWORD | Known value: 2
 
 To run a custom startup verification program the standard startup verification
 functions in Winlogon need to be disabled. This can be done by setting the
@@ -39,7 +39,7 @@ Known values of the BootVerificationProgram key:
 
 Value | Data type | Description
 --- | --- | ---
-ImagePath | `REG_SZ`, `REG_EXPAND_SZ` | path of a custom startup verification program
+ImagePath | REG_SZ, REG_EXPAND_SZ | path of a custom startup verification program
 
 According Windows server 2003 documentation Bootvrfy.exe and a custom startup
 verification program cannot be used in parallel.

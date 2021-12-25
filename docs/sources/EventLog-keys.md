@@ -74,12 +74,12 @@ Values:
 
 Value | Data type | Description
 --- | --- | ---
-CategoryCount | REG_DWORD_LITTLE_ENDIAN | Number of event categories supported
+CategoryCount | REG_DWORD | Number of event categories supported
 CategoryMessageFile | REG_EXPAND_SZ | Path to the category message file. A category message file contains language-dependent strings that describe the categories.
 EventMessageFile | REG_EXPAND_SZ | Path to event message files. An event message file contains language-dependent strings that describe the events. Note that this value can contain multiple filenames, for example "C:\WINDOWS\system32\COMRES.DLL;C:\WINDOWS\system32\xpsp2res.dll". Multiple files are delimited using a semicolon.
 ParameterMessageFile | REG_EXPAND_SZ | Path to the parameter message file. A parameter message file contains language-independent strings that are to be inserted into the event description strings.
 ProviderGuid | REG_SZ | Identifier, in the form "{%GUID%}", of the event provider.
-TypesSupported | REG_DWORD_LITTLE_ENDIAN | Bitmask of supported types
+TypesSupported | REG_DWORD | Bitmask of supported types
 
 ##### TypesSupported value data
 

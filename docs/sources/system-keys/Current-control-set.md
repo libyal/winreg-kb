@@ -40,10 +40,10 @@ These roles are defined by the other values in the Select key:
 
 Value | Data type | Description
 --- | --- | ---
-Current | `REG_DWORD` | Current Control Set
-Default | `REG_DWORD` | Default Control Set
-Failed | `REG_DWORD` | Control Set that failed to boot
-LastKnownGood | `REG_DWORD` | Last known good Control Set
+Current | REG_DWORD | Current Control Set
+Default | REG_DWORD | Default Control Set
+Failed | REG_DWORD | Control Set that failed to boot
+LastKnownGood | REG_DWORD | Last known good Control Set
 
 ### Notes
 
