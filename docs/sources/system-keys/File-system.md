@@ -10,7 +10,7 @@ HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\FileSystem
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 NtfsAllowExtendedCharacterIn8dot3Name | REG_DWORD |
 NtfsDisable8dot3NameCreation | REG_DWORD |

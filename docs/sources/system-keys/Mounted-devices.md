@@ -19,7 +19,9 @@ Seen on:
 * Windows 10
 * Windows 11
 
-Value | Data type | Description
+Values:
+
+Name | Data type | Description
 --- | --- | ---
 %IDENTIFIER% | REG_BINARY | 
 

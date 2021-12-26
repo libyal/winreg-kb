@@ -1,4 +1,4 @@
-# 7-Zip keys
+# 7-Zip
 
 **TODO this page currently contains rough notes, fine tune these**
 
@@ -17,7 +17,7 @@ FM |
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 Lang | | Language tag, for example "en-US" or "-" if empty.
 
@@ -31,7 +31,7 @@ Columns |
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 FlatViewArc# | | Where # is a numeric value e.g. 0 or 1
 FolderShortcuts | |
@@ -45,7 +45,7 @@ Position | |
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 7-Zip.Rar | REG_BINARY |
 7-Zip.7z | REG_BINARY |

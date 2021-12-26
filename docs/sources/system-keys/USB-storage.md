@@ -20,7 +20,9 @@ Device Parameters |
 LogConf |
 Properties |
 
-Value | Data type | Description
+Values:
+
+Name | Data type | Description
 --- | --- | ---
 Capabilities | |
 Class | |

@@ -1,4 +1,4 @@
-# Microsoft Office keys
+# Microsoft Office
 
 **TODO this page currently contains rough notes, fine tune these**
 
@@ -23,7 +23,7 @@ Value | Description
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 ForcePSTPath | REG_EXPAND_SZ |
 
@@ -40,7 +40,9 @@ HKEY_CURRENT_USER\Software\Microsoft\Office\14.0\Outlook\Search\Catalog
 HKEY_CURRENT_USER\Software\Microsoft\Office\15.0\Outlook\Search
 ```
 
-Value | Data type | Description
+Values:
+
+Name | Data type | Description
 --- | --- | ---
 %FILENAME% | REG_DWORD |
 
@@ -50,7 +52,9 @@ Where %FILENAME% is the full filename of Outlook file.
 HKEY_CURRENT_USER\Software\Microsoft\Office\15.0\Outlook\Search\Catalog
 ```
 
-Value | Data type | Description
+Values:
+
+Name | Data type | Description
 --- | --- | ---
 %FILENAME% | REG_BINARY |
 
@@ -96,7 +100,9 @@ Where the value data is:
 HKEY_CURRENT_USER\Software\Microsoft\Office\%VERSION%\Outlook\Cached Mode
 ```
 
-Value | Data type | Description
+Values:
+
+Name | Data type | Description
 --- | --- | ---
 DownloadOAB | REG_DWORD |
 
@@ -110,7 +116,9 @@ not exist, create it.
 HKEY_CURRENT_USER\Software\Microsoft\Office\%VERSION%\Outlook\Security
 ```
 
-Value | Data type | Description
+Values:
+
+Name | Data type | Description
 --- | --- | ---
 OutlookSecureTempFolder | REG_SZ |
 
@@ -118,7 +126,9 @@ OutlookSecureTempFolder | REG_SZ |
 
 ### File Name MRU keys
 
-Value | Data type | Description
+Values:
+
+Name | Data type | Description
 --- | --- | ---
 Maximum Entries | | Numeric value
 Value | | Numeric value
@@ -133,7 +143,9 @@ HKEY_CURRENT_USER\Software\Microsoft\Office\12.0\Common\Open Find\Microsoft Offi
 
 ### Item MRU keys
 
-Value | Data type | Description
+Values:
+
+Name | Data type | Description
 --- | --- | ---
 %ITEM% | | Where %ITEM% is a string in the form: "Item [0-9]+"
 

@@ -6,7 +6,7 @@ HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 CachedLogonsCount | REG_SZ | Number of cached log-ons. <br/> According to MSDN the value must be in the range "0" - "50"
 

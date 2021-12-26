@@ -33,7 +33,7 @@ tracing |
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 DependOnGroup | REG_MULTI_SZ | Other groups the device or service is dependent on.
 DependOnService | REG_MULTI_SZ | Other services the device or service is dependent on.
@@ -65,7 +65,7 @@ Wdf |
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 AmdXataOptions | REG_DWORD | 
 AMLIMaxCTObjs | REG_BINARY | 

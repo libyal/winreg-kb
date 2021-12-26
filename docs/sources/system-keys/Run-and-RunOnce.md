@@ -20,7 +20,9 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce
 ```
 
-Value | Data type | Description
+Values:
+
+Name | Data type | Description
 --- | --- | ---
 %NAME% | REG_SZ | Command to run or run once
 
@@ -45,7 +47,9 @@ HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunServices
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce
 ```
 
-Value | Data type | Description
+Values:
+
+Name | Data type | Description
 --- | --- | ---
 %NAME% | REG_SZ | Command to run or run once
 

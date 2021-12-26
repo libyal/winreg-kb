@@ -32,7 +32,7 @@ Name | Description
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 `_UB` | REG_BINARY | 
 BaseClass | REG_SZ | 
@@ -88,7 +88,7 @@ Shell\AutoRun\Command |
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 BaseClass | REG_SZ | 
 

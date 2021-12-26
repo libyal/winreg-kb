@@ -10,7 +10,7 @@ HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\FolderDesc
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 Attributes | REG_DWORD | 
 Category | REG_DWORD | 

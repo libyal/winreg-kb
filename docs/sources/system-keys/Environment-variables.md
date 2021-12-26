@@ -47,7 +47,7 @@ HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\ProfileList
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 AllUsersProfile | REG_SZ | Value of the %AllUsersProfile% environment variable (Seen on Windows XP)
 Default | REG_SZ | (Seen on Windows Vista)

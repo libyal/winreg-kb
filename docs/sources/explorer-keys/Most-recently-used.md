@@ -12,7 +12,7 @@ keys. Several different variants of MRU keys are known to be used, such as:
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 MRUList | | Contains a list of the most recently used (MRU) items. <br/> Consists of an array of UTF-16 little-endian formatted character value. <br/> The first value represents the most recently used item, the second the second recently used item and so forth. The last value indicates the end of the list and should be 0 (0x0000).
 %ALPHA% | | Where %ALPHA% is a string in the form: "[a-z]" <br/> The value name corresponds to a string value in the MRUList value. E.g. a MRUList value of "a" (0x0061) corresponds to the value "a".
@@ -53,7 +53,7 @@ DesktopStreamMRU | NT4 | How icons are arranged on the desktop. <br/> Although t
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 MRUListEx | | Contains a list of the most recently used (MRU) items. <br/> Consists of an array of 4-byte little-endian values. <br/> The first value represents the most recently used item, the second the second recently used item and so forth. The last value indicates the end of the list and should be -1 (0xffffffff).
 %NUMERIC% | | Where %NUMERIC% is a string in the form: "[0-9]+" <br/> The value name corresponds to a 4-byte numeric value in the MRUListEx value. E.g. a MRUListEx value of 0x00000001 corresponds to the value named "1".
@@ -143,7 +143,7 @@ The BagMRU sub keys form a hierarchy similar to a folder structure.
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 NodeSlot | REG_DWORD | Contains the node slot index number (also referred to as bag number) <br/> This number corresponds to the sub key name the corresponding Bags sub key. <br/> E.g. bag number 1 in HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\BagMRU relates to the Bags sub key HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Bags\1
 NodeSlots | | Only present in the root BagMRU key.
@@ -160,7 +160,7 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Bags\1\Shell
 
 This key contains various values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 Address | |
 Buttons | |

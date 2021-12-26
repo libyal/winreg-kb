@@ -52,7 +52,7 @@ Count | Contains the User Assist log entries
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 Version | REG_DWORD | Indicates the User Assist log format version
 
@@ -67,9 +67,8 @@ Value | Windows Versions
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
-Value | Data type | Description
 %NAME% | REG_SZ | Where %NAME% is obfuscated using a technique described below.
 
 Windows Versions | Obfuscation technique
@@ -177,7 +176,7 @@ Offset | Size | Value | Description
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 NoLog | REG_DWORD | Turn of logging. Set to 1 to disable logging of the User Assist information
 NoEncrypt | REG_DWORD | Turn of obfuscation of %NAME% values. Set to 1 to disable name obfuscation

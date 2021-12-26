@@ -8,7 +8,7 @@ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Manag
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 EnablePrefetcher | REG_DWORD |
 

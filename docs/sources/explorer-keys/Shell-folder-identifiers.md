@@ -19,7 +19,7 @@ ShellFolder |
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 (default value) | |
 InfoTip | |
@@ -30,7 +30,7 @@ SortOrderIndex | |
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 Attributes | REG_DWORD |
 CallForAttributes | |

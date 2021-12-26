@@ -42,7 +42,7 @@ AppCompatCache value in later versions of Windows.
 The subkeys are named as the executable files e.g. `Uninstall.exe` and have been
 seen to contain the following values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 %NAME% | | <mark style="background-color: yellow">**Unknown (seen: x, 462)**</mark>
 DllPatch-%NAME% | | <mark style="background-color: yellow">**Unknown**</mark>

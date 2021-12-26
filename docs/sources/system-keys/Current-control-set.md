@@ -38,7 +38,7 @@ keys can be different:
 
 These roles are defined by the other values in the Select key:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 Current | REG_DWORD | Current Control Set
 Default | REG_DWORD | Default Control Set

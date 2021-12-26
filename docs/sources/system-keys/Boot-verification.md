@@ -10,7 +10,7 @@ successful. Bootvrfy.exe can be run on a local or remote computer.
 
 Known values of the BootVerification key:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 ErrorControl | REG_DWORD | Known value: 1
 %SERVICE%\ImagePath | REG_EXPAND_SZ | Known value: "Bootvrfy.exe"
@@ -37,7 +37,7 @@ verification program.
 
 Known values of the BootVerificationProgram key:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 ImagePath | REG_SZ, REG_EXPAND_SZ | path of a custom startup verification program
 
