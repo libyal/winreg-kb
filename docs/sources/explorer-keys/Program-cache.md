@@ -1,65 +1,57 @@
-== Explorer ProgramsCache Registry values
+# Program cache
 
-The Explorer ProgramsCache Registry values can be stored in the following 
-Registry keys.
+The Windows explorer ProgramsCache Registry values can be stored in
+the following Windows Registry keys.
 
-* Explorer StartPage Registry key
-* Explorer StartPage2 Registry key
+* Explorer\\StartPage key
+* Explorer\\StartPage2 key
 
-=== Explorer StartPage Registry key
+## Explorer\\StartPage key
 
-The Explorer StartPage Registry key:
-....
+```
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage
-....
+```
 
 Seen in Windows XP, 2003 and Vista.
 
-[cols="1,1,5",options="header"]
-|===
-| Value | Data type | Description
-| ProgramsCache | REG_BINARY | All the started the programs. +
-[yellow-background]*Contains a Jump list?*
-|===
+Values:
 
-=== Explorer StartPage2 Registry key
+Name | Data type | Description
+--- | --- | ---
+ProgramsCache | REG_BINARY | All the started the programs. <br> <mark style="background-color: yellow">**Contains a Jump list?**</mark>
 
-The Explorer StartPage2 Registry key:
+## Explorer\\StartPage2 key
 
-....
+```
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage2
-....
+```
 
 Seen in Windows 7.
 
-[cols="1,1,5",options="header"]
-|===
-| Value | Data type | Description
-| ProgramsCache | REG_BINARY | All the started the programs. +
-[yellow-background]*Contains a Jump list?*
-| ProgramsCacheSMP | REG_BINARY | The applications pinned to the Start Menu. +
-Contains a Jump list.
-| ProgramsCacheTBP | REG_BINARY | The applications pinned to the Taskband. +
-Contains a Jump list.
-|===
+Values:
 
-[NOTE]
-The format of the ProgramsCache value data slightly differs from that of the
-ProgramsCacheSMP and ProgramsCacheTBP value data.
+Name | Data type | Description
+--- | --- | ---
+ProgramsCache | REG_BINARY | All the started the programs. <br> <mark style="background-color: yellow">**Contains a Jump list?**</mark>
+ProgramsCacheSMP | REG_BINARY | The applications pinned to the Start Menu. <br> Contains a Jump list.
+ProgramsCacheTBP | REG_BINARY | The applications pinned to the Taskband. <br> Contains a Jump list.
 
-=== ProgramsCache value data format
+Note that the format of the ProgramsCache value data slightly differs from that
+of the ProgramsCacheSMP and ProgramsCacheTBP value data.
 
-*TODO: describe containter format*
+## ProgramsCache value data format
 
 ProgramsCacheSMP - Empty list
-....
+
+```
 00000000  01 00 00 00                                       |.........|
 00000000              00 00 00 00                           |.........|
 00000000                           02                       |.........|
-....
+```
 
 ProgramsCacheTBP
-....
+
+```
 0x00000000  01 00 00 00 0b 00 00 00  01 aa 02 00 00           ................
 
 0x00000000  01 00 00 00 07 00 00 00  01 0e 03 00 00           ................
@@ -91,10 +83,11 @@ shell item list
 end of list?
 00000bc0              00 00                                 |.......|
 00000bc0                    02                              |.......|
-....
+```
 
 StartPage2\ProgramsCache
-....
+
+```
 Window 7
 00000000  13 00 00 00 c3 53 5b 62  48 ab c1 4e ba 1f a1 ef  |.....S[bH..N....|
 00000010  41 46 fc 19 00 80 00 00  00                       |AF.......~.1....|
@@ -133,10 +126,11 @@ TODO: edge case or remnant data?
 0x000198c0  00 00 0c 3d a4 33 11 00  54 61 73 6b 42 61 72 00  ...=.3..TaskBar.
 0x000198d0  3c 00 08 00 04 00 ef be  0c 3d a4 33 0c 3d a4 33  <........=.3.=.3
 0x000198e0  2a 00 00 00 69 ee 00 00  00 00 04 00 00 00 00 00  *...i...........
-....
+```
 
 StartPage\ProgramsCache
-....
+
+```
 Windows XP and 2003
 00000000  09 00 00 00 0b 00                                 |......V...T.1...|
 
@@ -183,9 +177,9 @@ unknown data 11 bytes
 00004b10  00 65 00 66 00 6f 00 78  00 2e 00 65 00 78 00 65  |.e.f.o.x...e.x.e|
 00004b20  00 00 00 00 00 1c 00 00  00                       |..........|
 00004b20                              02                    |..........|
-....
+```
 
-....
+```
 Windows Vista (c3535b62-48ab-c14e-ba1f-a1ef4146fc19 FOLDERID_StartMenu)
 
 0x00000000  0c 00 00 00 c3 53 5b 62  48 ab c1 4e ba 1f a1 ef  .....S[bH..N....
@@ -198,62 +192,47 @@ Windows Vista (c3535b62-48ab-c14e-ba1f-a1ef4146fc19 FOLDERID_StartMenu)
 TODO: edge case or remnant data?
 0x00009ff0                           02 61 ae 4f 05 d8 4d 87  .........a.O..M.
 0x0000a000  47 80 b6 09 02 20 c4 b7  00 02                    G.... ....
-....
+```
 
 Value data header Windows XP and 2003.
 
-[cols="1,1,1,5",options="header"]
-|===
-| Offset | Size | Value | Description
-| 0 | 4 | 0x00000009 | Format version
-| 4 | 2 | 0x000b | [yellow-background]*Unknown*
-|===
+Offset | Size | Value | Description
+--- | --- | --- | ---
+0 | 4 | 0x00000009 | Format version
+4 | 2 | 0x000b | <mark style="background-color: yellow">**Unknown**</mark>
 
 Value data header Windows Vista.
 
-[cols="1,1,1,5",options="header"]
-|===
-| Offset | Size | Value | Description
-| 0 | 4 | 0x0000000c | Format version
-| 4 | 16 | | Known folder identifier +
-Contains a GUID +
-c3535b62-48ab-c14e-ba1f-a1ef4146fc19 (FOLDERID_StartMenu)
-| 20 | 1 | | [yellow-background]*Unknown (sentinel?)*
-|===
+Offset | Size | Value | Description
+--- | --- | --- | ---
+0 | 4 | 0x0000000c | Format version
+4 | 16 | | Known folder identifier <br> Contains a GUID <br> c3535b62-48ab-c14e-ba1f-a1ef4146fc19 (FOLDERID_StartMenu)
+20 | 1 | | <mark style="background-color: yellow">**Unknown (sentinel?)**</mark>
 
 ProgramsCache value data header Windows 7 and 2008.
 
-[cols="1,1,1,5",options="header"]
-|===
-| Offset | Size | Value | Description
-| 0 | 4 | 0x00000013 | Format version
-| 4 | 16 | | Known folder identifier +
-Contains a GUID +
-c3535b62-48ab-c14e-ba1f-a1ef4146fc19 (FOLDERID_StartMenu)
-| 20 | 1 | | [yellow-background]*Unknown (sentinel?)*
-|===
+Offset | Size | Value | Description
+--- | --- | --- | ---
+0 | 4 | 0x00000013 | Format version
+4 | 16 | | Known folder identifier <br> Contains a GUID <br> c3535b62-48ab-c14e-ba1f-a1ef4146fc19 (FOLDERID_StartMenu)
+20 | 1 | | <mark style="background-color: yellow">**Unknown (sentinel?)**</mark>
 
 ProgramsCacheSMP and ProgramsCacheTBP value data header Windows 7 and 2008.
 
-[cols="1,1,1,5",options="header"]
-|===
-| Offset | Size | Value | Description
-| 0 | 4 | 0x00000001 | Format version
-| 4 | 4 | | [yellow-background]*Unknown*
-| 5 | 1 | | [yellow-background]*Unknown (sentinel?)*
-|===
+Offset | Size | Value | Description
+--- | --- | --- | ---
+0 | 4 | 0x00000001 | Format version
+4 | 4 | | <mark style="background-color: yellow">**Unknown**</mark>
+5 | 1 | | <mark style="background-color: yellow">**Unknown (sentinel?)**</mark>
 
 Value data entry.
 
-[cols="1,1,1,5",options="header"]
-|===
-| Offset | Size | Value | Description
-| 0 | 4 | | Entry data size
-| 4 | ... | | Entry data +
-Contains a shell item list
-| ... | 1 | | [yellow-background]*Unknown (sentinel?)* +
-[yellow-background]*Seen 0x00, 0x01, 0x02 (end marker?)*
-|===
+Offset | Size | Value | Description
+--- | --- | --- | ---
+0 | 4 | | Entry data size
+4 | ... | | Entry data <br> Contains a shell item list
+... | 1 | | <mark style="background-color: yellow">**Unknown (sentinel?)**</mark> <br> <mark style="background-color: yellow">**Seen 0x00, 0x01, 0x02 (end marker?)**</mark>
 
-[yellow-background]*if sentinel is 0x02 and there is more data then look
-for 0x00 which should be followed by 02 00 00 00 00 00 01*
+<mark style="background-color: yellow">**if sentinel is 0x02 and there is more data then look
+for 0x00 which should be followed by 02 00 00 00 00 00 01**</mark>
+
