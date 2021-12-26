@@ -1,4 +1,4 @@
-# Application compatibility cache key
+# Application compatibility cache
 
 The Application compatibility cache can be found in the following Windows
 Registry keys.

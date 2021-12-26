@@ -1,6 +1,6 @@
-# Current Control Set
+# Current control set
 
-The Windows Registry contains the Current Control Set key:
+The Windows Registry contains the Current control set key:
 
 ```
 HKEY_LOCAL_MACHINE\System\CurrentControlSet

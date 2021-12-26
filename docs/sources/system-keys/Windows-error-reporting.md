@@ -79,7 +79,7 @@ Name | Data type | Description
 --- | --- | ---
 StoreLocation | REG_SZ | Location of last report?
 
-#### UI handles sub key
+#### UIHandles sub key
 
 Values:
 
@@ -99,7 +99,7 @@ Name | Data type | Description
 --- | --- | ---
 NHRTimes | |
 
-### Local dumps sub key
+### LocalDumps sub key
 
 Per-application setting can be define by an application-specific key under:
 

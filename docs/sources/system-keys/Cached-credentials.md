@@ -1,4 +1,4 @@
-# Cached Credentials
+# Cached credentials
 
 ```
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon

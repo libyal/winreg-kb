@@ -17,7 +17,10 @@ Windows system keys
    Language <Language>
    Mounted devices <Mounted-devices>
    Prefetch <Prefetch>
+   Run and RunOnce <Run-and-RunOnce>
    Services and drivers <Services-and-drivers>
+   Session manager <Session-manager>
+   Task scheduler <Task-scheduler>
    Time zones <Time-zones>
    Volume shadow copies <Volume-shadow-copies>
    Windows error reporting <Windows-error-reporting>

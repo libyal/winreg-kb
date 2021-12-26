@@ -1,6 +1,6 @@
 # Volume shadow copies
 
-## Files Not To Snapshot Key
+## FilesNotToSnapshot key
 
 ```
 HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\BackupRestore\FilesNotToSnapshot

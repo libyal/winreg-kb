@@ -1,4 +1,4 @@
-# Background Activity Moderator Key
+# Background activity moderator (BAM)
 
 The Background Activity Moderator (BAM) key seems to have been introduced in
 Windows 10 after version 1709.

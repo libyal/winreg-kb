@@ -1,6 +1,6 @@
-# File System
+# File system
 
-Windows file system settings are stored in the File System key.
+Windows file system settings are stored in the File system key.
 
 ```
 HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\FileSystem
