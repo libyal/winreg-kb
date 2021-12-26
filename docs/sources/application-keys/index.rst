@@ -3,7 +3,7 @@ Application keys
 ################
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    7-Zip <7-Zip>
    Microsoft Office <Microsoft-Office>

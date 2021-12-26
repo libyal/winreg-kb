@@ -79,3 +79,8 @@ Installed "Programs and Features"
 ```
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer
 ```
+
+## External Links
+
+* [MSDN: Run and RunOnce Registry Keys](http://msdn.microsoft.com/en-us/library/aa376977(v=vs.85).aspx)
+

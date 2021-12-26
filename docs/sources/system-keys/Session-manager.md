@@ -10,3 +10,7 @@ Value | Data type | Description
 --- | --- | ---
 BootExecute | REG_BINARY, REG_MULTI_SZ | Applications, services and commands executed during start-up.
 
+## External links
+
+* [MSDN: BootExecute](http://technet.microsoft.com/en-us/library/cc963230.aspx)
+

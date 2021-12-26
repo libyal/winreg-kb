@@ -3,7 +3,7 @@ Windows Registry
 ################
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-  Files <Files>
-  Multilingual User Interface (MUI) form <MUI-form>
+   Files <Files>
+   Multilingual User Interface (MUI) form <MUI-form>

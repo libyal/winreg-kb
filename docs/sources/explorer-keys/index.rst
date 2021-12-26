@@ -3,7 +3,7 @@ Windows explorer keys
 #####################
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    Known folder identifiers <Known-folder-identifiers>
    Mount points <Mount-points>
