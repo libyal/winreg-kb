@@ -1,7 +1,7 @@
 # Shell folder identifier keys
 
 Shell folder identifiers are class identifiers (CLSID) with ShellFolder sub
-key of some [COM Class Identifier (CLSID) keys](https://github.com/libyal/winreg-kb/blob/main/documentation/Component%20Object%20Model%20keys.asciidoc).
+key of some [COM Class Identifier (CLSID) keys](https://winreg-kb.readthedocs.io/en/latest/sources/system-keys/COM-class-identifiers.html).
 
 ```
 HKEY_CLASSES_ROOT\CLSID\{%GUID%}\ShellFolder

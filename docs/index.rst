@@ -21,17 +21,22 @@ The source code is available from the `project page <https://github.com/libyal/w
 .. toctree::
    :maxdepth: 2
 
+   Security Accounts Manager keys <sources/Security-accounts-manager-keys>
+
+.. toctree::
+   :maxdepth: 2
+
    sources/explorer-keys/index
 
 .. toctree::
    :maxdepth: 2
 
-   sources/internet-explorer-keys/index
+   Windows EventLog keys <sources/EventLog-keys>
 
 .. toctree::
    :maxdepth: 2
 
-   Windows EventLog keys <sources/EventLog-keys>
+   sources/internet-explorer-keys/index
 
 .. toctree::
    :maxdepth: 2

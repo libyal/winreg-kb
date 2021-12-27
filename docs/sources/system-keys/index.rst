@@ -11,6 +11,7 @@ Windows system keys
    Cached credentials <Cached-credentials>
    Certificates <Certificates>
    Codepage <Codepage>
+   COM class identifiers <COM-class-identifiers>
    Current control set <Current-control-set>
    Environment variables <Environment-variables>
    File system <File-system>

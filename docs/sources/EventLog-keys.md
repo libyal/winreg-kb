@@ -61,7 +61,7 @@ Note that the source name is case insensitive; so "Workstation" and
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 Sources | | Array of strings with end-of-string character containing the names of the event sources
 
@@ -72,7 +72,7 @@ a single event source.
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 CategoryCount | REG_DWORD | Number of event categories supported
 CategoryMessageFile | REG_EXPAND_SZ | Path to the category message file. A category message file contains language-dependent strings that describe the categories.
@@ -115,7 +115,7 @@ publisher.
 
 Values:
 
-Value | Data type | Description
+Name | Data type | Description
 --- | --- | ---
 (default) | | name of the event source
 MessageFileName | | Path to an event message file. An event message file contains language-dependent strings that describe the events.

@@ -157,5 +157,5 @@ Note that DaylightBias can be set when DaylightDate is not set.
 * [TIME_ZONE_INFORMATION structure (timezoneapi.h)](https://docs.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-time_zone_information)
 * [DYNAMIC_TIME_ZONE_INFORMATION structure (timezoneapi.h)](https://docs.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-dynamic_time_zone_information)
 * [SYSTEMTIME structure (minwinbase.h)](https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime)
-* [windowsZones.xml](https://github.com/unicode-org/cldr/blob/master/common/supplemental/windowsZones.xml)
+* [windowsZones.xml](https://github.com/unicode-org/cldr/blob/main/common/supplemental/windowsZones.xml)
 
