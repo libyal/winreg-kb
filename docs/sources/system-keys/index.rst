@@ -21,6 +21,7 @@ Windows system keys
    Run and RunOnce <Run-and-RunOnce>
    Services and drivers <Services-and-drivers>
    Session manager <Session-manager>
+   Shell folder identifiers <Shell-folder-identifiers>
    System restore <System-restore>
    Task scheduler <Task-scheduler>
    Time zones <Time-zones>

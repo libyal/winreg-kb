@@ -9,5 +9,6 @@ Windows explorer keys
    Mount points <Mount-points>
    Most recently used (MRU) <Most-recently-used>
    Program cache <Program-cache>
-   Shell folder identifiers <Shell-folder-identifiers>
+   Shell folders <Shell-folders>
+   Typed paths <Typed-paths>
    User assist <User-assist>

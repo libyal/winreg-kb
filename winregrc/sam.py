@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Security Accounts Manager (SAM) collector."""
 
+import pyfwnt
+
 from dfdatetime import filetime as dfdatetime_filetime
 from dfdatetime import semantic_time as dfdatetime_semantic_time
 
@@ -110,7 +112,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
       ('unknown3', 'Unknown1', '_FormatIntegerAsHexadecimal2'),
       ('unknown4', 'Unknown1', '_FormatIntegerAsHexadecimal2'),
       ('security_descriptor', 'Security descriptor',
-       '_FormatDataInHexadecimal')]
+       '_FormatSecurityDescriptor')]
 
   _DEBUG_INFO_F_VALUE = [
       ('major_version', 'Major version', '_FormatIntegerAsDecimal'),
@@ -139,6 +141,40 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
       ('unknown7', 'Unknown7', '_FormatIntegerAsHexadecimal8'),
       ('unknown8', 'Unknown8', '_FormatIntegerAsHexadecimal8')]
 
+  # pylint: disable=no-member,using-constant-test
+
+  def _FormatSecurityDescriptor(self, security_descriptor_data):
+    """Formats security descriptor.
+
+    Args:
+      security_descriptor_data (bytes): security descriptor data.
+
+    Returns:
+      str: formatted security descriptor.
+    """
+    fwnt_descriptor = pyfwnt.security_descriptor()
+    fwnt_descriptor.copy_from_byte_stream(security_descriptor_data)
+
+    lines = []
+
+    if fwnt_descriptor.owner:
+      identifier_string = fwnt_descriptor.owner.get_string()
+      value_string = '\tOwner: {0:s}'.format(identifier_string)
+      lines.append(value_string)
+
+    if fwnt_descriptor.group:
+      identifier_string = fwnt_descriptor.group.get_string()
+      value_string = '\tGroup: {0:s}'.format(identifier_string)
+      lines.append(value_string)
+
+    # TODO: format SACL
+    # TODO: format DACL
+
+    lines.append('')
+    return '\n'.join(lines)
+
+  # pylint: enable=no-member,using-constant-test
+
   def _FormatUserAccountControlFlags(self, user_account_control_flags):
     """Formats user account control flags.
 
@@ -148,18 +184,18 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
     Returns:
       str: formatted user account control flags.
     """
-    value_strings = []
+    lines = []
     if user_account_control_flags:
       for flag, identifier in sorted(
           self._USER_ACCOUNT_CONTROL_FLAGS.items()):
         if flag & user_account_control_flags:
           value_string = '\t{0:s} (0x{1:08x})'.format(identifier, flag)
-          value_strings.append(value_string)
+          lines.append(value_string)
 
-      value_strings.append('')
+      lines.append('')
 
-    value_strings.append('')
-    return '\n'.join(value_strings)
+    lines.append('')
+    return '\n'.join(lines)
 
   def ParseCValue(self, value_data):
     """Parses the C value data.

@@ -28,10 +28,10 @@ Offset | Size | Value | Description
 0 | 2 | | <mark style="background-color: yellow">**Unknown (Format version?)**</mark>
 2 | 2 | | <mark style="background-color: yellow">**Unknown**</mark>
 4 | 4 | | <mark style="background-color: yellow">**Unknown (empty?)**</mark>
-8 | 4 | | <mark style="background-color: yellow">**Unknown data size**</mark>
+8 | 4 | | Security descriptor data size
 12 | 2 | | <mark style="background-color: yellow">**Unknown**</mark>
 14 | 2 | | <mark style="background-color: yellow">**Unknown**</mark>
-16 | ... | | <mark style="background-color: yellow">**Unknown data (security descriptor?)**</mark>
+16 | ... | | Security descriptor data
 
 #### Format version
 

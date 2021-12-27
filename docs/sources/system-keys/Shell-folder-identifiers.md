@@ -1,4 +1,4 @@
-# Shell folder identifier keys
+# Shell folder identifiers
 
 Shell folder identifiers are class identifiers (CLSID) with ShellFolder sub
 key of some [COM Class Identifier (CLSID) keys](https://winreg-kb.readthedocs.io/en/latest/sources/system-keys/COM-class-identifiers.html).
@@ -21,7 +21,7 @@ Values:
 
 Name | Data type | Description
 --- | --- | ---
-(default value) | |
+(default) | |
 InfoTip | |
 LocalizedString | |
 SortOrderIndex | |
@@ -65,19 +65,8 @@ Has a LocalizedString value with the following data:
 Which is the [MUI Form](https://winreg-kb.readthedocs.io/en/latest/sources/windows-registry/MUI-form.html)
 for "My Documents".
 
-## Notes
-
-TODO: add information about
-
-```
-HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders
-```
-
-```
-HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders
-```
-
 ## External Links
 
+* [Implementing the Basic Folder Object Interfaces](https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/cc144093(v=vs.85))
 * [libfwsi: Shell Folder identifiers](https://github.com/libyal/libfwsi/wiki/Shell-Folder-identifiers)
 
