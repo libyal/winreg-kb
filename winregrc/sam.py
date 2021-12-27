@@ -101,70 +101,86 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
       0x00100000: 'USER_PARTIAL_SECRETS_ACCOUNT',
       0x00200000: 'USER_USE_AES_KEYS'}
 
-  def _DebugPrintFValue(self, f_value):
-    """Prints F value debug information.
+  _DEBUG_INFO_C_VALUE = [
+      ('format_version', 'Format version', '_FormatIntegerAsDecimal'),
+      ('unknown1', 'Unknown1', '_FormatIntegerAsHexadecimal2'),
+      ('unknown2', 'Unknown1', '_FormatIntegerAsHexadecimal4'),
+      ('security_descriptor_size', 'Security descriptor size',
+       '_FormatIntegerAsDecimal'),
+      ('unknown3', 'Unknown1', '_FormatIntegerAsHexadecimal2'),
+      ('unknown4', 'Unknown1', '_FormatIntegerAsHexadecimal2'),
+      ('security_descriptor', 'Security descriptor',
+       '_FormatDataInHexadecimal')]
+
+  _DEBUG_INFO_F_VALUE = [
+      ('major_version', 'Major version', '_FormatIntegerAsDecimal'),
+      ('minor_version', 'Minor version', '_FormatIntegerAsDecimal'),
+      ('unknown1', 'Unknown1', '_FormatIntegerAsHexadecimal8'),
+      ('last_login_time', 'Last login time', '_FormatIntegerAsFiletime'),
+      ('unknown2', 'Unknown2', '_FormatIntegerAsHexadecimal8'),
+      ('last_password_set_time', 'Last password set time',
+       '_FormatIntegerAsFiletime'),
+      ('account_expiration_time', 'Account expiration time',
+       '_FormatIntegerAsFiletime'),
+      ('last_password_failure_time', 'Last password failure time',
+       '_FormatIntegerAsFiletime'),
+      ('rid', 'Relative identifier (RID)', '_FormatIntegerAsDecimal'),
+      ('primary_gid', 'Primary group identifier (GID)',
+       '_FormatIntegerAsDecimal'),
+      ('user_account_control_flags', 'User account control flags',
+       '_FormatIntegerAsHexadecimal8'),
+      ('user_account_control_flags', None, '_FormatUserAccountControlFlags'),
+      ('country_code', 'Country code', '_FormatIntegerAsHexadecimal4'),
+      ('codepage', 'Codepage', '_FormatIntegerAsDecimal'),
+      ('number_of_password_failures', 'Number of password failures',
+       '_FormatIntegerAsDecimal'),
+      ('number_of_logons', 'Number of logons', '_FormatIntegerAsDecimal'),
+      ('unknown6', 'Unknown6', '_FormatIntegerAsHexadecimal8'),
+      ('unknown7', 'Unknown7', '_FormatIntegerAsHexadecimal8'),
+      ('unknown8', 'Unknown8', '_FormatIntegerAsHexadecimal8')]
+
+  def _FormatUserAccountControlFlags(self, user_account_control_flags):
+    """Formats user account control flags.
 
     Args:
-      f_value (f_value): F value.
+      user_account_control_flags (int): user account control flags.
+
+    Returns:
+      str: formatted user account control flags.
     """
-    self._DebugPrintDecimalValue('Major version', f_value.major_version)
-
-    self._DebugPrintDecimalValue('Minor version', f_value.minor_version)
-
-    value_string = '0x{0:08x}'.format(f_value.unknown1)
-    self._DebugPrintValue('Unknown1', value_string)
-
-    self._DebugPrintFiletimeValue('Last login time', f_value.last_login_time)
-
-    value_string = '0x{0:08x}'.format(f_value.unknown2)
-    self._DebugPrintValue('Unknown2', value_string)
-
-    self._DebugPrintFiletimeValue(
-        'Last password set time', f_value.last_password_set_time)
-
-    self._DebugPrintFiletimeValue(
-        'Account expiration time', f_value.account_expiration_time)
-
-    self._DebugPrintFiletimeValue(
-        'Last password failure time', f_value.last_password_failure_time)
-
-    self._DebugPrintDecimalValue('Relative identifier (RID)', f_value.rid)
-
-    self._DebugPrintDecimalValue(
-        'Primary group identifier (GID)', f_value.primary_gid)
-
-    value_string = '0x{0:08x}'.format(f_value.user_account_control_flags)
-    self._DebugPrintValue('User account control flags', value_string)
-
-    if f_value.user_account_control_flags:
+    value_strings = []
+    if user_account_control_flags:
       for flag, identifier in sorted(
           self._USER_ACCOUNT_CONTROL_FLAGS.items()):
-        if flag & f_value.user_account_control_flags:
+        if flag & user_account_control_flags:
           value_string = '\t{0:s} (0x{1:08x})'.format(identifier, flag)
-          self._DebugPrintText(value_string)
+          value_strings.append(value_string)
 
-      self._DebugPrintText('\n')
+      value_strings.append('')
 
-    value_string = '0x{0:04x}'.format(f_value.country_code)
-    self._DebugPrintValue('Country code', value_string)
+    value_strings.append('')
+    return '\n'.join(value_strings)
 
-    self._DebugPrintDecimalValue('Codepage', f_value.codepage)
+  def ParseCValue(self, value_data):
+    """Parses the C value data.
 
-    self._DebugPrintDecimalValue(
-        'Number of password failures', f_value.number_of_password_failures)
+    Args:
+      value_data (bytes): F value data.
 
-    self._DebugPrintDecimalValue('Number of logons', f_value.number_of_logons)
+    Raises:
+      ParseError: if the value data could not be parsed.
+    """
+    data_type_map = self._GetDataTypeMap('c_value')
 
-    value_string = '0x{0:08x}'.format(f_value.unknown6)
-    self._DebugPrintValue('Unknown6', value_string)
+    try:
+      c_value = self._ReadStructureFromByteStream(
+          value_data, 0, data_type_map, 'C value')
+    except (ValueError, errors.ParseError) as exception:
+      raise errors.ParseError(
+          'Unable to parse C value with error: {0!s}'.format(exception))
 
-    value_string = '0x{0:08x}'.format(f_value.unknown7)
-    self._DebugPrintValue('Unknown7', value_string)
-
-    value_string = '0x{0:08x}'.format(f_value.unknown8)
-    self._DebugPrintValue('Unknown8', value_string)
-
-    self._DebugPrintText('\n')
+    if self._debug:
+      self._DebugPrintStructureObject(c_value, self._DEBUG_INFO_C_VALUE)
 
   def _ParseFiletime(self, filetime):
     """Parses a FILETIME timestamp value.
@@ -219,7 +235,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
     user_account.number_of_logons = f_value.number_of_logons
 
     if self._debug:
-      self._DebugPrintFValue(f_value)
+      self._DebugPrintStructureObject(f_value, self._DEBUG_INFO_F_VALUE)
 
   def ParseVValue(self, value_data, user_account):
     """Parses the V value data.
@@ -265,7 +281,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
         value_string = '0x{0:08x}'.format(user_information_descriptor.unknown1)
         self._DebugPrintValue(unknown1_string, value_string)
 
-        data_string = 'Descriptor: {0:d} data:'.format(index + 1)
+        data_string = 'Descriptor: {0:d} data'.format(index + 1)
         self._DebugPrintData(data_string, descriptor_data)
 
       if index == 1:
@@ -312,6 +328,9 @@ class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
     user_accounts (list[UserAccount]): user accounts.
   """
 
+  _USERS_KEY_PATH = (
+      'HKEY_LOCAL_MACHINE\\SAM\\SAM\\Domains\\Account\\Users')
+
   def __init__(self, debug=False, output_writer=None):
     """Initializes a Security Accounts Manager (SAM) collector.
 
@@ -320,7 +339,9 @@ class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
       output_writer (Optional[OutputWriter]): output writer.
     """
     super(SecurityAccountManagerCollector, self).__init__(debug=debug)
-    self._output_writer = output_writer
+    self._parser = SecurityAccountManagerDataParser(
+        debug=debug, output_writer=output_writer)
+
     self.user_accounts = []
 
   def Collect(self, registry):  # pylint: disable=arguments-differ
@@ -333,13 +354,17 @@ class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
       bool: True if the Security Accounts Manager (SAM) information key was
           found, False if not.
     """
-    key_path = 'HKEY_LOCAL_MACHINE\\SAM\\SAM\\Domains\\Account\\Users'
-    users_key = registry.GetKeyByPath(key_path)
-    if not users_key:
+    main_key = registry.GetKeyByPath('HKEY_LOCAL_MACHINE\\SAM\\SAM')
+    if not main_key:
       return False
 
-    parser = SecurityAccountManagerDataParser(
-        debug=self._debug, output_writer=self._output_writer)
+    c_value = main_key.GetValueByName('C')
+    if c_value:
+      self._parser.ParseCValue(c_value.data)
+
+    users_key = registry.GetKeyByPath(self._USERS_KEY_PATH)
+    if not users_key:
+      return False
 
     for subkey in users_key.GetSubkeys():
       if subkey.name == 'Names':
@@ -349,11 +374,11 @@ class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
 
       f_value = subkey.GetValueByName('F')
       if f_value:
-        parser.ParseFValue(f_value.data, user_account)
+        self._parser.ParseFValue(f_value.data, user_account)
 
       v_value = subkey.GetValueByName('V')
       if v_value:
-        parser.ParseVValue(v_value.data, user_account)
+        self._parser.ParseVValue(v_value.data, user_account)
 
       self.user_accounts.append(user_account)
 

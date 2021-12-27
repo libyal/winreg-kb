@@ -7,4 +7,5 @@ Application keys
 
    7-Zip <7-Zip>
    Microsoft Office <Microsoft-Office>
+   Terminal server client <Terminal-server-client>
    WinRAR <WinRAR>

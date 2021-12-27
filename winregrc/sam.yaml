@@ -2,6 +2,13 @@ name: sam
 type: format
 description: Security Accounts Manager (SAM) format
 ---
+name: byte
+type: integer
+attributes:
+  format: unsigned
+  size: 1
+  units: bytes
+---
 name: uint16
 type: integer
 attributes:
@@ -22,6 +29,29 @@ attributes:
   format: unsigned
   size: 8
   units: bytes
+---
+name: c_value
+type: structure
+description: Security Accounts Manager C value.
+attributes:
+  byte_order: little-endian
+members:
+- name: format_version
+  data_type: uint16
+- name: unknown1
+  data_type: uint16
+- name: unknown2
+  data_type: uint32
+- name: security_descriptor_size
+  data_type: uint32
+- name: unknown3
+  data_type: uint16
+- name: unknown4
+  data_type: uint16
+- name: security_descriptor
+  type: stream
+  element_data_type: byte
+  elements_data_size: c_value.security_descriptor_size
 ---
 name: f_value
 type: structure

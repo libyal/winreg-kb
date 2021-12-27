@@ -21,7 +21,7 @@ The source code is available from the `project page <https://github.com/libyal/w
 .. toctree::
    :maxdepth: 2
 
-   Security Accounts Manager keys <sources/Security-accounts-manager-keys>
+   sources/security-accounts-manager-keys/index
 
 .. toctree::
    :maxdepth: 2

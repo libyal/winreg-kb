@@ -1,40 +1,17 @@
-# Security Accounts Manager (SAM) keys
+# Domains
 
-The Security Accounts Manager (SAM) is stored in the key:
+The Security Accounts Manager (SAM) domains are stored in the key:
 
 ```
-HKEY_LOCAL_MACHINE\SAM
+HKEY_LOCAL_MACHINE\SAM\SAM\Domains
 ```
-
-## SAM key
 
 Sub keys:
 
 Name | Description
 --- | ---
-Domains |
-RXACT |
-
-Values:
-
-Name | Data type | Description
---- | --- | ---
-C | REG_BINARY |
-
-### C value data
-
-Offset | Size | Value | Description
---- | --- | --- | ---
-0 | ... | | *TODO*
-
-## Domains key
-
-Sub keys:
-
-Name | Description
---- | ---
-Account |
-Builtin |
+Account | user, group, and local group accounts.
+Builtin | (built-in) default local groups, such as the Administrators and Users groups, that are established when the operating system is installed.
 
 Values:
 
@@ -344,13 +321,14 @@ Value | Identifier | Description
 
 ## External Links
 
-* [userAccountControl Mapping Table](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/8a193181-a7a2-49df-a8b1-f689aaa6987c)
-* [Security Account Manager (SAM)](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc756748(v=ws.10))
 * [ACCOUNT_TYPE Values](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/e742be45-665d-4576-b872-0bc99d1e1fbe)
-* [SAMPR_USER_ALL_INFORMATION](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/dc966b81-da27-4dae-a28c-ec16534f1cb9)
+* [Built-in and Account Domains](https://docs.microsoft.com/en-us/windows/win32/secmgmt/built-in-and-account-domains)
 * [Predefined RIDs](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/565a6584-3061-4ede-a531-f5c53826504b)
-* [USER_ALL_INFORMATION structure](https://docs.microsoft.com/en-us/windows/win32/api/subauth/ns-subauth-user_all_information)
-* [USER_ACCOUNT Codes](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/b10cfda1-f24f-441b-8f43-80cb93e786ec)
-* [Well-known SIDs](https://docs.microsoft.com/en-us/windows/win32/secauthz/well-known-sids)
+* [SAMPR_USER_ALL_INFORMATION](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/dc966b81-da27-4dae-a28c-ec16534f1cb9)
+* [Security Account Manager (SAM)](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc756748(v=ws.10))
 * [SysKey and the SAM](http://moyix.blogspot.com/2008/02/syskey-and-sam.html), by Brendan Dolan-Gavitt, February 21, 2008
+* [USER_ACCOUNT Codes](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/b10cfda1-f24f-441b-8f43-80cb93e786ec)
+* [userAccountControl Mapping Table](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/8a193181-a7a2-49df-a8b1-f689aaa6987c)
+* [USER_ALL_INFORMATION structure](https://docs.microsoft.com/en-us/windows/win32/api/subauth/ns-subauth-user_all_information)
+* [Well-known SIDs](https://docs.microsoft.com/en-us/windows/win32/secauthz/well-known-sids)
 

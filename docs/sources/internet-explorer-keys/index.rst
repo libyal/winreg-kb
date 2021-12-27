@@ -6,5 +6,5 @@ Internet explorer keys
    :maxdepth: 1
 
    Browser helper objects <Browser-helper-objects>
-   Feature controls <Feature-controls>
+   Policies <Policies>
    Typed URLs <Typed-URLs>

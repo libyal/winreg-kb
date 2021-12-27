@@ -21,6 +21,9 @@ class BinaryDataFormat(object):
   # at run-time.
   _DEFINITION_FILES_PATH = os.path.dirname(__file__)
 
+  _HEXDUMP_CHARACTER_MAP = [
+      '.' if byte < 0x20 or byte > 0x7e else chr(byte) for byte in range(256)]
+
   def __init__(self, debug=False, output_writer=None):
     """Initializes a binary data format.
 
@@ -42,7 +45,8 @@ class BinaryDataFormat(object):
       data (bytes): data.
     """
     if self._output_writer:
-      self._output_writer.DebugPrintData(description, data)
+      self._output_writer.WriteText('{0:s}:\n'.format(description))
+      self._output_writer.WriteText(self._FormatDataInHexadecimal(data))
 
   def _DebugPrintDecimalValue(self, description, value):
     """Prints a decimal value for debugging.
@@ -71,7 +75,7 @@ class BinaryDataFormat(object):
       if date_time_string:
         date_time_string = '{0:s} UTC'.format(date_time_string)
       else:
-        date_time_string = '0x{08:x}'.format(value)
+        date_time_string = '0x{0:08x}'.format(value)
 
     self._DebugPrintValue(description, date_time_string)
 
@@ -102,7 +106,71 @@ class BinaryDataFormat(object):
       value (object): value.
     """
     if self._output_writer:
-      self._output_writer.DebugPrintValue(description, value)
+      text = self._FormatValue(description, value)
+      self._output_writer.WriteText(text)
+
+  def _FormatDataInHexadecimal(self, data):
+    """Formats data in a hexadecimal representation.
+
+    Args:
+      data (bytes): data.
+
+    Returns:
+      str: hexadecimal representation of the data.
+    """
+    in_group = False
+    previous_hexadecimal_string = None
+
+    lines = []
+    data_size = len(data)
+    for block_index in range(0, data_size, 16):
+      data_string = data[block_index:block_index + 16]
+
+      hexadecimal_byte_values = []
+      printable_values = []
+      for byte_value in data_string:
+        if isinstance(byte_value, str):
+          byte_value = ord(byte_value)
+
+        hexadecimal_byte_value = '{0:02x}'.format(byte_value)
+        hexadecimal_byte_values.append(hexadecimal_byte_value)
+
+        printable_value = self._HEXDUMP_CHARACTER_MAP[byte_value]
+        printable_values.append(printable_value)
+
+      remaining_size = 16 - len(data_string)
+      if remaining_size == 0:
+        whitespace = ''
+      elif remaining_size >= 8:
+        whitespace = ' ' * ((3 * remaining_size) - 1)
+      else:
+        whitespace = ' ' * (3 * remaining_size)
+
+      hexadecimal_string_part1 = ' '.join(hexadecimal_byte_values[0:8])
+      hexadecimal_string_part2 = ' '.join(hexadecimal_byte_values[8:16])
+      hexadecimal_string = '{0:s}  {1:s}{2:s}'.format(
+          hexadecimal_string_part1, hexadecimal_string_part2, whitespace)
+
+      if (previous_hexadecimal_string is not None and
+          previous_hexadecimal_string == hexadecimal_string and
+          block_index + 16 < data_size):
+
+        if not in_group:
+          in_group = True
+
+          lines.append('...')
+
+      else:
+        printable_string = ''.join(printable_values)
+
+        lines.append('0x{0:08x}  {1:s}  {2:s}'.format(
+            block_index, hexadecimal_string, printable_string))
+
+        in_group = False
+        previous_hexadecimal_string = hexadecimal_string
+
+    lines.extend(['', ''])
+    return '\n'.join(lines)
 
   def _FormatIntegerAsDecimal(self, integer):
     """Formats an integer as a decimal.
@@ -114,6 +182,61 @@ class BinaryDataFormat(object):
       str: integer formatted as a decimal.
     """
     return '{0:d}'.format(integer)
+
+  def _FormatIntegerAsFiletime(self, integer):
+    """Formats an integer as a FILETIME date and time value.
+
+    Args:
+      integer (int): integer.
+
+    Returns:
+      str: integer formatted as a FILETIME date and time value.
+    """
+    if integer == 0:
+      return 'Not set (0)'
+
+    if integer == 0x7fffffffffffffff:
+      return 'Never (0x7fffffffffffffff)'
+
+    date_time = dfdatetime_filetime.Filetime(timestamp=integer)
+    date_time_string = date_time.CopyToDateTimeString()
+    if not date_time_string:
+      return '0x{0:08x}'.format(integer)
+
+    return '{0:s} UTC'.format(date_time_string)
+
+  def _FormatIntegerAsHexadecimal2(self, integer):
+    """Formats an integer as an 2-digit hexadecimal.
+
+    Args:
+      integer (int): integer.
+
+    Returns:
+      str: integer formatted as an 2-digit hexadecimal.
+    """
+    return '0x{0:02x}'.format(integer)
+
+  def _FormatIntegerAsHexadecimal4(self, integer):
+    """Formats an integer as an 4-digit hexadecimal.
+
+    Args:
+      integer (int): integer.
+
+    Returns:
+      str: integer formatted as an 4-digit hexadecimal.
+    """
+    return '0x{0:04x}'.format(integer)
+
+  def _FormatIntegerAsHexadecimal8(self, integer):
+    """Formats an integer as an 8-digit hexadecimal.
+
+    Args:
+      integer (int): integer.
+
+    Returns:
+      str: integer formatted as an 8-digit hexadecimal.
+    """
+    return '0x{0:08x}'.format(integer)
 
   def _FormatStructureObject(self, structure_object, debug_info):
     """Formats a structure object debug information.
@@ -140,7 +263,11 @@ class BinaryDataFormat(object):
         attribute_value = value_format_function(attribute_value)
 
       if isinstance(attribute_value, str) and '\n' in attribute_value:
-        text = '{0:s}:\n{1:s}'.format(description, attribute_value)
+        text = ''
+        if description is not None:
+          text = '{0:s}:\n'.format(description)
+        text = ''.join([text, attribute_value])
+
       else:
         text = self._FormatValue(description, attribute_value)
 
