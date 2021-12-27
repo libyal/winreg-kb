@@ -16,6 +16,7 @@ Windows system keys
    Environment variables <Environment-variables>
    File system <File-system>
    Language <Language>
+   Local security authority <Local-security-authority>
    Mounted devices <Mounted-devices>
    Prefetch <Prefetch>
    Run and RunOnce <Run-and-RunOnce>

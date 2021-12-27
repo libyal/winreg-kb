@@ -14,7 +14,3 @@ HKEY_CURRENT_USER\Software\Classes\Local Settings\Software\Microsoft\Windows\She
 HKEY_CURRENT_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\BitBucket\%VOLUME_LETTER%\VolumeSerialNumber
 ....
 
-== External Links
-
-* https://msdn.microsoft.com/en-us/library/windows/desktop/cc144093(v=vs.85).aspx[MSDN: Implementing the Basic Folder Object Interfaces]
-

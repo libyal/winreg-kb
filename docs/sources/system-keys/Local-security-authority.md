@@ -1,15 +1,12 @@
-*NOTE this page largely contains some notes for now*
-
-:toc:
-:toclevels: 4
-
-== Boot key
+# Local Security Authority (LSA)
 
 Windows 2000 and later.
 
-....
-HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa\
-....
+```
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa
+```
+
+## Boot key
 
 The boot key can be determined as following.
 
@@ -24,7 +21,7 @@ subkeys:
 The string contains a base16 encoded 16-byte binary data that contains the
 scrambled key data. To unscramble the key data:
 
-....
+```
 scrambled_key = codecs.decode(class_name_string, 'hex')
 
 key = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -33,17 +30,19 @@ for index, scrambled_index in enumerate([
   key[index] = scrambled_key[scrambled_index]
 
 key = codecs.encode(b''.join(key), 'hex')
-....
+```
 
+## LSA key
 
-== LSA key
+The Local Security Authority (LSA) (or Syskey) is a 128-bit RC4 encryption key
+used to protect credentials stored in the Windows Registry.
 
-....
+```
 Key: HKEY_LOCAL_MACHINE\Security\Policy\PolSecretEncryptionKey
 Default value
-....
+```
 
-....
+```
 Windows XP
 
 00000000  01 00 00 00 01 00 00 00  00 00 00 00              |..............?.|
@@ -57,40 +56,40 @@ RC4 encrypted data
 RC4 key material
 00000030                                       c4 14 64 d1  |8_'.r.W....7..d.|
 00000040  a8 47 7a d4 4b a3 62 d8  e7 2b ef 76              |.Gz.K.b..+.v|
-....
+```
 
-....
-    md5 = MD5.new()
-    md5.update(boot_key)
+```
+md5 = MD5.new()
+md5.update(boot_key)
 
-    iteration = 0
-    while iteration < 1000:
-      md5.update(value_data[60:76])
-      iteration += 1
+iteration = 0
+while iteration < 1000:
+  md5.update(value_data[60:76])
+  iteration += 1
 
-    rc4_key = md5.digest()
+rc4_key = md5.digest()
 
-    rc4 = ARC4.new(rc4_key)
-    decrypted_data = rc4.decrypt(value_data[12:60])
+rc4 = ARC4.new(rc4_key)
+decrypted_data = rc4.decrypt(value_data[12:60])
 
-    lsa_key = decrypted_data[16:32]
-....
+lsa_key = decrypted_data[16:32]
+```
 
-....
+```
 0x00000000  80 3a ce f0 5f 15 d3 11  b7 e6 00 80 5f 48 ca eb  .:.._......._H..
 
 0x00000010  01 d6 5d f4 43 aa 0a 86  d9 42 d1 17 34 ce 66 7c  ..].C....B..4.f|
 0x00000020  24 9a 83 44 c6 a7 57 30  44 dc 27 06 26 94 77 8a  $..D..W0D.'.&.w.
-....
+```
 
-== NL$KM
+## NL$KM
 
-....
+```
 Key: HKEY_LOCAL_MACHINE\Security\Policy\Secrets\NL$KM\CurrVal
 Default value
-....
+```
 
-....
+```
 Windows XP
 00000000  48 00 00 00 48 00 00 20  9c c3 0c 00              |H...H.. ........|
 
@@ -101,9 +100,9 @@ DES encrypted data
 00000030  8f f4 11 d1 8d 73 07 b0  6f 1a db 0b ee cb 69 7f  |.....s..o.....i.|
 00000040  73 50 24 82 f8 e1 a6 27  97 a9 cc 04 8e e4 ca bb  |sP$....'........|
 00000050  33 68 00 7c                                       |3h.||
-....
+```
 
-....
+```
 decrypted data (_LSA_BLOB)
 
 0x00000000  40 00 00 00 01 00 00 00  09 fe 44 48 1b 35 73 b7  @.........DH.5s.
@@ -111,9 +110,9 @@ decrypted data (_LSA_BLOB)
 0x00000020  b5 d8 8f 21 75 ec 01 e9  85 25 96 6c 68 52 c9 30  ...!u....%.lhR.0
 0x00000030  fb 1d b6 9d cd 8c 14 90  91 de f1 dd 5d d7 64 2a  ............].d*
 0x00000040  ce 40 97 5a f1 59 71 20                           .@.Z.Yq 
-....
+```
 
-....
+```
 Windows 7
 00000000  00 00 00 01                                       |....a.!v.......N|
 
@@ -127,6 +126,5 @@ Windows 7
 00000070  dd fa 85 7c 6e 20 cd 5e  a4 ac c0 53 7e c3 d6 ef  |...|n .^...S~...|
 00000080  23 e2 2c b0 bd 74 52 19  cd a0 4e b2 00 00 00 00  |#.,..tR...N.....|
 00000090  00 00 00 00 00 00 00 00  00 00 00 00              |............|
-....
-
+```
 

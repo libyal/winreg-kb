@@ -35,7 +35,7 @@ Where %NUMBER% contains the number of the cached credential.
 
 Offset | Size | Value | Description
 --- | --- | --- | ---
-<td colspan=4> _Metadata_
+_Metadata_ |||
 0 | 2 | | Username string size
 2 | 2 | | Hostname string size
 4 | 2 | | <mark style="background-color: yellow">**Unknown (username string size)**</mark>
@@ -57,7 +57,7 @@ Offset | Size | Value | Description
 56 | 4 | | <mark style="background-color: yellow">**Unknown**</mark>
 60 | 2 | | Hostname with domain string size
 62 | 2 | | <mark style="background-color: yellow">**Unknown**</mark>
-<td colspan=4> _Data_
+_Data_ |||
 64 | 16 | | <mark style="background-color: yellow">**Unknown (CH)**</mark>
 80 | 16 | | <mark style="background-color: yellow">**Unknown (T)**</mark>
 96 | ... | | Encrypted data

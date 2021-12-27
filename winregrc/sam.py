@@ -141,6 +141,34 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
       ('unknown7', 'Unknown7', '_FormatIntegerAsHexadecimal8'),
       ('unknown8', 'Unknown8', '_FormatIntegerAsHexadecimal8')]
 
+  def _DebugPrintUserInformationDescriptor(
+      self, index, descriptor, descriptor_data_offset, descriptor_data):
+    """Prints an user information descriptor.
+
+    Args:
+      index (int): index of the user information descriptor.
+      descriptor (user_information_descriptor): user information descriptor.
+      descriptor_data_offset (int): offset of the descriptor data relative from
+          the start of the V value data.
+      descriptor_data (bytes): descriptor data.
+    """
+    text = 'User information descriptor: {0:d}:\n'.format(index + 1)
+    self._DebugPrintText(text)
+
+    value_string = self._USER_INFORMATION_DESCRIPTORS[index]
+    self._DebugPrintValue('Description', value_string)
+
+    value_string = '0x{0:08x} (0x{1:08x})'.format(
+        descriptor.offset, descriptor_data_offset)
+    self._DebugPrintValue('Offset', value_string)
+
+    self._DebugPrintDecimalValue('Size', descriptor.size)
+
+    value_string = '0x{0:08x}'.format(descriptor.unknown1)
+    self._DebugPrintValue('Unknown1', value_string)
+
+    self._DebugPrintData('Data', descriptor_data)
+
   # pylint: disable=no-member,using-constant-test
 
   def _FormatSecurityDescriptor(self, security_descriptor_data):
@@ -300,27 +328,19 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
       descriptor_data = value_data[data_start_offset:data_end_offset]
 
       if self._debug:
-        description_string = 'Descriptor: {0:d} description'.format(index + 1)
-        value_string = self._USER_INFORMATION_DESCRIPTORS[index]
-        self._DebugPrintValue(description_string, value_string)
+        self._DebugPrintUserInformationDescriptor(
+            index, user_information_descriptor, data_start_offset,
+            descriptor_data)
 
-        value_description = 'Descriptor: {0:d} offset'.format(index + 1)
-        value_string = '0x{0:08x} (0x{1:08x})'.format(
-            user_information_descriptor.offset, data_start_offset)
-        self._DebugPrintValue(value_description, value_string)
+      if index == 0:
+        if self._debug:
+          value_string = self._FormatSecurityDescriptor(descriptor_data)
 
-        value_description = 'Descriptor: {0:d} size'.format(index + 1)
-        self._DebugPrintDecimalValue(
-            value_description, user_information_descriptor.size)
+          self._DebugPrintText('Security descriptor:\n')
+          self._DebugPrintText(value_string)
+          self._DebugPrintText('\n')
 
-        unknown1_string = 'Descriptor: {0:d} unknown1'.format(index + 1)
-        value_string = '0x{0:08x}'.format(user_information_descriptor.unknown1)
-        self._DebugPrintValue(unknown1_string, value_string)
-
-        data_string = 'Descriptor: {0:d} data'.format(index + 1)
-        self._DebugPrintData(data_string, descriptor_data)
-
-      if index == 1:
+      elif index == 1:
         user_account.username = descriptor_data.decode(
             'utf-16-le').rstrip('\x00')
 

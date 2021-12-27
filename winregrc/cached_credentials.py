@@ -16,10 +16,7 @@ from winregrc import interface
 
 
 class CachedCredentialsKeyCollector(interface.WindowsRegistryKeyCollector):
-  """Domain cached credentials key collector.
-
-  Attributes:
-  """
+  """Domain cached credentials key collector."""
 
   _CREDENTIALS_CACHE_KEY_PATH = 'HKEY_LOCAL_MACHINE\\Security\\Cache'
 

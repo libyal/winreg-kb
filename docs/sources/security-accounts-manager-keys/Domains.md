@@ -11,7 +11,7 @@ Sub keys:
 Name | Description
 --- | ---
 Account | user, group, and local group accounts.
-Builtin | (built-in) default local groups, such as the Administrators and Users groups, that are established when the operating system is installed.
+Builtin | built-in local groups, such as the Administrators and Users groups, that are established when the operating system is installed.
 
 Values:
 
@@ -40,7 +40,7 @@ V | REG_BINARY |
 
 Offset | Size | Value | Description
 --- | --- | --- | ---
-0 | ... | | *TODO*
+0 | ... | | <mark style="background-color: yellow">**Unknown**</mark>
 
 ### V value data
 
@@ -190,6 +190,7 @@ Values:
 Name | Data type | Description
 --- | --- | ---
 F | REG_BINARY |
+V | REG_BINARY |
 
 #### F value data
 
@@ -224,7 +225,7 @@ Offset | Size | Value | Description
 Note that the relative identifier (RID) is sometimes referred to as user number
 or user identifier.
 
-#### User account control flags
+##### User account control flags
 
 The user account control flags (or USER_ACCOUNT Codes) are defined in subauth.h
 
@@ -259,7 +260,7 @@ are defined in "MS-SAMR: userAccountControl Mapping Table".
 Note that the samba project defines these as flags with the WBC_ACB prefix,
 where WBC is short for winbind client.
 
-#### Country code
+##### Country code
 
 <mark style="background-color: yellow">**Unknown. Is this suppose to be the country phone prefix?**</mark>
 
@@ -290,6 +291,8 @@ Value | Description
 358 | Finland
 785 | Arabic
 972 | Hebrew
+
+#### V value data
 
 ### Account types
 
