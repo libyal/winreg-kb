@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 """Windows Registry resources (winregrc)."""
 
-__version__ = '20211227'
+__version__ = '20211228'
