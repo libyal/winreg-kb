@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Windows EventLog providers collector."""
+"""Windows Event Log providers collector."""
 
 import logging
 
@@ -7,15 +7,15 @@ from winregrc import interface
 
 
 class EventLogProvider(object):
-  """Windows EventLog provider.
+  """Windows Event Log provider.
 
   Attributes:
     category_message_files (list[str]): filenames of the category message files.
     event_message_files (list[str]): filenames of the event message files.
     identifier (str): identifier of the provider, contains a GUID.
-    log_source (str): name of the Windows EventLog source.
-    log_source_alias (str): Alternative name of the Windows EventLog source.
-    log_type (str): Windows EventLog type.
+    log_source (str): name of the Windows Event Log source.
+    log_source_alias (str): alternative name of the Windows Event Log source.
+    log_type (str): Windows Event Log type.
     parameter_message_files (list[str]): filenames of the parameter message
         files.
   """
@@ -23,15 +23,15 @@ class EventLogProvider(object):
   def __init__(
       self, category_message_files, event_message_files, identifier,
       log_source, log_type, parameter_message_files):
-    """Initializes a Windows EventLog provider.
+    """Initializes a Windows Event Log provider.
 
     Args:
       category_message_files (list[str]): filenames of the category message
           files.
       event_message_files (list[str]): filenames of the event message files.
       identifier (str): identifier of the provider, contains a GUID.
-      log_source (str): name of the Windows EventLog source.
-      log_type (str): Windows EventLog type.
+      log_source (str): name of the Windows Event Log source.
+      log_type (str): Windows Event Log type.
       parameter_message_files (list[str]): filenames of the parameter message
           files.
     """
@@ -46,7 +46,7 @@ class EventLogProvider(object):
 
 
 class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
-  """Windows EventLog providers collector."""
+  """Windows Event Log providers collector."""
 
   _SERVICES_EVENTLOG_KEY_PATH = (
       'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\EventLog')
@@ -55,15 +55,37 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
       'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\'
       'WINEVT\\Publishers')
 
-  def Collect(self, registry, output_writer):
-    """Collects the EventLog providers.
+  def _CollectEventLogProvidersFromPublishersKeys(self, winevt_publishers_key):
+    """Retrieves Event Log providers from a WINEVT publishers key.
+
+    Args:
+      winevt_publishers_key (dfwinreg.WinRegistryKey): WINEVT publishers key.
+
+    Yield:
+      EventLogProvider: Event Log provider.
+    """
+    if winevt_publishers_key:
+      for guid_key in winevt_publishers_key.GetSubkeys():
+        log_source = self._GetValueAsStringFromKey(guid_key, '')
+
+        event_message_files = self._GetValueAsStringFromKey(
+            guid_key, 'MessageFileName', default_value='')
+        event_message_files = sorted(filter(None, [
+            path.strip().lower() for path in event_message_files.split(';')]))
+
+        provider_identifier = guid_key.name.lower()
+
+        yield EventLogProvider(
+            [], event_message_files, provider_identifier, log_source, '', [])
+
+  def _CollectEventLogProvidersFromRegistry(self, registry):
+    """Retrieves Event Log providers from a Windows Registry.
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
 
     Returns:
-      bool: True if the EventLog providers key was found, False if not.
+      list[EventLogProvider]: Event Log providers.
     """
     services_eventlog_key = registry.GetKeyByPath(
         self._SERVICES_EVENTLOG_KEY_PATH)
@@ -71,11 +93,88 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
         self._WINEVT_PUBLISHERS_KEY_PATH)
 
     if not services_eventlog_key and not winevt_publishers_key:
-      return False
+      return []
 
     eventlog_providers_per_identifier = {}
     eventlog_providers_per_log_source = {}
 
+    for eventlog_provider in self._CollectEventLogProvidersFromServicesKey(
+        services_eventlog_key):
+      existing_eventlog_provider = eventlog_providers_per_identifier.get(
+          eventlog_provider.identifier, None)
+      if existing_eventlog_provider:
+        self._UpdateExistingEventLogProvider(
+             existing_eventlog_provider, eventlog_provider)
+        continue
+
+      if eventlog_provider.log_source in eventlog_providers_per_log_source:
+        logging.warning((
+            'Found multiple definitions for Event Log provider: '
+            '{0:s}').format(eventlog_provider.log_source))
+        continue
+
+      eventlog_providers_per_log_source[
+          eventlog_provider.log_source] = eventlog_provider
+
+      if eventlog_provider.identifier:
+        eventlog_providers_per_identifier[eventlog_provider.identifier] = (
+              eventlog_provider)
+
+    for eventlog_provider in self._CollectEventLogProvidersFromPublishersKeys(
+        winevt_publishers_key):
+      existing_eventlog_provider = eventlog_providers_per_log_source.get(
+          eventlog_provider.log_source, None)
+      if not existing_eventlog_provider:
+        existing_eventlog_provider = eventlog_providers_per_identifier.get(
+            eventlog_provider.identifier, None)
+
+        if existing_eventlog_provider:
+          existing_eventlog_provider.log_source_alias = (
+              existing_eventlog_provider.log_source)
+          existing_eventlog_provider.log_source = eventlog_provider.log_source
+
+      if existing_eventlog_provider:
+        # TODO: handle mismatches where message files don't define a path.
+
+        if not existing_eventlog_provider.event_message_files:
+          existing_eventlog_provider.event_message_files = (
+              eventlog_provider.event_message_files)
+        elif eventlog_provider.event_message_files not in (
+            [], existing_eventlog_provider.event_message_files):
+          logging.warning((
+              'Mismatch in event message files of alternate definition: '
+              '{0:s} for Event Log provider: {1:s}').format(
+                  existing_eventlog_provider.log_source_alias or '',
+                  existing_eventlog_provider.log_source))
+
+        if not existing_eventlog_provider.identifier:
+          existing_eventlog_provider.identifier = eventlog_provider.identifier
+        elif existing_eventlog_provider.identifier != (
+            eventlog_provider.identifier):
+          logging.warning((
+              'Mismatch in provider identifier of alternate definition: '
+              '{0:s} for Event Log provider: {1:s}').format(
+                  existing_eventlog_provider.log_source_alias or '',
+                  existing_eventlog_provider.log_source))
+
+      else:
+        eventlog_providers_per_log_source[eventlog_provider.log_source] = (
+            eventlog_provider)
+        eventlog_providers_per_identifier[eventlog_provider.identifier] = (
+            eventlog_provider)
+
+    return [eventlog_provider for _, eventlog_provider in sorted(
+        eventlog_providers_per_log_source.items())]
+
+  def _CollectEventLogProvidersFromServicesKey(self, services_eventlog_key):
+    """Retrieves Event Log providers from a services Event Log key.
+
+    Args:
+      services_eventlog_key (dfwinreg.WinRegistryKey): services Event Log key.
+
+    Yield:
+      EventLogProvider: Event Log provider.
+    """
     if services_eventlog_key:
       for log_type_key in services_eventlog_key.GetSubkeys():
         for provider_key in log_type_key.GetSubkeys():
@@ -104,120 +203,74 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
           if provider_identifier:
             provider_identifier = provider_identifier.lower()
 
-          existing_eventlog_provider = eventlog_providers_per_identifier.get(
-              provider_identifier, None)
-          if existing_eventlog_provider:
-            if existing_eventlog_provider.log_source_alias not in (
-                None, log_source):
-              logging.warning(
-                  'EventLog provider: {0:s} already has an alias'.format(
-                      existing_eventlog_provider.log_source))
-              continue
-
-            existing_eventlog_provider.log_source_alias = log_source
-
-            if not existing_eventlog_provider.category_message_files:
-              existing_eventlog_provider.category_message_files = (
-                  category_message_files)
-            elif category_message_files not in (
-                [], existing_eventlog_provider.category_message_files):
-              logging.warning((
-                  'Mismatch in category message files of alternate definition: '
-                  '{0:s} for EventLog provider: {1:s}').format(
-                      log_source, existing_eventlog_provider.log_source))
-
-            if not existing_eventlog_provider.event_message_files:
-              existing_eventlog_provider.event_message_files = (
-                  event_message_files)
-            elif event_message_files not in (
-                [], existing_eventlog_provider.event_message_files):
-              logging.warning((
-                  'Mismatch in event message files of alternate definition: '
-                  '{0:s} for EventLog provider: {1:s}').format(
-                      log_source, existing_eventlog_provider.log_source))
-
-            if not existing_eventlog_provider.parameter_message_files:
-              existing_eventlog_provider.parameter_message_files = (
-                  parameter_message_files)
-            elif parameter_message_files not in (
-                [], existing_eventlog_provider.parameter_message_files):
-              logging.warning((
-                  'Mismatch in provider message files of alternate definition: '
-                  '{0:s} for EventLog provider: {1:s}').format(
-                      log_source, existing_eventlog_provider.log_source))
-
-            continue
-
-          eventlog_provider = EventLogProvider(
+          yield EventLogProvider(
               category_message_files, event_message_files, provider_identifier,
               log_source, log_type, parameter_message_files)
 
-          if log_source in eventlog_providers_per_log_source:
-            logging.warning((
-                'Found multiple definitions for EventLog provider: '
-                '{0:s}').format(log_source))
-            continue
+  def _UpdateExistingEventLogProvider(
+      self, existing_eventlog_provider, eventlog_provider):
+    """Updates an existing Event Log provider.
 
-          eventlog_providers_per_log_source[log_source] = eventlog_provider
+    Args:
+      existing_eventlog_provider (EventLogProvider): existing Event Log
+          provider.
+      eventlog_provider (EventLogProvider): Event Log provider.
+    """
+    if existing_eventlog_provider.log_source_alias not in (
+        None, eventlog_provider.log_source):
+      logging.warning('Event Log provider: {0:s} already has an alias'.format(
+          existing_eventlog_provider.log_source))
+    else:
+      existing_eventlog_provider.log_source_alias = (
+          eventlog_provider.log_source)
 
-          if provider_identifier:
-            eventlog_providers_per_identifier[provider_identifier] = (
-                  eventlog_provider)
+    if not existing_eventlog_provider.category_message_files:
+      existing_eventlog_provider.category_message_files = (
+          eventlog_provider.category_message_files)
+    elif eventlog_provider.category_message_files not in (
+        [], existing_eventlog_provider.category_message_files):
+      logging.warning((
+          'Mismatch in category message files of alternate definition: '
+          '{0:s} for Event Log provider: {1:s}').format(
+              eventlog_provider.log_source,
+              existing_eventlog_provider.log_source))
 
-    if winevt_publishers_key:
-      for guid_key in winevt_publishers_key.GetSubkeys():
-        log_source = self._GetValueAsStringFromKey(guid_key, '')
+    if not existing_eventlog_provider.event_message_files:
+      existing_eventlog_provider.event_message_files = (
+          eventlog_provider.event_message_files)
+    elif eventlog_provider.event_message_files not in (
+        [], existing_eventlog_provider.event_message_files):
+      logging.warning((
+          'Mismatch in event message files of alternate definition: '
+          '{0:s} for Event Log provider: {1:s}').format(
+              eventlog_provider.log_source,
+              existing_eventlog_provider.log_source))
 
-        event_message_files = self._GetValueAsStringFromKey(
-            guid_key, 'MessageFileName', default_value='')
-        event_message_files = sorted(filter(None, [
-            path.strip().lower() for path in event_message_files.split(';')]))
+    if not existing_eventlog_provider.parameter_message_files:
+      existing_eventlog_provider.parameter_message_files = (
+          eventlog_provider.parameter_message_files)
+    elif eventlog_provider.parameter_message_files not in (
+        [], existing_eventlog_provider.parameter_message_files):
+      logging.warning((
+          'Mismatch in provider message files of alternate definition: '
+          '{0:s} for Event Log provider: {1:s}').format(
+              eventlog_provider.log_source,
+              existing_eventlog_provider.log_source))
 
-        provider_identifier = guid_key.name.lower()
+  def Collect(self, registry, output_writer):
+    """Collects the Event Log providers.
 
-        existing_eventlog_provider = eventlog_providers_per_log_source.get(
-            log_source, None)
-        if not existing_eventlog_provider:
-          existing_eventlog_provider = eventlog_providers_per_identifier.get(
-              provider_identifier, None)
+    Args:
+      registry (dfwinreg.WinRegistry): Windows Registry.
+      output_writer (OutputWriter): output writer.
 
-          if existing_eventlog_provider:
-            existing_eventlog_provider.log_source_alias = (
-                existing_eventlog_provider.log_source)
-            existing_eventlog_provider.log_source = log_source
-
-        if existing_eventlog_provider:
-          # TODO: handle mismatches where message files don't define a path.
-
-          if not existing_eventlog_provider.event_message_files:
-            existing_eventlog_provider.event_message_files = event_message_files
-          elif event_message_files not in (
-              [], existing_eventlog_provider.event_message_files):
-            logging.warning((
-                'Mismatch in event message files of alternate definition: '
-                '{0:s} for EventLog provider: {1:s}').format(
-                    existing_eventlog_provider.log_source_alias or '',
-                    existing_eventlog_provider.log_source))
-
-          if not existing_eventlog_provider.identifier:
-            existing_eventlog_provider.identifier = provider_identifier
-          elif existing_eventlog_provider.identifier != provider_identifier:
-            logging.warning((
-                'Mismatch in provider identifier of alternate definition: '
-                '{0:s} for EventLog provider: {1:s}').format(
-                    existing_eventlog_provider.log_source_alias or '',
-                    existing_eventlog_provider.log_source))
-
-        else:
-          eventlog_provider = EventLogProvider(
-              [], event_message_files, provider_identifier, log_source, '', [])
-
-          eventlog_providers_per_log_source[log_source] = eventlog_provider
-          eventlog_providers_per_identifier[provider_identifier] = (
-              eventlog_provider)
-
-    for _, eventlog_provider in sorted(
-        eventlog_providers_per_log_source.items()):
+    Returns:
+      bool: True if the Event Log providers key was found, False if not.
+    """
+    result = False
+    for eventlog_provider in self._CollectEventLogProvidersFromRegistry(
+        registry):
       output_writer.WriteEventLogProvider(eventlog_provider)
+      result = True
 
-    return True
+    return result
