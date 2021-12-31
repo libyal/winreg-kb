@@ -25,9 +25,9 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     text = 'Log source\t\t: {0:s}\n'.format(eventlog_provider.log_source)
     self.WriteText(text)
 
-    if eventlog_provider.log_source_alias:
-      text = 'Log source alias\t: {0:s}\n'.format(
-          eventlog_provider.log_source_alias)
+    if eventlog_provider.log_source_aliases:
+      text = 'Log source aliases\t: {0:s}\n'.format(
+          ', '.join(eventlog_provider.log_source_aliases))
       self.WriteText(text)
 
     if eventlog_provider.identifier:

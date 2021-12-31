@@ -14,7 +14,8 @@ class EventLogProvider(object):
     event_message_files (list[str]): filenames of the event message files.
     identifier (str): identifier of the provider, contains a GUID.
     log_source (str): name of the Windows Event Log source.
-    log_source_alias (str): alternative name of the Windows Event Log source.
+    log_source_aliases (list[str]): alternative names of the Windows Event Log
+        source.
     log_type (str): Windows Event Log type.
     parameter_message_files (list[str]): filenames of the parameter message
         files.
@@ -40,7 +41,7 @@ class EventLogProvider(object):
     self.event_message_files = event_message_files
     self.identifier = identifier
     self.log_source = log_source
-    self.log_source_alias = None
+    self.log_source_aliases = []
     self.log_type = log_type
     self.parameter_message_files = parameter_message_files
 
@@ -122,16 +123,20 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
 
     for eventlog_provider in self._CollectEventLogProvidersFromPublishersKeys(
         winevt_publishers_key):
+      log_source = eventlog_provider.log_source
+
       existing_eventlog_provider = eventlog_providers_per_log_source.get(
-          eventlog_provider.log_source, None)
+          log_source, None)
       if not existing_eventlog_provider:
         existing_eventlog_provider = eventlog_providers_per_identifier.get(
             eventlog_provider.identifier, None)
 
         if existing_eventlog_provider:
-          existing_eventlog_provider.log_source_alias = (
-              existing_eventlog_provider.log_source)
-          existing_eventlog_provider.log_source = eventlog_provider.log_source
+          if (log_source != existing_eventlog_provider.log_source and
+              log_source not in existing_eventlog_provider.log_source_aliases):
+            existing_eventlog_provider.log_source_aliases.append(
+                existing_eventlog_provider.log_source)
+            existing_eventlog_provider.log_source = log_source
 
       if existing_eventlog_provider:
         # TODO: handle mismatches where message files don't define a path.
@@ -144,8 +149,7 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
           logging.warning((
               'Mismatch in event message files of alternate definition: '
               '{0:s} for Event Log provider: {1:s}').format(
-                  existing_eventlog_provider.log_source_alias or '',
-                  existing_eventlog_provider.log_source))
+                  log_source, existing_eventlog_provider.log_source))
 
         if not existing_eventlog_provider.identifier:
           existing_eventlog_provider.identifier = eventlog_provider.identifier
@@ -154,12 +158,10 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
           logging.warning((
               'Mismatch in provider identifier of alternate definition: '
               '{0:s} for Event Log provider: {1:s}').format(
-                  existing_eventlog_provider.log_source_alias or '',
-                  existing_eventlog_provider.log_source))
+                  log_source, existing_eventlog_provider.log_source))
 
       else:
-        eventlog_providers_per_log_source[eventlog_provider.log_source] = (
-            eventlog_provider)
+        eventlog_providers_per_log_source[log_source] = eventlog_provider
         eventlog_providers_per_identifier[eventlog_provider.identifier] = (
             eventlog_provider)
 
@@ -216,13 +218,10 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
           provider.
       eventlog_provider (EventLogProvider): Event Log provider.
     """
-    if existing_eventlog_provider.log_source_alias not in (
-        None, eventlog_provider.log_source):
-      logging.warning('Event Log provider: {0:s} already has an alias'.format(
-          existing_eventlog_provider.log_source))
-    else:
-      existing_eventlog_provider.log_source_alias = (
-          eventlog_provider.log_source)
+    log_source = eventlog_provider.log_source
+    if (log_source != existing_eventlog_provider.log_source and
+        log_source not in existing_eventlog_provider.log_source_aliases):
+      existing_eventlog_provider.log_source_aliases.append(log_source)
 
     if not existing_eventlog_provider.category_message_files:
       existing_eventlog_provider.category_message_files = (
@@ -232,8 +231,7 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
       logging.warning((
           'Mismatch in category message files of alternate definition: '
           '{0:s} for Event Log provider: {1:s}').format(
-              eventlog_provider.log_source,
-              existing_eventlog_provider.log_source))
+              log_source, existing_eventlog_provider.log_source))
 
     if not existing_eventlog_provider.event_message_files:
       existing_eventlog_provider.event_message_files = (
@@ -243,8 +241,7 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
       logging.warning((
           'Mismatch in event message files of alternate definition: '
           '{0:s} for Event Log provider: {1:s}').format(
-              eventlog_provider.log_source,
-              existing_eventlog_provider.log_source))
+              log_source, existing_eventlog_provider.log_source))
 
     if not existing_eventlog_provider.parameter_message_files:
       existing_eventlog_provider.parameter_message_files = (
@@ -254,8 +251,7 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
       logging.warning((
           'Mismatch in provider message files of alternate definition: '
           '{0:s} for Event Log provider: {1:s}').format(
-              eventlog_provider.log_source,
-              existing_eventlog_provider.log_source))
+              log_source, existing_eventlog_provider.log_source))
 
   def Collect(self, registry, output_writer):
     """Collects the Event Log providers.
