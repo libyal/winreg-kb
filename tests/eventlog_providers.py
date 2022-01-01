@@ -53,11 +53,11 @@ class EventLogProvidersCollectorTest(shared_test_lib.BaseTestCase):
     self.assertEqual(eventlog_provider.identifier, '')
     self.assertEqual(eventlog_provider.log_sources, ['.NET Runtime'])
     self.assertEqual(eventlog_provider.log_type, 'Application')
-    self.assertEqual(eventlog_provider.category_message_files, [])
+    self.assertEqual(eventlog_provider.category_message_files, set())
     self.assertEqual(
         eventlog_provider.event_message_files,
-        ['c:\\windows\\system32\\mscoree.dll'])
-    self.assertEqual(eventlog_provider.parameter_message_files, [])
+        set(['C:\\Windows\\System32\\mscoree.dll']))
+    self.assertEqual(eventlog_provider.parameter_message_files, set())
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""

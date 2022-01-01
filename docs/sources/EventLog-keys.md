@@ -131,6 +131,40 @@ Name | Data type | Description
 MessageFileName | | Path to an event message file. An event message file contains language-dependent strings that describe the events.
 ResourceFileName | | Path to an event resource file.
 
+## EventLog provider with multiple provider GUIDs
+
+Seen on Windows 8.0, 8.1, 10, 11 and 2012:
+
+```
+Key path: HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\EventLog\Application\Microsoft-Windows-KdsSvc
+Name: Microsoft-Windows-KdsSvc
+Last written time: Oct 30, 2015 07:25:12.126588100 UTC
+
+Value: 0 providerGuid
+Type: string (REG_SZ)
+Data size: 78
+Data: {D4BE7726-DC7A-11DF-A6E6-0902DFD72085}
+
+Key path: HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\WINEVT\Publishers\{89203471-d554-47d4-bde4-7552ec219999}
+Name: {89203471-d554-47d4-bde4-7552ec219999}
+Last written time: Oct 30, 2015 07:25:53.860831900 UTC
+
+Value: 0 (default)
+Type: string (REG_SZ)
+Data size: 50
+Data: Microsoft-Windows-KdsSvc
+
+Value: 1 ResourceFileName
+Type: expandable string (REG_EXPAND_SZ)
+Data size: 66
+Data: %SystemRoot%\system32\KdsCli.dll
+
+Value: 2 MessageFileName
+Type: expandable string (REG_EXPAND_SZ)
+Data size: 66
+Data: %SystemRoot%\system32\KdsCli.dll
+```
+
 ## External Links
 
 * [Eventlog Key](https://docs.microsoft.com/en-us/windows/win32/eventlog/eventlog-key)

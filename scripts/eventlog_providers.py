@@ -33,6 +33,11 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
       text = 'Identifier\t\t: {0:s}\n'.format(eventlog_provider.identifier)
       self.WriteText(text)
 
+    if eventlog_provider.additional_identifier:
+      text = 'Additional identifier\t: {0:s}\n'.format(
+          eventlog_provider.additional_identifier)
+      self.WriteText(text)
+
     if eventlog_provider.log_type:
       text = 'Log type\t\t: {0:s}\n'.format(eventlog_provider.log_type)
       self.WriteText(text)
