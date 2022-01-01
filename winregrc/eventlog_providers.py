@@ -259,6 +259,8 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
     Returns:
       generator[EventLogProvider]: Event Log provider generator.
     """
+    # TODO: add support to collect Event Log providers from all control sets.
+
     services_eventlog_key = registry.GetKeyByPath(
         self._SERVICES_EVENTLOG_KEY_PATH)
     winevt_publishers_key = registry.GetKeyByPath(

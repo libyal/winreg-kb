@@ -45,13 +45,6 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer = output_writers.StdoutOutputWriter()
-
-  if not output_writer.Open():
-    print('Unable to open output writer.')
-    print('')
-    return False
-
   # TODO: add support to select user.
   mediator = collector.WindowsRegistryCollectorMediator()
   registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
@@ -68,15 +61,25 @@ def Main():
     print('')
     return False
 
-  # TODO: map collector to available Registry keys.
-  collector_object = programscache.ProgramsCacheCollector(
-      debug=options.debug, output_writer=output_writer)
+  output_writer = output_writers.StdoutOutputWriter()
 
-  result = collector_object.Collect(registry_collector.registry)
-  if not result:
-    print('No Explorer StartPage or StartPage2 keys found.')
+  if not output_writer.Open():
+    print('Unable to open output writer.')
+    print('')
+    return False
 
-  output_writer.Close()
+  try:
+    collector_object = programscache.ProgramsCacheCollector(
+        debug=options.debug, output_writer=output_writer)
+
+    # TODO: change collector to generate ProgramCacheEntry
+    has_results = collector_object.Collect(registry_collector.registry)
+
+  finally:
+    output_writer.Close()
+
+  if not has_results:
+    print('No program cache entries found.')
 
   return True
 

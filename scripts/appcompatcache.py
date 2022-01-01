@@ -51,13 +51,6 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer = output_writers.StdoutOutputWriter()
-
-  if not output_writer.Open():
-    print('Unable to open output writer.')
-    print('')
-    return False
-
   mediator = collector.WindowsRegistryCollectorMediator()
   registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
 
@@ -73,24 +66,32 @@ def Main():
     print('')
     return False
 
-  collector_object = appcompatcache.AppCompatCacheCollector(
-      debug=options.debug, output_writer=output_writer)
+  output_writer = output_writers.StdoutOutputWriter()
 
-  # TODO: change collector to generate AppCompatCacheCachedEntry
-  result = collector_object.Collect(
-      registry_collector.registry, all_control_sets=options.all_control_sets)
-  if not result:
-    output_writer.WriteText('No Application Compatibility Cache key found.')
-    output_writer.WriteText('')
+  if not output_writer.Open():
+    print('Unable to open output writer.')
+    print('')
+    return False
 
-  else:
-    for cached_entry in collector_object.cached_entries:
-      output_writer.WriteFiletimeValue(
-          'Last modification time', cached_entry.last_modification_time)
-      output_writer.WriteValue('Path', cached_entry.path)
-      output_writer.WriteText('\n')
+  try:
+    collector_object = appcompatcache.AppCompatCacheCollector(
+        debug=options.debug, output_writer=output_writer)
 
-  output_writer.Close()
+    # TODO: change collector to generate AppCompatCacheCachedEntry
+    has_results = collector_object.Collect(
+        registry_collector.registry, all_control_sets=options.all_control_sets)
+    if has_results:
+      for cached_entry in collector_object.cached_entries:
+        output_writer.WriteFiletimeValue(
+            'Last modification time', cached_entry.last_modification_time)
+        output_writer.WriteValue('Path', cached_entry.path)
+        output_writer.WriteText('\n')
+
+  finally:
+    output_writer.Close()
+
+  if not has_results:
+    print('No application compatibility cache entries found.')
 
   return True
 

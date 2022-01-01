@@ -4,9 +4,9 @@
 
 import unittest
 
+from dfwinreg import regf as dfwinreg_regf
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import collector
 from winregrc import errors
 from winregrc import output_writers
 from winregrc import programscache
@@ -54,17 +54,22 @@ class ProgramsCacheCollectorTest(test_lib.BaseTestCase):
     test_path = self._GetTestFilePath(['NTUSER.DAT'])
     self._SkipIfPathNotExists(test_path)
 
-    registry_collector = collector.WindowsRegistryCollector()
+    registry = dfwinreg_registry.WinRegistry()
 
-    registry_collector.ScanForWindowsVolume(test_path)
+    with open(test_path, 'rb') as file_object:
+      registry_file = dfwinreg_regf.REGFWinRegistryFile(ascii_codepage='cp1252')
+      registry_file.Open(file_object)
 
-    self.assertIsNotNone(registry_collector.registry)
+      key_path_prefix = registry.GetRegistryFileMapping(registry_file)
+      registry_file.SetKeyPathPrefix(key_path_prefix)
+      registry.MapFile(key_path_prefix, registry_file)
 
-    test_output_writer = test_lib.TestOutputWriter()
-    collector_object = programscache.ProgramsCacheCollector(
-        output_writer=test_output_writer)
+      test_output_writer = test_lib.TestOutputWriter()
+      collector_object = programscache.ProgramsCacheCollector(
+          output_writer=test_output_writer)
 
-    result = collector_object.Collect(registry_collector.registry)
+      result = collector_object.Collect(registry)
+
     self.assertTrue(result)
 
     test_output_writer.Close()

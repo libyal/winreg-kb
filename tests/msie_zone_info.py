@@ -4,9 +4,9 @@
 
 import unittest
 
+from dfwinreg import regf as dfwinreg_regf
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import collector
 from winregrc import msie_zone_info
 
 from tests import test_lib as shared_test_lib
@@ -20,15 +20,20 @@ class MSIEZoneInformationCollectorTest(shared_test_lib.BaseTestCase):
     test_path = self._GetTestFilePath(['SOFTWARE'])
     self._SkipIfPathNotExists(test_path)
 
-    registry_collector = collector.WindowsRegistryCollector()
+    registry = dfwinreg_registry.WinRegistry()
 
-    registry_collector.ScanForWindowsVolume(test_path)
+    with open(test_path, 'rb') as file_object:
+      registry_file = dfwinreg_regf.REGFWinRegistryFile(ascii_codepage='cp1252')
+      registry_file.Open(file_object)
 
-    self.assertIsNotNone(registry_collector.registry)
+      key_path_prefix = registry.GetRegistryFileMapping(registry_file)
+      registry_file.SetKeyPathPrefix(key_path_prefix)
+      registry.MapFile(key_path_prefix, registry_file)
 
-    collector_object = msie_zone_info.MSIEZoneInformationCollector()
+      collector_object = msie_zone_info.MSIEZoneInformationCollector()
 
-    test_results = list(collector_object.Collect(registry_collector.registry))
+      test_results = list(collector_object.Collect(registry))
+
     self.assertEqual(len(test_results), 1724)
 
     zone_information = test_results[0]
