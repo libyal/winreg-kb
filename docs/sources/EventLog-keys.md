@@ -24,6 +24,16 @@ Identifier              : {1edeee53-0afe-4609-b846-d8c0b2075b1f}
 Event message files     : %SystemRoot%\system32\wbem\WinMgmtR.dll
 ```
 
+Is the following EvenLog provider, that has multiple log sources:
+
+```
+Log source              : WinMgmt
+                        : Microsoft-Windows-WMI
+Identifier              : {1edeee53-0afe-4609-b846-d8c0b2075b1f}
+Log type                : Application
+Event message files     : %systemroot%\system32\wbem\winmgmtr.dll
+```
+
 ## Services\EventLog key
 
 The event sources are stored in the Services\EventLog key:

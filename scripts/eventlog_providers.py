@@ -22,12 +22,11 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       eventlog_provider (EventLogProvider): EventLog provider.
     """
-    text = 'Log source\t\t: {0:s}\n'.format(eventlog_provider.log_source)
-    self.WriteText(text)
-
-    if eventlog_provider.log_source_aliases:
-      text = 'Log source aliases\t: {0:s}\n'.format(
-          ', '.join(eventlog_provider.log_source_aliases))
+    for index, log_source in enumerate(eventlog_provider.log_sources):
+      if index == 0:
+        text = 'Log source\t\t: {0:s}\n'.format(log_source)
+      else:
+        text = '\t\t\t: {0:s}\n'.format(log_source)
       self.WriteText(text)
 
     if eventlog_provider.identifier:
