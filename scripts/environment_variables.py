@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Script to extract Windows application identifiers (AppID)."""
+"""Script to extract environment variables."""
 
 import argparse
 import logging
@@ -8,22 +8,21 @@ import sys
 
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
-from winregrc import application_identifiers
 from winregrc import collector
+from winregrc import environment_variables
 from winregrc import output_writers
 
 
 class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
-  def WriteApplicationIdentifier(self, application_identifier):
-    """Writes an application identifier to the output.
+  def WriteEnvironmentVariable(self, environment_variable):
+    """Writes an environment variable to the output.
 
     Args:
-      application_identifier (ApplicationIdentifier): application identifier.
+      environment_variable (EnvironmentVariable): environment variable.
     """
-    self.WriteValue(
-        application_identifier.guid, application_identifier.description)
+    self.WriteValue(environment_variable.name, environment_variable.value)
 
 
 def Main():
@@ -33,8 +32,7 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the Windows application identifiers (AppID) from the Windows '
-      'Registry.'))
+      'Extracts the environment variables from the Windows Registry.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -74,7 +72,7 @@ def Main():
     print('')
     return False
 
-  collector_object = application_identifiers.ApplicationIdentifiersCollector(
+  collector_object = environment_variables.EnvironmentVariablesCollector(
       debug=options.debug)
 
   output_writer_object = StdoutWriter()
@@ -86,16 +84,17 @@ def Main():
 
   try:
     has_results = False
-    for application_identifier in collector_object.Collect(
-        registry_collector.registry):
-      output_writer_object.WriteApplicationIdentifier(application_identifier)
+    for environment_variable in sorted(
+        collector_object.Collect(registry_collector.registry),
+        key=lambda environment_variable: environment_variable.name):
+      output_writer_object.WriteEnvironmentVariable(environment_variable)
       has_results = True
 
   finally:
     output_writer_object.Close()
 
   if not has_results:
-    print('No Windows application identifiers (AppID) found.')
+    print('No environment variables found.')
 
   return True
 

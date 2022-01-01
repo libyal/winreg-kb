@@ -1,45 +1,63 @@
 # Environment variables
 
-The environment variables are stored in the key:
+The environment variables are stored in multiple keys.
+
+## Session Manager\\Environment key
 
 ```
-HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment\
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment
 ```
 
-The names of the values in this key represent the name of the environment
-variable, for example the "windir" value that contains the follow string:
+Values:
+
+Name | Data type | Description
+--- | --- | ---
+%NAME% | REG_SZ | environment variable, where %NAME% contains the name of the environment variable.
+
+For example the "windir" value that contains "%SystemRoot%".
+
+## Windows\\CurrentVersion key
+
+Values of environment variables such as %%ProgramFiles% can be derived from
+values in the Windows\\CurrentVersion key:
 
 ```
-%SystemRoot%
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion
 ```
 
-## SystemRoot environment variable
+Values:
 
-The value of %SystemRoot% environment variable is stored in the SystemRoot
-value of the following Registry key:
+Name | Data type | Description
+--- | --- | ---
+CommonFilesDir | REG_SZ | value of %CommonProgramFiles% environment variable
+CommonFilesDir (x86) | REG_SZ | value of %CommonProgramFiles(x86)% environment variable
+ProgramFilesDir | REG_SZ | value of %ProgramFiles% environment variable
+ProgramFilesDir (x86) | REG_SZ | value of %ProgramFiles(x86)% environment variable
+
+For example the "ProgramFilesDir (x86)" value that contains
+"C:\Program Files (x86)".
+
+## Windows NT\\CurrentVersion key
+
+The %SystemRoot% environment variable can be derived from values in
+the Windows NT\\CurrentVersion key:
 
 ```
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion
 ```
 
-On Windows NT this key is stored in the SOFTWARE Registry file as:
+Values:
 
-```
-<RootKey>\Microsoft\Windows NT\CurrentVersion
-```
+Name | Data type | Description
+--- | --- | ---
+SystemRoot | REG_SZ | value of %SystemRoot% environment variable
 
-The contents of the value should be a string, for example:
+For example the "SystemRoot" value that contains "C:\\Windows"
 
-```
-C:\Windows\
-```
+## CurrentVersion\\ProfileList key
 
-*TODO describe PathName value*
-
-### Profile path environment variables
-
-Values of environment variables such as %AllUsersProfile% and %ProgramData% can
-be derived from values in the the ProfileList key:
+Values of environment variables such as %ProgramData% can be derived from
+values in the CurrentVersion\\ProfileList key:
 
 ```
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\ProfileList

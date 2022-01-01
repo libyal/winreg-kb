@@ -131,6 +131,40 @@ Name | Data type | Description
 MessageFileName | | Path to an event message file. An event message file contains language-dependent strings that describe the events.
 ResourceFileName | | Path to an event resource file.
 
+## Message file paths
+
+A message file path can be defined in numerous different ways for example:
+
+As an abosolute path
+
+```
+C:\Windows\System32\mscoree.dll
+```
+
+As a relative path:
+
+```
+mscoree.dll
+```
+
+As a path using environment variables:
+
+```
+%SystemDrive%\Windows\System32\mscoree.dll
+%SystemRoot%\System32\mscoree.dll
+%WinDir%\System32\mscoree.dll
+```
+
+As a path using universal OEM runtime macros:
+
+```
+$(runtime.system32)\mscoree.dll
+```
+
+```
+\SystemRoot\system32\mscoree.dll
+```
+
 ## EventLog provider with multiple provider GUIDs
 
 Seen on Windows 8.0, 8.1, 10, 11 and 2012:

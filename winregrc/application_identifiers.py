@@ -5,7 +5,7 @@ from winregrc import interface
 
 
 class ApplicationIdentifier(object):
-  """Application identifier
+  """Application identifier.
 
   Attributes:
     description (str): description.
