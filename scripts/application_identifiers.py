@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Script to extract application identifiers."""
+"""Script to extract Windows application identifiers (AppID)."""
 
 import argparse
 import logging
@@ -33,7 +33,8 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the application identifiers from the Windows Registry.'))
+      'Extracts the Windows application identifiers (AppID) from the Windows '
+      'Registry.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -58,13 +59,6 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer_object = StdoutWriter()
-
-  if not output_writer_object.Open():
-    print('Unable to open output writer.')
-    print('')
-    return False
-
   mediator = collector.WindowsRegistryCollectorMediator()
   registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
 
@@ -80,16 +74,28 @@ def Main():
     print('')
     return False
 
-  # TODO: map collector to available Registry keys.
   collector_object = application_identifiers.ApplicationIdentifiersCollector(
       debug=options.debug)
 
-  result = collector_object.Collect(
-      registry_collector.registry, output_writer_object)
-  if not result:
-    print('No AppID key found.')
+  output_writer_object = StdoutWriter()
 
-  output_writer_object.Close()
+  if not output_writer_object.Open():
+    print('Unable to open output writer.')
+    print('')
+    return False
+
+  try:
+    has_results = False
+    for application_identifier in collector_object.Collect(
+        registry_collector.registry):
+      output_writer_object.WriteApplicationIdentifier(application_identifier)
+      has_results = True
+
+  finally:
+    output_writer_object.Close()
+
+  if not has_results:
+    print('No Windows application identifiers (AppID) found.')
 
   return True
 

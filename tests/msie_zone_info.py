@@ -8,33 +8,11 @@ from dfwinreg import registry as dfwinreg_registry
 
 from winregrc import collector
 from winregrc import msie_zone_info
-from winregrc import output_writers
 
 from tests import test_lib as shared_test_lib
 
 
-class TestOutputWriter(output_writers.StdoutOutputWriter):
-  """Output writer for testing.
-
-  Attributes:
-    text (list[str]): text.
-  """
-
-  def __init__(self):
-    """Initializes an output writer object."""
-    super(TestOutputWriter, self).__init__()
-    self.text = []
-
-  def WriteText(self, text):
-    """Writes text to stdout.
-
-    Args:
-      text (str): text to write.
-    """
-    self.text.append(text)
-
-
-class MSIEZoneInfoCollectorTest(shared_test_lib.BaseTestCase):
+class MSIEZoneInformationCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Microsoft Internet Explorer (MSIE) zone collector."""
 
   def testCollect(self):
@@ -48,26 +26,25 @@ class MSIEZoneInfoCollectorTest(shared_test_lib.BaseTestCase):
 
     self.assertIsNotNone(registry_collector.registry)
 
-    collector_object = msie_zone_info.MSIEZoneInfoCollector()
+    collector_object = msie_zone_info.MSIEZoneInformationCollector()
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry_collector.registry, test_output_writer)
-    test_output_writer.Close()
+    test_results = list(collector_object.Collect(registry_collector.registry))
+    self.assertEqual(len(test_results), 1724)
 
-    # TODO: fix test.
-    self.assertEqual(test_output_writer.text, [])
+    zone_information = test_results[0]
+    self.assertEqual(zone_information.zone, '0')
+    self.assertEqual(zone_information.zone_name, 'Computer')
+    self.assertEqual(zone_information.control, '1809')
+    self.assertEqual(zone_information.control_value, 3)
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
     registry = dfwinreg_registry.WinRegistry()
 
-    collector_object = msie_zone_info.MSIEZoneInfoCollector()
+    collector_object = msie_zone_info.MSIEZoneInformationCollector()
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
-
-    self.assertEqual(len(test_output_writer.text), 0)
+    test_results = list(collector_object.Collect(registry))
+    self.assertEqual(len(test_results), 0)
 
 
 if __name__ == '__main__':

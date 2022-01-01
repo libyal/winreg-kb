@@ -73,10 +73,10 @@ def Main():
     print('')
     return False
 
-  # TODO: map collector to available Registry keys.
   collector_object = appcompatcache.AppCompatCacheCollector(
       debug=options.debug, output_writer=output_writer)
 
+  # TODO: change collector to generate AppCompatCacheCachedEntry
   result = collector_object.Collect(
       registry_collector.registry, all_control_sets=options.all_control_sets)
   if not result:

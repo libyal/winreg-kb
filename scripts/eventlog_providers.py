@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Script to extract EventLog providers from the Windows Registry."""
+"""Script to extract Windows Event Log providers from the Windows Registry."""
 
 import argparse
 import logging
@@ -17,10 +17,10 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
   def WriteEventLogProvider(self, eventlog_provider):
-    """Writes a EventLog provider to the output.
+    """Writes a Event Log provider to the output.
 
     Args:
-      eventlog_provider (EventLogProvider): EventLog provider.
+      eventlog_provider (EventLogProvider): Event Log provider.
     """
     for index, log_source in enumerate(eventlog_provider.log_sources):
       if index == 0:
@@ -62,7 +62,7 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts EventLog providers from the Windows Registry.'))
+      'Extracts Windows Event Log providers from the Windows Registry.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -87,13 +87,6 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer_object = StdoutWriter()
-
-  if not output_writer_object.Open():
-    print('Unable to open output writer.')
-    print('')
-    return False
-
   mediator = collector.WindowsRegistryCollectorMediator()
   registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
 
@@ -109,16 +102,27 @@ def Main():
     print('')
     return False
 
-  # TODO: map collector to available Registry keys.
   collector_object = eventlog_providers.EventLogProvidersCollector(
       debug=options.debug)
 
-  result = collector_object.Collect(
-      registry_collector.registry, output_writer_object)
-  if not result:
-    print('No "Services\\EventLog" and "WINEVT\\Publishers" keys found.')
+  output_writer_object = StdoutWriter()
+  if not output_writer_object.Open():
+    print('Unable to open output writer.')
+    print('')
+    return False
 
-  output_writer_object.Close()
+  try:
+    has_results = False
+    for eventlog_provider in collector_object.Collect(
+        registry_collector.registry):
+      output_writer_object.WriteEventLogProvider(eventlog_provider)
+      has_results = True
+
+  finally:
+    output_writer_object.Close()
+
+  if not has_results:
+    print('No Windows Event Log providers found.')
 
   return True
 

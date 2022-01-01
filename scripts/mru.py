@@ -98,10 +98,10 @@ def Main():
     print('')
     return False
 
-  # TODO: map collector to available Registry keys.
   collector_object = mru.MostRecentlyUsedCollector(
       debug=options.debug, output_writer=output_writer)
 
+  # TODO: change collector to generate MostRecentlyUsedEntry
   result = collector_object.Collect(registry_collector.registry)
   if not result:
     print('No Most Recently Used key found.')

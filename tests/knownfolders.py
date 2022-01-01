@@ -9,30 +9,8 @@ from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
 from winregrc import knownfolders
-from winregrc import output_writers
 
 from tests import test_lib as shared_test_lib
-
-
-class TestOutputWriter(output_writers.StdoutOutputWriter):
-  """Output writer for testing.
-
-  Attributes:
-    known_folders (list[KnownFolder]): known folders.
-  """
-
-  def __init__(self):
-    """Initializes an output writer object."""
-    super(TestOutputWriter, self).__init__()
-    self.known_folders = []
-
-  def WriteKnownFolder(self, known_folder):
-    """Writes a known folder to the output.
-
-    Args:
-      known_folder (KnownFolder): a known folder.
-    """
-    self.known_folders.append(known_folder)
 
 
 class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
@@ -83,14 +61,10 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = knownfolders.KnownFoldersCollector()
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
+    test_results = list(collector_object.Collect(registry))
+    self.assertEqual(len(test_results), 1)
 
-    self.assertEqual(len(test_output_writer.known_folders), 1)
-
-    known_folder = test_output_writer.known_folders[0]
-
+    known_folder = test_results[0]
     self.assertIsNotNone(known_folder)
     self.assertEqual(known_folder.guid, self._GUID)
     self.assertEqual(known_folder.name, self._NAME)
@@ -102,11 +76,8 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = knownfolders.KnownFoldersCollector()
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
-
-    self.assertEqual(len(test_output_writer.known_folders), 0)
+    test_results = list(collector_object.Collect(registry))
+    self.assertEqual(len(test_results), 0)
 
 
 if __name__ == '__main__':

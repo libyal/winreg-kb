@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 """Windows Registry key and value collector."""
 
-import abc
-
 
 class WindowsRegistryKeyCollector(object):
   """Windows Registry key and value collector."""
-
-  # Note that redundant-returns-doc is broken for pylint 1.7.x
-  # pylint: disable=redundant-returns-doc
 
   def __init__(self, debug=False):
     """Initializes a Windows Registry key and value collector.
@@ -58,15 +53,3 @@ class WindowsRegistryKeyCollector(object):
       return default_value
 
     return value.GetDataAsObject()
-
-  @abc.abstractmethod
-  def Collect(self, registry, output_writer):
-    """Collects the Windows Registry keys and values.
-
-    Args:
-      registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
-
-    Returns:
-      bool: True if the key was found, False if not.
-    """

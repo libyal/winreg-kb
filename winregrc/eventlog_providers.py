@@ -53,46 +53,19 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
       'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\'
       'WINEVT\\Publishers')
 
-  def _CollectEventLogProvidersFromPublishersKeys(self, winevt_publishers_key):
-    """Retrieves Event Log providers from a WINEVT publishers key.
+  def _CollectEventLogProviders(
+      self, services_eventlog_key, winevt_publishers_key):
+    """Collects Windows Event Log providers.
 
     Args:
-      winevt_publishers_key (dfwinreg.WinRegistryKey): WINEVT publishers key.
+      services_eventlog_key (dfwinreg.WinRegistryKey): a Services\\EventLog
+          Windows Registry.
+      winevt_publishers_key (dfwinreg.WinRegistryKey): a WINEVT\\Publishers
+          Windows Registry.
 
-    Yield:
-      EventLogProvider: Event Log provider.
+    Yields:
+      EventLogProvider: an Event Log provider.
     """
-    if winevt_publishers_key:
-      for guid_key in winevt_publishers_key.GetSubkeys():
-        log_source = self._GetValueAsStringFromKey(guid_key, '')
-
-        event_message_files = self._GetValueAsStringFromKey(
-            guid_key, 'MessageFileName', default_value='')
-        event_message_files = sorted(filter(None, [
-            path.strip().lower() for path in event_message_files.split(';')]))
-
-        provider_identifier = guid_key.name.lower()
-
-        yield EventLogProvider(
-            [], event_message_files, provider_identifier, log_source, '', [])
-
-  def _CollectEventLogProvidersFromRegistry(self, registry):
-    """Retrieves Event Log providers from a Windows Registry.
-
-    Args:
-      registry (dfwinreg.WinRegistry): Windows Registry.
-
-    Returns:
-      list[EventLogProvider]: Event Log providers.
-    """
-    services_eventlog_key = registry.GetKeyByPath(
-        self._SERVICES_EVENTLOG_KEY_PATH)
-    winevt_publishers_key = registry.GetKeyByPath(
-        self._WINEVT_PUBLISHERS_KEY_PATH)
-
-    if not services_eventlog_key and not winevt_publishers_key:
-      return []
-
     eventlog_providers_per_identifier = {}
     eventlog_providers_per_log_source = {}
 
@@ -164,11 +137,35 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
         eventlog_providers_per_identifier[eventlog_provider.identifier] = (
             eventlog_provider)
 
-    return [eventlog_provider for _, eventlog_provider in sorted(
-        eventlog_providers_per_log_source.items())]
+    for _, eventlog_provider in sorted(
+        eventlog_providers_per_log_source.items()):
+      yield eventlog_provider
+
+  def _CollectEventLogProvidersFromPublishersKeys(self, winevt_publishers_key):
+    """Collects Windows Event Log providers from a WINEVT publishers key.
+
+    Args:
+      winevt_publishers_key (dfwinreg.WinRegistryKey): WINEVT publishers key.
+
+    Yield:
+      EventLogProvider: Event Log provider.
+    """
+    if winevt_publishers_key:
+      for guid_key in winevt_publishers_key.GetSubkeys():
+        log_source = self._GetValueAsStringFromKey(guid_key, '')
+
+        event_message_files = self._GetValueAsStringFromKey(
+            guid_key, 'MessageFileName', default_value='')
+        event_message_files = sorted(filter(None, [
+            path.strip().lower() for path in event_message_files.split(';')]))
+
+        provider_identifier = guid_key.name.lower()
+
+        yield EventLogProvider(
+            [], event_message_files, provider_identifier, log_source, '', [])
 
   def _CollectEventLogProvidersFromServicesKey(self, services_eventlog_key):
-    """Retrieves Event Log providers from a services Event Log key.
+    """Collects Windows Event Log providers from a services Event Log key.
 
     Args:
       services_eventlog_key (dfwinreg.WinRegistryKey): services Event Log key.
@@ -253,20 +250,19 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
           '{0:s} for Event Log provider: {1:s}').format(
               log_source, ', '.join(existing_eventlog_provider.log_sources)))
 
-  def Collect(self, registry, output_writer):
-    """Collects the Event Log providers.
+  def Collect(self, registry):
+    """Collects Windows Event Log providers from a Windows Registry.
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
 
     Returns:
-      bool: True if the Event Log providers key was found, False if not.
+      generator[EventLogProvider]: Event Log provider generator.
     """
-    result = False
-    for eventlog_provider in self._CollectEventLogProvidersFromRegistry(
-        registry):
-      output_writer.WriteEventLogProvider(eventlog_provider)
-      result = True
+    services_eventlog_key = registry.GetKeyByPath(
+        self._SERVICES_EVENTLOG_KEY_PATH)
+    winevt_publishers_key = registry.GetKeyByPath(
+        self._WINEVT_PUBLISHERS_KEY_PATH)
 
-    return result
+    return self._CollectEventLogProviders(
+        services_eventlog_key, winevt_publishers_key)

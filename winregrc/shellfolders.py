@@ -5,7 +5,13 @@ from winregrc import interface
 
 
 class ShellFolder(object):
-  """Shell folder."""
+  """Shell folder.
+
+  Attributes:
+    guid (str): GUID.
+    name (str): name.
+    localized_string (str): localized string of the name.
+  """
 
   def __init__(self, guid, name, localized_string):
     """Initializes a shell folder.
@@ -26,29 +32,20 @@ class ShellFoldersCollector(interface.WindowsRegistryKeyCollector):
 
   _CLASS_IDENTIFIERS_KEY_PATH = 'HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID'
 
-  def Collect(self, registry, output_writer):
+  def _CollectShellFolders(self, class_identifiers_key):
     """Collects the shell folders.
 
     Args:
-      registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
+      class_identifiers_key (dfwinreg.WinRegistry): CLSID Windows Registry.
 
-    Returns:
-      bool: True if the shell folders key was found, False if not.
+    Yields:
+      ShellFolder: a shell folder.
     """
-    result = False
-    class_identifiers_key = registry.GetKeyByPath(
-        self._CLASS_IDENTIFIERS_KEY_PATH)
-    if not class_identifiers_key:
-      return None
-
     for class_identifier_key in class_identifiers_key.GetSubkeys():
       guid = class_identifier_key.name.lower()
 
       shell_folder_key = class_identifier_key.GetSubkeyByName('ShellFolder')
       if shell_folder_key:
-        result = True
-
         value = class_identifier_key.GetValueByName('')
         if value:
           # The value data type does not have to be a string therefore try to
@@ -67,7 +64,18 @@ class ShellFoldersCollector(interface.WindowsRegistryKeyCollector):
         else:
           localized_string = ''
 
-        shell_folder = ShellFolder(guid, name, localized_string)
-        output_writer.WriteShellFolder(shell_folder)
+        yield ShellFolder(guid, name, localized_string)
 
-    return result
+  def Collect(self, registry):
+    """Collects the shell folders.
+
+    Args:
+      registry (dfwinreg.WinRegistry): Windows Registry.
+
+    Yields:
+      ShellFolder: a shell folder.
+    """
+    class_identifiers_key = registry.GetKeyByPath(
+        self._CLASS_IDENTIFIERS_KEY_PATH)
+    if class_identifiers_key:
+      yield from self._CollectShellFolders(class_identifiers_key)

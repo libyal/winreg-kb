@@ -62,16 +62,7 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer_object = StdoutWriter()
-
-  if not output_writer_object.Open():
-    print('Unable to open output writer.')
-    print('')
-    return False
-
-  file_object = open(options.source, 'rb')  # pylint: disable=consider-using-with
-
-  try:
+  with open(options.source, 'rb') as file_object:
     try:
       registry_file = dfwinreg_regf.REGFWinRegistryFile()
 
@@ -99,18 +90,24 @@ def Main():
 
     root_key = registry_file.GetRootKey()
 
-    result = False
-    if root_key:
-      collector_object = catalog.CatalogCollector()
-      result = collector_object.Collect(root_key, output_writer_object)
+    output_writer_object = StdoutWriter()
 
-    if not result:
+    if not output_writer_object.Open():
+      print('Unable to open output writer.')
+      print('')
+      return False
+
+    try:
+      has_results = False
+      if root_key:
+        collector_object = catalog.CatalogCollector()
+        has_results = collector_object.Collect(root_key, output_writer_object)
+
+    finally:
+      output_writer_object.Close()
+
+    if not has_results:
       print('No catalog keys and values found.')
-
-  finally:
-    file_object.close()
-
-  output_writer_object.Close()
 
   return True
 

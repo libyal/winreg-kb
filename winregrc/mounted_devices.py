@@ -38,15 +38,15 @@ class MountedDevicesCollector(data_format.BinaryDataFormat):
   _MOUNTED_DEVICES_KEY_PATH = (
       'HKEY_LOCAL_MACHINE\\System\\MountedDevices')
 
-  def _ParseValue(self, registry_value):
-    """Parses a mounted devices Windows Registry value.
+  def _ParseMountedDevicesValue(self, registry_value):
+    """Parses a Windows mounted devices Windows Registry value.
 
     Args:
-      registry (dfwinreg.WinRegistryValue): a mounted devices Windows Registry
-          value.
+      registry_value (dfwinreg.WinRegistryValue): a mounted devices Windows
+          Registry value.
 
     Returns:
-      MountedDevice: a mounted device attribute container.
+      MountedDevice: a mounted device.
 
     Raises:
       ParseError: if the value could not be parsed.
@@ -89,26 +89,19 @@ class MountedDevicesCollector(data_format.BinaryDataFormat):
 
     return mounted_device
 
-  def Collect(self, registry, output_writer):
-    """Collects the mounted devices.
+  def Collect(self, registry):
+    """Collects Windows mounted devices.
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
 
-    Returns:
-      bool: True if the mounted devices key was found, False if not.
+    Yields:
+      MountedDevice: a mounted device.
 
     Raises:
       ParseError: if a mounted devices value could not be parsed.
     """
-    mounted_devices_key = registry.GetKeyByPath(
-        self._MOUNTED_DEVICES_KEY_PATH)
-    if not mounted_devices_key:
-      return False
-
-    for registry_value in mounted_devices_key.GetValues():
-      mounted_device = self._ParseValue(registry_value)
-      output_writer.WriteMountedDevice(mounted_device)
-
-    return True
+    mounted_devices_key = registry.GetKeyByPath(self._MOUNTED_DEVICES_KEY_PATH)
+    if mounted_devices_key:
+      for registry_value in mounted_devices_key.GetValues():
+        yield self._ParseMountedDevicesValue(registry_value)

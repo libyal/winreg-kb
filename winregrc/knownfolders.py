@@ -34,28 +34,34 @@ class KnownFoldersCollector(interface.WindowsRegistryKeyCollector):
       'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\'
       'Explorer\\FolderDescriptions')
 
-  def Collect(self, registry, output_writer):
-    """Collects the known folders.
+  def _CollectKnownFolders(self, folder_descriptions_key):
+    """Collects Windows known folders.
 
     Args:
-      registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
+      folder_descriptions_key (dfwinreg.WinRegistryKey): folder descriptions
+          Windows Registry key.
 
-    Returns:
-      bool: True if the known folders key was found, False if not.
+    Yields:
+      KnownFolder: a known folder.
     """
-    folder_descriptions_key = registry.GetKeyByPath(
-        self._FOLDER_DESCRIPTIONS_KEY_PATH)
-    if not folder_descriptions_key:
-      return False
-
     for subkey in folder_descriptions_key.GetSubkeys():
       guid = subkey.name.lower()
       name = self._GetValueAsStringFromKey(subkey, 'Name')
       localized_name = self._GetValueAsStringFromKey(
           subkey, 'LocalizedName')
 
-      known_folder = KnownFolder(guid, name, localized_name)
-      output_writer.WriteKnownFolder(known_folder)
+      yield KnownFolder(guid, name, localized_name)
 
-    return True
+  def Collect(self, registry):
+    """Collects Windows known folders.
+
+    Args:
+      registry (dfwinreg.WinRegistry): Windows Registry.
+
+    Yields:
+      KnownFolder: a known folder.
+    """
+    folder_descriptions_key = registry.GetKeyByPath(
+        self._FOLDER_DESCRIPTIONS_KEY_PATH)
+    if folder_descriptions_key:
+      yield from self._CollectKnownFolders(folder_descriptions_key)

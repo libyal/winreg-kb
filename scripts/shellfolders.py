@@ -182,17 +182,6 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  if options.database:
-    output_writer_object = Sqlite3DatabaseFileWriter(
-        options.database, options.windows_version)
-  else:
-    output_writer_object = StdoutWriter()
-
-  if not output_writer_object.Open():
-    print('Unable to open output writer.')
-    print('')
-    return False
-
   mediator = collector.WindowsRegistryCollectorMediator()
   registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
 
@@ -212,12 +201,28 @@ def Main():
   collector_object = shellfolders.ShellFoldersCollector(
       debug=options.debug)
 
-  result = collector_object.Collect(
-      registry_collector.registry, output_writer_object)
-  if not result:
-    print('No shell folder identifier keys found.')
+  if options.database:
+    output_writer_object = Sqlite3DatabaseFileWriter(
+        options.database, options.windows_version)
+  else:
+    output_writer_object = StdoutWriter()
 
-  output_writer_object.Close()
+  if not output_writer_object.Open():
+    print('Unable to open output writer.')
+    print('')
+    return False
+
+  try:
+    has_results = False
+    for shell_folder in collector_object.Collect(registry_collector.registry):
+      output_writer_object.WriteShellFolder(shell_folder)
+      has_results = True
+
+  finally:
+    output_writer_object.Close()
+
+  if not has_results:
+    print('No shell folder identifiers found.')
 
   return True
 

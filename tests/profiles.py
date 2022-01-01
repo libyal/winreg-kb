@@ -8,31 +8,9 @@ from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import output_writers
 from winregrc import profiles
 
 from tests import test_lib as shared_test_lib
-
-
-class TestOutputWriter(output_writers.StdoutOutputWriter):
-  """Output writer for testing.
-
-  Attributes:
-    text (list[str]): text.
-  """
-
-  def __init__(self):
-    """Initializes an output writer object."""
-    super(TestOutputWriter, self).__init__()
-    self.text = []
-
-  def WriteText(self, text):
-    """Writes text to stdout.
-
-    Args:
-      text (str): text to write.
-    """
-    self.text.append(text)
 
 
 class UserProfilesCollectorTest(shared_test_lib.BaseTestCase):
@@ -77,12 +55,13 @@ class UserProfilesCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = profiles.UserProfilesCollector()
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
+    test_results = list(collector_object.Collect(registry))
+    self.assertEqual(len(test_results), 1)
 
-    # TODO: return user profile objects.
-    self.assertEqual(len(test_output_writer.text), 1)
+    user_profile = test_results[0]
+    self.assertIsNotNone(user_profile)
+    self.assertEqual(user_profile.security_identifier, self._SID)
+    self.assertEqual(user_profile.profile_path, self._PROFILE_PATH)
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
@@ -90,11 +69,8 @@ class UserProfilesCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = profiles.UserProfilesCollector()
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
-
-    self.assertEqual(len(test_output_writer.text), 0)
+    test_results = list(collector_object.Collect(registry))
+    self.assertEqual(len(test_results), 0)
 
 
 if __name__ == '__main__':

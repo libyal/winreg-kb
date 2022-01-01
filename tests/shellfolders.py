@@ -8,31 +8,9 @@ from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import output_writers
 from winregrc import shellfolders
 
 from tests import test_lib as shared_test_lib
-
-
-class TestOutputWriter(output_writers.StdoutOutputWriter):
-  """Output writer for testing.
-
-  Attributes:
-    shell_folders (list[ShellFolder]): shell folders.
-  """
-
-  def __init__(self):
-    """Initializes an output writer object."""
-    super(TestOutputWriter, self).__init__()
-    self.shell_folders = []
-
-  def WriteShellFolder(self, shell_folder):
-    """Writes a shell folder to the output.
-
-    Args:
-      shell_folder (ShellFolder): a shell folder.
-    """
-    self.shell_folders.append(shell_folder)
 
 
 class ShellFoldersCollectorTest(shared_test_lib.BaseTestCase):
@@ -92,24 +70,17 @@ class ShellFoldersCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = shellfolders.ShellFoldersCollector()
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
+    test_results = sorted(
+        collector_object.Collect(registry), key=lambda folder: folder.guid)
+    self.assertEqual(len(test_results), 2)
 
-    self.assertEqual(len(test_output_writer.shell_folders), 2)
-
-    shell_folders = sorted(
-        test_output_writer.shell_folders, key=lambda folder: folder.guid)
-
-    shell_folder = shell_folders[0]
-
+    shell_folder = test_results[0]
     self.assertIsNotNone(shell_folder)
     self.assertEqual(shell_folder.guid, self._GUID1)
     self.assertEqual(shell_folder.name, self._NAME1)
     self.assertEqual(shell_folder.localized_string, self._LOCALIZED_STRING1)
 
-    shell_folder = shell_folders[1]
-
+    shell_folder = test_results[1]
     self.assertIsNotNone(shell_folder)
     self.assertEqual(shell_folder.guid, self._GUID2)
     self.assertEqual(shell_folder.name, '')
@@ -121,11 +92,8 @@ class ShellFoldersCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = shellfolders.ShellFoldersCollector()
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
-
-    self.assertEqual(len(test_output_writer.shell_folders), 0)
+    test_results = list(collector_object.Collect(registry))
+    self.assertEqual(len(test_results), 0)
 
 
 if __name__ == '__main__':

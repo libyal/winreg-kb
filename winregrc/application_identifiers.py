@@ -30,31 +30,36 @@ class ApplicationIdentifiersCollector(interface.WindowsRegistryKeyCollector):
   _APPLICATION_IDENTIFIERS_KEY_PATH = (
       'HKEY_LOCAL_MACHINE\\Software\\Classes\\AppID')
 
-  def Collect(self, registry, output_writer):
-    """Collects the application identifiers.
+  def _CollectApplicationIdentifiers(self, application_identifiers_key):
+    """Collects Windows application identifiers (AppID).
+
+    Args:
+      application_identifiers_key (dfwinreg.WinRegistryKey): application
+          identifiers Windows Registry key.
+
+    Yields:
+      ApplicationIdentifier: an application identifier.
+    """
+    for subkey in application_identifiers_key.GetSubkeys():
+      name = subkey.name.lower()
+
+      # Ignore subkeys that are not formatted as {%GUID%}
+      if len(name) == 38 and name[0] == '{' and name[37] == '}':
+        description = self._GetValueAsStringFromKey(subkey, '')
+
+        yield ApplicationIdentifier(name, description)
+
+  def Collect(self, registry):
+    """Collects Windows application identifiers (AppID).
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
 
-    Returns:
-      bool: True if the application identifiers key was found, False if not.
+    Yields:
+      ApplicationIdentifier: an application identifier.
     """
     application_identifiers_key = registry.GetKeyByPath(
         self._APPLICATION_IDENTIFIERS_KEY_PATH)
-    if not application_identifiers_key:
-      return False
-
-    for subkey in application_identifiers_key.GetSubkeys():
-      guid = subkey.name.lower()
-
-      # Ignore subkeys that are not formatted as {%GUID%}
-      if len(guid) != 38 and guid[0] == '{' and guid[37] == '}':
-        continue
-
-      description = self._GetValueAsStringFromKey(subkey, '')
-
-      application_identifier = ApplicationIdentifier(guid, description)
-      output_writer.WriteApplicationIdentifier(application_identifier)
-
-    return True
+    if application_identifiers_key:
+      yield from self._CollectApplicationIdentifiers(
+          application_identifiers_key)

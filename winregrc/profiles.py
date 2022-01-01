@@ -4,6 +4,26 @@
 from winregrc import interface
 
 
+class UserProfile(object):
+  """User profile.
+
+  Attributes:
+    profile_path (str): path of the users profile.
+    security_identifier (str): security identifier of the user.
+  """
+
+  def __init__(self, security_identifier, profile_path):
+    """Initializes an user profile.
+
+    Args:
+      security_identifier (str): security identifier of the user.
+      profile_path (str): path of the users profile.
+    """
+    super(UserProfile, self).__init__()
+    self.profile_path = profile_path
+    self.security_identifier = security_identifier
+
+
 class UserProfilesCollector(interface.WindowsRegistryKeyCollector):
   """Windows user profiles collector."""
 
@@ -11,26 +31,30 @@ class UserProfilesCollector(interface.WindowsRegistryKeyCollector):
       'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
       'ProfileList')
 
-  def Collect(self, registry, output_writer):
-    """Collects the user profiles.
+  def _CollectUserProfiles(self, profile_list_key):
+    """Collects user profiles.
 
     Args:
-      registry (dfwinreg.WinRegistry): Windows Registry.
-      output_writer (OutputWriter): output writer.
+      profile_list_key (dfwinreg.WinRegistryKey): profile list Windows Registry.
 
-    Returns:
-      bool: True if the user profile key was found, False if not.
+    Yields:
+      UserProfile: an user profile.
     """
-    profile_list_key = registry.GetKeyByPath(
-        self._PROFILE_LIST_KEY_PATH)
-    if not profile_list_key:
-      return False
-
     for subkey in profile_list_key.GetSubkeys():
       profile_image_path = self._GetValueAsStringFromKey(
           subkey, 'ProfileImagePath')
 
-      output_writer.WriteText('{0:s}: {1:s}'.format(
-          subkey.name, profile_image_path))
+      yield UserProfile(subkey.name, profile_image_path)
 
-    return True
+  def Collect(self, registry):
+    """Collects user profiles.
+
+    Args:
+      registry (dfwinreg.WinRegistry): Windows Registry.
+
+    Yields:
+      UserProfile: an user profile.
+    """
+    profile_list_key = registry.GetKeyByPath(self._PROFILE_LIST_KEY_PATH)
+    if profile_list_key:
+      yield from self._CollectUserProfiles(profile_list_key)
