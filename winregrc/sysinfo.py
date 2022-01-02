@@ -108,9 +108,7 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
     self.system_information = SystemInformation()
 
     for value_name, attribute_name in self._STRING_VALUES.items():
-      value_string = self._GetValueAsStringFromKey(
-          current_version_key, value_name)
-
+      value_string = self._GetValueFromKey(current_version_key, value_name)
       setattr(self.system_information, attribute_name, value_string)
 
     registry_value = current_version_key.GetValueByName('InstallDate')

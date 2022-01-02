@@ -115,7 +115,7 @@ class MSIEZoneInformationCollector(interface.WindowsRegistryKeyCollector):
       MSIEZoneInformation: MSIE zone information.
     """
     for zone_key in zones_key.GetSubkeys():
-      zone_name = self._GetValueAsStringFromKey(zone_key, 'DisplayName')
+      zone_name = self._GetValueFromKey(zone_key, 'DisplayName')
 
       for setting_value in zone_key.GetValues():
         # The 'Description' value contains a description of the zone.

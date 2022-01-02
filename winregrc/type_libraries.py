@@ -72,8 +72,7 @@ class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
         if subkey.name in ('FLAGS', 'HELPDIR'):
           continue
 
-        description = self._GetValueAsStringFromKey(
-            subkey, '')
+        description = self._GetValueFromKey(subkey, '')
 
         language_key = None
         for lcid in ('0', '409'):
@@ -96,8 +95,7 @@ class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
           if not platform_key:
             platform_key = language_key.GetSubkeyByIndex(0)
 
-        typelib_filename = self._GetValueAsStringFromKey(
-            platform_key, '')
+        typelib_filename = self._GetValueFromKey(platform_key, '')
 
         type_library = TypeLibrary(
             guid, subkey.name, description, typelib_filename)

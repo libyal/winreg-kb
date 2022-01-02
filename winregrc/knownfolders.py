@@ -46,9 +46,8 @@ class KnownFoldersCollector(interface.WindowsRegistryKeyCollector):
     """
     for subkey in folder_descriptions_key.GetSubkeys():
       guid = subkey.name.lower()
-      name = self._GetValueAsStringFromKey(subkey, 'Name')
-      localized_name = self._GetValueAsStringFromKey(
-          subkey, 'LocalizedName')
+      name = self._GetValueFromKey(subkey, 'Name')
+      localized_name = self._GetValueFromKey(subkey, 'LocalizedName')
 
       yield KnownFolder(guid, name, localized_name)
 

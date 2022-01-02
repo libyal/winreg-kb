@@ -173,7 +173,7 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
     if winevt_publishers_key:
       for guid_key in winevt_publishers_key.GetSubkeys():
         provider_identifier = guid_key.name.lower()
-        log_source = self._GetValueAsStringFromKey(guid_key, '')
+        log_source = self._GetValueFromKey(guid_key, '', default_value='')
 
         event_log_provider = EventLogProvider(
             provider_identifier, log_source, '')
@@ -195,7 +195,7 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
     if services_eventlog_key:
       for log_type_key in services_eventlog_key.GetSubkeys():
         for provider_key in log_type_key.GetSubkeys():
-          provider_identifier = self._GetValueAsStringFromKey(
+          provider_identifier = self._GetValueFromKey(
               provider_key, 'ProviderGuid')
           if provider_identifier:
             provider_identifier = provider_identifier.lower()

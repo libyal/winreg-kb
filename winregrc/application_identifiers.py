@@ -45,7 +45,7 @@ class ApplicationIdentifiersCollector(interface.WindowsRegistryKeyCollector):
 
       # Ignore subkeys that are not formatted as {%GUID%}
       if len(name) == 38 and name[0] == '{' and name[37] == '}':
-        description = self._GetValueAsStringFromKey(subkey, '')
+        description = self._GetValueFromKey(subkey, '')
 
         yield ApplicationIdentifier(name, description)
 

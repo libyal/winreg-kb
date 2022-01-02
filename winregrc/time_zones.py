@@ -132,38 +132,31 @@ class TimeZonesCollector(interface.WindowsRegistryKeyCollector):
       if self._debug and output_writer:
         output_writer.DebugPrintValue('Name', subkey.name)
 
-        string = self._GetValueAsStringFromKey(
-            subkey, 'Display', default_value=None)
+        string = self._GetValueFromKey(subkey, 'Display')
         if string is not None:
           output_writer.DebugPrintValue('Display', string)
 
-        string = self._GetValueAsStringFromKey(
-            subkey, 'Dlt', default_value=None)
+        string = self._GetValueFromKey(subkey, 'Dlt')
         if string is not None:
           output_writer.DebugPrintValue('Dlt', string)
 
-        string = self._GetValueAsStringFromKey(
-            subkey, 'Std', default_value=None)
+        string = self._GetValueFromKey(subkey, 'Std')
         if string is not None:
           output_writer.DebugPrintValue('Std', string)
 
-        string = self._GetValueAsStringFromKey(
-            subkey, 'MapID', default_value=None)
+        string = self._GetValueFromKey(subkey, 'MapID')
         if string is not None:
           output_writer.DebugPrintValue('MapID', string)
 
-        string = self._GetValueAsStringFromKey(
-            subkey, 'MUI_Display', default_value=None)
+        string = self._GetValueFromKey(subkey, 'MUI_Display')
         if string is not None:
           output_writer.DebugPrintValue('MUI_Display', string)
 
-        string = self._GetValueAsStringFromKey(
-            subkey, 'MUI_Dlt', default_value=None)
+        string = self._GetValueFromKey(subkey, 'MUI_Dlt')
         if string is not None:
           output_writer.DebugPrintValue('MUI_Dlt', string)
 
-        string = self._GetValueAsStringFromKey(
-            subkey, 'MUI_Std', default_value=None)
+        string = self._GetValueFromKey(subkey, 'MUI_Std')
         if string is not None:
           output_writer.DebugPrintValue('MUI_Std', string)
 

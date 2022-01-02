@@ -8,31 +8,9 @@ from dfwinreg import definitions as dfwinreg_definitions
 from dfwinreg import fake as dfwinreg_fake
 from dfwinreg import registry as dfwinreg_registry
 
-from winregrc import output_writers
 from winregrc import services
 
 from tests import test_lib as shared_test_lib
-
-
-class TestOutputWriter(output_writers.StdoutOutputWriter):
-  """Output writer for testing.
-
-  Attributes:
-    services (list[WindowsService]): services.
-  """
-
-  def __init__(self):
-    """Initializes an output writer object."""
-    super(TestOutputWriter, self).__init__()
-    self.services = []
-
-  def WriteWindowsService(self, service):
-    """Writes the Windows service to stdout.
-
-    Args:
-      service (WindowsService): Windows service.
-    """
-    self.services.append(service)
 
 
 class WindowsServicesCollectorTest(shared_test_lib.BaseTestCase):
@@ -54,16 +32,8 @@ class WindowsServicesCollectorTest(shared_test_lib.BaseTestCase):
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey('Select')
-    registry_file.AddKeyByPath('\\', registry_key)
-
-    value_data = b'\x01\x00\x00\x00'
-    registry_value = dfwinreg_fake.FakeWinRegistryValue(
-        'Current', data=value_data, data_type=dfwinreg_definitions.REG_DWORD)
-    registry_key.AddValue(registry_value)
-
     registry_key = dfwinreg_fake.FakeWinRegistryKey('Services')
-    registry_file.AddKeyByPath('\\ControlSet001', registry_key)
+    registry_file.AddKeyByPath('\\CurrentControlSet', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey('WwanSvc')
     registry_key.AddSubkey('WwanSvc', subkey)
@@ -114,12 +84,18 @@ class WindowsServicesCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = services.WindowsServicesCollector()
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(
-        registry, test_output_writer, all_control_sets=True)
-    test_output_writer.Close()
+    test_results = list(collector_object.Collect(registry))
+    self.assertEqual(len(test_results), 1)
 
-    self.assertEqual(len(test_output_writer.services), 1)
+    windows_service = test_results[0]
+    self.assertIsNotNone(windows_service)
+    self.assertEqual(windows_service.description, self._DESCRIPTION)
+    self.assertEqual(windows_service.display_name, self._DISPLAY_NAME)
+    self.assertEqual(windows_service.image_path, self._IMAGE_PATH)
+    self.assertEqual(windows_service.name, 'WwanSvc')
+    self.assertEqual(windows_service.object_name, self._OBJECT_NAME)
+    self.assertEqual(windows_service.service_type, 32)
+    self.assertEqual(windows_service.start_value, 3)
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""
@@ -127,11 +103,10 @@ class WindowsServicesCollectorTest(shared_test_lib.BaseTestCase):
 
     collector_object = services.WindowsServicesCollector()
 
-    test_output_writer = TestOutputWriter()
-    collector_object.Collect(registry, test_output_writer)
-    test_output_writer.Close()
+    test_results = list(collector_object.Collect(registry))
+    self.assertEqual(len(test_results), 0)
 
-    self.assertEqual(len(test_output_writer.services), 0)
+  # TODO: add tests for Compare method
 
 
 if __name__ == '__main__':

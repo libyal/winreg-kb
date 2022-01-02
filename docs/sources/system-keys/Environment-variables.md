@@ -12,7 +12,7 @@ Values:
 
 Name | Data type | Description
 --- | --- | ---
-%NAME% | REG_SZ | environment variable, where %NAME% contains the name of the environment variable.
+%NAME% | REG_SZ | Value of an environment variable, where %NAME% contains the name of the environment variable.
 
 For example the "windir" value that contains "%SystemRoot%".
 
@@ -29,10 +29,12 @@ Values:
 
 Name | Data type | Description
 --- | --- | ---
-CommonFilesDir | REG_SZ | value of %CommonProgramFiles% environment variable
-CommonFilesDir (x86) | REG_SZ | value of %CommonProgramFiles(x86)% environment variable
-ProgramFilesDir | REG_SZ | value of %ProgramFiles% environment variable
-ProgramFilesDir (x86) | REG_SZ | value of %ProgramFiles(x86)% environment variable
+CommonFilesDir | REG_SZ | Value of %CommonProgramFiles% environment variable
+CommonFilesDir (x86) | REG_SZ | Value of %CommonProgramFiles(x86)% environment variable
+CommonW6432Dir | REG_SZ | Value of %CommonProgramW6432% environment variable
+ProgramFilesDir | REG_SZ | Value of %ProgramFiles% environment variable
+ProgramFilesDir (x86) | REG_SZ | Value of %ProgramFiles(x86)% environment variable
+ProgramW6432Dir | REG_SZ | Value of %ProgramW6432% environment variable
 
 For example the "ProgramFilesDir (x86)" value that contains
 "C:\Program Files (x86)".
@@ -50,7 +52,7 @@ Values:
 
 Name | Data type | Description
 --- | --- | ---
-SystemRoot | REG_SZ | value of %SystemRoot% environment variable
+SystemRoot | REG_SZ | Value of %SystemRoot% environment variable
 
 For example the "SystemRoot" value that contains "C:\\Windows"
 
@@ -72,7 +74,7 @@ Default | REG_SZ | (Seen on Windows Vista)
 DefaultUserProfile | REG_SZ | (Seen on Windows XP)
 ProfilesDirectory | REG_EXPAND_SZ | Profiles directory, for example "C:\Documents and Settings" on Windows XP or "C:\Users" on Windows Vista.
 ProgramData | REG_SZ | Value of the %ProgramData% environment variable (Seen on Windows Vista)
-Public | REG_SZ |
+Public | REG_SZ | Value of the %Public% environment variable
 
 If the AllUsersProfile value does not start with an environment variable or
 an absolute path, but a relative path, it is currently assumed that the value
@@ -80,9 +82,13 @@ should be prefixed with the value in ProfilesDirectory.
 
 ## User specific environment variables
 
-*TODO add description*
-
 ```
 HKEY_CURRENT_USER\Environment
 ```
+
+Values:
+
+Name | Data type | Description
+--- | --- | ---
+%NAME% | REG_SZ | Value of an user specific environment variable, where %NAME% contains the name of the environment variable.
 

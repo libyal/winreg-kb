@@ -31,17 +31,28 @@ class EnvironmentVariablesCollector(interface.WindowsRegistryKeyCollector):
       'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\'
       'Session Manager\\Environment')
 
+  _PROFILELIST_KEY_PATH = (
+      'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\'
+      'ProfileList')
+
   _WINDOWS_CURRENTVERSION_KEY_PATH = (
       'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion')
 
   _WINDOWS_NT_CURRENTVERSION_KEY_PATH = (
       'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion')
 
+  _PROFILELIST_KEY_VALUE_MAPPINGS = {
+      'AllUsersProfile': '%AllUsersProfile%',
+      'ProgramData': '%ProgramData%',
+      'Public': '%Public%'}
+
   _WINDOWS_KEY_VALUE_MAPPINGS = {
       'CommonFilesDir': '%CommonProgramFiles%',
       'CommonFilesDir (x86)': '%CommonProgramFiles(x86)%',
+      'CommonW6432Dir': '%CommonProgramW6432%',
       'ProgramFilesDir': '%ProgramFiles%',
-      'ProgramFilesDir (x86)': '%ProgramFiles(x86)%'}
+      'ProgramFilesDir (x86)': '%ProgramFiles(x86)%',
+      'ProgramW6432Dir': '%ProgramW6432%'}
 
   _WINDOWS_NT_KEY_VALUE_MAPPINGS = {
       'SystemRoot': '%SystemRoot%'}
@@ -61,35 +72,16 @@ class EnvironmentVariablesCollector(interface.WindowsRegistryKeyCollector):
       value_string = registry_value.GetDataAsObject()
       yield EnvironmentVariable(environment_variable_name, value_string)
 
-  def _CollectEnvironmentVariablesFromWindowsKey(self, registry_key):
+  def _CollectEnvironmentVariablesWithMappings(self, registry_key, mappings):
     """Collects environment variables.
 
     Args:
-      registry_key (dfwinreg.WinRegistryKey): Windows current version
-          Windows Registry key.
+      registry_key (dfwinreg.WinRegistryKey): Windows Registry key.
 
     Yields:
       EnvironmentVariable: an environment variable.
     """
-    for value_name, environment_variable_name in (
-        self._WINDOWS_KEY_VALUE_MAPPINGS.items()):
-      registry_value = registry_key.GetValueByName(value_name)
-      if registry_value:
-        value_string = registry_value.GetDataAsObject()
-        yield EnvironmentVariable(environment_variable_name, value_string)
-
-  def _CollectEnvironmentVariablesFromWindowsNTKey(self, registry_key):
-    """Collects environment variables.
-
-    Args:
-      registry_key (dfwinreg.WinRegistryKey): Windows NT current version
-          Windows Registry key.
-
-    Yields:
-      EnvironmentVariable: an environment variable.
-    """
-    for value_name, environment_variable_name in (
-        self._WINDOWS_NT_KEY_VALUE_MAPPINGS.items()):
+    for value_name, environment_variable_name in mappings.items():
       registry_value = registry_key.GetValueByName(value_name)
       if registry_value:
         value_string = registry_value.GetDataAsObject()
@@ -109,11 +101,18 @@ class EnvironmentVariablesCollector(interface.WindowsRegistryKeyCollector):
       yield from self._CollectEnvironmentVariablesFromEnvironmentKey(
           registry_key)
 
+    registry_key = registry.GetKeyByPath(self._PROFILELIST_KEY_PATH)
+    if registry_key:
+      yield from self._CollectEnvironmentVariablesWithMappings(
+          registry_key, self._PROFILELIST_KEY_VALUE_MAPPINGS)
+
     registry_key = registry.GetKeyByPath(self._WINDOWS_CURRENTVERSION_KEY_PATH)
     if registry_key:
-      yield from self._CollectEnvironmentVariablesFromWindowsKey(registry_key)
+      yield from self._CollectEnvironmentVariablesWithMappings(
+          registry_key, self._WINDOWS_KEY_VALUE_MAPPINGS)
 
     registry_key = registry.GetKeyByPath(
         self._WINDOWS_NT_CURRENTVERSION_KEY_PATH)
     if registry_key:
-      yield from self._CollectEnvironmentVariablesFromWindowsNTKey(registry_key)
+      yield from self._CollectEnvironmentVariablesWithMappings(
+          registry_key, self._WINDOWS_NT_KEY_VALUE_MAPPINGS)

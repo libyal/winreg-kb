@@ -41,8 +41,7 @@ class UserProfilesCollector(interface.WindowsRegistryKeyCollector):
       UserProfile: an user profile.
     """
     for subkey in profile_list_key.GetSubkeys():
-      profile_image_path = self._GetValueAsStringFromKey(
-          subkey, 'ProfileImagePath')
+      profile_image_path = self._GetValueFromKey(subkey, 'ProfileImagePath')
 
       yield UserProfile(subkey.name, profile_image_path)
 

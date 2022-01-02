@@ -47,7 +47,7 @@ class SRUMExtensionsCollector(interface.WindowsRegistryKeyCollector):
 
     for subkey in srum_extensions_key.GetSubkeys():
       guid = subkey.name.upper()
-      dll_name = self._GetValueAsStringFromKey(subkey, 'DllName')
+      dll_name = self._GetValueFromKey(subkey, 'DllName')
 
       srum_extension = SRUMExtension(guid, dll_name)
       output_writer.WriteSRUMExtension(srum_extension)

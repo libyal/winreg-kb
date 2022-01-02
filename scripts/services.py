@@ -123,13 +123,6 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer_object = StdoutWriter(use_tsv=options.use_tsv)
-
-  if not output_writer_object.Open():
-    print('Unable to open output writer.')
-    print('')
-    return False
-
   mediator = collector.WindowsRegistryCollectorMediator()
   registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
 
@@ -145,22 +138,33 @@ def Main():
     print('')
     return False
 
-  # TODO: map collector to available Registry keys.
-  collector_object = services.WindowsServicesCollector(
-      debug=options.debug)
+  collector_object = services.WindowsServicesCollector(debug=options.debug)
 
-  if options.diff_control_sets:
-    result = collector_object.Compare(
-        registry_collector.registry, output_writer_object)
-  else:
-    result = collector_object.Collect(
-        registry_collector.registry, output_writer_object,
-        all_control_sets=options.all_control_sets)
+  output_writer_object = StdoutWriter(use_tsv=options.use_tsv)
 
-  if not result:
+  if not output_writer_object.Open():
+    print('Unable to open output writer.')
+    print('')
+    return False
+
+  try:
+    if options.diff_control_sets:
+      has_results = collector_object.Compare(
+          registry_collector.registry, output_writer_object)
+
+    else:
+      has_results = False
+      for windows_service in collector_object.Collect(
+          registry_collector.registry,
+          all_control_sets=options.all_control_sets):
+        output_writer_object.WriteWindowsService(windows_service)
+        has_results = True
+
+  finally:
+    output_writer_object.Close()
+
+  if not has_results:
     print('No Services key found.')
-
-  output_writer_object.Close()
 
   return True
 
