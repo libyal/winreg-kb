@@ -62,7 +62,7 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
           of the value data.
 
     Returns:
-      tuple: contains:
+      tuple: containing:
 
         programscache_entry_footer: entry footer.
         int: entry footer data size.
@@ -99,7 +99,7 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
       value_data (bytes): value data.
 
     Returns:
-      tuple: contains:
+      tuple: containing:
 
         programscache_header: header.
         int: header data size.
