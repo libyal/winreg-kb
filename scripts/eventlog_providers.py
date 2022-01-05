@@ -75,10 +75,9 @@ def Main():
 
   argument_parser.add_argument(
       'source', nargs='?', action='store', metavar='PATH', default=None,
-      help=(
-          'path of the volume containing C:\\Windows, the filename of '
-          'a storage media image containing the C:\\Windows directory, '
-          'or the path of a SOFTWARE or SYSTEM Registry file.'))
+      help=('path of the volume containing C:\\Windows, the filename of '
+            'a storage media image containing the C:\\Windows directory, '
+            'or the path of a SOFTWARE or SYSTEM Registry file.'))
 
   options = argument_parser.parse_args()
 

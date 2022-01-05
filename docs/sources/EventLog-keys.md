@@ -64,8 +64,8 @@ for example for the "Workstation" EventLog source:
 HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\EventLog\System\Workstation\
 ```
 
-Note that the source name is case insensitive; so "Workstation" and
-"workstation" are considered equivalent.
+Note that the log source is case insensitive; so "Workstation" and "workstation"
+are considered equivalent.
 
 ### Services\EventLog type sub key
 
@@ -127,7 +127,7 @@ Values:
 
 Name | Data type | Description
 --- | --- | ---
-(default) | | name of the event source
+(default) | | Case insensitive log source.
 MessageFileName | | Path to an event message file. An event message file contains language-dependent strings that describe the events.
 ResourceFileName | | Path to an event resource file.
 

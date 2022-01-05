@@ -152,9 +152,9 @@ def Main():
       default=None, help='path of the sqlite3 database to write to.')
 
   argument_parser.add_argument(
-      '--winver', dest='windows_version', action='store', metavar='xp',
-      default=None, help=(
-          'string that identifies the Windows version in the database.'))
+      '-w', '--windows_version', '--windows-version',
+      dest='windows_version', action='store', metavar='Windows XP',
+      default=None, help='string that identifies the Windows version.')
 
   argument_parser.add_argument(
       'source', nargs='?', action='store', metavar='PATH', default=None,
