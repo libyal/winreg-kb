@@ -22,6 +22,11 @@ try:
 except ImportError:
   bdist_rpm = None
 
+try:
+  from setuptools.commands.sdist import sdist
+except ImportError:
+  from distutils.command.sdist import sdist
+
 version_tuple = (sys.version_info[0], sys.version_info[1])
 if version_tuple < (3, 6):
   print((
@@ -197,7 +202,8 @@ setup(
     maintainer_email='joachim.metz@gmail.com',
     cmdclass={
         'bdist_msi': BdistMSICommand,
-        'bdist_rpm': BdistRPMCommand},
+        'bdist_rpm': BdistRPMCommand,
+        'sdist_test_data': sdist},
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',

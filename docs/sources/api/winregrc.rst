@@ -60,6 +60,14 @@ winregrc.dfvfs\_pyregf module
    :undoc-members:
    :show-inheritance:
 
+winregrc.environment\_variables module
+--------------------------------------
+
+.. automodule:: winregrc.environment_variables
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 winregrc.errors module
 ----------------------
 
