@@ -57,67 +57,57 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
       EventLogProvider: an Event Log provider.
     """
     event_log_providers_per_identifier = {}
-    event_log_providers_per_log_source = {}
-
-    for event_log_provider in self._CollectEventLogProvidersFromServicesKey(
-        services_eventlog_key):
-      existing_event_log_provider = event_log_providers_per_identifier.get(
-          event_log_provider.identifier, None)
-      if existing_event_log_provider:
-        self._MergeEventLogProviders(
-            existing_event_log_provider, event_log_provider)
-        continue
-
-      if event_log_provider.identifier:
-        event_log_providers_per_identifier[event_log_provider.identifier] = (
-              event_log_provider)
-
-      log_source = event_log_provider.log_sources[0]
-      event_log_providers_per_log_source[log_source] = event_log_provider
+    event_log_providers_per_name = {}
 
     for event_log_provider in self._CollectEventLogProvidersFromPublishersKeys(
         winevt_publishers_key):
-      name = event_log_provider.name
       provider_identifier = event_log_provider.identifier
-
-      existing_event_log_provider = event_log_providers_per_log_source.get(
-          name, None)
-      if existing_event_log_provider:
-        if (existing_event_log_provider.identifier and
-            existing_event_log_provider.identifier != provider_identifier):
-          event_log_provider.additional_identifier = (
-              existing_event_log_provider.identifier)
-
-          del event_log_providers_per_identifier[
-              existing_event_log_provider.identifier]
-
-        self._MergeEventLogProviders(
-            event_log_provider, existing_event_log_provider)
-
-        del event_log_providers_per_log_source[name]
 
       existing_event_log_provider = event_log_providers_per_identifier.get(
           provider_identifier, None)
       if existing_event_log_provider:
         self._MergeEventLogProviders(
-            event_log_provider, existing_event_log_provider)
+            existing_event_log_provider, event_log_provider)
 
-      event_log_providers_per_identifier[provider_identifier] = (
-          event_log_provider)
+      else:
+        event_log_providers_per_identifier[provider_identifier] = (
+            event_log_provider)
 
-      for log_source in event_log_provider.log_sources:
-        if log_source in event_log_providers_per_log_source:
-          del event_log_providers_per_log_source[log_source]
+        if event_log_provider.name:
+          event_log_providers_per_name[event_log_provider.name] = (
+              event_log_provider)
 
-    event_log_providers = []
-    for log_source, event_log_provider in (
-        event_log_providers_per_log_source.items()):
+    event_log_providers_per_log_source = {}
+
+    for event_log_provider in self._CollectEventLogProvidersFromServicesKey(
+        services_eventlog_key):
       provider_identifier = event_log_provider.identifier
-      if (not provider_identifier or
-          provider_identifier not in event_log_providers_per_identifier):
-        event_log_providers.append(event_log_provider)
 
-    event_log_providers.extend(event_log_providers_per_identifier.values())
+      if provider_identifier:
+        existing_event_log_provider = event_log_providers_per_identifier.get(
+            provider_identifier, None)
+        if existing_event_log_provider:
+          self._MergeEventLogProviders(
+              existing_event_log_provider, event_log_provider)
+          continue
+
+      log_source = event_log_provider.log_sources[0]
+      existing_event_log_provider = event_log_providers_per_name.get(
+          log_source, None)
+      if existing_event_log_provider:
+        if (provider_identifier and
+            provider_identifier != existing_event_log_provider.identifier):
+          existing_event_log_provider.additional_identifier = (
+              provider_identifier)
+
+        self._MergeEventLogProviders(
+            existing_event_log_provider, event_log_provider)
+        continue
+
+      event_log_providers_per_log_source[log_source] = event_log_provider
+
+    event_log_providers = list(event_log_providers_per_identifier.values())
+    event_log_providers.extend(event_log_providers_per_log_source.values())
 
     for event_log_provider in sorted(
         event_log_providers, key=self._GetEventLogProviderSortedKey):
