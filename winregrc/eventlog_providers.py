@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Windows Event Log providers collector."""
 
-import logging
-
 from winregrc import interface
 
 
@@ -15,27 +13,23 @@ class EventLogProvider(object):
     category_message_files (set[str]): paths of the category message files.
     event_message_files (set[str]): paths of the event message files.
     identifier (str): identifier of the provider, contains a GUID.
-    log_sources (list[str]): names of the Windows Event Log source.
-    log_type (str): Windows Event Log type.
+    log_sources (list[str]): names of the corresponding Event Log sources.
+    log_types (list[str]): Windows Event Log types.
+    name (str): name of the provider.
     parameter_message_files (set[str]): paths of the parameter message
         files.
   """
 
-  def __init__(self, identifier, log_source, log_type):
-    """Initializes a Windows Event Log provider.
-
-    Args:
-      identifier (str): identifier of the provider, contains a GUID.
-      log_source (str): name of the Windows Event Log source.
-      log_type (str): Windows Event Log type.
-    """
+  def __init__(self):
+    """Initializes a Windows Event Log provider."""
     super(EventLogProvider, self).__init__()
     self.additional_identifier = None
     self.category_message_files = set()
     self.event_message_files = set()
-    self.identifier = identifier
-    self.log_sources = [log_source]
-    self.log_type = log_type
+    self.identifier = None
+    self.log_sources = []
+    self.log_types = []
+    self.name = None
     self.parameter_message_files = set()
 
 
@@ -67,97 +61,72 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
 
     for event_log_provider in self._CollectEventLogProvidersFromServicesKey(
         services_eventlog_key):
-      log_source = event_log_provider.log_sources[0]
-
       existing_event_log_provider = event_log_providers_per_identifier.get(
           event_log_provider.identifier, None)
       if existing_event_log_provider:
-        if log_source not in existing_event_log_provider.log_sources:
-          existing_event_log_provider.log_sources.append(log_source)
-
-        existing_event_log_provider.category_message_files.update(
-            event_log_provider.category_message_files)
-        existing_event_log_provider.event_message_files.update(
-            event_log_provider.event_message_files)
-        existing_event_log_provider.parameter_message_files.update(
-            event_log_provider.parameter_message_files)
-
+        self._MergeEventLogProviders(
+            existing_event_log_provider, event_log_provider)
         continue
-
-      if log_source in event_log_providers_per_log_source:
-        logging.warning((
-            'Found multiple definitions for Event Log provider: '
-            '{0:s}').format(log_source))
-        continue
-
-      event_log_providers_per_log_source[log_source] = event_log_provider
 
       if event_log_provider.identifier:
         event_log_providers_per_identifier[event_log_provider.identifier] = (
               event_log_provider)
 
+      log_source = event_log_provider.log_sources[0]
+      event_log_providers_per_log_source[log_source] = event_log_provider
+
     for event_log_provider in self._CollectEventLogProvidersFromPublishersKeys(
         winevt_publishers_key):
-      log_source = event_log_provider.log_sources[0]
+      name = event_log_provider.name
+      provider_identifier = event_log_provider.identifier
 
       existing_event_log_provider = event_log_providers_per_log_source.get(
-          log_source, None)
-      if not existing_event_log_provider:
-        existing_event_log_provider = event_log_providers_per_identifier.get(
-            event_log_provider.identifier, None)
-
-        if existing_event_log_provider:
-          if log_source not in existing_event_log_provider.log_sources:
-            existing_event_log_provider.log_sources.append(log_source)
-
+          name, None)
       if existing_event_log_provider:
-        existing_event_log_provider.event_message_files.update(
-            event_log_provider.event_message_files)
-
-        if not existing_event_log_provider.identifier:
-          existing_event_log_provider.identifier = event_log_provider.identifier
-        elif existing_event_log_provider.identifier != (
-            event_log_provider.identifier):
-          existing_event_log_provider.additional_identifier = (
+        if (existing_event_log_provider.identifier and
+            existing_event_log_provider.identifier != provider_identifier):
+          event_log_provider.additional_identifier = (
               existing_event_log_provider.identifier)
-          existing_event_log_provider.identifier = event_log_provider.identifier
 
-      else:
-        event_log_providers_per_log_source[log_source] = event_log_provider
-        event_log_providers_per_identifier[event_log_provider.identifier] = (
-            event_log_provider)
+          del event_log_providers_per_identifier[
+              existing_event_log_provider.identifier]
 
-    for _, event_log_provider in sorted(
+        self._MergeEventLogProviders(
+            event_log_provider, existing_event_log_provider)
+
+        del event_log_providers_per_log_source[name]
+
+      existing_event_log_provider = event_log_providers_per_identifier.get(
+          provider_identifier, None)
+      if existing_event_log_provider:
+        self._MergeEventLogProviders(
+            event_log_provider, existing_event_log_provider)
+
+      event_log_providers_per_identifier[provider_identifier] = (
+          event_log_provider)
+
+      for log_source in event_log_provider.log_sources:
+        if log_source in event_log_providers_per_log_source:
+          del event_log_providers_per_log_source[log_source]
+
+    event_log_providers = []
+    for log_source, event_log_provider in (
         event_log_providers_per_log_source.items()):
-      message_files = set()
-      paths_lower = set()
-      for path in event_log_provider.category_message_files:
-        path_lower = path.lower()
-        if path_lower not in paths_lower:
-          paths_lower.add(path_lower)
-          message_files.add(path)
+      provider_identifier = event_log_provider.identifier
+      if (not provider_identifier or
+          provider_identifier not in event_log_providers_per_identifier):
+        event_log_providers.append(event_log_provider)
 
-      event_log_provider.category_message_files = message_files
+    event_log_providers.extend(event_log_providers_per_identifier.values())
 
-      message_files = set()
-      paths_lower = set()
-      for path in event_log_provider.event_message_files:
-        path_lower = path.lower()
-        if path_lower not in paths_lower:
-          paths_lower.add(path_lower)
-          message_files.add(path)
-
-      event_log_provider.event_message_files = message_files
-
-      message_files = set()
-      paths_lower = set()
-      for path in event_log_provider.parameter_message_files:
-        path_lower = path.lower()
-        if path_lower not in paths_lower:
-          paths_lower.add(path_lower)
-          message_files.add(path)
-
-      event_log_provider.parameter_message_files = message_files
+    for event_log_provider in sorted(
+        event_log_providers, key=self._GetEventLogProviderSortedKey):
+      event_log_provider.category_message_files = self._NormalizeMessageFiles(
+          event_log_provider.category_message_files)
+      event_log_provider.event_message_files = self._NormalizeMessageFiles(
+          event_log_provider.event_message_files)
+      event_log_provider.parameter_message_files = self._NormalizeMessageFiles(
+          event_log_provider.parameter_message_files)
 
       yield event_log_provider
 
@@ -172,14 +141,16 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
     """
     if winevt_publishers_key:
       for guid_key in winevt_publishers_key.GetSubkeys():
-        provider_identifier = guid_key.name.lower()
-        log_source = self._GetValueFromKey(guid_key, '', default_value='')
+        event_log_provider = EventLogProvider()
+        event_log_provider.identifier = guid_key.name.lower()
+        event_log_provider.name = self._GetValueFromKey(guid_key, '')
 
-        event_log_provider = EventLogProvider(
-            provider_identifier, log_source, '')
+        event_message_files = self._GetMessageFilePathsFromKey(
+            guid_key, 'MessageFileName')
+        event_log_provider.event_message_files = event_message_files
 
-        event_log_provider.event_message_files = (
-            self._GetMessageFilePathsFromKey(guid_key, 'MessageFileName'))
+        # TODO: add support for ResourceFileName value
+        # TODO: add support for ParameterFileName value
 
         yield event_log_provider
 
@@ -196,29 +167,41 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
       for log_type_key in services_eventlog_key.GetSubkeys():
         for provider_key in log_type_key.GetSubkeys():
           provider_identifier = self._GetValueFromKey(
-              provider_key, 'ProviderGuid')
-          if provider_identifier:
-            provider_identifier = provider_identifier.lower()
+              provider_key, 'ProviderGuid', default_value='')
+          provider_identifier = provider_identifier.lower()
 
-          log_source = provider_key.name
-          log_type = log_type_key.name
+          event_log_provider = EventLogProvider()
+          event_log_provider.identifier = provider_identifier or None
+          event_log_provider.log_sources = [provider_key.name]
+          event_log_provider.log_types = [log_type_key.name]
 
-          event_log_provider = EventLogProvider(
-              provider_identifier, log_source, log_type)
+          category_message_files = self._GetMessageFilePathsFromKey(
+              provider_key, 'CategoryMessageFile')
+          event_log_provider.category_message_files = category_message_files
 
-          event_log_provider.category_message_files = (
-              self._GetMessageFilePathsFromKey(
-                  provider_key, 'CategoryMessageFile'))
+          event_message_files = self._GetMessageFilePathsFromKey(
+              provider_key, 'EventMessageFile')
+          event_log_provider.event_message_files = event_message_files
 
-          event_log_provider.event_message_files = (
-              self._GetMessageFilePathsFromKey(
-                  provider_key, 'EventMessageFile'))
-
-          event_log_provider.parameter_message_files = (
-              self._GetMessageFilePathsFromKey(
-                  provider_key, 'ParameterMessageFile'))
+          parameter_message_files = self._GetMessageFilePathsFromKey(
+              provider_key, 'ParameterMessageFile')
+          event_log_provider.parameter_message_files = parameter_message_files
 
           yield event_log_provider
+
+  def _GetEventLogProviderSortedKey(self, event_log_provider):
+    """Retrieves a key to sort Event Log providers on.
+
+    Args:
+      event_log_provider (EventLogProvider): Event Log provider.
+
+    Returns:
+      str: key to sort Event Log providers on.
+    """
+    if not event_log_provider.log_sources:
+      return event_log_provider.name or ''
+
+    return event_log_provider.log_sources[0]
 
   def _GetMessageFilePathsFromKey(self, registry_key, value_name):
     """Retrieves a value as a list of message file paths.
@@ -241,6 +224,48 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
           message_files.add(path)
 
     return message_files
+
+  def _MergeEventLogProviders(
+      self, first_event_log_provider, second_event_log_provider):
+    """Merges the information of the second Event Log provider into the first.
+
+    Args:
+      first_event_log_provider (EventLogProvider): first Event Log provider.
+      second_event_log_provider (EventLogProvider): second Event Log provider.
+    """
+    for log_source in second_event_log_provider.log_sources:
+      if log_source not in first_event_log_provider.log_sources:
+        first_event_log_provider.log_sources.append(log_source)
+
+    for log_type in second_event_log_provider.log_types:
+      if log_type not in first_event_log_provider.log_types:
+        first_event_log_provider.log_types.append(log_type)
+
+    first_event_log_provider.category_message_files.update(
+        second_event_log_provider.category_message_files)
+    first_event_log_provider.event_message_files.update(
+        second_event_log_provider.event_message_files)
+    first_event_log_provider.parameter_message_files.update(
+        second_event_log_provider.parameter_message_files)
+
+  def _NormalizeMessageFiles(self, message_files):
+    """Normalizes the message files.
+
+    Args:
+      message_files (list[str]): paths of the message files.
+
+    Returns:
+      list[str]: normalized paths of the message files.
+    """
+    normalizedmessage_files = set()
+    paths_lower = set()
+    for path in message_files:
+      path_lower = path.lower()
+      if path_lower not in paths_lower:
+        paths_lower.add(path_lower)
+        normalizedmessage_files.add(path)
+
+    return normalizedmessage_files
 
   def Collect(self, registry):
     """Collects Windows Event Log providers from a Windows Registry.

@@ -11,27 +11,48 @@ Note that the combined information of both keys can be needed, for example
 the Services\EventLog key:
 
 ```
-Log source              : WinMgmt
-Identifier              : {1edeee53-0afe-4609-b846-d8c0b2075b1f}
-Log type                : Application
+Log type                : System
+Log source              : Microsoft-Windows-Time-Service
+Identifier              : {06edcfeb-0fd0-4e53-acca-a6f8bbf81bcb}
+Event message files     : %SystemRoot%\system32\w32time.dll
+```
+
+```
+Log type                : System
+Log source              : W32Time
+Identifier              : {06edcfeb-0fd0-4e53-acca-a6f8bbf81bcb}
+Event message files     : %SystemRoot%\system32\w32time.dll
 ```
 
 In combination with the corresponding WINEVT\Publishers key:
 
 ```
-Log source              : Microsoft-Windows-WMI
-Identifier              : {1edeee53-0afe-4609-b846-d8c0b2075b1f}
-Event message files     : %SystemRoot%\system32\wbem\WinMgmtR.dll
+Name			: Microsoft-Windows-Time-Service
+Identifier              : {06edcfeb-0fd0-4e53-acca-a6f8bbf81bcb}
+Event message files     : %SystemRoot%\system32\w32time.dll
 ```
 
-Is the following EvenLog provider, that has multiple log sources:
+Is the following EvenLog provider:
 
 ```
-Log source              : WinMgmt
-                        : Microsoft-Windows-WMI
-Identifier              : {1edeee53-0afe-4609-b846-d8c0b2075b1f}
-Log type                : Application
-Event message files     : %systemroot%\system32\wbem\winmgmtr.dll
+Name			: Microsoft-Windows-Time-Service
+Identifier              : {06edcfeb-0fd0-4e53-acca-a6f8bbf81bcb}
+Log type                : System
+Log source(s)           : Microsoft-Windows-Time-Service
+                        : W32Time
+Event message files     : %SystemRoot%\system32\w32time.dll
+```
+
+Note that an EventLog provider can have multiple log types and log sources.
+It is not known if a log source that matches the EventLog provider name can be
+deduplicated.
+
+Or as specified as Event XML:
+
+```
+<Provider Name='Microsoft-Windows-Time-Service'
+          Guid='{06edcfeb-0fd0-4e53-acca-a6f8bbf81bcb}'
+          EventSourceName='W32Time'/>
 ```
 
 ## Services\EventLog key
@@ -127,15 +148,16 @@ Values:
 
 Name | Data type | Description
 --- | --- | ---
-(default) | | Case insensitive log source.
-MessageFileName | | Path to an event message file. An event message file contains language-dependent strings that describe the events.
-ResourceFileName | | Path to an event resource file.
+(default) | REG_SZ | Case insensitive log source.
+MessageFileName | REG_EXPAND_SZ | Path to an event message file. An event message file contains language-dependent strings that describe the events.
+ResourceFileName | REG_EXPAND_SZ | Path to an event resource file.
+ParameterFileName | REG_EXPAND_SZ | Path to an event parameter file.
 
 ## Message file paths
 
 A message file path can be defined in numerous different ways for example:
 
-As an abosolute path
+As an absolute path
 
 ```
 C:\Windows\System32\mscoree.dll
@@ -177,8 +199,10 @@ Last written time: Oct 30, 2015 07:25:12.126588100 UTC
 Value: 0 providerGuid
 Type: string (REG_SZ)
 Data size: 78
-Data: {D4BE7726-DC7A-11DF-A6E6-0902DFD72085}
+Data: {d4be7726-dc7a-11df-a6e6-0902dfd72085}
+```
 
+```
 Key path: HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\WINEVT\Publishers\{89203471-d554-47d4-bde4-7552ec219999}
 Name: {89203471-d554-47d4-bde4-7552ec219999}
 Last written time: Oct 30, 2015 07:25:53.860831900 UTC
@@ -197,6 +221,63 @@ Value: 2 MessageFileName
 Type: expandable string (REG_EXPAND_SZ)
 Data size: 66
 Data: %SystemRoot%\system32\KdsCli.dll
+```
+
+## EventLog provider with multiple log types
+
+Seen on Windows 10:
+
+```
+Key path: HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\EventLog\Application\Microsoft-Windows-EventCollector
+Name: Microsoft-Windows-EventCollector
+Last written time: Sep 13, 2014 07:27:56.080450600 UTC
+
+Value: 0 ProviderGuid
+Type: string (REG_SZ)
+Data size: 78
+Data: {b977cf02-76f6-df84-cc1a-6a4b232322b6}
+
+Value: 1 EventMessageFile
+Type: expandable string (REG_EXPAND_SZ)
+Data size: 66
+Data: %SystemRoot%\system32\wecsvc.dll
+```
+
+```
+Key path: HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\EventLog\System\Microsoft-Windows-EventCollector
+Name: Microsoft-Windows-EventCollector
+Last written time: Sep 13, 2014 07:27:56.080450600 UTC
+
+Value: 0 ProviderGuid
+Type: string (REG_SZ)
+Data size: 78
+Data: {b977cf02-76f6-df84-cc1a-6a4b232322b6}
+
+Value: 1 EventMessageFile
+Type: expandable string (REG_EXPAND_SZ)
+Data size: 66
+Data: %SystemRoot%\system32\wecsvc.dll
+```
+
+```
+Key path:  HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\WINEVT\Publishers\{b977cf02-76f6-df84-cc1a-6a4b232322b6}
+Name: {b977cf02-76f6-df84-cc1a-6a4b232322b6}
+Last written time: Sep 13, 2014 07:27:56.080450600 UTC
+
+Value: 0 (default)
+Type: string (REG_SZ)
+Data size: 66
+Data: Microsoft-Windows-EventCollector
+
+Value: 1 ResourceFileName
+Type: expandable string (REG_EXPAND_SZ)
+Data size: 66
+Data: %SystemRoot%\system32\wecsvc.dll
+
+Value: 2 MessageFileName
+Type: expandable string (REG_EXPAND_SZ)
+Data size: 66
+Data: %SystemRoot%\system32\wecsvc.dll
 ```
 
 ## External Links

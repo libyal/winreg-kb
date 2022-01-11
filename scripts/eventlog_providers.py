@@ -22,24 +22,31 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       eventlog_provider (EventLogProvider): Event Log provider.
     """
-    for index, log_source in enumerate(sorted(eventlog_provider.log_sources)):
-      if index == 0:
-        text = 'Log source(s)\t\t: {0:s}\n'.format(log_source)
-      else:
-        text = '\t\t\t: {0:s}\n'.format(log_source)
-      self.WriteText(text)
-
-    if eventlog_provider.log_type:
-      text = 'Log type\t\t: {0:s}\n'.format(eventlog_provider.log_type)
+    if eventlog_provider.name:
+      text = 'Name\t\t\t\t: {0:s}\n'.format(eventlog_provider.name)
       self.WriteText(text)
 
     if eventlog_provider.identifier:
-      text = 'Identifier\t\t: {0:s}\n'.format(eventlog_provider.identifier)
+      text = 'Identifier\t\t\t: {0:s}\n'.format(eventlog_provider.identifier)
       self.WriteText(text)
 
     if eventlog_provider.additional_identifier:
-      text = 'Additional identifier\t: {0:s}\n'.format(
+      text = 'Additional identifier\t\t: {0:s}\n'.format(
           eventlog_provider.additional_identifier)
+      self.WriteText(text)
+
+    for index, log_type in enumerate(sorted(eventlog_provider.log_types)):
+      if index == 0:
+        text = 'Log type(s)\t\t\t: {0:s}\n'.format(log_type)
+      else:
+        text = '\t\t\t\t: {0:s}\n'.format(log_type)
+      self.WriteText(text)
+
+    for index, log_source in enumerate(sorted(eventlog_provider.log_sources)):
+      if index == 0:
+        text = 'Log source(s)\t\t\t: {0:s}\n'.format(log_source)
+      else:
+        text = '\t\t\t\t: {0:s}\n'.format(log_source)
       self.WriteText(text)
 
     for index, path in enumerate(sorted((
@@ -47,15 +54,15 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
       if index == 0:
         text = 'Category message file(s)\t: {0:s}\n'.format(path)
       else:
-        text = '\t\t\t: {0:s}\n'.format(path)
+        text = '\t\t\t\t: {0:s}\n'.format(path)
       self.WriteText(text)
 
     for index, path in enumerate(sorted((
         eventlog_provider.event_message_files))):
       if index == 0:
-        text = 'Event message file(s)\t: {0:s}\n'.format(path)
+        text = 'Event message file(s)\t\t: {0:s}\n'.format(path)
       else:
-        text = '\t\t\t: {0:s}\n'.format(path)
+        text = '\t\t\t\t: {0:s}\n'.format(path)
       self.WriteText(text)
 
     for index, path in enumerate(sorted((
@@ -63,7 +70,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
       if index == 0:
         text = 'Parameter message file(s)\t: {0:s}\n'.format(path)
       else:
-        text = '\t\t\t: {0:s}\n'.format(path)
+        text = '\t\t\t\t: {0:s}\n'.format(path)
       self.WriteText(text)
 
     self.WriteText('\n')
