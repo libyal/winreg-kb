@@ -247,15 +247,15 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
     Returns:
       list[str]: normalized paths of the message files.
     """
-    normalizedmessage_files = set()
+    normalized_message_files = set()
     paths_lower = set()
     for path in message_files:
       path_lower = path.lower()
       if path_lower not in paths_lower:
         paths_lower.add(path_lower)
-        normalizedmessage_files.add(path)
+        normalized_message_files.add(path)
 
-    return normalizedmessage_files
+    return normalized_message_files
 
   def Collect(self, registry):
     """Collects Windows Event Log providers from a Windows Registry.
