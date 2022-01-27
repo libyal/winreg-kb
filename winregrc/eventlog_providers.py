@@ -245,7 +245,7 @@ class EventLogProvidersCollector(interface.WindowsRegistryKeyCollector):
       message_files (list[str]): paths of the message files.
 
     Returns:
-      list[str]: normalized paths of the message files.
+      set[str]: normalized paths of the message files.
     """
     normalized_message_files = set()
     paths_lower = set()

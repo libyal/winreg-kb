@@ -222,7 +222,7 @@ setup(
     zip_safe=False,
     scripts=glob.glob(os.path.join('scripts', '[a-z]*.py')),
     data_files=[
-        ('share/doc/winregrc', [
+        ('share/doc/winreg-kb', [
             'ACKNOWLEDGEMENTS', 'AUTHORS', 'LICENSE', 'README']),
     ],
     install_requires=parse_requirements_from_file('requirements.txt'),

@@ -57,8 +57,8 @@ napoleon_include_special_with_doc = True
 
 # General information about the project.
 # pylint: disable=redefined-builtin
-project = 'winreg-kb'
-copyright = 'The winreg-kb Project Authors'
+project = 'Windows Registry knowledge base (winreg-kb)'
+copyright = 'The Windows Registry knowledge base (winreg-kb) authors'
 version = winregrc.__version__
 release = winregrc.__version__
 
