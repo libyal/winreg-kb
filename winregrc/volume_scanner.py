@@ -1,71 +1,63 @@
 # -*- coding: utf-8 -*-
-"""Windows volume collector."""
+"""Windows Registry volume scanner."""
+
+from dfimagetools import windows_registry
 
 from dfvfs.helpers import command_line as dfvfs_command_line
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 from dfvfs.lib import definitions as dfvfs_definitions
 from dfvfs.lib import errors as dfvfs_errors
-from dfvfs.path import factory as dfvfs_path_spec_factory
 from dfvfs.resolver import resolver as dfvfs_resolver
 
 from dfwinreg import interface as dfwinreg_interface
-from dfwinreg import creg as dfwinreg_creg
-from dfwinreg import regf as dfwinreg_regf
 from dfwinreg import registry as dfwinreg_registry
 
 
-class CollectorRegistryFileReader(dfwinreg_interface.WinRegistryFileReader):
-  """Collector-based Windows Registry file reader."""
+class SingleFileWindowsRegistryFileReader(
+    dfwinreg_interface.WinRegistryFileReader):
+  """Single file Windows Registry file reader."""
 
-  def __init__(self, volume_scanner):
-    """Initializes a Windows Registry file reader object.
+  def __init__(self, path):
+    """Initializes a single file Windows Registry file reader.
 
     Args:
-      volume_scanner (dfvfs.WindowsVolumeScanner): Windows volume scanner.
+      path (str): path of the Windows Registry file.
     """
-    super(CollectorRegistryFileReader, self).__init__()
-    self._volume_scanner = volume_scanner
+    super(SingleFileWindowsRegistryFileReader, self).__init__()
+    self._path = path
 
   def Open(self, path, ascii_codepage='cp1252'):
     """Opens the Windows Registry file specified by the path.
 
     Args:
-      path (str): path of the Windows Registry file. The path is a Windows
-          path relative to the root of the file system that contains the
-          specific Windows Registry file, such as:
-          C:\\Windows\\System32\\config\\SYSTEM
+      path (str): path of the Windows Registry file. The path is a Windows path
+          relative to the root of the file system that contains the specific
+          Windows Registry file. E.g. C:\\Windows\\System32\\config\\SYSTEM
       ascii_codepage (Optional[str]): ASCII string codepage.
 
     Returns:
-      WinRegistryFile: Windows Registry file or None the file does not exist or
-          cannot be opened.
+      WinRegistryFile: Windows Registry file or None if the file cannot
+          be opened.
     """
-    registry_file = None
+    file_object = open(self._path, 'rb')  # pylint: disable=consider-using-with
+    if file_object is None:
+      return None
 
-    file_object = self._volume_scanner.OpenFile(path)
-    if file_object:
-      try:
-        registry_file = dfwinreg_regf.REGFWinRegistryFile(
-            ascii_codepage=ascii_codepage)
+    registry_file = windows_registry.WindowsRegistryFile(
+        ascii_codepage=ascii_codepage)
 
-        registry_file.Open(file_object)
-      except IOError:
-        registry_file = None
-
-      if not registry_file:
-        try:
-          registry_file = dfwinreg_creg.CREGWinRegistryFile(
-              ascii_codepage=ascii_codepage)
-
-          registry_file.Open(file_object)
-        except IOError:
-          registry_file = None
+    try:
+      registry_file.Open(file_object)
+      # Note that WindowsRegistryFile takes over management of file_object.
+    except IOError:
+      file_object.close()
+      return None
 
     return registry_file
 
 
-class WindowsRegistryCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
-  """Windows Registry collector.
+class WindowsRegistryVolumeScanner(dfvfs_volume_scanner.WindowsVolumeScanner):
+  """Windows Registry volume scanner.
 
   Attributes:
     registry (dfwinreg.WinRegistry): Windows Registry.
@@ -78,11 +70,10 @@ class WindowsRegistryCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
       mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
           mediator.
     """
-    super(WindowsRegistryCollector, self).__init__(mediator=mediator)
+    super(WindowsRegistryVolumeScanner, self).__init__(mediator=mediator)
     self._single_file = False
-    registry_file_reader = CollectorRegistryFileReader(self)
-    self.registry = dfwinreg_registry.WinRegistry(
-        registry_file_reader=registry_file_reader)
+
+    self.registry = None
 
   def IsSingleFileRegistry(self):
     """Determines if the Registry consists of a single file.
@@ -105,15 +96,6 @@ class WindowsRegistryCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
       ScannerError: if the scan node is invalid or the scanner does not know
           how to proceed.
     """
-    if self._single_file:
-      # TODO: check name of single file.
-      path_spec = dfvfs_path_spec_factory.Factory.NewPathSpec(
-          dfvfs_definitions.TYPE_INDICATOR_OS, location=self._source_path)
-      if path_spec is None:
-        return None
-
-      return dfvfs_resolver.Resolver.OpenFileObject(path_spec)
-
     windows_path_upper = windows_path.upper()
     if windows_path_upper.startswith('%USERPROFILE%'):
       if not self._mediator:
@@ -133,7 +115,7 @@ class WindowsRegistryCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
 
       # TODO: list users and determine corresponding windows_path
 
-    return super(WindowsRegistryCollector, self).OpenFile(windows_path)
+    return super(WindowsRegistryVolumeScanner, self).OpenFile(windows_path)
 
   def ScanForWindowsVolume(self, source_path, options=None):
     """Scans for a Windows volume.
@@ -152,19 +134,30 @@ class WindowsRegistryCollector(dfvfs_volume_scanner.WindowsVolumeScanner):
           is not a file or directory, or if the format of or within
           the source file is not supported.
     """
-    result = super(WindowsRegistryCollector, self).ScanForWindowsVolume(
+    result = super(WindowsRegistryVolumeScanner, self).ScanForWindowsVolume(
         source_path, options=options)
 
+    registry_file_reader = None
     if self._source_type == dfvfs_definitions.SOURCE_TYPE_FILE:
       self._single_file = True
-      return True
 
-    return result
+      registry_file_reader = SingleFileWindowsRegistryFileReader(source_path)
+
+    elif result:
+      registry_file_reader = (
+          windows_registry.StorageMediaImageWindowsRegistryFileReader(
+              self._file_system, self._path_resolver))
+
+    if registry_file_reader:
+      self.registry = dfwinreg_registry.WinRegistry(
+          registry_file_reader=registry_file_reader)
+
+    return bool(registry_file_reader)
 
 
-class WindowsRegistryCollectorMediator(
+class WindowsRegistryVolumeScannerMediator(
     dfvfs_command_line.CLIVolumeScannerMediator):
-  """Windows Registry collector mediator."""
+  """Windows Registry volume scanner mediator."""
 
   def PrintUsersSubDirectoriesOverview(self, users_file_entry):
     """Prints an overview of the Users sub directories.

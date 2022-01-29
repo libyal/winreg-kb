@@ -8,9 +8,9 @@ import sys
 
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
-from winregrc import collector
 from winregrc import output_writers
 from winregrc import type_libraries
+from winregrc import volume_scanner
 
 
 def Main():
@@ -52,18 +52,18 @@ def Main():
     print('')
     return False
 
-  mediator = collector.WindowsRegistryCollectorMediator()
-  registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
+  mediator = volume_scanner.WindowsRegistryVolumeScannerMediator()
+  scanner = volume_scanner.WindowsRegistryVolumeScanner(mediator=mediator)
 
   volume_scanner_options = dfvfs_volume_scanner.VolumeScannerOptions()
   volume_scanner_options.partitions = ['all']
   volume_scanner_options.snapshots = ['none']
   volume_scanner_options.volumes = ['none']
 
-  if not registry_collector.ScanForWindowsVolume(
+  if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print('Unable to retrieve the Windows Registry from: {0:s}.'.format(
-        options.source))
+    print(('Unable to retrieve the volume with the Windows directory from: '
+           '{0:s}.').format(options.source))
     print('')
     return False
 
@@ -71,7 +71,7 @@ def Main():
   collector_object = type_libraries.TypeLibrariesCollector(
       debug=options.debug, output_writer=output_writer)
 
-  result = collector_object.Collect(registry_collector.registry)
+  result = collector_object.Collect(scanner.registry)
   if not result:
     print('No TypeLib key found.')
   else:

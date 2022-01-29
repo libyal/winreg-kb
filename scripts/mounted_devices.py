@@ -8,9 +8,9 @@ import sys
 
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
-from winregrc import collector
 from winregrc import mounted_devices
 from winregrc import output_writers
+from winregrc import volume_scanner
 
 
 class StdoutWriter(output_writers.StdoutOutputWriter):
@@ -78,18 +78,18 @@ def Main():
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  mediator = collector.WindowsRegistryCollectorMediator()
-  registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
+  mediator = volume_scanner.WindowsRegistryVolumeScannerMediator()
+  scanner = volume_scanner.WindowsRegistryVolumeScanner(mediator=mediator)
 
   volume_scanner_options = dfvfs_volume_scanner.VolumeScannerOptions()
   volume_scanner_options.partitions = ['all']
   volume_scanner_options.snapshots = ['none']
   volume_scanner_options.volumes = ['none']
 
-  if not registry_collector.ScanForWindowsVolume(
+  if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print('Unable to retrieve the Windows Registry from: {0:s}.'.format(
-        options.source))
+    print(('Unable to retrieve the volume with the Windows directory from: '
+           '{0:s}.').format(options.source))
     print('')
     return False
 
@@ -105,7 +105,7 @@ def Main():
 
   try:
     has_results = False
-    for mounted_device in collector_object.Collect(registry_collector.registry):
+    for mounted_device in collector_object.Collect(scanner.registry):
       output_writer_object.WriteMountedDevice(mounted_device)
       has_results = True
 

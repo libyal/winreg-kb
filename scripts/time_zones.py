@@ -8,9 +8,9 @@ import sys
 
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
-from winregrc import collector
 from winregrc import time_zones
 from winregrc import output_writers
+from winregrc import volume_scanner
 
 
 class CSVFileWriter(output_writers.OutputWriter):
@@ -144,26 +144,25 @@ def Main():
     print('')
     return False
 
-  mediator = collector.WindowsRegistryCollectorMediator()
-  registry_collector = collector.WindowsRegistryCollector(mediator=mediator)
+  mediator = volume_scanner.WindowsRegistryVolumeScannerMediator()
+  scanner = volume_scanner.WindowsRegistryVolumeScanner(mediator=mediator)
 
   volume_scanner_options = dfvfs_volume_scanner.VolumeScannerOptions()
   volume_scanner_options.partitions = ['all']
   volume_scanner_options.snapshots = ['none']
   volume_scanner_options.volumes = ['none']
 
-  if not registry_collector.ScanForWindowsVolume(
+  if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print('Unable to retrieve the Windows Registry from: {0:s}.'.format(
-        options.source))
+    print(('Unable to retrieve the volume with the Windows directory from: '
+           '{0:s}.').format(options.source))
     print('')
     return False
 
   # TODO: map collector to available Registry keys.
   collector_object = time_zones.TimeZonesCollector(debug=options.debug)
 
-  result = collector_object.Collect(
-      registry_collector.registry, output_writer_object)
+  result = collector_object.Collect(scanner.registry, output_writer_object)
   if not result:
     print('No "Time Zones" key found.')
 
