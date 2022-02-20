@@ -116,12 +116,6 @@ members:
   _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
       yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
 
-  _POINT3D = _DATA_TYPE_FABRIC.CreateDataTypeMap('point3d')
-
-  _POINT3D_SIZE = _POINT3D.GetByteSize()
-
-  _SHAPE3D = _DATA_TYPE_FABRIC.CreateDataTypeMap('shape3d')
-
   def testDebugPrintData(self):
     """Tests the _DebugPrintData function."""
     output_writer = test_lib.TestOutputWriter()
@@ -181,14 +175,16 @@ members:
     test_format = data_format.BinaryDataFormat(
         debug=True, output_writer=output_writer)
 
+    data_type_map = self._DATA_TYPE_FABRIC.CreateDataTypeMap('point3d')
+
     test_format._ReadStructureFromByteStream(
         b'\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00', 0,
-        self._POINT3D, 'point3d')
+        data_type_map, 'point3d')
 
     # Test with missing byte stream.
     with self.assertRaises(ValueError):
       test_format._ReadStructureFromByteStream(
-          None, 0, self._POINT3D, 'point3d')
+          None, 0, data_type_map, 'point3d')
 
     # Test with missing data map type.
     with self.assertRaises(ValueError):

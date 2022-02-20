@@ -405,7 +405,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     if not self._cached_entry_data_type_map:
       raise errors.ParseError('Unable to determine cached entry data type.')
 
-    cached_entry_size = self._cached_entry_data_type_map.GetByteSize()
+    cached_entry_size = self._cached_entry_data_type_map.GetSizeHint()
     cached_entry_end_offset = cached_entry_offset + cached_entry_size
     cached_entry_data = value_data[cached_entry_offset:cached_entry_end_offset]
 
@@ -572,16 +572,17 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
           'Unsupported format type: {0:d}'.format(format_type))
 
     data_type_map = self._GetDataTypeMap(data_type_map_name)
+    context = dtfabric_data_maps.DataTypeMapContext()
 
     try:
       header = self._ReadStructureFromByteStream(
-          value_data, 0, data_type_map, 'header')
+          value_data, 0, data_type_map, 'header', context=context)
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
           'Unable to parse header value with error: {0!s}'.format(
               exception))
 
-    header_data_size = data_type_map.GetByteSize()
+    header_data_size = context.byte_size
     if format_type == self._FORMAT_TYPE_10:
       header_data_size = header.signature
 

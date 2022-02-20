@@ -4,6 +4,8 @@
 import logging
 import uuid
 
+from dtfabric.runtime import data_maps as dtfabric_data_maps
+
 import pyfwsi
 
 from winregrc import data_format
@@ -71,7 +73,7 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
       ParseError: if the entry footer could not be parsed.
     """
     data_type_map = self._GetDataTypeMap('programscache_entry_footer')
-    data_size = data_type_map.GetByteSize()
+    data_size = data_type_map.GetSizeHint()
 
     if self._debug:
       self._DebugPrintData(
@@ -108,7 +110,7 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
       ParseError: if the header could not be parsed.
     """
     data_type_map = self._GetDataTypeMap('programscache_header')
-    data_size = data_type_map.GetByteSize()
+    data_size = data_type_map.GetSizeHint()
 
     if self._debug:
       self._DebugPrintData('Header data', value_data[:data_size])
@@ -148,17 +150,18 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
 
     elif header.format_version == 9:
       data_type_map = self._GetDataTypeMap('programscache_header9')
+      context = dtfabric_data_maps.DataTypeMapContext()
 
       try:
         header9 = self._ReadStructureFromByteStream(
             value_data[value_data_offset:], value_data_offset, data_type_map,
-            'header9')
+            'header9', context=context)
       except (ValueError, errors.ParseError) as exception:
         raise errors.ParseError(
             'Unable to parse header9 value with error: {0!s}'.format(
                 exception))
 
-      value_data_offset += data_type_map.GetByteSize()
+      value_data_offset += context.byte_size
 
       if self._debug:
         value_string = '0x{0:08x}'.format(header9.unknown1)
@@ -190,11 +193,12 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
         break
 
       data_type_map = self._GetDataTypeMap('programscache_entry_header')
+      context = dtfabric_data_maps.DataTypeMapContext()
 
       try:
         entry_header = self._ReadStructureFromByteStream(
             value_data[value_data_offset:], value_data_offset, data_type_map,
-            'entry header')
+            'entry header', context=context)
       except (ValueError, errors.ParseError) as exception:
         raise errors.ParseError(
             'Unable to parse entry header value with error: {0!s}'.format(
@@ -206,7 +210,7 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
 
         self._DebugPrintEntryHeader(entry_header)
 
-      value_data_offset += data_type_map.GetByteSize()
+      value_data_offset += context.byte_size
 
       entry_data_size = entry_header.data_size
 

@@ -119,10 +119,11 @@ class UserAssistDataParser(data_format.BinaryDataFormat):
     """
     if format_version == 3:
       data_type_map = self._GetDataTypeMap('user_assist_entry_v3')
+      entry_data_size = 16
     elif format_version == 5:
       data_type_map = self._GetDataTypeMap('user_assist_entry_v5')
+      entry_data_size = 72
 
-    entry_data_size = data_type_map.GetByteSize()
     if entry_data_size != len(entry_data):
       raise errors.ParseError((
           'Version: {0:d} size mismatch (calculated: {1:d}, '
