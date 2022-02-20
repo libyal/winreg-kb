@@ -1,23 +1,38 @@
 # -*- coding: utf-8 -*-
 """Catalog collector."""
 
+import re
+
 
 class CatalogKeyDescriptor(object):
   """Catalog key descriptor.
 
   Attributes:
+    grouped_key_paths (list[str]): paths of Windows Registry keys with similar
+        values.
     key_path (str): path of Windows Registry key.
+    value_descriptors (tuple[str,str]): pairs of value name and data type.
   """
 
   def __init__(self):
     """Initializes a catalog key descriptor."""
     super(CatalogKeyDescriptor, self).__init__()
+    self.grouped_key_paths = []
     self.key_path = None
     self.value_descriptors = []
 
 
 class CatalogCollector(object):
   """Catalog collector."""
+
+  def __init__(self, group_keys=False):
+    """Initializes a catalog collector.
+
+    Args:
+      group_keys (bool): group keys with similar values.
+    """
+    super(CatalogCollector, self).__init__()
+    self._group_keys = group_keys
 
   def _CollectCatalogKeyDescriptors(self, registry_key):
     """Collects the catalog key descriptors from a Windows Registry key.
@@ -51,5 +66,30 @@ class CatalogCollector(object):
     Yields:
       CatalogKeyDescriptor: catalog key descriptor.
     """
-    for key_descriptor in self._CollectCatalogKeyDescriptors(root_key):
-      yield key_descriptor
+    if not self._group_keys:
+      for key_descriptor in self._CollectCatalogKeyDescriptors(root_key):
+        yield key_descriptor
+
+    else:
+      alphanumeric_compare = lambda key: [
+          int(text) if text.isdigit() else text.lower()
+          for text in re.split('([0-9]+)', key[0])]
+
+      key_descriptors_per_value_hash = {}
+
+      for key_descriptor in self._CollectCatalogKeyDescriptors(root_key):
+        values_hash = hash('\n'.join([
+            '\t'.join([value_name, data_type_string])
+            for value_name, data_type_string in sorted(
+                key_descriptor.value_descriptors, key=alphanumeric_compare)]))
+
+        matching_key_descriptor = key_descriptors_per_value_hash.get(
+            values_hash, None)
+        if matching_key_descriptor:
+          matching_key_descriptor.grouped_key_paths.append(
+              key_descriptor.key_path)
+        else:
+          key_descriptors_per_value_hash[values_hash] = key_descriptor
+
+      for key_descriptor in key_descriptors_per_value_hash.values():
+        yield key_descriptor

@@ -102,58 +102,35 @@ def Main():
       print('')
       return False
 
-    collector_object = catalog.CatalogCollector()
+    collector_object = catalog.CatalogCollector(group_keys=options.group_keys)
+
+    alphanumeric_compare = lambda key: [
+        int(text) if text.isdigit() else text.lower()
+        for text in re.split('([0-9]+)', key[0])]
 
     try:
-      key_descriptors = list(collector_object.Collect(root_key))
+      has_results = False
+      for key_descriptor in collector_object.Collect(root_key):
+        output_writer_object.WriteKeyPath(key_descriptor.key_path)
+
+        for key_path in key_descriptor.grouped_key_paths:
+          output_writer_object.WriteKeyPath(key_path)
+
+        for value_name, data_type_string in sorted(
+            key_descriptor.value_descriptors, key=alphanumeric_compare):
+          output_writer_object.WriteValueDescriptor(
+              value_name, data_type_string)
+
+        if options.group_keys:
+          output_writer_object.WriteText('\n')
+
+        has_results = True
 
     finally:
       output_writer_object.Close()
 
-  alphanumeric_compare = lambda key: [
-      int(text) if text.isdigit() else text.lower()
-      for text in re.split('([0-9]+)', key[0])]
-
-  if not key_descriptors:
+  if not has_results:
     print('No keys and values found.')
-
-  elif options.group_keys:
-    value_descriptors_per_value_hash = {}
-    key_paths_per_value_hash = {}
-
-    for key_descriptor in key_descriptors:
-      values_hash = hash('\n'.join([
-          '\t'.join([value_name, data_type_string])
-          for value_name, data_type_string in sorted(
-              key_descriptor.value_descriptors, key=alphanumeric_compare)]))
-
-      matching_key_paths = key_paths_per_value_hash.get(values_hash, None)
-      if matching_key_paths:
-        matching_key_paths.append(key_descriptor.key_path)
-      else:
-        key_paths_per_value_hash[values_hash] = [key_descriptor.key_path]
-        value_descriptors_per_value_hash[values_hash] = (
-            key_descriptor.value_descriptors)
-
-    for values_hash, key_paths in key_paths_per_value_hash.items():
-      for key_path in key_paths:
-        output_writer_object.WriteKeyPath(key_path)
-
-      value_descriptors = value_descriptors_per_value_hash[values_hash]
-      for value_name, data_type_string in sorted(
-          value_descriptors, key=alphanumeric_compare):
-        output_writer_object.WriteValueDescriptor(
-            value_name, data_type_string)
-
-      output_writer_object.WriteText('\n')
-
-  else:
-    for key_descriptor in key_descriptors:
-      output_writer_object.WriteKeyPath(key_descriptor.key_path)
-      for value_name, data_type_string in sorted(
-          key_descriptor.value_descriptors, key=alphanumeric_compare):
-        output_writer_object.WriteValueDescriptor(
-            value_name, data_type_string)
 
   return True
 
