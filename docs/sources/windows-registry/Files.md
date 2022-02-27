@@ -37,7 +37,7 @@ Filename | Path | Description | Corresponding Registry Key | Windows version
 --- | --- | --- | --- | ---
 Amcache.hve | %SystemRoot%\AppCompat\Programs | *TODO* | | 8, 10
 BBI | %SystemRoot%\System32\config | *TODO* | | 10
-BCD | \Boot (on boot volume) | Boot Configuration Data (BCD) | | Vista, 7
+BCD | \Boot or \EFI\Microsoft\Boot (on boot volume) | Boot Configuration Data (BCD) | `HKEY_LOCAL_MACHINE\BCD00000000` | Windows Vista and later
 default | %SystemRoot%\System32\config | *TODO* | | NT 4 and later
 DRIVERS | %SystemRoot%\System32\config | *TODO* | | 10
 ELAM | %SystemRoot%\System32\config | *TODO* | | 10

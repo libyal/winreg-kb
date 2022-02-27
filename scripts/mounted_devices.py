@@ -30,7 +30,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
           mounted_device.disk_identity)
       self.WriteText(text)
 
-      text = 'MBR dartition offset\t\t: {0:d} (0x{0:08x})\n'.format(
+      text = 'MBR partition offset\t\t: {0:d} (0x{0:08x})\n'.format(
           mounted_device.partition_offset)
       self.WriteText(text)
 
