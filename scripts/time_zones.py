@@ -39,8 +39,8 @@ class CSVFileWriter(output_writers.OutputWriter):
     Returns:
       bool: True if successful or False if not.
     """
-    # self._file_object = open(self._path, 'wt')
-    self._file_object = open(self._path, 'at')  # pylint: disable=consider-using-with
+    # self._file_object = open(self._path, 'wt', encoding='utf-8')
+    self._file_object = open(self._path, 'at', encoding='utf-8')  # pylint: disable=consider-using-with
     return True
 
   def WriteTimeZone(self, time_zone):
