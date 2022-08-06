@@ -36,26 +36,10 @@ winregrc.catalog module
    :undoc-members:
    :show-inheritance:
 
-winregrc.collector module
--------------------------
-
-.. automodule:: winregrc.collector
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 winregrc.data\_format module
 ----------------------------
 
 .. automodule:: winregrc.data_format
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-winregrc.dfvfs\_pyregf module
------------------------------
-
-.. automodule:: winregrc.dfvfs_pyregf
    :members:
    :undoc-members:
    :show-inheritance:
@@ -240,6 +224,14 @@ winregrc.userassist module
 --------------------------
 
 .. automodule:: winregrc.userassist
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+winregrc.volume\_scanner module
+-------------------------------
+
+.. automodule:: winregrc.volume_scanner
    :members:
    :undoc-members:
    :show-inheritance:

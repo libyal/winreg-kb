@@ -209,6 +209,7 @@ setup(
     version=winregrc.__version__,
     description=winregrc_description,
     long_description=winregrc_long_description,
+    long_description_content_type='text/plain',
     license='Apache License, Version 2.0',
     url='https://github.com/libyal/winreg-kb',
     maintainer='Joachim Metz',
