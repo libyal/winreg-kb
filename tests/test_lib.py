@@ -40,7 +40,7 @@ class BaseTestCase(unittest.TestCase):
     """
     if not os.path.exists(path):
       filename = os.path.basename(path)
-      raise unittest.SkipTest('missing test file: {0:s}'.format(filename))
+      raise unittest.SkipTest(f'missing test file: {filename:s}')
 
 
 class TestOutputWriter(output_writers.StdoutOutputWriter):

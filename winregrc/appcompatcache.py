@@ -146,23 +146,20 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     self._DebugPrintDecimalValue(
         'Maximum path size', cached_entry.maximum_path_size)
 
-    value_string = '0x{0:08x}'.format(cached_entry.path_offset)
-    self._DebugPrintValue('Path offset', value_string)
+    self._DebugPrintValue('Path offset', f'0x{cached_entry.path_offset:08x}')
 
     if hasattr(cached_entry, 'file_size'):
       self._DebugPrintDecimalValue('File size', cached_entry.file_size)
 
     if hasattr(cached_entry, 'insertion_flags'):
-      value_string = '0x{0:08x}'.format(cached_entry.insertion_flags)
-      self._DebugPrintValue('Insertion flags', value_string)
+      self._DebugPrintValue(
+          'Insertion flags', f'0x{cached_entry.insertion_flags:08x}')
 
     if hasattr(cached_entry, 'shim_flags'):
-      value_string = '0x{0:08x}'.format(cached_entry.shim_flags)
-      self._DebugPrintValue('Shim flags', value_string)
+      self._DebugPrintValue('Shim flags', f'0x{cached_entry.shim_flags:08x}')
 
     if hasattr(cached_entry, 'data_offset'):
-      value_string = '0x{0:08x}'.format(cached_entry.data_offset)
-      self._DebugPrintValue('Data offset', value_string)
+      self._DebugPrintValue('Data offset', f'0x{cached_entry.data_offset:08x}')
 
     if hasattr(cached_entry, 'data_size'):
       self._DebugPrintDecimalValue('Data size', cached_entry.data_size)
@@ -182,8 +179,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     self._DebugPrintValue(
         'Signature', cached_entry_header.signature.decode('ascii'))
 
-    value_string = '0x{0:08x}'.format(cached_entry_header.unknown1)
-    self._DebugPrintValue('Unknown1', value_string)
+    self._DebugPrintValue('Unknown1', f'0x{cached_entry_header.unknown1:08x}')
 
     self._DebugPrintDecimalValue(
         'Cached entry data size', cached_entry_header.cached_entry_data_size)
@@ -193,16 +189,15 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     self._DebugPrintValue('Path', cached_entry_body.path.rstrip('\x00'))
 
     if hasattr(cached_entry_body, 'insertion_flags'):
-      value_string = '0x{0:08x}'.format(cached_entry_body.insertion_flags)
-      self._DebugPrintValue('Insertion flags', value_string)
+      self._DebugPrintValue(
+          'Insertion flags', f'0x{cached_entry_body.insertion_flags:08x}')
 
     if hasattr(cached_entry_body, 'shim_flags'):
-      value_string = '0x{0:08x}'.format(cached_entry_body.shim_flags)
-      self._DebugPrintValue('Shim flags', value_string)
+      self._DebugPrintValue(
+          'Shim flags', f'0x{cached_entry_body.shim_flags:08x}')
 
     if hasattr(cached_entry_body, 'unknown1'):
-      value_string = '0x{0:04x}'.format(cached_entry_body.unknown1)
-      self._DebugPrintValue('Unknown1', value_string)
+      self._DebugPrintValue('Unknown1', f'0x{cached_entry_body.unknown1:04x}')
 
     self._DebugPrintFiletimeValue(
         'Last modification time', cached_entry_body.last_modification_time)
@@ -222,8 +217,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     if format_type == self._FORMAT_TYPE_10:
       self._DebugPrintDecimalValue('Header size', header.signature)
     else:
-      value_string = '0x{0:08x}'.format(header.signature)
-      self._DebugPrintValue('Signature', value_string)
+      self._DebugPrintValue('Signature', f'0x{header.signature:08x}')
 
     if format_type in (
         self._FORMAT_TYPE_XP, self._FORMAT_TYPE_2003, self._FORMAT_TYPE_VISTA,
@@ -233,15 +227,13 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
     if format_type == self._FORMAT_TYPE_XP:
       if self._debug:
-        value_string = '0x{0:08x}'.format(header.number_of_lru_entries)
-        self._DebugPrintValue('Number of LRU entries', value_string)
+        self._DebugPrintValue(
+            'Number of LRU entries', f'0x{header.number_of_lru_entries:08x}')
 
-        value_string = '0x{0:08x}'.format(header.unknown1)
-        self._DebugPrintValue('Unknown1', value_string)
+        self._DebugPrintValue('Unknown1', f'0x{header.unknown1:08x}')
 
     elif format_type == self._FORMAT_TYPE_8:
-      value_string = '0x{0:08x}'.format(header.unknown1)
-      self._DebugPrintValue('Unknown1', value_string)
+      self._DebugPrintValue('Unknown1', f'0x{header.unknown1:08x}')
 
     if format_type != self._FORMAT_TYPE_XP:
       self._DebugPrintText('\n')
@@ -265,8 +257,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       ParseError: if the cached entry data type map cannot be determined.
     """
     if format_type not in self._SUPPORTED_FORMAT_TYPES:
-      raise errors.ParseError('Unsupported format type: {0:d}'.format(
-          format_type))
+      raise errors.ParseError(f'Unsupported format type: {format_type:d}')
 
     data_type_map_name = ''
 
@@ -290,13 +281,13 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
       if format_type == self._FORMAT_TYPE_2003:
         data_type_map_name = (
-            'appcompatcache_cached_entry_2003_{0:s}bit'.format(number_of_bits))
+            f'appcompatcache_cached_entry_2003_{number_of_bits:s}bit')
       elif format_type == self._FORMAT_TYPE_VISTA:
         data_type_map_name = (
-            'appcompatcache_cached_entry_vista_{0:s}bit'.format(number_of_bits))
+            f'appcompatcache_cached_entry_vista_{number_of_bits:s}bit')
       elif format_type == self._FORMAT_TYPE_7:
         data_type_map_name = (
-            'appcompatcache_cached_entry_7_{0:s}bit'.format(number_of_bits))
+            f'appcompatcache_cached_entry_7_{number_of_bits:s}bit')
 
     return self._GetDataTypeMap(data_type_map_name)
 
@@ -326,8 +317,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
           'cached entry')
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse cached entry value with error: {0!s}'.format(
-              exception))
+          f'Unable to parse cached entry value with error: {exception!s}')
 
     if cached_entry.path_size > cached_entry.maximum_path_size:
       raise errors.ParseError('Path size value out of bounds.')
@@ -358,8 +348,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
           value_data, 0, data_type_map, 'signature')
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse signature value with error: {0!s}'.format(
-              exception))
+          f'Unable to parse signature value with error: {exception!s}')
 
     format_type = self._HEADER_SIGNATURES.get(signature, None)
 
@@ -411,7 +400,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
 
     if self._debug:
       if format_type not in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
-        description = 'Cached entry: {0:d} data'.format(cached_entry_index)
+        description = f'Cached entry: {cached_entry_index:d} data'
         self._DebugPrintData(description, cached_entry_data)
 
     try:
@@ -421,20 +410,17 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     except (ValueError, errors.ParseError) as exception:
       if self._debug:
         if format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
-          description = 'Cached entry: {0:d} header data'.format(
-              cached_entry_index)
+          description = f'Cached entry: {cached_entry_index:d} header data'
           self._DebugPrintData(description, cached_entry_data)
 
       raise errors.ParseError(
-          'Unable to parse cached entry value with error: {0!s}'.format(
-              exception))
+          f'Unable to parse cached entry value with error: {exception!s}')
 
     if format_type in (self._FORMAT_TYPE_8, self._FORMAT_TYPE_10):
       if cached_entry.signature not in (
           self._CACHED_ENTRY_SIGNATURE_8_0, self._CACHED_ENTRY_SIGNATURE_8_1):
         if self._debug:
-          description = 'Cached entry: {0:d} header data'.format(
-              cached_entry_index)
+          description = f'Cached entry: {cached_entry_index:d} header data'
           self._DebugPrintData(description, cached_entry_data)
 
         raise errors.ParseError('Unsupported cache entry signature')
@@ -502,7 +488,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
           cached_entry_offset:cached_entry_end_offset]
 
       if self._debug:
-        description = 'Cached entry: {0:d} data'.format(cached_entry_index)
+        description = f'Cached entry: {cached_entry_index:d} data'
         self._DebugPrintData(description, cached_entry_data)
 
       if format_type == self._FORMAT_TYPE_10:
@@ -521,8 +507,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
             data_type_map, 'cached entry body', context=context)
       except (ValueError, errors.ParseError) as exception:
         raise errors.ParseError(
-            'Unable to parse cached entry body with error: {0!s}'.format(
-                exception))
+            f'Unable to parse cached entry body with error: {exception!s}')
 
       if self._debug:
         self._DebugPrintCachedEntry8(cached_entry, cached_entry_body)
@@ -568,8 +553,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     """
     data_type_map_name = self._HEADER_DATA_TYPE_MAP_NAMES.get(format_type, None)
     if not data_type_map_name:
-      raise errors.ParseError(
-          'Unsupported format type: {0:d}'.format(format_type))
+      raise errors.ParseError(f'Unsupported format type: {format_type:d}')
 
     data_type_map = self._GetDataTypeMap(data_type_map_name)
     context = dtfabric_data_maps.DataTypeMapContext()
@@ -579,8 +563,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
           value_data, 0, data_type_map, 'header', context=context)
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse header value with error: {0!s}'.format(
-              exception))
+          f'Unable to parse header value with error: {exception!s}')
 
     header_data_size = context.byte_size
     if format_type == self._FORMAT_TYPE_10:
@@ -610,15 +593,14 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
                 data_type_map, 'LRU entry')
           except (ValueError, errors.ParseError) as exception:
             raise errors.ParseError(
-                'Unable to parse LRU entry value with error: {0!s}'.format(
-                    exception))
+                f'Unable to parse LRU entry value with error: {exception!s}')
 
           data_offset += 4
 
           if self._debug:
-            description = 'LRU entry: {0:d}'.format(lru_entry_index)
-            value_string = '{0:d} (offset: 0x{1:08x})'.format(
-                lru_entry, 400 + (lru_entry * 552))
+            offset_value = 400 + (lru_entry * 552)
+            description = f'LRU entry: {lru_entry_index:d}'
+            value_string = f'{lru_entry:d} (offset: 0x{offset_value:08x})'
             self._DebugPrintValue(description, value_string)
 
         if self._debug:
@@ -665,8 +647,8 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
     """
     value = app_compat_cache_key.GetValueByName('AppCompatCache')
     if not value:
-      logging.warning('Missing AppCompatCache value in key: {0:s}'.format(
-          app_compat_cache_key.path))
+      logging.warning(
+          f'Missing AppCompatCache value in key: {app_compat_cache_key.path:s}')
       return True
 
     value_data = value.data

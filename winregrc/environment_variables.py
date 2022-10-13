@@ -68,9 +68,8 @@ class EnvironmentVariablesCollector(interface.WindowsRegistryKeyCollector):
       EnvironmentVariable: an environment variable.
     """
     for registry_value in registry_key.GetValues():
-      environment_variable_name = '%{0:s}%'.format(registry_value.name)
       value_string = registry_value.GetDataAsObject()
-      yield EnvironmentVariable(environment_variable_name, value_string)
+      yield EnvironmentVariable(f'%{registry_value.name:s}%', value_string)
 
   def _CollectEnvironmentVariablesWithMappings(self, registry_key, mappings):
     """Collects environment variables.

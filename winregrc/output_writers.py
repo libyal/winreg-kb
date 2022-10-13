@@ -40,8 +40,7 @@ class OutputWriter(object):
         if isinstance(byte_value, str):
           byte_value = ord(byte_value)
 
-        hexadecimal_byte_value = '{0:02x}'.format(byte_value)
-        hexadecimal_byte_values.append(hexadecimal_byte_value)
+        hexadecimal_byte_values.append(f'{byte_value:02x}')
 
         printable_value = self._HEXDUMP_CHARACTER_MAP[byte_value]
         printable_values.append(printable_value)
@@ -56,8 +55,9 @@ class OutputWriter(object):
 
       hexadecimal_string_part1 = ' '.join(hexadecimal_byte_values[0:8])
       hexadecimal_string_part2 = ' '.join(hexadecimal_byte_values[8:16])
-      hexadecimal_string = '{0:s}  {1:s}{2:s}'.format(
-          hexadecimal_string_part1, hexadecimal_string_part2, whitespace)
+      hexadecimal_string = (
+          f'{hexadecimal_string_part1:s}  {hexadecimal_string_part2:s}'
+          f'{whitespace:s}')
 
       if (previous_hexadecimal_string is not None and
           previous_hexadecimal_string == hexadecimal_string and
@@ -71,8 +71,9 @@ class OutputWriter(object):
       else:
         printable_string = ''.join(printable_values)
 
-        lines.append('0x{0:08x}  {1:s}  {2:s}'.format(
-            block_index, hexadecimal_string, printable_string))
+        lines.append(
+            f'0x{block_index:08x}  {hexadecimal_string:s}  '
+            f'{printable_string:s}')
 
         in_group = False
         previous_hexadecimal_string = hexadecimal_string
@@ -91,8 +92,10 @@ class OutputWriter(object):
       description (str): description.
       data (bytes): data.
     """
-    self.WriteText('{0:s}:\n'.format(description))
-    self.WriteText(self._FormatDataInHexadecimal(data))
+    self.WriteText(f'{description:s}:\n')
+
+    value_string = self._FormatDataInHexadecimal(data)
+    self.WriteText(value_string)
 
   def DebugPrintValue(self, description, value):
     """Prints a value for debugging.
@@ -102,10 +105,8 @@ class OutputWriter(object):
       value (object): value.
     """
     alignment, _ = divmod(len(description), 8)
-    alignment = 8 - alignment + 1
-    text = '{0:s}{1:s}: {2!s}\n'.format(
-        description, '\t' * alignment, value)
-    self.WriteText(text)
+    alignment_string = '\t' * (8 - alignment + 1)
+    self.WriteText(f'{description:s}{alignment_string:s}: {value!s}\n')
 
   def DebugPrintText(self, text):
     """Prints text for debugging.
@@ -211,9 +212,9 @@ class StdoutOutputWriter(OutputWriter):
       date_time = dfdatetime_filetime.Filetime(timestamp=value)
       date_time_string = date_time.CopyToDateTimeString()
       if date_time_string:
-        date_time_string = '{0:s} UTC'.format(date_time_string)
+        date_time_string = f'{date_time_string:s} UTC'
       else:
-        date_time_string = '0x{08:x}'.format(value)
+        date_time_string = f'0x{value:08x}'
 
     self.WriteValue(description, date_time_string)
 
@@ -224,8 +225,7 @@ class StdoutOutputWriter(OutputWriter):
       description (str): description to write.
       value (int): value to write.
     """
-    value_string = '{0:d}'.format(value)
-    self.WriteValue(description, value_string)
+    self.WriteValue(description, f'{value:d}')
 
   def WriteValue(self, description, value):
     """Writes a value.
@@ -236,9 +236,8 @@ class StdoutOutputWriter(OutputWriter):
     """
     description_no_tabs = description.replace('\t', ' ' * 8)
     alignment, _ = divmod(len(description_no_tabs), 8)
-    alignment = 8 - alignment + 1
-    text = '{0:s}{1:s}: {2!s}\n'.format(description, '\t' * alignment, value)
-    self.WriteText(text)
+    alignment_string = '\t' * (8 - alignment + 1)
+    self.WriteText(f'{description:s}{alignment_string:s}: {value!s}\n')
 
   def WriteText(self, text):
     """Writes text.
