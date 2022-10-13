@@ -57,12 +57,9 @@ class CSVFileWriter(output_writers.OutputWriter):
     else:
       sign = '+'
 
-    time_zone_offset_string = '{0:s}{1:02d}:{2:02d}'.format(
-        sign, hours_from_utc, minutes_from_utc)
-
-    text = '{0:s},{1:s}\n'.format(
-        time_zone.name, time_zone_offset_string)
-    self._file_object.write(text)
+    self._file_object.write((
+        f'{time_zone.name:s},{sign:s}{hours_from_utc:02d}:'
+        f'{minutes_from_utc:02d}\n'))
 
   def WriteText(self, text):
     """Writes text.
@@ -90,12 +87,9 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     else:
       sign = '+'
 
-    time_zone_offset_string = '{0:s}{1:02d}:{2:02d}'.format(
-        sign, hours_from_utc, minutes_from_utc)
-
-    text = '{0:s}\t{1:s}\n'.format(
-        time_zone.name, time_zone_offset_string)
-    self.WriteText(text)
+    self.WriteText((
+        f'{time_zone.name:s}\t{sign:s}{hours_from_utc:02d}:'
+        f'{minutes_from_utc:02d}\n'))
 
 
 def Main():
@@ -154,8 +148,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 

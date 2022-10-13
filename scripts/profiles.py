@@ -22,8 +22,9 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       user_profile (UserProfile): user profile.
     """
-    self.WriteText('{0:s}: {1:s}\n'.format(
-        user_profile.security_identifier, user_profile.home_directory))
+    self.WriteText((
+        f'{user_profile.security_identifier:s}: '
+        f'{user_profile.home_directory:s}\n'))
 
 
 def Main():
@@ -68,8 +69,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 

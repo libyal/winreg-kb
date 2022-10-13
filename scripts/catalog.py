@@ -24,8 +24,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       key_path (str): key path.
     """
-    text = '{0:s}\n'.format(key_path)
-    self.WriteText(text)
+    self.WriteText(f'{key_path:s}\n')
 
   def WriteValueDescriptor(self, value_name, value_data_type):
     """Writes a value descriptor to the output.
@@ -34,8 +33,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
       value_name (str): name of the value.
       value_data_type (str): data type of the value.
     """
-    text = '\t{0:s}\t{1:s}\n'.format(value_name, value_data_type)
-    self.WriteText(text)
+    self.WriteText(f'\t{value_name:s}\t{value_data_type:s}\n')
 
 
 def Main():

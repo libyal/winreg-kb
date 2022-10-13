@@ -23,54 +23,52 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
       eventlog_provider (EventLogProvider): Event Log provider.
     """
     if eventlog_provider.name:
-      text = 'Name\t\t\t\t: {0:s}\n'.format(eventlog_provider.name)
-      self.WriteText(text)
+      self.WriteText(f'Name\t\t\t\t: {eventlog_provider.name:s}\n')
 
     if eventlog_provider.identifier:
-      text = 'Identifier\t\t\t: {0:s}\n'.format(eventlog_provider.identifier)
-      self.WriteText(text)
+      self.WriteText(f'Identifier\t\t\t: {eventlog_provider.identifier:s}\n')
 
     if eventlog_provider.additional_identifier:
-      text = 'Additional identifier\t\t: {0:s}\n'.format(
-          eventlog_provider.additional_identifier)
-      self.WriteText(text)
+      self.WriteText((
+          f'Additional identifier\t\t: '
+          f'{eventlog_provider.additional_identifier:s}\n'))
 
     for index, log_type in enumerate(sorted(eventlog_provider.log_types)):
       if index == 0:
-        text = 'Log type(s)\t\t\t: {0:s}\n'.format(log_type)
+        text = f'Log type(s)\t\t\t: {log_type:s}\n'
       else:
-        text = '\t\t\t\t: {0:s}\n'.format(log_type)
+        text = f'\t\t\t\t: {log_type:s}\n'
       self.WriteText(text)
 
     for index, log_source in enumerate(sorted(eventlog_provider.log_sources)):
       if index == 0:
-        text = 'Log source(s)\t\t\t: {0:s}\n'.format(log_source)
+        text = f'Log source(s)\t\t\t: {log_source:s}\n'
       else:
-        text = '\t\t\t\t: {0:s}\n'.format(log_source)
+        text = f'\t\t\t\t: {log_source:s}\n'
       self.WriteText(text)
 
     for index, path in enumerate(sorted((
         eventlog_provider.category_message_files))):
       if index == 0:
-        text = 'Category message file(s)\t: {0:s}\n'.format(path)
+        text = f'Category message file(s)\t: {path:s}\n'
       else:
-        text = '\t\t\t\t: {0:s}\n'.format(path)
+        text = f'\t\t\t\t: {path:s}\n'
       self.WriteText(text)
 
     for index, path in enumerate(sorted((
         eventlog_provider.event_message_files))):
       if index == 0:
-        text = 'Event message file(s)\t\t: {0:s}\n'.format(path)
+        text = f'Event message file(s)\t\t: {path:s}\n'
       else:
-        text = '\t\t\t\t: {0:s}\n'.format(path)
+        text = f'\t\t\t\t: {path:s}\n'
       self.WriteText(text)
 
     for index, path in enumerate(sorted((
         eventlog_provider.parameter_message_files))):
       if index == 0:
-        text = 'Parameter message file(s)\t: {0:s}\n'.format(path)
+        text = f'Parameter message file(s)\t: {path:s}\n'
       else:
-        text = '\t\t\t\t: {0:s}\n'.format(path)
+        text = f'\t\t\t\t: {path:s}\n'
       self.WriteText(text)
 
     self.WriteText('\n')
@@ -117,8 +115,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 

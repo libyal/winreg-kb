@@ -69,8 +69,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 

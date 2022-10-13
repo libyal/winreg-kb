@@ -22,8 +22,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       srum_extension (SRUMExtension): SRUM extension.
     """
-    text = '{0:s}\t{1:s}\n'.format(srum_extension.guid, srum_extension.dll_name)
-    self.WriteText(text)
+    self.WriteText(f'{srum_extension.guid:s}\t{srum_extension.dll_name:s}\n')
 
 
 def Main():
@@ -79,8 +78,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 

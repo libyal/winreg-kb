@@ -118,7 +118,7 @@ class Sqlite3DatabaseFileWriter(object):
       self._connection.commit()
     else:
       # TODO: print duplicates.
-      logging.info('Ignoring duplicate: {0:s}'.format(shell_folder.guid))
+      logging.info(f'Ignoring duplicate: {shell_folder.guid:s}')
 
 
 class StdoutWriter(output_writers.StdoutOutputWriter):
@@ -130,8 +130,8 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       shell_folder (ShellFolder): the shell folder.
     """
-    print('{0:s}\t{1:s}\t{2:s}'.format(
-        shell_folder.guid, shell_folder.name, shell_folder.localized_string))
+    print((f'{shell_folder.guid:s}\t{shell_folder.name:s}\t'
+           f'{shell_folder.localized_string:s}'))
 
 
 def Main():
@@ -192,8 +192,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 

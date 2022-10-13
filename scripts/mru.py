@@ -32,15 +32,13 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       shell_item (pyfwsi.item): Shell Item to write.
     """
-    value_string = '0x{0:02x}'.format(shell_item.class_type)
-    self.WriteValue('Shell item', value_string)
+    self.WriteValue('Shell item', f'0x{shell_item.class_type:02x}')
 
     self.WriteIntegerValueAsDecimal(
         '\tNumber of extension blocks', shell_item.number_of_extension_blocks)
 
     for extension_block in shell_item.extension_blocks:
-      value_string = '0x{0:04x}'.format(extension_block.signature)
-      self.WriteValue('\tExtension block', value_string)
+      self.WriteValue('\tExtension block', f'0x{extension_block.signature:04x}')
 
 
 def Main():
@@ -93,8 +91,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 

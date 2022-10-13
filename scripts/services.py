@@ -42,38 +42,40 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
 
     if self._use_tsv:
       if not self._printed_header:
-        print('Service\tType\tDisplay name\tDescription\tExecutable\tStart')
+        print('\t'.join([
+            'Service', 'Type', 'Display name', 'Description', 'Executable',
+            'Start']))
         self._printed_header = True
 
       service_display_name = service.display_name or ''
       service_description = service.description or ''
       service_image_path = service.image_path or ''
 
-      print('{0:s}\t{1:s}\t{2:s}\t{3:s}\t{4:s}\t{5:s}'.format(
+      print('\t'.join([
           service.name, service_type_description, service_display_name,
-          service_description, service_image_path, start_value_description))
+          service_description, service_image_path, start_value_description]))
 
     else:
-      print('{0:s}'.format(service.name))
+      print(f'{service.name:s}')
 
       if service.service_type:
-        print('\tType\t\t\t: {0:s}'.format(service_type_description))
+        print(f'\tType\t\t\t: {service_type_description:s}')
 
       if service.display_name:
-        print('\tDisplay name\t\t: {0:s}'.format(service.display_name))
+        print(f'\tDisplay name\t\t: {service.display_name:s}')
 
       if service.description:
-        print('\tDescription\t\t: {0:s}'.format(service.description))
+        print(f'\tDescription\t\t: {service.description:s}')
 
       if service.image_path:
-        print('\tExecutable\t\t: {0:s}'.format(service.image_path))
+        print(f'\tExecutable\t\t: {service.image_path:s}')
 
       if service.object_name:
-        print('\t{0:s}\t\t: {1:s}'.format(
-            service.GetObjectNameDescription(), service.object_name))
+        object_name_description = service.GetObjectNameDescription()
+        print(f'\t{object_name_description:s}\t\t: {service.object_name:s}')
 
       if service.start_value is not None:
-        print('\tStart\t\t\t: {0:s}'.format(start_value_description))
+        print(f'\tStart\t\t\t: {start_value_description:s}')
 
       print('')
 
@@ -133,8 +135,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 

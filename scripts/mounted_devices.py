@@ -22,26 +22,22 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       mounted_device (MountedDevice): mounted device.
     """
-    text = 'Identifier\t\t\t: {0:s}\n'.format(mounted_device.identifier)
-    self.WriteText(text)
+    self.WriteText(f'Identifier\t\t\t: {mounted_device.identifier:s}\n')
 
     if mounted_device.disk_identity:
-      text = 'MBR disk identity\t\t: 0x{0:08x}\n'.format(
-          mounted_device.disk_identity)
-      self.WriteText(text)
-
-      text = 'MBR partition offset\t\t: {0:d} (0x{0:08x})\n'.format(
-          mounted_device.partition_offset)
-      self.WriteText(text)
+      self.WriteText(
+          f'MBR disk identity\t\t: 0x{mounted_device.disk_identity:08x}\n')
+      self.WriteText((
+          f'MBR partition offset\t\t: {mounted_device.partition_offset:d} '
+          f'(0x{mounted_device.partition_offset:08x})\n'))
 
     elif mounted_device.partition_identifier:
-      text = 'GPT partition identifier\t: {0!s}\n'.format(
-          mounted_device.partition_identifier)
-      self.WriteText(text)
+      self.WriteText((
+          f'GPT partition identifier\t: '
+          f'{mounted_device.partition_identifier!s}\n'))
 
     elif mounted_device.device:
-      text = 'Device\t\t\t\t: {0:s}\n'.format(mounted_device.device)
-      self.WriteText(text)
+      self.WriteText(f'Device\t\t\t\t: {mounted_device.device:s}\n')
 
     self.WriteText('\n')
 
@@ -88,8 +84,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 

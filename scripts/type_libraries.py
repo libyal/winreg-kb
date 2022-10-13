@@ -62,8 +62,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 
@@ -76,9 +76,9 @@ def Main():
     print('No TypeLib key found.')
   else:
     for type_library in collector_object.type_libraries:
-      print('{0:s}\t{1:s}\t{2:s}\t{3:s}'.format(
-          type_library.guid, type_library.version, type_library.description,
-          type_library.typelib_filename))
+      print((f'{type_library.guid:s}\t{type_library.version:s}\t'
+             f'{type_library.description:s}\t'
+             f'{type_library.typelib_filename:s}'))
 
   output_writer.Close()
 

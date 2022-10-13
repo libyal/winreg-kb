@@ -160,30 +160,29 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
       zone_name = self._DEFAULT_ZONE_NAMES.get(zone_information.zone, None)
 
     if zone_name:
-      text = 'Zone\t\t\t: {0:s} ({1:s})\n'.format(
-          zone_information.zone, zone_name)
+      text = f'Zone\t\t\t: {zone_information.zone:s} ({zone_name:s})\n'
     else:
-      text = 'Zone\t\t\t: {0:s}\n'.format(zone_information.zone)
+      text = f'Zone\t\t\t: {zone_information.zone:s}\n'
     self.WriteText(text)
 
     control_description = self._CONTROL_DESCRIPTIONS.get(
         zone_information.control, None)
 
     if control_description:
-      text = 'Control\t\t\t: {0:s} ({1:s})\n'.format(
-          zone_information.control, control_description)
+      text = (f'Control\t\t\t: {zone_information.control:s} '
+              f'({control_description:s})\n')
     else:
-      text = 'Control\t\t\t: {0:s}\n'.format(zone_information.control)
+      text = f'Control\t\t\t: {zone_information.control:s}\n'
     self.WriteText(text)
 
     control_value_description = self._GetControlValueDescription(
         zone_information.control, zone_information.control_value)
 
     if control_value_description:
-      text = 'Value\t\t\t: {0!s} ({1:s})\n'.format(
-          zone_information.control_value, control_value_description)
+      text = (f'Value\t\t\t: {zone_information.control_value!s} '
+              f'({control_value_description:s})\n')
     else:
-      text = 'Value\t\t\t: {0!s}\n'.format(zone_information.control_value)
+      text = f'Value\t\t\t: {zone_information.control_value!s}\n'
     self.WriteText(text)
 
     self.WriteText('\n')
@@ -231,8 +230,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 

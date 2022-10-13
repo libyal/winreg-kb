@@ -22,15 +22,11 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       known_folder (KnownFolder): known folder.
     """
-    text = 'Identifier\t\t: {0:s}\n'.format(known_folder.guid)
-    self.WriteText(text)
-
-    text = 'Name\t\t\t: {0:s}\n'.format(known_folder.name)
-    self.WriteText(text)
+    self.WriteText(f'Identifier\t\t: {known_folder.guid:s}\n')
+    self.WriteText(f'Name\t\t\t: {known_folder.name:s}\n')
 
     if known_folder.localized_name:
-      text = 'Localize name\t\t: {0:s}\n'.format(known_folder.localized_name)
-      self.WriteText(text)
+      self.WriteText(f'Localize name\t\t: {known_folder.localized_name:s}\n')
 
     self.WriteText('\n')
 
@@ -77,8 +73,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 

@@ -65,8 +65,8 @@ def Main():
 
   if not scanner.ScanForWindowsVolume(
       options.source, options=volume_scanner_options):
-    print(('Unable to retrieve the volume with the Windows directory from: '
-           '{0:s}.').format(options.source))
+    print((f'Unable to retrieve the volume with the Windows directory from: '
+           f'{options.source:s}.'))
     print('')
     return False
 
@@ -81,11 +81,11 @@ def Main():
     guid = None
     for user_assist_entry in collector_object.user_assist_entries:
       if user_assist_entry.guid != guid:
-        print('GUID\t\t: {0:s}'.format(user_assist_entry.guid))
+        print(f'GUID\t\t: {user_assist_entry.guid:s}')
         guid = user_assist_entry.guid
 
-      print('Name\t\t: {0:s}'.format(user_assist_entry.name))
-      print('Original name\t: {0:s}'.format(user_assist_entry.value_name))
+      print(f'Name\t\t: {user_assist_entry.name:s}')
+      print(f'Original name\t: {user_assist_entry.value_name:s}')
 
   print('')
   output_writer.Close()
