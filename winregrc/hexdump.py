@@ -29,8 +29,7 @@ def Hexdump(data):
       if isinstance(byte_value, str):
         byte_value = ord(byte_value)
 
-      hexadecimal_byte_value = '{0:02x}'.format(byte_value)
-      hexadecimal_byte_values.append(hexadecimal_byte_value)
+      hexadecimal_byte_values.append(f'{byte_value:02x}')
 
       printable_value = _HEXDUMP_CHARACTER_MAP[byte_value]
       printable_values.append(printable_value)
@@ -45,8 +44,9 @@ def Hexdump(data):
 
     hexadecimal_string_part1 = ' '.join(hexadecimal_byte_values[0:8])
     hexadecimal_string_part2 = ' '.join(hexadecimal_byte_values[8:16])
-    hexadecimal_string = '{0:s}  {1:s}{2:s}'.format(
-        hexadecimal_string_part1, hexadecimal_string_part2, whitespace)
+    hexadecimal_string = (
+        f'{hexadecimal_string_part1:s}  {hexadecimal_string_part2:s}'
+        f'{whitespace:s}')
 
     if (previous_hexadecimal_string is not None and
         previous_hexadecimal_string == hexadecimal_string and
@@ -60,8 +60,8 @@ def Hexdump(data):
     else:
       printable_string = ''.join(printable_values)
 
-      lines.append('0x{0:08x}  {1:s}  {2:s}'.format(
-          block_index, hexadecimal_string, printable_string))
+      lines.append(
+          f'0x{block_index:08x}  {hexadecimal_string:s}  {printable_string:s}')
 
       in_group = False
       previous_hexadecimal_string = hexadecimal_string

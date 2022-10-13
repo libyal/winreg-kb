@@ -63,8 +63,8 @@ class MountedDevicesCollector(data_format.BinaryDataFormat):
             'Mounted devices MBR partition values')
       except (ValueError, errors.ParseError) as exception:
         raise errors.ParseError((
-            'Unable to parse Mounted devices MBR partition values with '
-            'error: {0!s}').format(exception))
+            f'Unable to parse Mounted devices MBR partition values with '
+            f'error: {exception!s}'))
 
       mounted_device.disk_identity = partition_values.disk_identity
       mounted_device.partition_offset = partition_values.partition_offset
@@ -78,8 +78,8 @@ class MountedDevicesCollector(data_format.BinaryDataFormat):
             'Mounted devices GPT partition values')
       except (ValueError, errors.ParseError) as exception:
         raise errors.ParseError((
-            'Unable to parse Mounted devices GPT partition values with '
-            'error: {0!s}').format(exception))
+            f'Unable to parse Mounted devices GPT partition values with '
+            f'error: {exception!s}'))
 
       mounted_device.partition_identifier = (
           partition_values.partition_identifier)

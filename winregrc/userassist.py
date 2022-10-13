@@ -46,8 +46,7 @@ class UserAssistDataParser(data_format.BinaryDataFormat):
       user_assist_entry (user_assist_entry_v3|user_assist_entry_v5):
           UserAssist entry.
     """
-    value_string = '0x{0:08x}'.format(user_assist_entry.unknown1)
-    self._DebugPrintValue('Unknown1', value_string)
+    self._DebugPrintValue('Unknown1', f'0x{user_assist_entry.unknown1:08x}')
 
     self._DebugPrintDecimalValue(
         'Number of executions', user_assist_entry.number_of_executions)
@@ -61,45 +60,23 @@ class UserAssistDataParser(data_format.BinaryDataFormat):
           'Application focus duration',
           user_assist_entry.application_focus_duration)
 
-      value_string = '{0:.2f}'.format(user_assist_entry.unknown2)
-      self._DebugPrintValue('Unknown2', value_string)
-
-      value_string = '{0:.2f}'.format(user_assist_entry.unknown3)
-      self._DebugPrintValue('Unknown3', value_string)
-
-      value_string = '{0:.2f}'.format(user_assist_entry.unknown4)
-      self._DebugPrintValue('Unknown4', value_string)
-
-      value_string = '{0:.2f}'.format(user_assist_entry.unknown5)
-      self._DebugPrintValue('Unknown5', value_string)
-
-      value_string = '{0:.2f}'.format(user_assist_entry.unknown6)
-      self._DebugPrintValue('Unknown6', value_string)
-
-      value_string = '{0:.2f}'.format(user_assist_entry.unknown7)
-      self._DebugPrintValue('Unknown7', value_string)
-
-      value_string = '{0:.2f}'.format(user_assist_entry.unknown8)
-      self._DebugPrintValue('Unknown8', value_string)
-
-      value_string = '{0:.2f}'.format(user_assist_entry.unknown9)
-      self._DebugPrintValue('Unknown9', value_string)
-
-      value_string = '{0:.2f}'.format(user_assist_entry.unknown10)
-      self._DebugPrintValue('Unknown10', value_string)
-
-      value_string = '{0:.2f}'.format(user_assist_entry.unknown11)
-      self._DebugPrintValue('Unknown11', value_string)
-
-      value_string = '0x{0:08x}'.format(user_assist_entry.unknown12)
-      self._DebugPrintValue('Unknown12', value_string)
+      self._DebugPrintValue('Unknown2', f'{user_assist_entry.unknown2:.2f}')
+      self._DebugPrintValue('Unknown3', f'{user_assist_entry.unknown3:.2f}')
+      self._DebugPrintValue('Unknown4', f'{user_assist_entry.unknown4:.2f}')
+      self._DebugPrintValue('Unknown5', f'{user_assist_entry.unknown5:.2f}')
+      self._DebugPrintValue('Unknown6', f'{user_assist_entry.unknown6:.2f}')
+      self._DebugPrintValue('Unknown7', f'{user_assist_entry.unknown7:.2f}')
+      self._DebugPrintValue('Unknown8', f'{user_assist_entry.unknown8:.2f}')
+      self._DebugPrintValue('Unknown9', f'{user_assist_entry.unknown9:.2f}')
+      self._DebugPrintValue('Unknown10', f'{user_assist_entry.unknown10:.2f}')
+      self._DebugPrintValue('Unknown11', f'{user_assist_entry.unknown11:.2f}')
+      self._DebugPrintValue('Unknown12', f'0x{user_assist_entry.unknown12:08x}')
 
     self._DebugPrintFiletimeValue(
         'Last execution time', user_assist_entry.last_execution_time)
 
     if format_version == 5:
-      value_string = '0x{0:08x}'.format(user_assist_entry.unknown13)
-      self._DebugPrintValue('Unknown13', value_string)
+      self._DebugPrintValue('Unknown13', '0x{user_assist_entry.unknown13:08x}')
 
     self._DebugPrintText('\n')
 
@@ -119,24 +96,23 @@ class UserAssistDataParser(data_format.BinaryDataFormat):
     """
     if format_version == 3:
       data_type_map = self._GetDataTypeMap('user_assist_entry_v3')
-      entry_data_size = 16
+      expected_entry_data_size = 16
     elif format_version == 5:
       data_type_map = self._GetDataTypeMap('user_assist_entry_v5')
-      entry_data_size = 72
+      expected_entry_data_size = 72
 
-    if entry_data_size != len(entry_data):
+    if expected_entry_data_size != len(entry_data):
+      entry_data_size = len(entry_data)
       raise errors.ParseError((
-          'Version: {0:d} size mismatch (calculated: {1:d}, '
-          'stored: {2:d}).').format(
-              format_version, entry_data_size, len(entry_data)))
+          f'Version: {format_version:d} size mismatch (calculated: '
+          f'{expected_entry_data_size:d}, stored: {entry_data_size:d}).'))
 
     try:
       user_assist_entry = self._ReadStructureFromByteStream(
           entry_data, 0, data_type_map, 'UserAssist entry')
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse UserAssist entry value with error: {0!s}'.format(
-              exception))
+          f'Unable to parse UserAssist entry value with error: {exception!s}')
 
     if self._debug:
       self._DebugPrintEntry(format_version, user_assist_entry)
@@ -176,8 +152,7 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
     """
     version_value = guid_subkey.GetValueByName('Version')
     if not version_value:
-      logging.warning('Missing Version value in sub key: {0:s}'.format(
-          guid_subkey.name))
+      logging.warning(f'Missing Version value in sub key: {guid_subkey.name:s}')
       return
 
     format_version = version_value.GetDataAsObject()

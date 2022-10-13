@@ -98,9 +98,9 @@ class MSIEZoneInformationCollector(interface.WindowsRegistryKeyCollector):
 
     if self._debug:
       if value == 1:
-        print('Local Machine lockdown for {0:s}: True'.format(program_name))
+        print(f'Local Machine lockdown for {program_name:s}: True')
       else:
-        print('Local Machine lockdown for {0:s}: False'.format(program_name))
+        print(f'Local Machine lockdown for {program_name:s}: False')
       print('')
 
     # TODO: implement.

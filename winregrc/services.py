@@ -100,8 +100,7 @@ class WindowsService(object):
     Return:
       str: object name description.
     """
-    return(self._OBJECT_NAME_DESCRIPTIONS.get(
-        self.service_type, 'Object name'))
+    return self._OBJECT_NAME_DESCRIPTIONS.get(self.service_type, 'Object name')
 
   def GetServiceTypeDescription(self):
     """Retrieves the service type description.
@@ -109,8 +108,8 @@ class WindowsService(object):
     Return:
       str: service type description.
     """
-    return(self._SERVICE_TYPE_DESCRIPTIONS.get(
-        self.service_type, 'Unknown 0x{0:08x}'.format(self.service_type)))
+    return self._SERVICE_TYPE_DESCRIPTIONS.get(
+        self.service_type, f'Unknown 0x{self.service_type:08x}')
 
   def GetStartValueDescription(self):
     """Retrieves the start value description.
@@ -118,8 +117,8 @@ class WindowsService(object):
     Return:
       str: start value description.
     """
-    return(self._START_VALUE_DESCRIPTIONS.get(
-        self.start_value, 'Unknown 0x{0:08x}'.format(self.start_value)))
+    return self._START_VALUE_DESCRIPTIONS.get(
+        self.start_value, f'Unknown 0x{self.start_value:08x}')
 
 
 class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):

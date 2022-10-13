@@ -88,7 +88,7 @@ class TaskCacheDataParser(data_format.BinaryDataFormat):
 
     if not data_type_map:
       raise errors.ParseError(
-          'Unsupported value data size: {0:d}.'.format(value_data_size))
+          f'Unsupported value data size: {value_data_size:d}.')
 
     try:
       dynamic_info = data_type_map.MapByteStream(value_data)
@@ -103,8 +103,8 @@ class TaskCacheDataParser(data_format.BinaryDataFormat):
         dynamic_info.launch_time)
 
     if self._debug:
-      value_string = '0x{0:08x}'.format(dynamic_info.unknown1)
-      self._output_writer.WriteValue('Unknown1', value_string)
+      self._output_writer.WriteValue(
+          'Unknown1', f'0x{dynamic_info.unknown1:08x}')
 
       # Note this is likely either the last registered time or
       # the update time.
@@ -114,11 +114,11 @@ class TaskCacheDataParser(data_format.BinaryDataFormat):
       # Note this is likely the launch time.
       self._DebugPrintFiletimeValue('Launch time', dynamic_info.launch_time)
 
-      value_string = '0x{0:08x}'.format(dynamic_info.unknown2)
-      self._output_writer.WriteValue('Unknown2', value_string)
+      self._output_writer.WriteValue(
+          'Unknown2', f'0x{dynamic_info.unknown2:08x}')
 
-      value_string = '0x{0:08x}'.format(dynamic_info.unknown3)
-      self._output_writer.WriteValue('Unknown3', value_string)
+      self._output_writer.WriteValue(
+          'Unknown3', f'0x{dynamic_info.unknown3:08x}')
 
       if dynamic_info.unknown_time is not None:
         self._DebugPrintFiletimeValue('Unknown time', dynamic_info.unknown_time)

@@ -24,8 +24,7 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
     Args:
       entry_footer (programscache_entry_footer): entry footer.
     """
-    value_string = '0x{0:02x}'.format(entry_footer.sentinel)
-    self._DebugPrintValue('Sentinel', value_string)
+    self._DebugPrintValue('Sentinel', f'0x{entry_footer.sentinel:02x}')
 
   def _DebugPrintEntryHeader(self, entry_header):
     """Prints entry header value debug information.
@@ -49,8 +48,8 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
     Args:
       shell_item (pyfwsi.shell_item): shell item.
     """
-    value_string = '0x{0:02x}'.format(shell_item.class_type)
-    self._DebugPrintValue('Shell item class type', value_string)
+    self._DebugPrintValue(
+        'Shell item class type', f'0x{shell_item.class_type:02x}')
 
     value_string = getattr(shell_item, 'name', '')
     self._DebugPrintValue('Shell item name', value_string)
@@ -86,8 +85,7 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
           'entry footer')
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse entry footer value with error: {0!s}'.format(
-              exception))
+          f'Unable to parse entry footer value with error: {exception!s}')
 
     if self._debug:
       self._DebugPrintEntryFooter(entry_footer)
@@ -120,8 +118,7 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
           value_data, 0, data_type_map, 'header')
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse header value with error: {0!s}'.format(
-              exception))
+          f'Unable to parse header value with error: {exception!s}')
 
     if self._debug:
       self._DebugPrintHeader(header)
@@ -158,22 +155,19 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
             'header9', context=context)
       except (ValueError, errors.ParseError) as exception:
         raise errors.ParseError(
-            'Unable to parse header9 value with error: {0!s}'.format(
-                exception))
+            f'Unable to parse header9 value with error: {exception!s}')
 
       value_data_offset += context.byte_size
 
       if self._debug:
-        value_string = '0x{0:08x}'.format(header9.unknown1)
-        self._DebugPrintValue('Unknown1', value_string)
+        self._DebugPrintValue('Unknown1', f'0x{header9.unknown1:08x}')
 
     elif header.format_version in (12, 19):
       uuid_object = uuid.UUID(bytes_le=value_data[4:20])
       value_data_offset += 16
 
       if self._debug:
-        value_string = '{0!s}'.format(uuid_object)
-        self._DebugPrintValue('Known folder identifier', value_string)
+        self._DebugPrintValue('Known folder identifier', f'{uuid_object!s}')
 
     sentinel = 0
     if header.format_version != 9:
@@ -201,12 +195,10 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
             'entry header', context=context)
       except (ValueError, errors.ParseError) as exception:
         raise errors.ParseError(
-            'Unable to parse entry header value with error: {0!s}'.format(
-                exception))
+            f'Unable to parse entry header value with error: {exception!s}')
 
       if self._debug:
-        value_string = '0x{0:08x}'.format(value_data_offset)
-        self._DebugPrintValue('Entry data offset', value_string)
+        self._DebugPrintValue('Entry data offset', f'0x{value_data_offset:08x}')
 
         self._DebugPrintEntryHeader(entry_header)
 
@@ -246,8 +238,8 @@ class ProgramsCacheDataParser(data_format.BinaryDataFormat):
           self._DebugPrintText('\n')
 
     if value_data_offset < value_data_size:
-      value_string = '0x{0:08x}'.format(value_data_offset)
-      self._DebugPrintValue('Trailing data offset', value_string)
+      self._DebugPrintValue(
+          'Trailing data offset', f'0x{value_data_offset:08x}')
 
       self._DebugPrintData(
           'Trailing data:', value_data[value_data_offset:])
@@ -292,8 +284,7 @@ class ProgramsCacheCollector(interface.WindowsRegistryKeyCollector):
 
     value = startpage_key.GetValueByName(value_name)
     if not value:
-      logging.warning('Missing {0:s} value in key: {1:s}'.format(
-          value_name, key_path))
+      logging.warning(f'Missing {value_name:s} value in key: {key_path:s}')
       return True
 
     self._parser.Parse(value.data)

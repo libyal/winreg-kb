@@ -173,7 +173,7 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
           context=context)
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse MRUList entries with error: {0!s}'.format(exception))
+          f'Unable to parse MRUList entries with error: {exception!s}')
 
     mrulist = set([])
     recovered_mrulist = set([])
@@ -195,9 +195,8 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
         continue
 
       if self._debug:
-        description = 'Key: {0:s}\nValue: {1:s}'.format(
-            registry_key.path, registry_value.name)
-        self._output_writer.WriteText(description)
+        self._output_writer.WriteText(
+            f'Key: {registry_key.path:s}\nValue: {registry_value.name:s}')
 
       if self._InKeyPaths(registry_key.path, self._SHELL_ITEM_MRU_KEY_PATHS):
         self._ProcessMRUEntryShellItem(
@@ -255,8 +254,7 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
           context=context)
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse MRUListEx entries with error: {0!s}'.format(
-              exception))
+          f'Unable to parse MRUListEx entries with error: {exception!s}')
 
     mrulistex = set([])
     recovered_mrulistex = set([])
@@ -276,9 +274,8 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
         continue
 
       if self._debug:
-        description = 'Key: {0:s}\nValue: {1:s}'.format(
-            registry_key.path, registry_value.name)
-        self._output_writer.WriteText(description)
+        self._output_writer.WriteText(
+            f'Key: {registry_key.path:s}\nValue: {registry_value.name:s}')
 
       if self._InKeyPaths(registry_key.path, self._SHELL_ITEM_MRU_KEY_PATHS):
         self._ProcessMRUEntryShellItem(

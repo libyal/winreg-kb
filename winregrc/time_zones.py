@@ -64,12 +64,11 @@ class TimeZoneInformationDataParser(data_format.BinaryDataFormat):
       month = self._MONTHS[systemtime.month]
 
       if not systemtime.year:
-        return '{0:s} {1:s} of {2:s} at {3:02d}:{4:02d}'.format(
-            occurance, weekday, month, systemtime.hours, systemtime.minutes)
+        return (f'{occurance:s} {weekday:s} of {month:s} at '
+                f'{systemtime.hours:02d}:{systemtime.minutes:02d}')
 
-      return '{0:s} {1:s} of {2:s} in {3:d} at {4:02d}:{5:02d}'.format(
-          occurance, weekday, month, systemtime.month, systemtime.hours,
-          systemtime.minutes)
+      return (f'{occurance:s} {weekday:s} of {month:s} in {systemtime.year:s} '
+              f'at {systemtime.hours:02d}:{systemtime.minutes:02d}')
 
     return 'Not set'
 
@@ -90,8 +89,7 @@ class TimeZoneInformationDataParser(data_format.BinaryDataFormat):
           value_data, 0, data_type_map, 'TZI record')
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse TZI record value with error: {0!s}'.format(
-              exception))
+          f'Unable to parse TZI record value with error: {exception!s}')
 
     if self._debug:
       self._DebugPrintStructureObject(tzi_record, self._DEBUG_INFO_TZI_RECORD)

@@ -152,20 +152,19 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
           the start of the V value data.
       descriptor_data (bytes): descriptor data.
     """
-    text = 'User information descriptor: {0:d}:\n'.format(index + 1)
-    self._DebugPrintText(text)
+    descriptor_index = index + 1
+    self._DebugPrintText(
+        f'User information descriptor: {descriptor_index:d}:\n')
 
     value_string = self._USER_INFORMATION_DESCRIPTORS[index]
     self._DebugPrintValue('Description', value_string)
 
-    value_string = '0x{0:08x} (0x{1:08x})'.format(
-        descriptor.offset, descriptor_data_offset)
-    self._DebugPrintValue('Offset', value_string)
+    self._DebugPrintValue('Offset', (
+        f'0x{descriptor.offset:08x} (0x{descriptor_data_offset:08x})'))
 
     self._DebugPrintDecimalValue('Size', descriptor.size)
 
-    value_string = '0x{0:08x}'.format(descriptor.unknown1)
-    self._DebugPrintValue('Unknown1', value_string)
+    self._DebugPrintValue('Unknown1', f'0x{descriptor.unknown1:08x}')
 
     self._DebugPrintData('Data', descriptor_data)
 
@@ -187,13 +186,11 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
 
     if fwnt_descriptor.owner:
       identifier_string = fwnt_descriptor.owner.get_string()
-      value_string = '\tOwner: {0:s}'.format(identifier_string)
-      lines.append(value_string)
+      lines.append(f'\tOwner: {identifier_string:s}')
 
     if fwnt_descriptor.group:
       identifier_string = fwnt_descriptor.group.get_string()
-      value_string = '\tGroup: {0:s}'.format(identifier_string)
-      lines.append(value_string)
+      lines.append(f'\tGroup: {identifier_string:s}')
 
     # TODO: format SACL
     # TODO: format DACL
@@ -217,8 +214,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
       for flag, identifier in sorted(
           self._USER_ACCOUNT_CONTROL_FLAGS.items()):
         if flag & user_account_control_flags:
-          value_string = '\t{0:s} (0x{1:08x})'.format(identifier, flag)
-          lines.append(value_string)
+          lines.append(f'\t{identifier:s} (0x{flag:08x})')
 
       lines.append('')
 
@@ -241,7 +237,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
           value_data, 0, data_type_map, 'C value')
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse C value with error: {0!s}'.format(exception))
+          f'Unable to parse C value with error: {exception!s}')
 
     if self._debug:
       self._DebugPrintStructureObject(c_value, self._DEBUG_INFO_C_VALUE)
@@ -280,7 +276,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
           value_data, 0, data_type_map, 'F value')
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse F value with error: {0!s}'.format(exception))
+          f'Unable to parse F value with error: {exception!s}')
 
     # TODO: change FILETIME timestamps into date time values.
     # date_time = self._ParseFiletime(f_value.last_login_time)
@@ -318,7 +314,7 @@ class SecurityAccountManagerDataParser(data_format.BinaryDataFormat):
           value_data, 0, data_type_map, 'V value')
     except (ValueError, errors.ParseError) as exception:
       raise errors.ParseError(
-          'Unable to parse V value with error: {0!s}'.format(exception))
+          f'Unable to parse V value with error: {exception!s}')
 
     for index in range(0, 17):
       user_information_descriptor = v_value[index]
