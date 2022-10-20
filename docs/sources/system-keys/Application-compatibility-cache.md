@@ -516,6 +516,18 @@ Related Registry keys:
 HKLM\Sofware\Microsoft\Windows NT\CurrentVersion\AppCompatFlags
 ```
 
+Flushing the cache Windows Vista and later:
+
+```
+Rundll32.exe apphelp.dll,ShimFlushCache
+```
+
+Flushing the cache Windows XP and Windows Server 2003
+
+```
+Rundll32.exe kernel32.dll,BaseFlushAppcompatCache
+```
+
 ## External links
 
 * [Leveraging the Application Compatibility Cache in Forensic Investigations](https://www.fireeye.com/content/dam/fireeye-www/services/freeware/shimcache-whitepaper.pdf), by Andrew Davis, 2012
