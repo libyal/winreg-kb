@@ -14,7 +14,9 @@ The name of the device key is formatted as:
 <Device Type>&Ven_<Vendor>&Prod_<Product>&Rev_<Revision Number>
 ```
 
-For example: `Disk&Ven_&Prod_&Rev_0.00`
+Note that the number of values in the name is variable.
+
+For example: `Disk&Ven_&Prod_&Rev_0.00` or `Disk&Ven_&Prod_`
 
 The device key contains one or more device instance keys.
 
@@ -77,7 +79,7 @@ Name | Description
 --- | ---
 %GUID% | Property set identifier
 
-### Property set key (Properties\%GUID%)
+### Property set key (Properties\\%GUID%)
 
 Sub keys:
 
@@ -85,7 +87,7 @@ Name | Description
 --- | ---
 %NUMERIC% | Property identifier
 
-#### Property key (Properties\%GUID%\%NUMERIC%)
+#### Property key (Properties\\%GUID%\\%NUMERIC%)
 
 Sub keys:
 
@@ -93,7 +95,7 @@ Name | Description
 --- | ---
 %NUMERIC% |
 
-#### Property value key (Properties\%GUID%\%NUMERIC%\%NUMERIC%)
+#### Property value key (Properties\\%GUID%\\%NUMERIC%\\%NUMERIC%)
 
 Values:
 
@@ -112,7 +114,7 @@ HKEY_LOCAL_MACHINE\System\CurrentControlSet\Enum\USBSTOR\Disk&Ven_HP&Prod_v100w&
 
 Property set: 540b947e-8b40-45bc-a8a2-6a0b894cbda2 (System.Devices)
 Property identifier: 4 (PKEY_Device_BusReportedDeviceDesc)
-Type: 0x00000012
+Type: 0x00000012 (UTF-16 litte-endian encoded string)
 Data: "HP v100w USB Device"
 ```
 
