@@ -104,8 +104,11 @@ Name | Data type | Description
 Data | REG_BINARY | Value data
 Type | REG_BINARY | Value type
 
-For a value type of 0x0010 value data contains a FILETIME
-For a value type of 0x0012 value data contains an UTF-16 litte-endian encoded string
+Value type:
+
+* 0x0007 value data contains a 32-bit little-endian integer
+* 0x0010 value data contains a FILETIME
+* 0x0012 value data contains an UTF-16 litte-endian encoded string
 
 ### Example
 

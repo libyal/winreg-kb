@@ -71,7 +71,16 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
         if description:
           self.WriteText(f' ({description:s})')
 
-        self.WriteText('\n')
+        self.WriteText(f' (0x{storage_device_property.value_type:08x})')
+
+        value = storage_device_property.value
+        if storage_device_property.value_type == 0x00000007:
+          self.WriteText(f': 0x{value:08x}\n')
+        elif storage_device_property.value_type == 0x00000010:
+          value = value.CopyToDateTimeStringISO8601()
+          self.WriteText(f': {value:s}\n')
+        else:
+          self.WriteText(f': {value!s}\n')
 
     self.WriteText('\n')
 
