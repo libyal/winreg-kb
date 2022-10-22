@@ -21,9 +21,13 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
           '00000004': 'System.Devices.NumaNode'},
       '{83da6326-97a6-4088-9453-a1923f573b29}': {
           '00000006': 'System.Devices.SessionId',
+          # DEVPKEY_Device_InstallDate
           '00000064': 'System.Devices.InstallDate',
+          # DEVPKEY_Device_FirstInstallDate
           '00000065': 'System.Devices.FirstInstallDate',
+          # DEVPKEY_Device_LastArrivalDate
           '00000066': 'System.Devices.LastArrivalDate',
+          # DEVPKEY_Device_LastRemovalDate
           '00000067': 'System.Devices.LastRemovalDate'},
       '{a8b865dd-2e3d-4094-ad97-e593a70c75d6}': {
 	      '00000002': 'System.Drivers.AssemblyDate',

@@ -69,56 +69,13 @@ class USBStorageDeviceCollector(data_format.BinaryDataFormat):
     """Collects USB storage devices.
 
     Args:
-      usbstor_key (dfwinreg.WinRegistryKey): profile list Windows Registry key.
+      usbstor_key (dfwinreg.WinRegistryKey): USB storage Windows Registry key.
 
     Yields:
       USBStorageDevice: an USB storage device.
     """
     for device_key in usbstor_key.GetSubkeys():
-      name_values = device_key.name.split('&')
-      device_type = None
-      product = None
-      revision = None
-      vendor = None
-
-      number_of_name_values = len(name_values)
-      if number_of_name_values >= 1:
-        device_type = name_values[0]
-      if number_of_name_values >= 2:
-        vendor = name_values[1]
-      if number_of_name_values >= 3:
-        product = name_values[2]
-      if number_of_name_values >= 4:
-        revision = name_values[3]
-
-      for device_instance_key in device_key.GetSubkeys():
-        properties = []
-        properties_key = device_instance_key.GetSubkeyByName('Properties')
-        if properties_key:
-          for property_set_key in properties_key.GetSubkeys():
-            for property_key in property_set_key.GetSubkeys():
-              for property_value_key in property_key.GetSubkeys():
-                storage_device_property = USBStorageDeviceProperty(
-                    property_set_key.name, property_key.name)
-
-                storage_device_property.value_type = self._GetPropertyValueType(
-                    property_value_key)
-                storage_device_property.value = self._GetPropertyValueData(
-                    property_value_key, storage_device_property.value_type)
-
-                properties.append(storage_device_property)
-
-        storage_device = USBStorageDevice()
-        storage_device.device_type = device_type
-        storage_device.display_name = self._GetStringValueFromKey(
-            device_instance_key, 'FriendlyName')
-        storage_device.key_path = device_instance_key.path
-        storage_device.product = product
-        storage_device.properties = properties
-        storage_device.revision = revision
-        storage_device.vendor = vendor
-
-      yield storage_device
+      yield self._ParseDeviceKey(device_key)
 
   def _GetPropertyValueData(self, property_value_key, value_type):
     """Retrieves a property value data.
@@ -223,6 +180,61 @@ class USBStorageDeviceCollector(data_format.BinaryDataFormat):
       return None
 
     return registry_value.data
+
+  def _ParseDeviceKey(self, device_key):
+    """Parses an USB storage device key.
+
+    Args:
+      device_key (dfwinreg.WinRegistryKey): USB storage device Windows Registry
+          key.
+
+    Returns:
+      USBStorageDevice: an USB storage device.
+    """
+    name_values = device_key.name.split('&')
+    device_type = None
+    product = None
+    revision = None
+    vendor = None
+
+    number_of_name_values = len(name_values)
+    if number_of_name_values >= 1:
+      device_type = name_values[0]
+    if number_of_name_values >= 2:
+      vendor = name_values[1]
+    if number_of_name_values >= 3:
+      product = name_values[2]
+    if number_of_name_values >= 4:
+      revision = name_values[3]
+
+    for device_instance_key in device_key.GetSubkeys():
+      properties = []
+      properties_key = device_instance_key.GetSubkeyByName('Properties')
+      if properties_key:
+        for property_set_key in properties_key.GetSubkeys():
+          for property_key in property_set_key.GetSubkeys():
+            for property_value_key in property_key.GetSubkeys():
+              storage_device_property = USBStorageDeviceProperty(
+                  property_set_key.name, property_key.name)
+
+              storage_device_property.value_type = self._GetPropertyValueType(
+                  property_value_key)
+              storage_device_property.value = self._GetPropertyValueData(
+                  property_value_key, storage_device_property.value_type)
+
+              properties.append(storage_device_property)
+
+      storage_device = USBStorageDevice()
+      storage_device.device_type = device_type
+      storage_device.display_name = self._GetStringValueFromKey(
+          device_instance_key, 'FriendlyName')
+      storage_device.key_path = device_instance_key.path
+      storage_device.product = product
+      storage_device.properties = properties
+      storage_device.revision = revision
+      storage_device.vendor = vendor
+
+    return storage_device
 
   def _ParseFiletime(self, filetime):
     """Parses a FILETIME timestamp value.
