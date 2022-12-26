@@ -71,9 +71,9 @@ class CatalogCollector(object):
         yield key_descriptor
 
     else:
-      alphanumeric_compare = lambda key: [
-          int(text) if text.isdigit() else text.lower()
-          for text in re.split('([0-9]+)', key[0])]
+      def AlphanumericCompare(key):
+        return (int(text) if text.isdigit() else text.lower()
+                for text in re.split('([0-9]+)', key[0]))
 
       key_descriptors_per_value_hash = {}
 
@@ -81,7 +81,7 @@ class CatalogCollector(object):
         values_hash = hash('\n'.join([
             '\t'.join([value_name, data_type_string])
             for value_name, data_type_string in sorted(
-                key_descriptor.value_descriptors, key=alphanumeric_compare)]))
+                key_descriptor.value_descriptors, key=AlphanumericCompare)]))
 
         matching_key_descriptor = key_descriptors_per_value_hash.get(
             values_hash, None)

@@ -102,9 +102,9 @@ def Main():
 
     collector_object = catalog.CatalogCollector(group_keys=options.group_keys)
 
-    alphanumeric_compare = lambda key: [
-        int(text) if text.isdigit() else text.lower()
-        for text in re.split('([0-9]+)', key[0])]
+    def AlphanumericCompare(key):
+      return (int(text) if text.isdigit() else text.lower()
+              for text in re.split('([0-9]+)', key[0]))
 
     try:
       has_results = False
@@ -115,7 +115,7 @@ def Main():
           output_writer_object.WriteKeyPath(key_path)
 
         for value_name, data_type_string in sorted(
-            key_descriptor.value_descriptors, key=alphanumeric_compare):
+            key_descriptor.value_descriptors, key=AlphanumericCompare):
           output_writer_object.WriteValueDescriptor(
               value_name, data_type_string)
 
