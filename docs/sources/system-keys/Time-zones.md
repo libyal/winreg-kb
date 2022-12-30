@@ -42,8 +42,8 @@ for example:
 * the TimeZoneKeyName is not always present
 * The RealTimeIsUniversal value is not installed in the system by default and is not officially supported by Windows
 
-The values in this key corresponds with the [TIME_ZONE_INFORMATION](https://docs.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-time_zone_information)
-and [DYNAMIC_TIME_ZONE_INFORMATION](https://docs.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-dynamic_time_zone_information)
+The values in this key corresponds with the [TIME_ZONE_INFORMATION](https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-time_zone_information)
+and [DYNAMIC_TIME_ZONE_INFORMATION](https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-dynamic_time_zone_information)
 structures.
 
 ## Time Zones key
@@ -153,9 +153,9 @@ Note that DaylightBias can be set when DaylightDate is not set.
 
 ## External Links
 
-* [Computer Time Management and Embedded Systems (Standard 7 SP1)](https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ff794720(v=winembedded.60))
-* [TIME_ZONE_INFORMATION structure (timezoneapi.h)](https://docs.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-time_zone_information)
-* [DYNAMIC_TIME_ZONE_INFORMATION structure (timezoneapi.h)](https://docs.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-dynamic_time_zone_information)
-* [SYSTEMTIME structure (minwinbase.h)](https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime)
+* [Computer Time Management and Embedded Systems (Standard 7 SP1)](https://learn.microsoft.com/en-us/previous-versions/windows/embedded/ff794720(v=winembedded.60))
+* [TIME_ZONE_INFORMATION structure (timezoneapi.h)](https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-time_zone_information)
+* [DYNAMIC_TIME_ZONE_INFORMATION structure (timezoneapi.h)](https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-dynamic_time_zone_information)
+* [SYSTEMTIME structure (minwinbase.h)](https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime)
 * [windowsZones.xml](https://github.com/unicode-org/cldr/blob/main/common/supplemental/windowsZones.xml)
 

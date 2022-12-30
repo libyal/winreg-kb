@@ -59,7 +59,7 @@ Name | Data type | Description
 description-string=commandline
 ```
 
-According to [Microsoft](https://docs.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys):
+According to [Microsoft](https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys):
 
 ```
 By default, the value of a RunOnce key is deleted before the command line is 
@@ -86,5 +86,5 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer
 
 ## External Links
 
-* [Run and RunOnce Registry Keys](https://docs.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys)
+* [Run and RunOnce Registry Keys](https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys)
 

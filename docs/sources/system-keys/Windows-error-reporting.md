@@ -203,6 +203,6 @@ ReportQueue |
 
 ## External Links
 
-* [Collecting User-Mode Dumps](https://docs.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps)
-* [MINIDUMP_TYPE enumeration](https://docs.microsoft.com/en-us/windows/win32/api/minidumpapiset/ne-minidumpapiset-minidump_type)
-* [WER Settings](https://docs.microsoft.com/en-us/windows/win32/wer/wer-settings)
+* [Collecting User-Mode Dumps](https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps)
+* [MINIDUMP_TYPE enumeration](https://learn.microsoft.com/en-us/windows/win32/api/minidumpapiset/ne-minidumpapiset-minidump_type)
+* [WER Settings](https://learn.microsoft.com/en-us/windows/win32/wer/wer-settings)

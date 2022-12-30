@@ -67,6 +67,6 @@ for "My Documents".
 
 ## External Links
 
-* [Implementing the Basic Folder Object Interfaces](https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/cc144093(v=vs.85))
+* [Implementing the Basic Folder Object Interfaces](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/cc144093(v=vs.85))
 * [libfwsi: Shell Folder identifiers](https://github.com/libyal/libfwsi/wiki/Shell-Folder-identifiers)
 

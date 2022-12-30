@@ -324,14 +324,14 @@ Value | Identifier | Description
 
 ## External Links
 
-* [ACCOUNT_TYPE Values](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/e742be45-665d-4576-b872-0bc99d1e1fbe)
-* [Built-in and Account Domains](https://docs.microsoft.com/en-us/windows/win32/secmgmt/built-in-and-account-domains)
-* [Predefined RIDs](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/565a6584-3061-4ede-a531-f5c53826504b)
-* [SAMPR_USER_ALL_INFORMATION](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/dc966b81-da27-4dae-a28c-ec16534f1cb9)
-* [Security Account Manager (SAM)](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc756748(v=ws.10))
-* [SysKey and the SAM](http://moyix.blogspot.com/2008/02/syskey-and-sam.html), by Brendan Dolan-Gavitt, February 21, 2008
-* [USER_ACCOUNT Codes](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/b10cfda1-f24f-441b-8f43-80cb93e786ec)
-* [userAccountControl Mapping Table](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/8a193181-a7a2-49df-a8b1-f689aaa6987c)
-* [USER_ALL_INFORMATION structure](https://docs.microsoft.com/en-us/windows/win32/api/subauth/ns-subauth-user_all_information)
-* [Well-known SIDs](https://docs.microsoft.com/en-us/windows/win32/secauthz/well-known-sids)
+* [ACCOUNT_TYPE Values](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/e742be45-665d-4576-b872-0bc99d1e1fbe)
+* [Built-in and Account Domains](https://learn.microsoft.com/en-us/windows/win32/secmgmt/built-in-and-account-domains)
+* [Predefined RIDs](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/565a6584-3061-4ede-a531-f5c53826504b)
+* [SAMPR_USER_ALL_INFORMATION](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/dc966b81-da27-4dae-a28c-ec16534f1cb9)
+* [Security Account Manager (SAM)](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc756748(v=ws.10))
+* [SysKey and the SAM](https://moyix.blogspot.com/2008/02/syskey-and-sam.html), by Brendan Dolan-Gavitt, February 21, 2008
+* [USER_ACCOUNT Codes](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/b10cfda1-f24f-441b-8f43-80cb93e786ec)
+* [userAccountControl Mapping Table](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/8a193181-a7a2-49df-a8b1-f689aaa6987c)
+* [USER_ALL_INFORMATION structure](https://learn.microsoft.com/en-us/windows/win32/api/subauth/ns-subauth-user_all_information)
+* [Well-known SIDs](https://learn.microsoft.com/en-us/windows/win32/secauthz/well-known-sids)
 

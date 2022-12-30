@@ -25,6 +25,6 @@ Value | Description
 
 ## External Links
 
-* [Disabling Prefetch](https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms940847(v=winembedded.5))
-* [Disable Prefetch (Standard 7 SP1)](https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ff794503(v=winembedded.60))
+* [Disabling Prefetch](https://learn.microsoft.com/en-us/previous-versions/windows/embedded/ms940847(v=winembedded.5))
+* [Disable Prefetch (Standard 7 SP1)](https://learn.microsoft.com/en-us/previous-versions/windows/embedded/ff794503(v=winembedded.60))
 

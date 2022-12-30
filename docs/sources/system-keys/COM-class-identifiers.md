@@ -115,7 +115,7 @@ Name | Data type | Description
 
 ## External Links
 
-* [CLSID Key](https://docs.microsoft.com/en-us/windows/win32/com/clsid-key-hklm)
-* [ProxyStubClsid](https://docs.microsoft.com/en-us/windows/win32/com/proxystubclsid)
-* [Registering a Type Library](https://docs.microsoft.com/en-us/previous-versions/windows/desktop/automat/registering-a-type-library)
+* [CLSID Key](https://learn.microsoft.com/en-us/windows/win32/com/clsid-key-hklm)
+* [ProxyStubClsid](https://learn.microsoft.com/en-us/windows/win32/com/proxystubclsid)
+* [Registering a Type Library](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/automat/registering-a-type-library)
 

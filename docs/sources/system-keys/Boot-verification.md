@@ -46,8 +46,8 @@ verification program cannot be used in parallel.
 
 ## External links
 
-* [BootVerification](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc778559(v=ws.10))
-* [BootVerificationProgram](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc782537(v=ws.10))
-* [BootVerificationProgram\ImagePath](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc786702(v=ws.10))
-* [ReportBootOk](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc739989(v=ws.10))
+* [BootVerification](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc778559(v=ws.10))
+* [BootVerificationProgram](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc782537(v=ws.10))
+* [BootVerificationProgram\ImagePath](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc786702(v=ws.10))
+* [ReportBootOk](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc739989(v=ws.10))
 

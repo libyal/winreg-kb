@@ -16,7 +16,7 @@ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\AppCompatCac
 ```
 
 Note that several sources claim that the Application Compatibility Cache is
-part of the [Application Compatibility Database](https://docs.microsoft.com/en-us/windows/win32/devnotes/application-compatibility-database).
+part of the [Application Compatibility Database](https://learn.microsoft.com/en-us/windows/win32/devnotes/application-compatibility-database).
 However unfortunately these claims are not backed by sources or facts. Since
 the previous article does not mention the relationship between the cache and
 the database, this document the Application Compatibility Cache to part of
@@ -26,7 +26,7 @@ Note that the actual difference between the Application Compatibility Cache
 and Shim (Database) Cache is currently unknown. Be aware that in other sources
 the terms can be used interchangeable. Since MSDN explicitly defines
 BaseFlushAppcompatCache and ShimFlushCache, there is likely a subtle difference
-to what data is cached. Also see: [Understanding Shims](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-7/dd837644(v=ws.10)).
+to what data is cached. Also see: [Understanding Shims](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-7/dd837644(v=ws.10)).
 
 ## Windows 2000
 

@@ -58,6 +58,6 @@ Yet another variation seen in Windows 2000.
 
 ## External Links
 
-* [MSDN: Multilingual User Interface](https://docs.microsoft.com/en-us/windows/win32/intl/multilingual-user-interface)
-* [MSDN: Using Registry String Redirection](https://docs.microsoft.com/en-us/windows/win32/intl/using-registry-string-redirection)
+* [MSDN: Multilingual User Interface](https://learn.microsoft.com/en-us/windows/win32/intl/multilingual-user-interface)
+* [MSDN: Using Registry String Redirection](https://learn.microsoft.com/en-us/windows/win32/intl/using-registry-string-redirection)
 

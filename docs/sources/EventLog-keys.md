@@ -282,8 +282,8 @@ Data: %SystemRoot%\system32\wecsvc.dll
 
 ## External Links
 
-* [Eventlog Key](https://docs.microsoft.com/en-us/windows/win32/eventlog/eventlog-key)
-* [Event Sources](https://docs.microsoft.com/en-us/windows/win32/eventlog/event-sources)
-* [winevt.h header](https://docs.microsoft.com/en-us/windows/win32/api/winevt)
-* [Windows Event Log](https://docs.microsoft.com/en-us/windows/win32/api/_wes)
+* [Eventlog Key](https://learn.microsoft.com/en-us/windows/win32/eventlog/eventlog-key)
+* [Event Sources](https://learn.microsoft.com/en-us/windows/win32/eventlog/event-sources)
+* [winevt.h header](https://learn.microsoft.com/en-us/windows/win32/api/winevt/)
+* [Windows Event Log](https://learn.microsoft.com/en-us/windows/win32/api/_wes/)
 

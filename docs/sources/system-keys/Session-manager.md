@@ -14,5 +14,5 @@ BootExecute | REG_BINARY, REG_MULTI_SZ | Applications, services and commands exe
 
 ## External links
 
-* [MSDN: BootExecute](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc963230(v=technet.10))
+* [MSDN: BootExecute](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc963230(v=technet.10))
 

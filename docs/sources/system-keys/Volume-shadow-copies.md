@@ -12,5 +12,5 @@ Value| Data type| Description
 
 ## External Links
 
-* [Excluding Files from Shadow Copies](https://docs.microsoft.com/en-us/windows/win32/vss/excluding-files-from-shadow-copies)
+* [Excluding Files from Shadow Copies](https://learn.microsoft.com/en-us/windows/win32/vss/excluding-files-from-shadow-copies)
 

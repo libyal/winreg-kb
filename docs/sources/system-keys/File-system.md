@@ -36,7 +36,7 @@ Value | Description
 **TODO the explanation of the values differs between versions of Windows**
 
 The meaning of the value 0 for Windows 2000 according to
-[NtfsDisableLastAccessUpdate](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc959914(v=technet.10)):
+[NtfsDisableLastAccessUpdate](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc959914(v=technet.10)):
 
 ```
 When listing directories, NTFS updates the last-access timestamp on each
@@ -44,7 +44,7 @@ directory it detects, and it records each time change in the NTFS log.
 ```
 
 In contrast to the meaning of the value 0 for Windows 2003 according to
-[NtfsDisableLastAccessUpdate](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc758569(v=ws.10)):
+[NtfsDisableLastAccessUpdate](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc758569(v=ws.10)):
 
 ```
 NTFS updates the last-accessed timestamp of a file whenever that file is opened.
@@ -56,17 +56,17 @@ NTFS updates the last-accessed timestamp of a file whenever that file is opened.
 
 ### Windows 2000
 
-* [NtfsDisable8dot3NameCreation](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc959352(v=technet.10))
-* [NtfsDisableLastAccessUpdate](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc959914(v=technet.10))
-* [Win31FileSystem](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc976058(v=technet.10))
-* [NtfsEncryptionService](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc976057(v=technet.10))
-* [NtfsAllowExtendedCharacterIn8dot3Name](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc963196(v=technet.10))
+* [NtfsDisable8dot3NameCreation](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc959352(v=technet.10))
+* [NtfsDisableLastAccessUpdate](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc959914(v=technet.10))
+* [Win31FileSystem](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc976058(v=technet.10))
+* [NtfsEncryptionService](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc976057(v=technet.10))
+* [NtfsAllowExtendedCharacterIn8dot3Name](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc963196(v=technet.10))
 
 ### Windows 2003
 
-* [NtfsAllowExtendedCharacterIn8dot3Name](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc781607(v=ws.10))
-* [NtfsDisable8dot3NameCreation](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc778996(v=ws.10))
-* [NtfsDisableLastAccessUpdate](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc758569(v=ws.10))
-* [NtfsEncryptionService](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc739602(v=ws.10))
-* [Win95TruncatedExtensions](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc756733(v=ws.10))
+* [NtfsAllowExtendedCharacterIn8dot3Name](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc781607(v=ws.10))
+* [NtfsDisable8dot3NameCreation](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc778996(v=ws.10))
+* [NtfsDisableLastAccessUpdate](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc758569(v=ws.10))
+* [NtfsEncryptionService](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc739602(v=ws.10))
+* [Win95TruncatedExtensions](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc756733(v=ws.10))
 

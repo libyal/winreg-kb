@@ -193,5 +193,5 @@ NL$7
 
 ## External Links
 
-* [Cached domain logon information](https://docs.microsoft.com/en-US/troubleshoot/windows-server/user-profiles-and-logon/cached-domain-logon-information)
+* [Cached domain logon information](https://learn.microsoft.com/en-US/troubleshoot/windows-server/user-profiles-and-logon/cached-domain-logon-information)
 
