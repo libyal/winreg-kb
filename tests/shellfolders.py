@@ -71,18 +71,19 @@ class ShellFoldersCollectorTest(shared_test_lib.BaseTestCase):
     collector_object = shellfolders.ShellFoldersCollector()
 
     test_results = sorted(
-        collector_object.Collect(registry), key=lambda folder: folder.guid)
+        collector_object.Collect(registry),
+        key=lambda folder: folder.identifier)
     self.assertEqual(len(test_results), 2)
 
     shell_folder = test_results[0]
     self.assertIsNotNone(shell_folder)
-    self.assertEqual(shell_folder.guid, self._GUID1)
+    self.assertEqual(shell_folder.identifier, self._GUID1)
     self.assertEqual(shell_folder.name, self._NAME1)
     self.assertEqual(shell_folder.localized_string, self._LOCALIZED_STRING1)
 
     shell_folder = test_results[1]
     self.assertIsNotNone(shell_folder)
-    self.assertEqual(shell_folder.guid, self._GUID2)
+    self.assertEqual(shell_folder.identifier, self._GUID2)
     self.assertEqual(shell_folder.name, '')
     self.assertEqual(shell_folder.localized_string, '')
 

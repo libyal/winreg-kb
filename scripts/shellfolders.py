@@ -4,9 +4,9 @@
 
 import argparse
 import logging
-import os
-import sqlite3
 import sys
+
+from acstore import sqlite_store
 
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
@@ -18,33 +18,6 @@ from winregrc import volume_scanner
 class Sqlite3DatabaseFileWriter(object):
   """SQLite3 database file output writer."""
 
-  _SHELL_FOLDER_CREATE_QUERY = (
-      'CREATE TABLE shell_folder ( guid TEXT, name TEXT )')
-
-  _SHELL_FOLDER_INSERT_QUERY = (
-      'INSERT INTO shell_folder VALUES ( "{0:s}", "{1:s}" )')
-
-  _SHELL_FOLDER_SELECT_QUERY = (
-      'SELECT name FROM shell_folder WHERE guid = "{0:s}"')
-
-  _LOCALIZED_NAME_CREATE_QUERY = (
-      'CREATE TABLE localized_name ( guid TEXT, reference TEXT )')
-
-  _LOCALIZED_NAME_INSERT_QUERY = (
-      'INSERT INTO localized_name VALUES ( "{0:s}", "{1:s}" )')
-
-  _LOCALIZED_NAME_SELECT_QUERY = (
-      'SELECT reference FROM localized_name WHERE guid = "{0:s}"')
-
-  _VERSION_CREATE_QUERY = (
-      'CREATE TABLE version ( guid TEXT, windows_version TEXT )')
-
-  _VERSION_INSERT_QUERY = (
-      'INSERT INTO version VALUES ( "{0:s}", "{1:s}" )')
-
-  _VERSION_SELECT_QUERY = (
-      'SELECT windows_version FROM version WHERE guid = "{0:s}"')
-
   def __init__(self, path, windows_version):
     """Initializes a SQLite3 database output writer.
 
@@ -53,11 +26,9 @@ class Sqlite3DatabaseFileWriter(object):
       windows_version (str): the Windows version.
     """
     super(Sqlite3DatabaseFileWriter, self).__init__()
-    self._connection = None
-    self._create_new_database = False
-    self._cursor = None
     self._path = path
     self._windows_version = windows_version
+    self._store = sqlite_store.SQLiteAttributeContainerStore()
 
   def Open(self):
     """Opens the output writer object.
@@ -65,60 +36,29 @@ class Sqlite3DatabaseFileWriter(object):
     Returns:
       bool: True if successful or False if not.
     """
-    if os.path.exists(self._path):
-      self._create_new_database = False
-    else:
-      self._create_new_database = True
-
-    self._connection = sqlite3.connect(self._path)
-    if not self._connection:
-      return False
-
-    self._cursor = self._connection.cursor()
-    if not self._cursor:
-      return False
-
-    if self._create_new_database:
-      self._cursor.execute(self._SHELL_FOLDER_CREATE_QUERY)
-      self._cursor.execute(self._LOCALIZED_NAME_CREATE_QUERY)
-      self._cursor.execute(self._VERSION_CREATE_QUERY)
+    self._store.Open(path=self._path, read_only=False)
 
     return True
 
   def Close(self):
     """Closes the output writer object."""
-    self._connection.close()
+    self._store.Close()
 
   def WriteShellFolder(self, shell_folder):
     """Writes the shell folder to the database.
 
     Args:
-      shell_folder (ShellFolder): the shell folder.
+      shell_folder (WindowsShellFolder): the shell folder.
     """
-    if self._create_new_database:
-      have_entry = False
-    else:
-      sql_query = self._SHELL_FOLDER_SELECT_QUERY.format(shell_folder.guid)
+    containers = list(self._store.GetAttributeContainers(
+        shell_folder.CONTAINER_TYPE,
+        filter_expression=f'identifier == "{shell_folder.identifier}"'))
 
-      self._cursor.execute(sql_query)
-
-      have_entry = bool(self._cursor.fetchone())
-
-    if not have_entry:
-      sql_query = self._SHELL_FOLDER_INSERT_QUERY.format(
-          shell_folder.guid, shell_folder.name)
-
-      sql_query = self._LOCALIZED_NAME_INSERT_QUERY.format(
-          shell_folder.guid, shell_folder.localized_string)
-
-      sql_query = self._VERSION_INSERT_QUERY.format(
-          shell_folder.guid, self._windows_version)
-
-      self._cursor.execute(sql_query)
-      self._connection.commit()
-    else:
+    if containers:
       # TODO: print duplicates.
-      logging.info(f'Ignoring duplicate: {shell_folder.guid:s}')
+      logging.info(f'Ignoring duplicate: {shell_folder.identifier:s}')
+    else:
+      self._store.AddAttributeContainer(shell_folder)
 
 
 class StdoutWriter(output_writers.StdoutOutputWriter):
@@ -128,9 +68,9 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     """Writes the shell folder to stdout.
 
     Args:
-      shell_folder (ShellFolder): the shell folder.
+      shell_folder (WindowsShellFolder): the shell folder.
     """
-    print((f'{shell_folder.guid:s}\t{shell_folder.name:s}\t'
+    print((f'{shell_folder.identifier:s}\t{shell_folder.name:s}\t'
            f'{shell_folder.localized_string:s}'))
 
 
@@ -149,7 +89,8 @@ def Main():
 
   argument_parser.add_argument(
       '--db', dest='database', action='store', metavar='shellitems.db',
-      default=None, help='path of the sqlite3 database to write to.')
+      default=None, help=(
+          'path of the attribute container database to write to.'))
 
   argument_parser.add_argument(
       '-w', '--windows_version', '--windows-version',

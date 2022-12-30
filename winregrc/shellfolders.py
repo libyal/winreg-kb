@@ -1,45 +1,55 @@
 # -*- coding: utf-8 -*-
-"""Shell Folder collector."""
+"""Windows Shell folder collector."""
+
+from acstore.containers import interface as containers_interface
+from acstore.containers import manager as containers_manager
 
 from winregrc import interface
 
 
-class ShellFolder(object):
-  """Shell folder.
+class WindowsShellFolder(containers_interface.AttributeContainer):
+  """Windows Shell folder.
 
   Attributes:
-    guid (str): GUID.
+    identifier (str): identifier (GUID).
     name (str): name.
     localized_string (str): localized string of the name.
   """
 
-  def __init__(self, guid, name, localized_string):
-    """Initializes a shell folder.
+  CONTAINER_TYPE = 'windows_shell_folder'
+
+  SCHEMA = {
+      'identifier': 'str',
+      'localized_string': 'str',
+      'name': 'str'}
+
+  def __init__(self, identifier=None, localized_string=None, name=None):
+    """Initializes a Windows Shell folder.
 
     Args:
-      guid (str): GUID.
-      name (str): name.
-      localized_string (str): localized string of the name.
+      identifier (Optional[str]): identifier (GUID).
+      localized_string (Optional[str]): localized string of the name.
+      name (Optional[str]): name.
     """
-    super(ShellFolder, self).__init__()
-    self.guid = guid
-    self.name = name
+    super(WindowsShellFolder, self).__init__()
+    self.identifier = identifier
     self.localized_string = localized_string
+    self.name = name
 
 
 class ShellFoldersCollector(interface.WindowsRegistryKeyCollector):
-  """Shell folder collector."""
+  """Windows Shell folder collector."""
 
   _CLASS_IDENTIFIERS_KEY_PATH = 'HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID'
 
   def _CollectShellFolders(self, class_identifiers_key):
-    """Collects the shell folders.
+    """Collects Windows Shell folders.
 
     Args:
       class_identifiers_key (dfwinreg.WinRegistry): CLSID Windows Registry.
 
     Yields:
-      ShellFolder: a shell folder.
+      ShellFolder: a Windows Shell folder.
     """
     for class_identifier_key in class_identifiers_key.GetSubkeys():
       guid = class_identifier_key.name.lower()
@@ -64,18 +74,23 @@ class ShellFoldersCollector(interface.WindowsRegistryKeyCollector):
         else:
           localized_string = ''
 
-        yield ShellFolder(guid, name, localized_string)
+        yield WindowsShellFolder(
+            identifier=guid, localized_string=localized_string, name=name)
 
   def Collect(self, registry):
-    """Collects the shell folders.
+    """Collects Windows Shell folders.
 
     Args:
       registry (dfwinreg.WinRegistry): Windows Registry.
 
     Yields:
-      ShellFolder: a shell folder.
+      WindowsShellFolder: a Windows Shell folder.
     """
     class_identifiers_key = registry.GetKeyByPath(
         self._CLASS_IDENTIFIERS_KEY_PATH)
     if class_identifiers_key:
       yield from self._CollectShellFolders(class_identifiers_key)
+
+
+containers_manager.AttributeContainersManager.RegisterAttributeContainer(
+    WindowsShellFolder)

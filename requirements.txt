@@ -1,5 +1,6 @@
 pip >= 7.0.0
 PyYAML >= 3.10
+acstore >= 20221228
 artifacts >= 20211205
 cffi >= 1.9.1
 cryptography >= 2.0.2
