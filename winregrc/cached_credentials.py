@@ -5,11 +5,10 @@ import codecs
 import struct
 
 from cryptography.hazmat import backends
-from cryptography.hazmat.primitives.ciphers import algorithms
-from cryptography.hazmat.primitives.ciphers import modes
-from cryptography.hazmat.primitives import ciphers
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import hmac
+
+import pyfcrypto
 
 from winregrc import hexdump
 from winregrc import interface
@@ -67,11 +66,10 @@ class CachedCredentialsKeyCollector(interface.WindowsRegistryKeyCollector):
     Returns:
       bytes: decrypted data.
     """
-    algorithm = algorithms.ARC4(key)
-    backend = backends.default_backend()
-    cipher = ciphers.Cipher(algorithm, mode=None, backend=backend)
-    cipher_context = cipher.decryptor()
-    return cipher_context.update(data)
+    rc4_context = pyfcrypto.rc4_context()
+    rc4_context.set_key(key)
+
+    return pyfcrypto.crypt_rc4(rc4_context, data)
 
   def _DecryptTripleDES(self, key, data):
     """Decrypts Triple DES-ECB encrypted data.
@@ -83,12 +81,11 @@ class CachedCredentialsKeyCollector(interface.WindowsRegistryKeyCollector):
     Returns:
       bytes: decrypted data.
     """
-    algorithm = algorithms.TripleDES(key)
-    mode = modes.ECB()
-    backend = backends.default_backend()
-    cipher = ciphers.Cipher(algorithm, mode=mode, backend=backend)
-    cipher_context = cipher.decryptor()
-    return cipher_context.update(data)
+    des3_context = pyfcrypto.des3_context()
+    des3_context.set_key(key)
+
+    return pyfcrypto.crypt_des3(
+        des3_context, pyfcrypto.crypt_modes.DECRYPT, data)
 
   def _GetBootKey(self, registry):
     """Retrieves the boot key.

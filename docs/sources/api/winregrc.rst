@@ -220,6 +220,14 @@ winregrc.type\_libraries module
    :undoc-members:
    :show-inheritance:
 
+winregrc.usbstor module
+-----------------------
+
+.. automodule:: winregrc.usbstor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 winregrc.userassist module
 --------------------------
 

@@ -11,6 +11,7 @@ dtfabric >= 20220219
 libbde-python >= 20220121
 libcreg-python >= 20200725
 libewf-python >= 20131210
+libfcrypto-python >= 20221229
 libfsapfs-python >= 20201107
 libfsext-python >= 20220112
 libfshfs-python >= 20220115
