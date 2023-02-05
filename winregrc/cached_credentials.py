@@ -4,11 +4,8 @@
 import codecs
 import struct
 
-from cryptography.hazmat import backends
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives import hmac
-
 import pyfcrypto
+import pyhmac
 
 from winregrc import hexdump
 from winregrc import interface
@@ -156,10 +153,7 @@ class CachedCredentialsKeyCollector(interface.WindowsRegistryKeyCollector):
 
     value_data = policy_encryption_value.data
 
-    algorithm = hashes.MD5()
-    backend = backends.default_backend()
-    digest_context = hashes.Hash(algorithm, backend=backend)
-
+    digest_context = pyhmac.md5_context()
     digest_context.update(boot_key)
 
     iteration = 0
@@ -274,20 +268,11 @@ class CachedCredentialsKeyCollector(interface.WindowsRegistryKeyCollector):
       if value.name == 'NL$Control':
         continue
 
-      value_data = value.data
-
-      algorithm = hashes.MD5()
-      backend = backends.default_backend()
-      hmac_context = hmac.HMAC(nl_key, algorithm, backend=backend)
-
-      ch = value_data[64:80]
-      hmac_context.update(ch)
-
-      rc4_key = hmac_context.finalize()
-      decrypted_data = self._DecryptARC4(rc4_key, value_data[96:])
+      rc4_key = pyhmac.md5_calculate_hmac(nl_key, value.data[64:80])
+      decrypted_data = self._DecryptARC4(rc4_key, value.data[96:])
 
       print(value.name)
-      print(hexdump.Hexdump(value_data))
+      print(hexdump.Hexdump(value.data))
       print(hexdump.Hexdump(decrypted_data))
 
     return True

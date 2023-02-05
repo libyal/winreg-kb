@@ -22,6 +22,7 @@ libfsxfs-python >= 20220113
 libfvde-python >= 20220121
 libfwnt-python >= 20210717
 libfwsi-python >= 20150606
+libhmac-python >= 20230205
 libluksde-python >= 20220121
 libmodi-python >= 20210405
 libphdi-python >= 20220110
