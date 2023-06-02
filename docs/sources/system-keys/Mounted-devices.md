@@ -1,6 +1,6 @@
 # Mounted devices
 
-The mounted devices settings are stored in the key:
+The Mount Manager's persistent name database is stored in the key:
 
 ```
 HKEY_LOCAL_MACHINE\SYSTEM\MountedDevices
@@ -27,8 +27,10 @@ Name | Data type | Description
 
 Where the following variants of %IDENTIFIER% have been observed:
 
-* "\DosDevices\C:"
-* "\??\Volume{01234567-89ab-cdef-0123-456789abcdef}"
+* "\DosDevices\C:" - assignment of drive letter to device
+* "\DosDevices\F:\path\name" - assignment of Win32 folder to device
+* "\??\Volume{01234567-89ab-cdef-0123-456789abcdef}" - unique volume name, used to create symbolic links within the [Windows Kernel-Mode Object Manager](https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/windows-kernel-mode-object-manager)
+* "#{01234567-89ab-cdef-0123-456789abcdef}" - unknown purpose
 
 Where the value data consist of either:
 
@@ -73,5 +75,9 @@ Offset | Size | Value | Description
 
 ## Notes
 
-The mountvol.exe Windows CLI tool can show information about mounted devices.
+The mountvol.exe Windows CLI tool can show information about mounted and unmounted devices. The
+PowerShell equivlant is `Get-Volume`.
 
+The
+[Widnows Storage documentation](https://learn.microsoft.com/en-us/windows-hardware/drivers/storage/supporting-mount-manager-requests-in-a-storage-class-driver)
+has a more detailed explanation of the purpose of this registry key.
