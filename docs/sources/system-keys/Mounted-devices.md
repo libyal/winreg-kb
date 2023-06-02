@@ -28,7 +28,7 @@ Name | Data type | Description
 Where the following variants of %IDENTIFIER% have been observed:
 
 * "\DosDevices\C:" - assignment of drive letter to device
-* "\DosDevices\F:\path\name" - assignment of Win32 folder to device
+* "\DosDevices\F:\path\name" - assignment of Win32 folder to device (documented, but not observed)
 * "\??\Volume{01234567-89ab-cdef-0123-456789abcdef}" - unique volume name, used to create symbolic links within the [Windows Kernel-Mode Object Manager](https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/windows-kernel-mode-object-manager)
 * "#{01234567-89ab-cdef-0123-456789abcdef}" - unknown purpose
 
