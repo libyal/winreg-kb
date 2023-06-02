@@ -75,9 +75,12 @@ Offset | Size | Value | Description
 
 ## Notes
 
-The mountvol.exe Windows CLI tool can show information about mounted and unmounted devices. The
-PowerShell equivlant is `Get-Volume`.
+The `mountvol.exe` Windows CLI tool can show information about mounted and unmounted devices. The
+PowerShell equivalant is `Get-Volume`.
+
+Old entries (for volumes that are not presently mounted) can be removed from the database with
+`mountvol /r`.
 
 The
-[Widnows Storage documentation](https://learn.microsoft.com/en-us/windows-hardware/drivers/storage/supporting-mount-manager-requests-in-a-storage-class-driver)
+[Windows Storage documentation](https://learn.microsoft.com/en-us/windows-hardware/drivers/storage/supporting-mount-manager-requests-in-a-storage-class-driver)
 has a more detailed explanation of the purpose of this registry key.
