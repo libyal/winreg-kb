@@ -6,6 +6,9 @@ The mounted devices settings are stored in the key:
 HKEY_LOCAL_MACHINE\SYSTEM\MountedDevices
 ```
 
+Note that the mounted devices settings are also referred to as
+"Mount manager's persistent name database".
+
 Seen on:
 
 * Windows 2000
@@ -25,10 +28,12 @@ Name | Data type | Description
 --- | --- | ---
 %IDENTIFIER% | REG_BINARY | 
 
-Where the following variants of %IDENTIFIER% have been observed:
+Where the following variants of %IDENTIFIER% can be used:
 
-* "\DosDevices\C:"
-* "\??\Volume{01234567-89ab-cdef-0123-456789abcdef}"
+* "\DosDevices\C:" - drive letter that is assigned to the root of a file system
+* "\DosDevices\F:\path\name" - drive letter that is assigned to a specific directory within a file system (has not been observed)
+* "\??\Volume{01234567-89ab-cdef-0123-456789abcdef}" - unique volume identifier used within the Windows Kernel-Mode Object Manager
+* "#{01234567-89ab-cdef-0123-456789abcdef}" - purpose current unknown
 
 Where the value data consist of either:
 
@@ -73,5 +78,16 @@ Offset | Size | Value | Description
 
 ## Notes
 
-The mountvol.exe Windows CLI tool can show information about mounted devices.
+The Windows `mountvol.exe` command-line tool can show information about mounted and unmounted
+devices. Its PowerShell equivalant is `Get-Volume`.
 
+Entries of volumes that are not presently mounted can be removed from the database with:
+
+```
+mountvol /r
+```
+
+## External Links
+
+* [Supporting Mount Manager Requests in a Storage Class Driver](https://learn.microsoft.com/en-us/windows-hardware/drivers/storage/supporting-mount-manager-requests-in-a-storage-class-driver)
+* [Windows Kernel-Mode Object Manager](https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/windows-kernel-mode-object-manager)
