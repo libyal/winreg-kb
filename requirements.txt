@@ -1,4 +1,3 @@
-pip >= 7.0.0
 PyYAML >= 3.10
 acstore >= 20230101
 artifacts >= 20220219
