@@ -87,7 +87,11 @@ class WindowsRegistryKeyPathFilter(BaseWindowsRegistryKeyFilter):
 
   @property
   def key_paths(self):
-    """list[str]: key paths defined by the filter."""
+    """Retrieves the key paths defined by the filter.
+
+    Returns:
+      list[str]: key paths defined by the filter.
+    """
     if self._wow64_key_path:
       return [self._key_path, self._wow64_key_path]
     return [self._key_path]

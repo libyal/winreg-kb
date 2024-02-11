@@ -1,5 +1,5 @@
-winreg-kb (20221228-1) unstable; urgency=low
+winreg-kb (20240211-1) unstable; urgency=low
 
   * Auto-generated
 
- -- Joachim Metz <joachim.metz@gmail.com>  Wed, 28 Dec 2022 17:04:31 +0100
+ -- Joachim Metz <joachim.metz@gmail.com>  Sun, 11 Feb 2024 06:14:44 +0100
