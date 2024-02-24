@@ -456,4 +456,12 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
       if self._ProcessKey(current_user_key):
         result = True
 
+    if not result:
+      # Fallback for if source is a single Usrclass.dat file.
+      current_user_classes_key = registry.GetKeyByPath(
+          'HKEY_CURRENT_USER\\Software\\Classes')
+      if current_user_classes_key:
+        if self._ProcessKey(current_user_classes_key):
+          result = True
+
     return result

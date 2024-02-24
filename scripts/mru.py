@@ -6,6 +6,9 @@ import argparse
 import logging
 import sys
 
+from dfdatetime import fat_date_time as dfdatetime_fat_date_time
+from dfdatetime import semantic_time as dfdatetime_semantic_time
+
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
 import pyfwsi
@@ -18,27 +21,150 @@ from winregrc import volume_scanner
 class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
-  def WriteText(self, text):
-    """Writes text to stdout.
+  def _WriteShellItemControlPanelCategory(self, shell_item):
+    """Writes a control panel category shell item to stdout.
 
     Args:
-      text (bytes): text to write.
+      shell_item (pyfwsi.item): Shell item.
     """
-    print(text)
+    self.WriteValue(
+        '\tControl panel category identifier', shell_item.identifier)
+
+  def _WriteShellItemControlPanelItem(self, shell_item):
+    """Writes a control panel item shell item to stdout.
+
+    Args:
+      shell_item (pyfwsi.item): Shell item.
+    """
+    self.WriteValue('\tControl panel item identifier', shell_item.identifier)
+
+  def _WriteShellItemFileEntry(self, shell_item):
+    """Writes a file entry shell item to stdout.
+
+    Args:
+      shell_item (pyfwsi.item): Shell item.
+    """
+    self.WriteValue('\tFile size', f'{shell_item.file_size:d}')
+
+    fat_date_time = shell_item.get_modification_time_as_integer()
+    if not fat_date_time:
+      date_time = dfdatetime_semantic_time.SemanticTime(string='Not set')
+    else:
+      date_time = dfdatetime_fat_date_time.FATDateTime(
+          fat_date_time=fat_date_time)
+    self.WriteValue('\tModification time', date_time.CopyToDateTimeString())
+
+    self.WriteValue(
+        '\tFile attribute flags',
+        f'0x08{shell_item.file_attribute_flags:08x}')
+
+    self.WriteValue('\tName', shell_item.name)
+
+  def _WriteShellItemNetworkLocation(self, shell_item):
+    """Writes a network location shell item to stdout.
+
+    Args:
+      shell_item (pyfwsi.item): Shell item.
+    """
+    self.WriteValue('\tNetwork location', shell_item.location)
+
+    if shell_item.description:
+      self.WriteValue('\tDescription', shell_item.description)
+
+    if shell_item.comments:
+      self.WriteValue('\tComments', shell_item.comments)
+
+  def _WriteShellItemVolume(self, shell_item):
+    """Writes a volume shell item to stdout.
+
+    Args:
+      shell_item (pyfwsi.item): Shell item.
+    """
+    if shell_item.name:
+      self.WriteValue('\tVolume name', shell_item.name)
+
+    if shell_item.identifier:
+      self.WriteValue('\tVolume identifier', shell_item.identifier)
+
+    if shell_item.shell_folder_identifier:
+      self.WriteValue(
+          '\tVolume shell folder identifier',
+          shell_item.shell_folder_identifier)
 
   def WriteShellItem(self, shell_item):
     """Writes a shell item to stdout.
 
     Args:
-      shell_item (pyfwsi.item): Shell Item to write.
+      shell_item (pyfwsi.item): Shell item.
     """
     self.WriteValue('Shell item', f'0x{shell_item.class_type:02x}')
 
-    self.WriteIntegerValueAsDecimal(
-        '\tNumber of extension blocks', shell_item.number_of_extension_blocks)
+    if isinstance(shell_item, pyfwsi.control_panel_category):
+      self._WriteShellItemControlPanelCategory(shell_item)
 
-    for extension_block in shell_item.extension_blocks:
-      self.WriteValue('\tExtension block', f'0x{extension_block.signature:04x}')
+    elif isinstance(shell_item, pyfwsi.control_panel_item):
+      self._WriteShellItemControlPanelItem(shell_item)
+
+    elif isinstance(shell_item, pyfwsi.file_entry):
+      self._WriteShellItemFileEntry(shell_item)
+
+    elif isinstance(shell_item, pyfwsi.network_location):
+      self._WriteShellItemNetworkLocation(shell_item)
+
+    elif isinstance(shell_item, pyfwsi.root_folder):
+      self.WriteValue(
+          '\tRoot shell folder identifier', shell_item.shell_folder_identifier)
+
+    elif isinstance(shell_item, pyfwsi.volume):
+      self._WriteShellItemVolume(shell_item)
+
+    if shell_item.number_of_extension_blocks:
+      self.WriteIntegerValueAsDecimal(
+          '\tNumber of extension blocks',
+          shell_item.number_of_extension_blocks)
+
+      for index, extension_block in enumerate(shell_item.extension_blocks):
+        if index > 1:
+          self.WriteText('\n')
+
+        self.WriteValue(
+            '\tExtension block', f'0x{extension_block.signature:04x}')
+
+        if isinstance(extension_block, pyfwsi.file_entry_extension):
+          fat_date_time = extension_block.get_creation_time_as_integer()
+          if not fat_date_time:
+            date_time = dfdatetime_semantic_time.SemanticTime(string='Not set')
+          else:
+            date_time = dfdatetime_fat_date_time.FATDateTime(
+                fat_date_time=fat_date_time)
+          self.WriteValue('\t\tCreation time', date_time.CopyToDateTimeString())
+
+          fat_date_time = extension_block.get_access_time_as_integer()
+          if not fat_date_time:
+            date_time = dfdatetime_semantic_time.SemanticTime(string='Not set')
+          else:
+            date_time = dfdatetime_fat_date_time.FATDateTime(
+                fat_date_time=fat_date_time)
+          self.WriteValue('\t\tAccess time', date_time.CopyToDateTimeString())
+
+          self.WriteValue('\t\tLong name', extension_block.long_name)
+
+          if extension_block.localized_name:
+            self.WriteValue(
+                '\t\tLocalized name', extension_block.localized_name)
+
+          file_reference = extension_block.file_reference
+          if file_reference is not None:
+            if file_reference > 0x1000000000000:
+              mft_entry = file_reference & 0xffffffffffff
+              sequence_number = file_reference >> 48
+              file_reference = f'{mft_entry:d}-{sequence_number:d}'
+            else:
+              file_reference = f'0x{file_reference:04x}'
+
+            self.WriteValue('\t\tFile reference', file_reference)
+
+    self.WriteText('\n')
 
 
 def Main():

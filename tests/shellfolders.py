@@ -84,8 +84,8 @@ class ShellFoldersCollectorTest(shared_test_lib.BaseTestCase):
     shell_folder = test_results[1]
     self.assertIsNotNone(shell_folder)
     self.assertEqual(shell_folder.identifier, self._GUID2)
-    self.assertEqual(shell_folder.name, '')
-    self.assertEqual(shell_folder.localized_string, '')
+    self.assertIsNone(shell_folder.name)
+    self.assertIsNone(shell_folder.localized_string)
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""

@@ -155,13 +155,15 @@ Vista | CMI-CreateHive{C619BFE8-791A-4B77-922B-F114AB570920}
 
 Windows version | Root key name
 --- | ---
-2000, XP, 2003 | *TODO*
+2000 | *TODO*
+XP | %SID%_Classes, where %SID%_Classes is a string of the SID of the user
+2003 | *TODO*
 Vista, 7 | %SID%_Classes, where %SID%_Classes is a string of the SID of the user
 2008 | *TODO*
 2016 | *TODO*
 2019 | *TODO*
 8 | *TODO*
-10 | *TODO*
+10 | %SID%_Classes, where %SID%_Classes is a string of the SID of the user
 
 ## Notes
 
