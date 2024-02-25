@@ -47,9 +47,9 @@ Value | Identifier | Description
 0x20000000 | SFGAO_FOLDER | The extension's root folder contains one or more items.
 0x80000000 | SFGAO_HASSUBFOLDER | The extension's root folder contains one or more subfolders. Windows Explorer will place a plus sign ( `+` ) next to the folder icon.
 
-### Localized String value data
+### LocalizedString value data
 
-The Localize String value contains a localized version of the folder name, e.g.
+The LocalizedString value contains a localized version of the folder name, e.g.
 on Windows XP the folder identifier key:
 
 ```

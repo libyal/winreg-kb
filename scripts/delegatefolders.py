@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Script to extract Windows known folders from the Windows Registry."""
+"""Script to extract Windows delegate folders from the Windows Registry."""
 
 import argparse
 import logging
@@ -8,7 +8,7 @@ import sys
 
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
-from winregrc import knownfolders
+from winregrc import delegatefolders
 from winregrc import output_writers
 from winregrc import volume_scanner
 
@@ -16,17 +16,15 @@ from winregrc import volume_scanner
 class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
-  def WriteKnownFolder(self, known_folder):
-    """Writes a known folder to the output.
+  def WriteDelegateFolder(self, delegate_folder):
+    """Writes a delegate folder to the output.
 
     Args:
-      known_folder (KnownFolder): known folder.
+      delegate_folder (DelegateFolder): delegate folder.
     """
-    self.WriteValue('Identifier', known_folder.identifier)
-    self.WriteValue('Name', known_folder.name)
-
-    if known_folder.localized_name:
-      self.WriteValue('Localized name', known_folder.localized_name)
+    self.WriteValue('Identifier', delegate_folder.identifier)
+    self.WriteValue('Name', delegate_folder.name)
+    self.WriteValue('Namespace', delegate_folder.namespace)
 
     self.WriteText('\n')
 
@@ -38,7 +36,7 @@ def Main():
     bool: True if successful or False if not.
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts Windows known folders from the Windows Registry.'))
+      'Extracts Windows delegate folders from the Windows Registry.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -47,9 +45,9 @@ def Main():
   argument_parser.add_argument(
       'source', nargs='?', action='store', metavar='PATH', default=None,
       help=(
-          'path of the volume containing C:\\Windows, the filename of '
-          'a storage media image containing the C:\\Windows directory, '
-          'or the path of a SOFTWARE Registry file.'))
+          'path of the volume containing C:\\Windows, the filename of a '
+          'storage media image containing the C:\\Windows directory, or the '
+          'path of a SOFTWARE Registry file.'))
 
   options = argument_parser.parse_args()
 
@@ -78,7 +76,8 @@ def Main():
     print('')
     return False
 
-  collector_object = knownfolders.KnownFoldersCollector(debug=options.debug)
+  collector_object = delegatefolders.DelegateFoldersCollector(
+      debug=options.debug)
 
   output_writer_object = StdoutWriter()
 
@@ -89,15 +88,15 @@ def Main():
 
   try:
     has_results = False
-    for known_folder in collector_object.Collect(scanner.registry):
-      output_writer_object.WriteKnownFolder(known_folder)
+    for delegate_folder in collector_object.Collect(scanner.registry):
+      output_writer_object.WriteDelegateFolder(delegate_folder)
       has_results = True
 
   finally:
     output_writer_object.Close()
 
   if not has_results:
-    print('No Windows known folders found.')
+    print('No Windows delegate folders found.')
 
   return True
 

@@ -9,23 +9,23 @@ class TypeLibrary(object):
 
   Attributes:
     description (str): description.
-    guid (str): identifier.
+    identifier (str): identifier.
     typelib_filename (str): typelib_filename.
     version (str): version.
   """
 
-  def __init__(self, guid, version, description, typelib_filename):
+  def __init__(self, identifier, version, description, typelib_filename):
     """Initializes a type library.
 
     Args:
-      guid (str): identifier.
+      identifier (str): identifier.
       version (str): version.
       description (str): description.
       typelib_filename (str): typelib_filename.
     """
     super(TypeLibrary, self).__init__()
     self.description = description
-    self.guid = guid
+    self.identifier = identifier
     self.typelib_filename = typelib_filename
     self.version = version
 
@@ -66,7 +66,7 @@ class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
       return False
 
     for type_library_key in type_libraries_key.GetSubkeys():
-      guid = type_library_key.name.lower()
+      identifier = type_library_key.name.lower()
 
       for subkey in type_library_key.GetSubkeys():
         if subkey.name in ('FLAGS', 'HELPDIR'):
@@ -98,7 +98,7 @@ class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
         typelib_filename = self._GetValueFromKey(platform_key, '')
 
         type_library = TypeLibrary(
-            guid, subkey.name, description, typelib_filename)
+            identifier, subkey.name, description, typelib_filename)
         self.type_libraries.append(type_library)
 
     return True

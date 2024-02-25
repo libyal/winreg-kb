@@ -18,13 +18,13 @@ class TypeLibraryTest(test_lib.BaseTestCase):
 
   _DESCRIPTION = 'Microsoft Office List 14.0'
   _FILENAME = 'C:\\PROGRA~1\\MICROS~2\\Office14\\STSLIST.DLL'
-  _GUID = '{edcd5812-6a06-43c3-afac-46ef5d14e22c}'
+  _IDENTIFIER = '{edcd5812-6a06-43c3-afac-46ef5d14e22c}'
   _VERSION = '3.0'
 
   def testInitialize(self):
     """Tests the initialize function."""
     type_library = type_libraries.TypeLibrary(
-        self._GUID, self._VERSION, self._DESCRIPTION, self._FILENAME)
+        self._IDENTIFIER, self._VERSION, self._DESCRIPTION, self._FILENAME)
     self.assertIsNotNone(type_library)
 
 
@@ -33,12 +33,12 @@ class TypeLibraryCollectorTest(test_lib.BaseTestCase):
 
   _DESCRIPTION1 = 'Microsoft Office List 14.0'
   _FILENAME1 = 'C:\\PROGRA~1\\MICROS~2\\Office14\\STSLIST.DLL'
-  _GUID1 = '{edcd5812-6a06-43c3-afac-46ef5d14e22c}'
+  _IDENTIFIER1 = '{edcd5812-6a06-43c3-afac-46ef5d14e22c}'
   _VERSION1 = '3.0'
 
   _DESCRIPTION2 = 'IAS SDO Helper 1.0 Type Library'
   _FILENAME2 = '%SystemRoot%\\system32\\sdohlp.dll\\1'
-  _GUID2 = '{e9970f91-b6aa-11d9-b032-000d56c25c27}'
+  _IDENTIFIER2 = '{e9970f91-b6aa-11d9-b032-000d56c25c27}'
   _VERSION2 = '1.0'
 
   def _CreateTestRegistry(self):
@@ -52,7 +52,7 @@ class TypeLibraryCollectorTest(test_lib.BaseTestCase):
     registry_file = dfwinreg_fake.FakeWinRegistryFile(
         key_path_prefix=key_path_prefix)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(self._GUID1)
+    registry_key = dfwinreg_fake.FakeWinRegistryKey(self._IDENTIFIER1)
     registry_file.AddKeyByPath('\\Classes\\TypeLib', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._VERSION1)
@@ -74,7 +74,7 @@ class TypeLibraryCollectorTest(test_lib.BaseTestCase):
         '', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     platform_key.AddValue(registry_value)
 
-    registry_key = dfwinreg_fake.FakeWinRegistryKey(self._GUID2)
+    registry_key = dfwinreg_fake.FakeWinRegistryKey(self._IDENTIFIER2)
     registry_file.AddKeyByPath('\\Classes\\TypeLib', registry_key)
 
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._VERSION2)
@@ -119,7 +119,7 @@ class TypeLibraryCollectorTest(test_lib.BaseTestCase):
 
     self.assertIsNotNone(type_library)
     self.assertEqual(type_library.description, self._DESCRIPTION1)
-    self.assertEqual(type_library.guid, self._GUID1)
+    self.assertEqual(type_library.identifier, self._IDENTIFIER1)
     self.assertEqual(type_library.typelib_filename, self._FILENAME1)
     self.assertEqual(type_library.version, self._VERSION1)
 

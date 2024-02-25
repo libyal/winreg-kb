@@ -20,6 +20,24 @@ ParentFolder | REG_SZ | Path of the parent directory known folder, can contain a
 PreCreate | REG_DWORD | 
 RelativePath | REG_SZ | Relative path of the known folder
 
+### LocalizedName value data
+
+The LocalizedName value contains a localized version of the folder name, e.g.
+on Windows XP the folder identifier key:
+
+```
+HKEY_CLASSES_ROOT\CLSID\{450d8fba-ad25-11d0-98a8-0800361b1103}
+```
+
+Has a LocalizedString value with the following data:
+
+```
+@%SystemRoot%\system32\SHELL32.dll,-9227
+```
+
+Which is the [MUI Form](https://winreg-kb.readthedocs.io/en/latest/sources/windows-registry/MUI-form.html)
+for "My Documents".
+
 ## External links
 
 * [libfwsi: Known Folder Identifiers](https://github.com/libyal/libfwsi/wiki/Known-Folder-Identifiers)

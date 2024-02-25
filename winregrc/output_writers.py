@@ -3,6 +3,7 @@
 
 import abc
 
+from dfdatetime import fat_date_time as dfdatetime_fat_date_time
 from dfdatetime import filetime as dfdatetime_filetime
 
 from winregrc import hexdump
@@ -81,6 +82,48 @@ class OutputWriter(object):
     lines.extend(['', ''])
     return '\n'.join(lines)
 
+  def _FormatFATDateTimeValue(self, value):
+    """Formats a FAT date time value.
+
+    Args:
+      value (int): FAT date time value.
+
+    Returns:
+      str: date time string.
+    """
+    if not value:
+      date_time_string = 'Not set (0)'
+    else:
+      date_time = dfdatetime_fat_date_time.FATDateTime(fat_date_time=value)
+      date_time_string = date_time.CopyToDateTimeString()
+      if not date_time_string:
+        date_time_string = f'0x{value:04x}'
+
+    return date_time_string
+
+  def _FormatFiletimeValue(self, value):
+    """Formats a FILETIME timestamp value.
+
+    Args:
+      value (int): FILETIME timestamp value.
+
+    Returns:
+      str: date time string.
+    """
+    if value == 0:
+      date_time_string = 'Not set (0)'
+    elif value == 0x7fffffffffffffff:
+      date_time_string = 'Never (0x7fffffffffffffff)'
+    else:
+      date_time = dfdatetime_filetime.Filetime(timestamp=value)
+      date_time_string = date_time.CopyToDateTimeString()
+      if date_time_string:
+        date_time_string = f'{date_time_string:s} UTC'
+      else:
+        date_time_string = f'0x{value:08x}'
+
+    return date_time_string
+
   @abc.abstractmethod
   def Close(self):
     """Closes the output writer."""
@@ -129,7 +172,7 @@ class OutputWriter(object):
     """Writes data for debugging.
 
     Args:
-      description (str): description to write.
+      description (str): description.
       data (bytes): data to write.
     """
 
@@ -138,7 +181,7 @@ class OutputWriter(object):
     """Writes an integer value as decimal.
 
     Args:
-      description (str): description to write.
+      description (str): description.
       value (int): value to write.
     """
 
@@ -147,7 +190,7 @@ class OutputWriter(object):
     """Writes a FILETIME timestamp value.
 
     Args:
-      description (str): description to write.
+      description (str): description.
       value (str): value to write.
     """
 
@@ -156,7 +199,7 @@ class OutputWriter(object):
     """Writes a value.
 
     Args:
-      description (str): description to write.
+      description (str): description.
       value (str): value to write.
     """
 
@@ -188,8 +231,8 @@ class StdoutOutputWriter(OutputWriter):
     """Writes data for debugging.
 
     Args:
-      description (str): description to write.
-      data (bytes): data to write.
+      description (str): description.
+      data (bytes): data.
     """
     self.WriteText(description)
     self.WriteText('\n')
@@ -201,29 +244,18 @@ class StdoutOutputWriter(OutputWriter):
     """Writes a FILETIME timestamp value.
 
     Args:
-      description (str): description to write.
-      value (str): value to write.
+      description (str): description.
+      value (int): FILETIME timestamp value.
     """
-    if value == 0:
-      date_time_string = 'Not set (0)'
-    elif value == 0x7fffffffffffffff:
-      date_time_string = 'Never (0x7fffffffffffffff)'
-    else:
-      date_time = dfdatetime_filetime.Filetime(timestamp=value)
-      date_time_string = date_time.CopyToDateTimeString()
-      if date_time_string:
-        date_time_string = f'{date_time_string:s} UTC'
-      else:
-        date_time_string = f'0x{value:08x}'
-
+    date_time_string = self._FormatFiletimeValue(value)
     self.WriteValue(description, date_time_string)
 
   def WriteIntegerValueAsDecimal(self, description, value):
     """Writes an integer value as decimal.
 
     Args:
-      description (str): description to write.
-      value (int): value to write.
+      description (str): description.
+      value (int): integer value.
     """
     self.WriteValue(description, f'{value:d}')
 
@@ -231,8 +263,8 @@ class StdoutOutputWriter(OutputWriter):
     """Writes a value.
 
     Args:
-      description (str): description to write.
-      value (object): value to write.
+      description (str): description.
+      value (object): value.
     """
     description_no_tabs = description.replace('\t', ' ' * 8)
     alignment, _ = divmod(len(description_no_tabs), 8)

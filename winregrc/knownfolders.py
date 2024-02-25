@@ -8,21 +8,21 @@ class KnownFolder(object):
   """Known folder.
 
   Attributes:
-    guid (str): identifier.
+    identifier (str): identifier.
     localized_name (str): localized name.
     name (str): name.
   """
 
-  def __init__(self, guid, name, localized_name):
+  def __init__(self, identifier, name, localized_name):
     """Initializes a known folder.
 
     Args:
-      guid (str): identifier.
+      identifier (str): identifier.
       name (str): name.
       localized_name (str): localized name.
     """
     super(KnownFolder, self).__init__()
-    self.guid = guid
+    self.identifier = identifier
     self.localized_name = localized_name
     self.name = name
 
@@ -45,11 +45,11 @@ class KnownFoldersCollector(interface.WindowsRegistryKeyCollector):
       KnownFolder: a known folder.
     """
     for subkey in folder_descriptions_key.GetSubkeys():
-      guid = subkey.name.lower()
+      identifier = subkey.name.lower()
       name = self._GetValueFromKey(subkey, 'Name')
       localized_name = self._GetValueFromKey(subkey, 'LocalizedName')
 
-      yield KnownFolder(guid, name, localized_name)
+      yield KnownFolder(identifier, name, localized_name)
 
   def Collect(self, registry):
     """Collects Windows known folders.

@@ -16,7 +16,7 @@ from tests import test_lib as shared_test_lib
 class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Windows known folders collector."""
 
-  _GUID = '374de290-123f-4565-9164-39c4925e467b'
+  _IDENTIFIER = '374de290-123f-4565-9164-39c4925e467b'
   _LOCALIZED_NAME = '@%SystemRoot%\\system32\\shell32.dll,-21798'
   _NAME = 'Downloads'
 
@@ -35,8 +35,8 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
     registry_file.AddKeyByPath(
         '\\Microsoft\\Windows\\CurrentVersion\\Explorer', registry_key)
 
-    subkey = dfwinreg_fake.FakeWinRegistryKey(self._GUID)
-    registry_key.AddSubkey(self._GUID, subkey)
+    subkey = dfwinreg_fake.FakeWinRegistryKey(self._IDENTIFIER)
+    registry_key.AddSubkey(self._IDENTIFIER, subkey)
 
     value_data = self._NAME.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
@@ -66,7 +66,7 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
 
     known_folder = test_results[0]
     self.assertIsNotNone(known_folder)
-    self.assertEqual(known_folder.guid, self._GUID)
+    self.assertEqual(known_folder.identifier, self._IDENTIFIER)
     self.assertEqual(known_folder.name, self._NAME)
     self.assertEqual(known_folder.localized_name, self._LOCALIZED_NAME)
 

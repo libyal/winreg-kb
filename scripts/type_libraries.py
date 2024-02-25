@@ -76,7 +76,7 @@ def Main():
     print('No TypeLib key found.')
   else:
     for type_library in collector_object.type_libraries:
-      print((f'{type_library.guid:s}\t{type_library.version:s}\t'
+      print((f'{type_library.identifier:s}\t{type_library.version:s}\t'
              f'{type_library.description:s}\t'
              f'{type_library.typelib_filename:s}'))
 

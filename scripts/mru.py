@@ -6,11 +6,9 @@ import argparse
 import logging
 import sys
 
-from dfdatetime import fat_date_time as dfdatetime_fat_date_time
-from dfdatetime import semantic_time as dfdatetime_semantic_time
-
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
+import pyfwps
 import pyfwsi
 
 from winregrc import mru
@@ -47,12 +45,8 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     self.WriteValue('\tFile size', f'{shell_item.file_size:d}')
 
     fat_date_time = shell_item.get_modification_time_as_integer()
-    if not fat_date_time:
-      date_time = dfdatetime_semantic_time.SemanticTime(string='Not set')
-    else:
-      date_time = dfdatetime_fat_date_time.FATDateTime(
-          fat_date_time=fat_date_time)
-    self.WriteValue('\tModification time', date_time.CopyToDateTimeString())
+    date_time_string = self._FormatFATDateTimeValue(fat_date_time)
+    self.WriteValue('\tModification time', date_time_string)
 
     self.WriteValue(
         '\tFile attribute flags',
@@ -73,6 +67,45 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
 
     if shell_item.comments:
       self.WriteValue('\tComments', shell_item.comments)
+
+  def _WriteShellItemUsersPropertyView(self, shell_item):
+    """Writes an users property view item to stdout.
+
+    Args:
+      shell_item (pyfwsi.item): Shell item.
+    """
+    if shell_item.property_store_data:
+      fwps_store = pyfwps.store()
+      fwps_store.copy_from_byte_stream(shell_item.property_store_data)
+
+      for fwps_set in iter(fwps_store.sets):
+        for fwps_record in iter(fwps_set.records):
+          if fwps_record.value_type == 0x000b:
+            value_string = str(fwps_record.get_data_as_boolean())
+          elif fwps_record.value_type in (0x0013, 0x0014):
+            value_string = str(fwps_record.get_data_as_integer())
+          elif fwps_record.value_type == 0x001f:
+            value_string = fwps_record.get_data_as_string()
+          elif fwps_record.value_type == 0x0040:
+            filetime = fwps_record.get_data_as_integer()
+            value_string = self._FormatFiletimeValue(filetime)
+          elif fwps_record.value_type == 0x0042:
+            # TODO: add support
+            value_string = '<VT_STREAM>'
+          else:
+            raise RuntimeError(
+                f'Unsupported value type: 0x{fwps_record.value_type:04x}')
+
+          if fwps_record.entry_name:
+            entry_string = fwps_record.entry_name
+          else:
+            entry_string = f'{fwps_record.entry_type:d}'
+
+          # TODO: print PKEY_ name
+          self.WriteText(
+              f'\tProperty: {{{fwps_set.identifier:s}}}/{entry_string:s}\n')
+          self.WriteValue(
+              f'\t\tValue (0x{fwps_record.value_type:04x})', value_string)
 
   def _WriteShellItemVolume(self, shell_item):
     """Writes a volume shell item to stdout.
@@ -99,6 +132,10 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     """
     self.WriteValue('Shell item', f'0x{shell_item.class_type:02x}')
 
+    if shell_item.delegate_folder_identifier:
+      self.WriteValue(
+          '\tDelegate folder', shell_item.delegate_folder_identifier)
+
     if isinstance(shell_item, pyfwsi.control_panel_category):
       self._WriteShellItemControlPanelCategory(shell_item)
 
@@ -114,6 +151,9 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     elif isinstance(shell_item, pyfwsi.root_folder):
       self.WriteValue(
           '\tRoot shell folder identifier', shell_item.shell_folder_identifier)
+
+    elif isinstance(shell_item, pyfwsi.users_property_view):
+      self._WriteShellItemUsersPropertyView(shell_item)
 
     elif isinstance(shell_item, pyfwsi.volume):
       self._WriteShellItemVolume(shell_item)
@@ -132,20 +172,12 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
 
         if isinstance(extension_block, pyfwsi.file_entry_extension):
           fat_date_time = extension_block.get_creation_time_as_integer()
-          if not fat_date_time:
-            date_time = dfdatetime_semantic_time.SemanticTime(string='Not set')
-          else:
-            date_time = dfdatetime_fat_date_time.FATDateTime(
-                fat_date_time=fat_date_time)
-          self.WriteValue('\t\tCreation time', date_time.CopyToDateTimeString())
+          date_time_string = self._FormatFATDateTimeValue(fat_date_time)
+          self.WriteValue('\t\tCreation time', date_time_string)
 
           fat_date_time = extension_block.get_access_time_as_integer()
-          if not fat_date_time:
-            date_time = dfdatetime_semantic_time.SemanticTime(string='Not set')
-          else:
-            date_time = dfdatetime_fat_date_time.FATDateTime(
-                fat_date_time=fat_date_time)
-          self.WriteValue('\t\tAccess time', date_time.CopyToDateTimeString())
+          date_time_string = self._FormatFATDateTimeValue(fat_date_time)
+          self.WriteValue('\t\tAccess time', date_time_string)
 
           self.WriteValue('\t\tLong name', extension_block.long_name)
 
@@ -163,6 +195,9 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
               file_reference = f'0x{file_reference:04x}'
 
             self.WriteValue('\t\tFile reference', file_reference)
+
+        # TODO: add support for 0xbeef0019
+        # TODO: add support for 0xbeef0025
 
     self.WriteText('\n')
 
