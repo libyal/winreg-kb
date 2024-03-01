@@ -49,7 +49,7 @@ SOFTWARE | %SystemRoot%\System32\config | Software specific part of the Registry
 Syscache.hve | System Volume Information | *TODO* | | 7, 2008
 SYSTEM | %SystemRoot%\System32\config | System specific part of the Registry | `HKEY_LOCAL_MACHINE\System` | NT 4 and later
 userdiff | %SystemRoot%\System32\config | *TODO* | | NT 4 and later
-UsrClass.dat | %UserProfile%\Local Settings\Application Data\Microsoft\Windows | File associations and COM Registry entries | | 2000, XP, 2003
+UsrClass.dat | %UserProfile%\Local Settings\Application Data\Microsoft\Windows | `HKEY_CURRENT_USER\Software\Classes` | | 2000, XP, 2003
 UsrClass.dat | %UserProfile%\AppData\Local\Microsoft\Windows | File associations and COM Registry entries | `HKEY_CURRENT_USER\Software\Classes` | Vista and later
 
 *TODO Windows NT 3.1 user specific file under %SystemRoot%\System32\config*
@@ -165,7 +165,17 @@ Vista, 7 | %SID%_Classes, where %SID%_Classes is a string of the SID of the user
 8 | *TODO*
 10 | %SID%_Classes, where %SID%_Classes is a string of the SID of the user
 
-## Notes
 
-*TODO what about earlier versions of Windows?*
+### Virtual keys
 
+Windows version | Key path | Description
+--- | --- | ---
+2000 and later | `HKEY_LOCAL_MACHINE\System\CurrentControlSet` | See [Current control set](../system-keys/Current-control-set.html)
+2000 and later | `HKEY_CURRENT_USER\Software\Classes` | Maps to UsrClass.dat
+2000 and later | `HKEY_CLASSES_ROOT` | Combination of system (`HKEY_LOCAL_MACHINE\Software\Classes`) and user-specific (`HKEY_CURRENT_USER\Software\Classes`) settings
+Vista and later | `HKEY_CURRENT_USER\Software\Classes\VirtualStore\Machine\Software` | User-specific changes to `HKEY_LOCAL_MACHINE\Software`
+
+## External Links
+
+* [HKEY_CLASSES_ROOT Key](https://learn.microsoft.com/en-us/windows/win32/sysinfo/hkey-classes-root-key)
+* [Registry Virtualization](https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-virtualization)

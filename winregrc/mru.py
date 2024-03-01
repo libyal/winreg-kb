@@ -62,7 +62,11 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
       ('HKEY_CURRENT_USER\\Software\\Classes\\Local Settings\\Software\\'
        'Microsoft\\Windows\\Shell\\BagMRU'),
       ('HKEY_CURRENT_USER\\Software\\Classes\\Local Settings\\Software\\'
-       'Microsoft\\Windows\\ShellNoRoam\\BagMRU')]
+       'Microsoft\\Windows\\ShellNoRoam\\BagMRU'),
+      ('HKEY_CURRENT_USER\\Software\\Classes\\Wow6432Node\\Local Settings\\'
+       'Software\\Microsoft\\Windows\\Shell\\BagMRU'),
+      ('HKEY_CURRENT_USER\\Software\\Classes\\Wow6432Node\\Local Settings\\'
+       'Software\\Microsoft\\Windows\\ShellNoRoam\\BagMRU')]
 
   _SHELL_ITEM_MRU_KEY_PATHS = [
       key_path.upper() for key_path in _SHELL_ITEM_MRU_KEY_PATHS]
@@ -196,7 +200,7 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
 
       if self._debug:
         self._output_writer.WriteText(
-            f'Key: {registry_key.path:s}\nValue: {registry_value.name:s}')
+            f'Key: {registry_key.path:s}\nValue: {registry_value.name:s}\n')
 
       if self._InKeyPaths(registry_key.path, self._SHELL_ITEM_MRU_KEY_PATHS):
         self._ProcessMRUEntryShellItem(
@@ -275,7 +279,7 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
 
       if self._debug:
         self._output_writer.WriteText(
-            f'Key: {registry_key.path:s}\nValue: {registry_value.name:s}')
+            f'Key: {registry_key.path:s}\nValue: {registry_value.name:s}\n')
 
       if self._InKeyPaths(registry_key.path, self._SHELL_ITEM_MRU_KEY_PATHS):
         self._ProcessMRUEntryShellItem(
@@ -457,7 +461,7 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
         result = True
 
     if not result:
-      # Fallback for if source is a single Usrclass.dat file.
+      # Fallback for if source is a single UsrClass.dat file.
       current_user_classes_key = registry.GetKeyByPath(
           'HKEY_CURRENT_USER\\Software\\Classes')
       if current_user_classes_key:

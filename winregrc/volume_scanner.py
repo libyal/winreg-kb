@@ -13,6 +13,27 @@ from dfwinreg import interface as dfwinreg_interface
 from dfwinreg import registry as dfwinreg_registry
 
 
+class VolumeScannerOptions(dfvfs_volume_scanner.VolumeScannerOptions):
+  """Volume scanner options.
+
+  Attributes:
+    credentials (list[tuple[str, str]]): credentials, per type, to unlock
+        volumes.
+    partitions (list[str]): partition identifiers.
+    scan_mode (str): mode that defines how the VolumeScanner should scan
+        for volumes and snapshots.
+    snapshots (list[str]): snapshot identifiers.
+    username (str): username.
+    volumes (list[str]): volume identifiers, e.g. those of an APFS or LVM
+        volume system.
+  """
+
+  def __init__(self):
+    """Initializes volume scanner options."""
+    super(VolumeScannerOptions, self).__init__()
+    self.username = None
+
+
 class SingleFileWindowsRegistryFileReader(
     dfwinreg_interface.WinRegistryFileReader):
   """Single file Windows Registry file reader."""
@@ -43,12 +64,19 @@ class SingleFileWindowsRegistryFileReader(
     if file_object is None:
       return None
 
-    registry_file = windows_registry.WindowsRegistryFile(
-        ascii_codepage=ascii_codepage)
-
     try:
+      signature = file_object.read(4)
+
+      if signature == b'regf':
+        registry_file = windows_registry.REGFWindowsRegistryFile(
+            ascii_codepage=ascii_codepage)
+      else:
+        registry_file = windows_registry.CREGWindowsRegistryFile(
+            ascii_codepage=ascii_codepage)
+
+      # Note that registry_file takes over management of file_object.
       registry_file.Open(file_object)
-      # Note that WindowsRegistryFile takes over management of file_object.
+
     except IOError:
       file_object.close()
       return None
@@ -75,6 +103,53 @@ class WindowsRegistryVolumeScanner(dfvfs_volume_scanner.WindowsVolumeScanner):
 
     self.registry = None
 
+  def _GetUsername(self, options):
+    """Determines the username.
+
+    Args:
+      options (VolumeScannerOptions): volume scanner options.
+
+    Returns:
+      str: username or None if not available.
+
+    Raises:
+      ScannerError: if the scanner does not know how to proceed.
+      UserAbort: if the user requested to abort.
+    """
+    usernames = []
+
+    # TODO: handle alternative users path locations
+    users_path_spec = self._path_resolver.ResolvePath('\\Users')
+    if users_path_spec:
+      users_file_entry = dfvfs_resolver.Resolver.OpenFileEntry(
+          users_path_spec)
+      for sub_file_entry in users_file_entry.sub_file_entries:
+        if sub_file_entry.IsDirectory():
+          usernames.append(sub_file_entry.name)
+
+    if not usernames:
+      return None
+
+    if options.username:
+      if options.username in usernames:
+        return options.username
+
+    elif len(usernames) == 1:
+      return usernames[0]
+
+    if not self._mediator:
+      raise dfvfs_errors.ScannerError(
+          'Unable to proceed. Found user profile paths but no mediator to '
+          'determine which user to select.')
+
+    try:
+      username = self._mediator.GetUsername(usernames)
+
+    except KeyboardInterrupt:
+      raise dfvfs_errors.UserAbort('Volume scan aborted.')
+
+    return username
+
   def IsSingleFileRegistry(self):
     """Determines if the Registry consists of a single file.
 
@@ -82,40 +157,6 @@ class WindowsRegistryVolumeScanner(dfvfs_volume_scanner.WindowsVolumeScanner):
       bool: True if the Registry consists of a single file.
     """
     return self._single_file
-
-  def OpenFile(self, windows_path):
-    """Opens the file specified by the Windows path.
-
-    Args:
-      windows_path (str): Windows path to the file.
-
-    Returns:
-      dfvfs.FileIO: file-like object or None if the file does not exist.
-
-    Raises:
-      ScannerError: if the scan node is invalid or the scanner does not know
-          how to proceed.
-    """
-    windows_path_upper = windows_path.upper()
-    if windows_path_upper.startswith('%USERPROFILE%'):
-      if not self._mediator:
-        raise dfvfs_errors.ScannerError(
-            'Unable to proceed. %UserProfile% found in Windows path but no '
-            'mediator to determine which user to select.')
-
-      users_path_spec = self._path_resolver.ResolvePath('\\Users')
-      # TODO: handle alternative users path locations
-      if users_path_spec is None:
-        raise dfvfs_errors.ScannerError(
-            'Unable to proceed. %UserProfile% found in Windows path but no '
-            'users path found to determine which user to select.')
-
-      users_file_entry = dfvfs_resolver.Resolver.OpenFileEntry(users_path_spec)
-      self._mediator.PrintUsersSubDirectoriesOverview(users_file_entry)
-
-      # TODO: list users and determine corresponding windows_path
-
-    return super(WindowsRegistryVolumeScanner, self).OpenFile(windows_path)
 
   def ScanForWindowsVolume(self, source_path, options=None):
     """Scans for a Windows volume.
@@ -144,6 +185,11 @@ class WindowsRegistryVolumeScanner(dfvfs_volume_scanner.WindowsVolumeScanner):
       registry_file_reader = SingleFileWindowsRegistryFileReader(source_path)
 
     elif result:
+      username = self._GetUsername(options)
+      if username:
+        self._path_resolver.SetEnvironmentVariable(
+            'UserProfile', f'\\Users\\{username:s}')
+
       registry_file_reader = (
           windows_registry.StorageMediaImageWindowsRegistryFileReader(
               self._file_system, self._path_resolver))
@@ -159,25 +205,65 @@ class WindowsRegistryVolumeScannerMediator(
     dfvfs_command_line.CLIVolumeScannerMediator):
   """Windows Registry volume scanner mediator."""
 
-  def PrintUsersSubDirectoriesOverview(self, users_file_entry):
-    """Prints an overview of the Users sub directories.
+  _USER_PROMPT_USERNAMES = (
+      'Please specify the username that should be processed. Note that you can '
+      'abort with Ctrl^C.')
+
+  def GetUsername(self, usernames):
+    """Retrieves a username.
+
+    This method can be used to prompt the user to provide a username.
 
     Args:
-      users_file_entry (dfvfs.FileEntry): file entry of the Users directory.
+      usernames (list[str]): usernames.
+
+    Returns:
+      str: selected username or None.
     """
-    if users_file_entry.IsLink():
-      users_file_entry = users_file_entry.GetLinkedFileEntry()
+    self._PrintUsernames(usernames)
 
-    # TODO: handle missing sub directories
+    while True:
+      self._output_writer.Write('\n')
 
-    if users_file_entry:
-      column_names = ['Username']
-      table_view = dfvfs_command_line.CLITabularTableView(
-          column_names=column_names)
+      lines = self._textwrapper.wrap(self._USER_PROMPT_USERNAMES)
+      self._output_writer.Write('\n'.join(lines))
+      self._output_writer.Write('\n\nUsername: ')
 
-      for sub_file_entry in users_file_entry.sub_file_entries:
-        if sub_file_entry.IsDirectory():
-          table_view.AddRow([sub_file_entry.name])
+      try:
+        selected_username = self._input_reader.Read()
+        selected_username = selected_username.strip()
+        if selected_username in usernames:
+          break
+      except ValueError:
+        pass
 
       self._output_writer.Write('\n')
-      # table_view.Write(self._output_writer)
+
+      lines = self._textwrapper.wrap(
+          'Unsupported username, please try again or abort with Ctrl^C.')
+      self._output_writer.Write('\n'.join(lines))
+      self._output_writer.Write('\n\n')
+
+    return selected_username
+
+  def _PrintUsernames(self, usernames):
+    """Prints an overview of usernames.
+
+    Args:
+      usernames (list[str]): usernames.
+
+    Raises:
+      ScannerError: if a username cannot be resolved.
+    """
+    header = 'The following usernames were found:\n'
+    self._output_writer.Write(header)
+
+    column_names = ['Username', 'Profile path']
+    table_view = dfvfs_command_line.CLITabularTableView(
+        column_names=column_names)
+
+    for username in sorted(usernames, key=lambda username: username.lower()):
+      table_view.AddRow([username, f'C:\\Users\\{username:s}'])
+
+    self._output_writer.Write('\n')
+    table_view.Write(self._output_writer)
