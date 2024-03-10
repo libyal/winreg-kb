@@ -100,6 +100,7 @@ class WindowsRegistryVolumeScanner(dfvfs_volume_scanner.WindowsVolumeScanner):
     """
     super(WindowsRegistryVolumeScanner, self).__init__(mediator=mediator)
     self._single_file = False
+    self._users_path = False
 
     self.registry = None
 
@@ -119,7 +120,12 @@ class WindowsRegistryVolumeScanner(dfvfs_volume_scanner.WindowsVolumeScanner):
     usernames = []
 
     # TODO: handle alternative users path locations
-    users_path_spec = self._path_resolver.ResolvePath('\\Users')
+    self._users_path = '\\Users'
+    users_path_spec = self._path_resolver.ResolvePath(self._users_path)
+    if not users_path_spec:
+      self._users_path = '\\Documents and Settings'
+      users_path_spec = self._path_resolver.ResolvePath(self._users_path)
+
     if users_path_spec:
       users_file_entry = dfvfs_resolver.Resolver.OpenFileEntry(
           users_path_spec)
@@ -188,7 +194,7 @@ class WindowsRegistryVolumeScanner(dfvfs_volume_scanner.WindowsVolumeScanner):
       username = self._GetUsername(options)
       if username:
         self._path_resolver.SetEnvironmentVariable(
-            'UserProfile', f'\\Users\\{username:s}')
+            'UserProfile', f'{self._users_path:s}\\{username:s}')
 
       registry_file_reader = (
           windows_registry.StorageMediaImageWindowsRegistryFileReader(
@@ -220,6 +226,7 @@ class WindowsRegistryVolumeScannerMediator(
     Returns:
       str: selected username or None.
     """
+    # TODO: use user artifact
     self._PrintUsernames(usernames)
 
     while True:
@@ -263,6 +270,7 @@ class WindowsRegistryVolumeScannerMediator(
         column_names=column_names)
 
     for username in sorted(usernames, key=lambda username: username.lower()):
+      # TODO: use user artifact
       table_view.AddRow([username, f'C:\\Users\\{username:s}'])
 
     self._output_writer.Write('\n')

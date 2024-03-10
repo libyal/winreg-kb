@@ -195,20 +195,20 @@ class OutputWriter(object):
     """
 
   @abc.abstractmethod
+  def WriteText(self, text):
+    """Writes text.
+
+    Args:
+      text (str): text to write.
+    """
+
+  @abc.abstractmethod
   def WriteValue(self, description, value):
     """Writes a value.
 
     Args:
       description (str): description.
       value (str): value to write.
-    """
-
-  @abc.abstractmethod
-  def WriteText(self, text):
-    """Writes text.
-
-    Args:
-      text (str): text to write.
     """
 
 
@@ -259,6 +259,14 @@ class StdoutOutputWriter(OutputWriter):
     """
     self.WriteValue(description, f'{value:d}')
 
+  def WriteText(self, text):
+    """Writes text.
+
+    Args:
+      text (str): text to write.
+    """
+    print(text, end='')
+
   def WriteValue(self, description, value):
     """Writes a value.
 
@@ -270,11 +278,3 @@ class StdoutOutputWriter(OutputWriter):
     alignment, _ = divmod(len(description_no_tabs), 8)
     alignment_string = '\t' * (8 - alignment + 1)
     self.WriteText(f'{description:s}{alignment_string:s}: {value!s}\n')
-
-  def WriteText(self, text):
-    """Writes text.
-
-    Args:
-      text (str): text to write.
-    """
-    print(text, end='')

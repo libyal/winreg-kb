@@ -113,7 +113,7 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
 
     Args:
       key_path (str): Windows Registry key path.
-      key_paths (list[str]): list of Windows Registry key paths.
+      key_paths (list[str]): list of Windows Registry key paths in upper case.
 
     Returns:
       bool: True if the key path is defined in the list of key paths.
@@ -195,7 +195,8 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
 
     result = False
     for registry_value in registry_key.GetValues():
-      if registry_value.name in ('MRUList', 'NodeSlot', 'NodeSlots'):
+      if registry_value.name in (
+          'MRUList', 'NodeSlot', 'NodeSlots', 'ViewStream'):
         continue
 
       if self._debug:
@@ -274,7 +275,8 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
 
     result = False
     for registry_value in registry_key.GetValues():
-      if registry_value.name in ('MRUListEx', 'NodeSlot', 'NodeSlots'):
+      if registry_value.name in (
+          'MRUListEx', 'NodeSlot', 'NodeSlots', 'ViewStream'):
         continue
 
       if self._debug:
