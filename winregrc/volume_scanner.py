@@ -136,9 +136,14 @@ class WindowsRegistryVolumeScanner(dfvfs_volume_scanner.WindowsVolumeScanner):
     if not usernames:
       return None
 
-    if options.username:
-      if options.username in usernames:
-        return options.username
+    # Handle options without an username.
+    if hasattr(options, 'username'):
+      if options.username == ['none']:
+        return None
+
+      if options.username:
+        if options.username in usernames:
+          return options.username
 
     elif len(usernames) == 1:
       return usernames[0]

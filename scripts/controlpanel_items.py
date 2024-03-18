@@ -1,54 +1,53 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Script to extract Windows known folders from the Windows Registry."""
+"""Script to extract Windows control panel items from the Windows Registry."""
 
 import argparse
 import logging
 import sys
 import yaml
 
-from winregrc import knownfolders
+from winregrc import controlpanel_items
 from winregrc import output_writers
 from winregrc import volume_scanner
+from winregrc import versions
 
 
 class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
+  _WINDOWS_VERSIONS_KEY_FUNCTION = versions.WindowsVersions.KeyFunction
+
   def WriteHeader(self):
     """Writes the header to stdout."""
-    print('# winreg-kb knownfolder definitions')
+    print('# winreg-kb controlpanel items definitions')
     print('---')
 
-  def WriteKnownFolder(self, known_folder, windows_versions):
-    """Writes the known folder to stdout.
+  def WriteKnownFolder(self, control_panel_item, windows_versions):
+    """Writes the control panel item to stdout.
 
     Args:
-      known_folder (KnownFolder): the known folder.
+      control_panel_item (KnownFolder): the control panel item.
       windows_versions (list[str]): the Windows versions.
     """
-    print(f'identifier: "{known_folder.identifier:s}"')
-    # TODO: escape \ in name
-    print(f'name: "{known_folder.name:s}"')
+    print(f'identifier: "{control_panel_item.identifier:s}"')
+    if control_panel_item.module_name:
+      print(f'module_name: "{control_panel_item.module_name:s}"')
 
-    if known_folder.localized_name:
-      # TODO: escape \ in localize name
-      print(f'localized_name: "{known_folder.localized_name:s}"')
-
-    windows_versions = ', '.join([
-      f'"{version:s}"' for version in sorted(windows_versions)])
+    windows_versions = ', '.join([f'"{version:s}"' for version in sorted(
+        windows_versions, key=self._WINDOWS_VERSIONS_KEY_FUNCTION)])
     print(f'windows_versions: [{windows_versions:s}]')
     print('---')
 
 
 def Main():
-  """Entry point of console script to extract known folders.
+  """Entry point of console script to extract control panel items.
 
   Returns:
     int: exit code that is provided to sys.exit().
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts Windows known folders from the Windows Registry.'))
+      'Extracts Windows control panel items from the Windows Registry.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -95,8 +94,8 @@ def Main():
   volume_scanner_options.username = ['none']
   volume_scanner_options.volumes = ['none']
 
-  known_folder_per_identifier = {}
-  windows_versions_per_known_folder = {}
+  control_panel_item_per_identifier = {}
+  windows_versions_per_control_panel_item = {}
 
   for source_definition in source_definitions:
     source_path = source_definition['source']
@@ -109,24 +108,28 @@ def Main():
           f'{source_path:s}.'))
       continue
 
-    collector_object = knownfolders.KnownFoldersCollector(debug=options.debug)
+    collector_object = controlpanel_items.ControlPanelItemsCollector(
+        debug=options.debug)
 
     # TODO: determine Windows version from source.
     windows_version = source_definition['windows_version']
 
-    for known_folder in collector_object.Collect(scanner.registry):
-      # TODO: compare existing known folder
-      known_folder_per_identifier[known_folder.identifier] = known_folder
+    for control_panel_item in collector_object.Collect(scanner.registry):
+      # TODO: compare existing control panel item.
+      control_panel_item_per_identifier[
+          control_panel_item.identifier] = control_panel_item
 
-      if known_folder.identifier not in windows_versions_per_known_folder:
-        windows_versions_per_known_folder[known_folder.identifier] = []
+      if control_panel_item.identifier not in (
+          windows_versions_per_control_panel_item):
+        windows_versions_per_control_panel_item[
+            control_panel_item.identifier] = []
 
       if windows_version:
-        windows_versions_per_known_folder[known_folder.identifier].append(
-            windows_version)
+        windows_versions_per_control_panel_item[
+            control_panel_item.identifier].append(windows_version)
 
-  if not known_folder_per_identifier:
-    print('No known folders found.')
+  if not control_panel_item_per_identifier:
+    print('No control panel items found.')
     return 0
 
   output_writer_object = StdoutWriter()
@@ -139,9 +142,10 @@ def Main():
   try:
     output_writer_object.WriteHeader()
     for identifier, windows_versions in sorted(
-        windows_versions_per_known_folder.items()):
-      known_folder = known_folder_per_identifier[identifier]
-      output_writer_object.WriteKnownFolder(known_folder, windows_versions)
+        windows_versions_per_control_panel_item.items()):
+      control_panel_item = control_panel_item_per_identifier[identifier]
+      output_writer_object.WriteKnownFolder(
+          control_panel_item, windows_versions)
 
   finally:
     output_writer_object.Close()

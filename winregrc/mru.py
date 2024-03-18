@@ -77,7 +77,9 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
       ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
        'Explorer\\ComDlg32\\OpenSavePidlMRU'),
       ('HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\'
-       'Explorer\\StreamMRU')]
+       'Explorer\\StreamMRU'),
+      ('HKEY_CURRENT_USER\\Software\\Classes\\Software\\Microsoft\\Windows\\'
+       'CurrentVersion\\Explorer\\StreamMRU')]
 
   _SHELL_ITEM_LIST_MRU_KEY_PATHS = [
       key_path.upper() for key_path in _SHELL_ITEM_LIST_MRU_KEY_PATHS]

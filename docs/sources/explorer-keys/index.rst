@@ -6,6 +6,7 @@ Windows explorer keys
    :maxdepth: 1
 
    Bit bucket <Bit-bucket>
+   Control panel item identifiers <Control-panel-item-identifiers>
    Delegate folders <Delegate-folders>
    Known folder identifiers <Known-folder-identifiers>
    Mount points <Mount-points>

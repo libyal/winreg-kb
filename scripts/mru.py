@@ -74,7 +74,9 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       fwsi_item (pyfwsi.item): Shell item.
     """
-    if isinstance(fwsi_item, pyfwsi.control_panel_category):
+    if isinstance(fwsi_item, pyfwsi.compressed_folder):
+      shell_item_type = 'Compressed Folder'
+    elif isinstance(fwsi_item, pyfwsi.control_panel_category):
       shell_item_type = 'Control Panel Category'
     elif isinstance(fwsi_item, pyfwsi.control_panel_item):
       shell_item_type = 'Control Panel Item'
@@ -97,7 +99,10 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
       self.WriteValue(
           '\tDelegate folder', fwsi_item.delegate_folder_identifier)
 
-    if isinstance(fwsi_item, pyfwsi.control_panel_category):
+    if isinstance(fwsi_item, pyfwsi.compressed_folder):
+      self._WriteShellItemCompressedFolder(fwsi_item)
+
+    elif isinstance(fwsi_item, pyfwsi.control_panel_category):
       self._WriteShellItemControlPanelCategory(fwsi_item)
 
     elif isinstance(fwsi_item, pyfwsi.control_panel_item):
@@ -160,11 +165,21 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
         # TODO: add support for other extension blocks
 
     self.WriteText('\n')
+
+  def _WriteShellItemCompressedFolder(self, fwsi_item):
+    """Writes a compressed folder shell item to stdout.
+
+    Args:
+      fwsi_item (pyfwsi.compressed_folder): compressed folder shell item.
+    """
+    self.WriteValue('\tName', fwsi_item.name)
+
   def _WriteShellItemControlPanelCategory(self, fwsi_item):
     """Writes a control panel category shell item to stdout.
 
     Args:
-      fwsi_item (pyfwsi.item): Shell item.
+      fwsi_item (pyfwsi.control_panel_category): control panel category shell
+          item.
     """
     self.WriteValue(
         '\tControl panel category identifier', f'{fwsi_item.identifier:d}')
@@ -173,7 +188,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     """Writes a control panel item shell item to stdout.
 
     Args:
-      fwsi_item (pyfwsi.item): Shell item.
+      fwsi_item (pyfwsi.control_panel_item): control panel item shell item.
     """
     self.WriteValue('\tControl panel item identifier', fwsi_item.identifier)
 
@@ -181,7 +196,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     """Writes a file entry shell item to stdout.
 
     Args:
-      fwsi_item (pyfwsi.item): Shell item.
+      fwsi_item (pyfwsi.file_entry): File entry shell item.
     """
     self.WriteValue('\tFile size', f'{fwsi_item.file_size:d}')
 
@@ -199,7 +214,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     """Writes a network location shell item to stdout.
 
     Args:
-      fwsi_item (pyfwsi.item): Shell item.
+      fwsi_item (pyfwsi.network_location): network location shell item.
     """
     self.WriteValue('\tNetwork location', fwsi_item.location)
 
@@ -213,7 +228,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     """Writes an users property view item to stdout.
 
     Args:
-      fwsi_item (pyfwsi.item): Shell item.
+      fwsi_item (pyfwsi.users_property_view): users property view shell item.
     """
     if fwsi_item.property_store_data:
       fwps_store = pyfwps.store()
@@ -225,7 +240,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     """Writes a volume shell item to stdout.
 
     Args:
-      fwsi_item (pyfwsi.item): Shell item.
+      fwsi_item (pyfwsi.volume): volume shell item.
     """
     if fwsi_item.name:
       self.WriteValue('\tVolume name', fwsi_item.name)

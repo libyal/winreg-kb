@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Script to extract shell folder class identifiers."""
+"""Script to extract shell folder identifiers."""
 
 import argparse
 import logging
 import sys
 import yaml
-
-from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
 from winregrc import output_writers
 from winregrc import shellfolders
@@ -34,8 +32,17 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     if shell_folder.class_name:
       print(f'class_name: {shell_folder.class_name:s}')
 
+    name = shell_folder.name
+    if '\\' in name:
+      name = name.replace('\\', '\\\\')
+
     if shell_folder.name:
-      print(f'name: "{shell_folder.name:s}"')
+      print(f'name: "{name:s}"')
+
+    if shell_folder.alternate_names:
+      alternate_names = ', '.join([
+          f'"{name:s}"' for name in shell_folder.alternate_names])
+      print(f'alternate_names: [{alternate_names:s}]')
 
     windows_versions = ', '.join([
       f'"{version:s}"' for version in sorted(windows_versions)])
@@ -44,13 +51,13 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
 
 
 def Main():
-  """The main program function.
+  """Entry point of console script to extract shell folder identifiers.
 
   Returns:
-    bool: True if successful or False if not.
+    int: exit code that is provided to sys.exit().
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the shell folder class identifiers from the Windows Registry.'))
+      'Extracts the shell folder identifiers from the Windows Registry.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -58,7 +65,7 @@ def Main():
 
   argument_parser.add_argument(
       '-w', '--windows_version', '--windows-version', dest='windows_version',
-      action='store', metavar='Windows XP', default=None,
+      action='store', metavar='VERSION', default=None,
       help='string that identifies the Windows version.')
 
   argument_parser.add_argument(
@@ -74,7 +81,7 @@ def Main():
     print('')
     argument_parser.print_help()
     print('')
-    return False
+    return 1
 
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
@@ -83,16 +90,17 @@ def Main():
     with open(options.source, 'r', encoding='utf-8') as file_object:
       source_definitions = list(yaml.safe_load_all(file_object))
 
-  except (SyntaxError, UnicodeDecodeError):
+  except (SyntaxError, UnicodeDecodeError, yaml.parser.ParserError):
     source_definitions = [{
         'source': options.source, 'windows_version': options.windows_version}]
 
   mediator = volume_scanner.WindowsRegistryVolumeScannerMediator()
   scanner = volume_scanner.WindowsRegistryVolumeScanner(mediator=mediator)
 
-  volume_scanner_options = dfvfs_volume_scanner.VolumeScannerOptions()
+  volume_scanner_options = volume_scanner.VolumeScannerOptions()
   volume_scanner_options.partitions = ['all']
   volume_scanner_options.snapshots = ['none']
+  volume_scanner_options.username = ['none']
   volume_scanner_options.volumes = ['none']
 
   shell_folder_per_identifier = {}
@@ -118,24 +126,36 @@ def Main():
 
     for shell_folder in collector_object.Collect(scanner.registry):
       # TODO: compare existing shell folder
-      shell_folder_per_identifier[shell_folder.identifier] = shell_folder
+      # TODO: track multiple names
+      existing_shell_folder = shell_folder_per_identifier.get(
+          shell_folder.identifier, None)
 
-      if shell_folder.identifier not in windows_versions_per_shell_folder:
-        windows_versions_per_shell_folder[shell_folder.identifier] = []
+      if not existing_shell_folder:
+        shell_folder_per_identifier[shell_folder.identifier] = shell_folder
+      elif not existing_shell_folder.name:
+        existing_shell_folder.name = shell_folder.name
+      elif (shell_folder.name and
+            shell_folder.name != existing_shell_folder.name and
+            shell_folder.name not in existing_shell_folder.alternate_names):
+        existing_shell_folder.alternate_names.append(shell_folder.name)
 
-      windows_versions_per_shell_folder[shell_folder.identifier].append(
-          windows_version)
+      if windows_version:
+        if shell_folder.identifier not in windows_versions_per_shell_folder:
+          windows_versions_per_shell_folder[shell_folder.identifier] = []
+
+        windows_versions_per_shell_folder[shell_folder.identifier].append(
+            windows_version)
 
   if not shell_folder_per_identifier:
     print('No shell folder identifiers found.')
-    return True
+    return 0
 
   output_writer_object = StdoutWriter()
 
   if not output_writer_object.Open():
     print('Unable to open output writer.')
     print('')
-    return False
+    return 1
 
   try:
     output_writer_object.WriteHeader()
@@ -147,11 +167,8 @@ def Main():
   finally:
     output_writer_object.Close()
 
-  return True
+  return 0
 
 
 if __name__ == '__main__':
-  if not Main():
-    sys.exit(1)
-  else:
-    sys.exit(0)
+  sys.exit(Main())
