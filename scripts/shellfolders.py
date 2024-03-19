@@ -9,16 +9,18 @@ import yaml
 
 from winregrc import output_writers
 from winregrc import shellfolders
+from winregrc import versions
 from winregrc import volume_scanner
 
 
 class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
+  _WINDOWS_VERSIONS_KEY_FUNCTION = versions.WindowsVersions.KeyFunction
+
   def WriteHeader(self):
     """Writes the header to stdout."""
     print('# winreg-kb shellfolder definitions')
-    print('---')
 
   def WriteShellFolder(self, shell_folder, windows_versions):
     """Writes the shell folder to stdout.
@@ -27,6 +29,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
       shell_folder (WindowsShellFolder): the shell folder.
       windows_versions (list[str]): the Windows versions.
     """
+    print('---')
     print(f'identifier: "{shell_folder.identifier:s}"')
 
     if shell_folder.class_name:
@@ -44,10 +47,9 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
           f'"{name:s}"' for name in shell_folder.alternate_names])
       print(f'alternate_names: [{alternate_names:s}]')
 
-    windows_versions = ', '.join([
-      f'"{version:s}"' for version in sorted(windows_versions)])
+    windows_versions = ', '.join([f'"{version:s}"' for version in sorted(
+        windows_versions, key=self._WINDOWS_VERSIONS_KEY_FUNCTION)])
     print(f'windows_versions: [{windows_versions:s}]')
-    print('---')
 
 
 def Main():
@@ -125,8 +127,7 @@ def Main():
     windows_version = source_definition['windows_version']
 
     for shell_folder in collector_object.Collect(scanner.registry):
-      # TODO: compare existing shell folder
-      # TODO: track multiple names
+      # TODO: compare attributes with existing with shell folder.
       existing_shell_folder = shell_folder_per_identifier.get(
           shell_folder.identifier, None)
 

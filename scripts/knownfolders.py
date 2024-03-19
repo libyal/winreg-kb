@@ -9,16 +9,18 @@ import yaml
 
 from winregrc import knownfolders
 from winregrc import output_writers
+from winregrc import versions
 from winregrc import volume_scanner
 
 
 class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
+  _WINDOWS_VERSIONS_KEY_FUNCTION = versions.WindowsVersions.KeyFunction
+
   def WriteHeader(self):
     """Writes the header to stdout."""
     print('# winreg-kb knownfolder definitions')
-    print('---')
 
   def WriteKnownFolder(self, known_folder, windows_versions):
     """Writes the known folder to stdout.
@@ -27,6 +29,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
       known_folder (KnownFolder): the known folder.
       windows_versions (list[str]): the Windows versions.
     """
+    print('---')
     print(f'identifier: "{known_folder.identifier:s}"')
     # TODO: escape \ in name
     print(f'name: "{known_folder.name:s}"')
@@ -35,10 +38,9 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
       # TODO: escape \ in localize name
       print(f'localized_name: "{known_folder.localized_name:s}"')
 
-    windows_versions = ', '.join([
-      f'"{version:s}"' for version in sorted(windows_versions)])
+    windows_versions = ', '.join([f'"{version:s}"' for version in sorted(
+        windows_versions, key=self._WINDOWS_VERSIONS_KEY_FUNCTION)])
     print(f'windows_versions: [{windows_versions:s}]')
-    print('---')
 
 
 def Main():
@@ -115,8 +117,18 @@ def Main():
     windows_version = source_definition['windows_version']
 
     for known_folder in collector_object.Collect(scanner.registry):
-      # TODO: compare existing known folder
-      known_folder_per_identifier[known_folder.identifier] = known_folder
+      # TODO: compare attributes with existing with known folder.
+      existing_known_folder = known_folder_per_identifier.get(
+          known_folder.identifier, None)
+
+      if not existing_known_folder:
+        known_folder_per_identifier[known_folder.identifier] = known_folder
+      elif not existing_known_folder.name:
+        existing_known_folder.name = known_folder.name
+      elif (known_folder.name and
+            known_folder.name != existing_known_folder.name and
+            known_folder.name not in existing_known_folder.alternate_names):
+        existing_known_folder.alternate_names.append(known_folder.name)
 
       if known_folder.identifier not in windows_versions_per_known_folder:
         windows_versions_per_known_folder[known_folder.identifier] = []

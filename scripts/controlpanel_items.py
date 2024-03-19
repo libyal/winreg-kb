@@ -9,8 +9,8 @@ import yaml
 
 from winregrc import controlpanel_items
 from winregrc import output_writers
-from winregrc import volume_scanner
 from winregrc import versions
+from winregrc import volume_scanner
 
 
 class StdoutWriter(output_writers.StdoutOutputWriter):
@@ -21,7 +21,6 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
   def WriteHeader(self):
     """Writes the header to stdout."""
     print('# winreg-kb controlpanel items definitions')
-    print('---')
 
   def WriteKnownFolder(self, control_panel_item, windows_versions):
     """Writes the control panel item to stdout.
@@ -30,14 +29,19 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
       control_panel_item (KnownFolder): the control panel item.
       windows_versions (list[str]): the Windows versions.
     """
+    print('---')
     print(f'identifier: "{control_panel_item.identifier:s}"')
     if control_panel_item.module_name:
       print(f'module_name: "{control_panel_item.module_name:s}"')
 
+    if control_panel_item.alternate_module_names:
+      alternate_module_names = ', '.join([
+          f'"{name:s}"' for name in control_panel_item.alternate_module_names])
+      print(f'alternate_module_names: [{alternate_module_names:s}]')
+
     windows_versions = ', '.join([f'"{version:s}"' for version in sorted(
         windows_versions, key=self._WINDOWS_VERSIONS_KEY_FUNCTION)])
     print(f'windows_versions: [{windows_versions:s}]')
-    print('---')
 
 
 def Main():
@@ -114,19 +118,32 @@ def Main():
     # TODO: determine Windows version from source.
     windows_version = source_definition['windows_version']
 
-    for control_panel_item in collector_object.Collect(scanner.registry):
-      # TODO: compare existing control panel item.
-      control_panel_item_per_identifier[
-          control_panel_item.identifier] = control_panel_item
+    for item in collector_object.Collect(scanner.registry):
+      # TODO: compare attributes with existing item.
+      existing_item = control_panel_item_per_identifier.get(
+          item.identifier, None)
 
-      if control_panel_item.identifier not in (
+      # Ignore a module name that is the same as the identifier.
+      if (item.module_name and
+          item.module_name.lower() == item.identifier):
+        item.module_name = None
+
+      if not existing_item:
+        control_panel_item_per_identifier[item.identifier] = item
+      elif not existing_item.module_name:
+        existing_item.module_name = item.module_name
+      elif (item.module_name and
+            item.module_name != existing_item.module_name and
+            item.module_name not in existing_item.alternate_module_names):
+        existing_item.alternate_module_names.append(item.module_name)
+
+      if item.identifier not in (
           windows_versions_per_control_panel_item):
-        windows_versions_per_control_panel_item[
-            control_panel_item.identifier] = []
+        windows_versions_per_control_panel_item[item.identifier] = []
 
       if windows_version:
-        windows_versions_per_control_panel_item[
-            control_panel_item.identifier].append(windows_version)
+        windows_versions_per_control_panel_item[item.identifier].append(
+            windows_version)
 
   if not control_panel_item_per_identifier:
     print('No control panel items found.')

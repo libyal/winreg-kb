@@ -8,6 +8,7 @@ class KnownFolder(object):
   """Known folder.
 
   Attributes:
+    alternate_names (list[str]): alternate names.
     identifier (str): identifier.
     localized_name (str): localized name.
     name (str): name.
@@ -22,6 +23,7 @@ class KnownFolder(object):
       localized_name (str): localized name.
     """
     super(KnownFolder, self).__init__()
+    self.alternate_names = []
     self.identifier = identifier
     self.localized_name = localized_name
     self.name = name

@@ -8,6 +8,7 @@ class ControlPanelItem(object):
   """Control panel item.
 
   Attributes:
+    alternate_module_names (list[str]): alternate module names.
     identifier (str): identifier.
     module_name (str): module name.
   """
@@ -20,6 +21,7 @@ class ControlPanelItem(object):
       module_name (str): module name.
     """
     super(ControlPanelItem, self).__init__()
+    self.alternate_module_names = []
     self.identifier = identifier
     self.module_name = module_name
 

@@ -1,30 +1,19 @@
 # -*- coding: utf-8 -*-
 """Windows Shell folder collector."""
 
-from acstore.containers import interface as containers_interface
-from acstore.containers import manager as containers_manager
-
 from winregrc import interface
 
 
-class WindowsShellFolder(containers_interface.AttributeContainer):
+class WindowsShellFolder(object):
   """Windows Shell folder.
 
   Attributes:
+    alternate_names (list[str]): alternate names.
     class_name (str): class name (CLSID).
     identifier (str): identifier (GUID).
     name (str): name.
     localized_string (str): localized string of the name.
   """
-
-  CONTAINER_TYPE = 'windows_shell_folder'
-
-  SCHEMA = {
-      'alternate_names': 'List[str]',
-      'class_name': 'str',
-      'identifier': 'str',
-      'localized_string': 'str',
-      'name': 'str'}
 
   def __init__(self, identifier=None, localized_string=None):
     """Initializes a Windows Shell folder.
@@ -135,7 +124,3 @@ class ShellFoldersCollector(interface.WindowsRegistryKeyCollector):
         self._CLASS_IDENTIFIERS_KEY_PATH)
     if class_identifiers_key:
       yield from self._CollectShellFolders(class_identifiers_key)
-
-
-containers_manager.AttributeContainersManager.RegisterAttributeContainer(
-    WindowsShellFolder)
