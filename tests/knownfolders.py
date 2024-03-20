@@ -16,9 +16,9 @@ from tests import test_lib as shared_test_lib
 class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
   """Tests for the Windows known folders collector."""
 
+  _DISPLAY_NAME = 'Downloads'
   _IDENTIFIER = '374de290-123f-4565-9164-39c4925e467b'
-  _LOCALIZED_NAME = '@%SystemRoot%\\system32\\shell32.dll,-21798'
-  _NAME = 'Downloads'
+  _LOCALIZED_DISPLAY_NAME = '@%SystemRoot%\\system32\\shell32.dll,-21798'
 
   def _CreateTestRegistry(self):
     """Creates Registry keys and values for testing.
@@ -38,12 +38,12 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
     subkey = dfwinreg_fake.FakeWinRegistryKey(self._IDENTIFIER)
     registry_key.AddSubkey(self._IDENTIFIER, subkey)
 
-    value_data = self._NAME.encode('utf-16-le')
+    value_data = self._DISPLAY_NAME.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
         'Name', data=value_data, data_type=dfwinreg_definitions.REG_SZ)
     subkey.AddValue(registry_value)
 
-    value_data = self._LOCALIZED_NAME.encode('utf-16-le')
+    value_data = self._LOCALIZED_DISPLAY_NAME.encode('utf-16-le')
     registry_value = dfwinreg_fake.FakeWinRegistryValue(
         'LocalizedName', data=value_data,
         data_type=dfwinreg_definitions.REG_SZ)
@@ -66,9 +66,10 @@ class KnownFoldersCollectorTest(shared_test_lib.BaseTestCase):
 
     known_folder = test_results[0]
     self.assertIsNotNone(known_folder)
+    self.assertEqual(known_folder.display_name, self._DISPLAY_NAME)
     self.assertEqual(known_folder.identifier, self._IDENTIFIER)
-    self.assertEqual(known_folder.name, self._NAME)
-    self.assertEqual(known_folder.localized_name, self._LOCALIZED_NAME)
+    self.assertEqual(
+        known_folder.localized_display_name, self._LOCALIZED_DISPLAY_NAME)
 
   def testCollectEmpty(self):
     """Tests the Collect function on an empty Registry."""

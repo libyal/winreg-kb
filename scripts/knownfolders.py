@@ -31,12 +31,18 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     """
     print('---')
     print(f'identifier: "{known_folder.identifier:s}"')
-    # TODO: escape \ in name
-    print(f'name: "{known_folder.name:s}"')
+    # TODO: escape \ in display name
+    print(f'display_name: "{known_folder.display_name:s}"')
 
-    if known_folder.localized_name:
-      # TODO: escape \ in localize name
-      print(f'localized_name: "{known_folder.localized_name:s}"')
+    if known_folder.localized_display_name:
+      # TODO: escape \ in localized display_name
+      print(
+          f'localized_display_name: "{known_folder.localized_display_name:s}"')
+
+    if known_folder.alternate_display_names:
+      alternate_display_names = ', '.join([
+          f'"{name:s}"' for name in known_folder.alternate_display_names])
+      print(f'alternate_display_names: [{alternate_display_names:s}]')
 
     windows_versions = ', '.join([f'"{version:s}"' for version in sorted(
         windows_versions, key=self._WINDOWS_VERSIONS_KEY_FUNCTION)])
@@ -123,12 +129,14 @@ def Main():
 
       if not existing_known_folder:
         known_folder_per_identifier[known_folder.identifier] = known_folder
-      elif not existing_known_folder.name:
-        existing_known_folder.name = known_folder.name
-      elif (known_folder.name and
-            known_folder.name != existing_known_folder.name and
-            known_folder.name not in existing_known_folder.alternate_names):
-        existing_known_folder.alternate_names.append(known_folder.name)
+      elif not existing_known_folder.display_name:
+        existing_known_folder.display_name = known_folder.display_name
+      elif (known_folder.display_name and
+            known_folder.display_name != existing_known_folder.display_name and
+            known_folder.display_name not in (
+                existing_known_folder.alternate_display_names)):
+        existing_known_folder.alternate_display_names.append(
+            known_folder.display_name)
 
       if known_folder.identifier not in windows_versions_per_known_folder:
         windows_versions_per_known_folder[known_folder.identifier] = []

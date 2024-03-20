@@ -8,25 +8,25 @@ class KnownFolder(object):
   """Known folder.
 
   Attributes:
-    alternate_names (list[str]): alternate names.
+    alternate_display_names (list[str]): alternate display names.
     identifier (str): identifier.
-    localized_name (str): localized name.
-    name (str): name.
+    localized_display_name (str): localized display name.
+    display_name (str): display name.
   """
 
-  def __init__(self, identifier, name, localized_name):
+  def __init__(self, identifier, display_name, localized_display_name):
     """Initializes a known folder.
 
     Args:
       identifier (str): identifier.
-      name (str): name.
-      localized_name (str): localized name.
+      display_name (str): display name.
+      localized_display_name (str): localized display name.
     """
     super(KnownFolder, self).__init__()
-    self.alternate_names = []
+    self.alternate_display_names = []
     self.identifier = identifier
-    self.localized_name = localized_name
-    self.name = name
+    self.localized_display_name = localized_display_name
+    self.display_name = display_name
 
 
 class KnownFoldersCollector(interface.WindowsRegistryKeyCollector):
@@ -48,10 +48,10 @@ class KnownFoldersCollector(interface.WindowsRegistryKeyCollector):
     """
     for subkey in folder_descriptions_key.GetSubkeys():
       identifier = subkey.name.lower()
-      name = self._GetValueFromKey(subkey, 'Name')
-      localized_name = self._GetValueFromKey(subkey, 'LocalizedName')
+      display_name = self._GetValueFromKey(subkey, 'Name')
+      localized_display_name = self._GetValueFromKey(subkey, 'LocalizedName')
 
-      yield KnownFolder(identifier, name, localized_name)
+      yield KnownFolder(identifier, display_name, localized_display_name)
 
   def Collect(self, registry):
     """Collects Windows known folders.
