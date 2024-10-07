@@ -100,6 +100,9 @@ class UserAssistDataParser(data_format.BinaryDataFormat):
     elif format_version == 5:
       data_type_map = self._GetDataTypeMap('user_assist_entry_v5')
       expected_entry_data_size = 72
+    else:
+      data_type_map = None
+      expected_entry_data_size = 0
 
     if expected_entry_data_size != len(entry_data):
       entry_data_size = len(entry_data)

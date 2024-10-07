@@ -54,8 +54,7 @@ class CatalogCollector(object):
     yield key_descriptor
 
     for sub_key in registry_key.GetSubkeys():
-      for key_descriptor in self._CollectCatalogKeyDescriptors(sub_key):
-        yield key_descriptor
+      yield from self._CollectCatalogKeyDescriptors(sub_key)
 
   def Collect(self, root_key):
     """Collects the catalog descriptors from a Windows Registry file.
@@ -67,8 +66,7 @@ class CatalogCollector(object):
       CatalogKeyDescriptor: catalog key descriptor.
     """
     if not self._group_keys:
-      for key_descriptor in self._CollectCatalogKeyDescriptors(root_key):
-        yield key_descriptor
+      yield from self._CollectCatalogKeyDescriptors(root_key)
 
     else:
       def AlphanumericCompare(key):
@@ -91,5 +89,4 @@ class CatalogCollector(object):
         else:
           key_descriptors_per_value_hash[values_hash] = key_descriptor
 
-      for key_descriptor in key_descriptors_per_value_hash.values():
-        yield key_descriptor
+      yield from key_descriptors_per_value_hash.values()

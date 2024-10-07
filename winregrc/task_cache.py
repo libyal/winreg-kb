@@ -85,6 +85,8 @@ class TaskCacheDataParser(data_format.BinaryDataFormat):
       data_type_map = self._GetDataTypeMap('dynamic_info_record')
     elif value_data_size == 36:
       data_type_map = self._GetDataTypeMap('dynamic_info2_record')
+    else:
+      data_type_map = None
 
     if not data_type_map:
       raise errors.ParseError(

@@ -497,6 +497,8 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
         data_type_map_name = 'appcompatcache_cached_entry_body_8_0'
       elif cached_entry.signature == self._CACHED_ENTRY_SIGNATURE_8_1:
         data_type_map_name = 'appcompatcache_cached_entry_body_8_1'
+      else:
+        data_type_map_name = None
 
       data_type_map = self._GetDataTypeMap(data_type_map_name)
       context = dtfabric_data_maps.DataTypeMapContext()
