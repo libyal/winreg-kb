@@ -103,7 +103,6 @@ one would be unchecked.
 
 ## External Links
 
-* [Using CCleaner.INI to modify how CCleaner runs](https://support.piriform.com/hc/en-us/articles/360047943732-Using-CCleaner-INI-to-modify-how-CCleaner-runs)
 * [Writing a CCleaner RegRipper Plugin Part 1](https://cheeky4n6monkey.blogspot.com/2012/02/writing-ccleaner-regripper-plugin-part.html)
 * [Writing a CCleaner RegRipper Plugin Part 2](http://cheeky4n6monkey.blogspot.com/2012/02/writing-ccleaner-regripper-plugin-part_05.html)
 

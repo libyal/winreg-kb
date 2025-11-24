@@ -110,7 +110,7 @@ HKEY_CURRENT_USER\SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolic
 * [Internet Explorer Local Machine Zone Lockdown](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc782928(v=ws.10))
 * [Internet Explorer Network Protocol Lockdown](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc737488(v=ws.10))
 * [Internet Explorer Protected Mode Elevation Policy and Administrative Templates](https://learn.microsoft.com/en-us/archive/blogs/juanand/internet-explorer-protected-mode-elevation-policy-and-administrative-templates)
-* [Internet Explorer security zones registry entries for advanced users](https://learn.microsoft.com/en-US/troubleshoot/developer/browsers/security-privacy/ie-security-zones-registry-entries)
+* [Internet Explorer security zones registry entries for advanced users](https://learn.microsoft.com/en-us/previous-versions/troubleshoot/browsers/security-privacy/ie-security-zones-registry-entries)
 * [Internet Feature Controls](https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/general-info/ee330720(v=vs.85))
 * [Introduction to Feature Controls](https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/ms537184(v=vs.85))
 * [Understanding user-agent strings](https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/ms537503(v=vs.85))

@@ -17,5 +17,5 @@ The contents of MRU# is either an IP address, e.g. 192.168.16.60, or a hostname,
 
 ## External Links
 
-* [How to Remove Entries from the Remote Desktop Connection Computer Box](https://learn.microsoft.com/en-US/troubleshoot/windows-server/remote/remove-entries-from-remote-desktop-connection-computer)
+* [How to Remove Entries from the Remote Desktop Connection Computer Box](https://learn.microsoft.com/en-us/troubleshoot/windows-server/remote/remove-entries-from-remote-desktop-connection-computer)
 
