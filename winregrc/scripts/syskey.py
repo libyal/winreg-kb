@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Script to extract system information."""
+"""Script to extract system key."""
 
 import argparse
+import codecs
 import logging
 import sys
 
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
 from winregrc import output_writers
-from winregrc import sysinfo
+from winregrc import syskey
 from winregrc import volume_scanner
 
 
 def Main():
-  """The main program function.
+  """Entry point of console script to extract system key.
 
   Returns:
-    bool: True if successful or False if not.
+    int: exit code that is provided to sys.exit().
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the system information from the Windows Registry.'))
+      'Extracts the system key from a SYSTEM Registry file.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False, help=(
@@ -30,7 +31,7 @@ def Main():
       'source', nargs='?', action='store', metavar='PATH', default=None, help=(
           'path of the volume containing C:\\Windows, the filename of '
           'a storage media image containing the C:\\Windows directory, '
-          'or the path of a SOFTWARE Registry file.'))
+          'or the path of a SYSTEM Registry file.'))
 
   options = argument_parser.parse_args()
 
@@ -39,7 +40,7 @@ def Main():
     print('')
     argument_parser.print_help()
     print('')
-    return False
+    return 1
 
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
@@ -49,7 +50,7 @@ def Main():
   if not output_writer.Open():
     print('Unable to open output writer.')
     print('')
-    return False
+    return 1
 
   mediator = volume_scanner.WindowsRegistryVolumeScannerMediator()
   scanner = volume_scanner.WindowsRegistryVolumeScanner(mediator=mediator)
@@ -64,57 +65,25 @@ def Main():
     print((f'Unable to retrieve the volume with the Windows directory from: '
            f'{options.source:s}.'))
     print('')
-    return False
+    return 1
 
   # TODO: map collector to available Registry keys.
-  collector_object = sysinfo.SystemInfoCollector(
+  collector_object = syskey.SystemKeyCollector(
       debug=options.debug, output_writer=output_writer)
 
   result = collector_object.Collect(scanner.registry)
   if not result:
-    print('No Current Version key found.')
+    print('No LSA key found.')
   else:
-    output_writer.WriteValue(
-        'Product name', collector_object.system_information.product_name)
-    output_writer.WriteValue(
-        'Product identifier',
-        collector_object.system_information.product_identifier)
-
-    output_writer.WriteValue(
-        'Current version', collector_object.system_information.current_version)
-    output_writer.WriteValue(
-        'Current type', collector_object.system_information.current_type)
-    output_writer.WriteValue(
-        'Current build number',
-        collector_object.system_information.current_build_number)
-    output_writer.WriteValue(
-        'CSD version', collector_object.system_information.csd_version)
-
-    output_writer.WriteValue(
-        'Registered organization',
-        collector_object.system_information.registered_organization)
-    output_writer.WriteValue(
-        'Registered owner',
-        collector_object.system_information.registered_owner)
-
-    date_time_value = collector_object.system_information.installation_date
-    date_time_string = date_time_value.CopyToDateTimeString()
-    output_writer.WriteValue('Installation date', date_time_string)
-
-    output_writer.WriteValue(
-        'Path name', collector_object.system_information.path_name)
-    output_writer.WriteValue(
-        '%SystemRoot%', collector_object.system_information.system_root)
+    boot_key = codecs.encode(collector_object.system_key.boot_key, 'hex')
+    output_writer.WriteValue('Boot key', boot_key.decode('ascii'))
 
     output_writer.WriteText('\n')
 
   output_writer.Close()
 
-  return True
+  return 0
 
 
 if __name__ == '__main__':
-  if not Main():
-    sys.exit(1)
-  else:
-    sys.exit(0)
+  sys.exit(Main())

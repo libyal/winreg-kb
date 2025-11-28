@@ -14,10 +14,10 @@ from winregrc import volume_scanner
 
 
 def Main():
-  """The main program function.
+  """Entry point of console script to extract SAM information.
 
   Returns:
-    bool: True if successful or False if not.
+    int: exit code that is provided to sys.exit().
   """
   argument_parser = argparse.ArgumentParser(description=(
       'Extracts Security Account Manager information from a SAM Registry '
@@ -41,7 +41,7 @@ def Main():
     print('')
     argument_parser.print_help()
     print('')
-    return False
+    return 1
 
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
@@ -51,7 +51,7 @@ def Main():
   if not output_writer.Open():
     print('Unable to open output writer.')
     print('')
-    return False
+    return 1
 
   mediator = volume_scanner.WindowsRegistryVolumeScannerMediator()
   scanner = volume_scanner.WindowsRegistryVolumeScanner(mediator=mediator)
@@ -66,7 +66,7 @@ def Main():
     print((f'Unable to retrieve the volume with the Windows directory from: '
            f'{options.source:s}.'))
     print('')
-    return False
+    return 1
 
   # TODO: map collector to available Registry keys.
   collector_object = sam.SecurityAccountManagerCollector(
@@ -118,11 +118,8 @@ def Main():
 
   output_writer.Close()
 
-  return True
+  return 0
 
 
 if __name__ == '__main__':
-  if not Main():
-    sys.exit(1)
-  else:
-    sys.exit(0)
+  sys.exit(Main())

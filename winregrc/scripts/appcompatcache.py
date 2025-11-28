@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Script to extract environment variables."""
+"""Script to extract Application Compatibility Cache information."""
 
 import argparse
 import logging
@@ -8,31 +8,25 @@ import sys
 
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
-from winregrc import environment_variables
+from winregrc import appcompatcache
 from winregrc import output_writers
 from winregrc import volume_scanner
 
 
-class StdoutWriter(output_writers.StdoutOutputWriter):
-  """Stdout output writer."""
-
-  def WriteEnvironmentVariable(self, environment_variable):
-    """Writes an environment variable to the output.
-
-    Args:
-      environment_variable (EnvironmentVariable): environment variable.
-    """
-    self.WriteValue(environment_variable.name, environment_variable.value)
-
-
 def Main():
-  """The main program function.
+  """Entry point of console script to extract AppCompatCache information.
 
   Returns:
-    bool: True if successful or False if not.
+    int: exit code that is provided to sys.exit().
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the environment variables from the Windows Registry.'))
+      'Extracts Application Compatibility Cache information from '
+      'a SYSTEM Registry file.'))
+
+  argument_parser.add_argument(
+      '--all', dest='all_control_sets', action='store_true', default=False,
+      help=(
+          'Process all control sets instead of only the current control set.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -43,7 +37,7 @@ def Main():
       help=(
           'path of the volume containing C:\\Windows, the filename of '
           'a storage media image containing the C:\\Windows directory, '
-          'or the path of a SOFTWARE Registry file.'))
+          'or the path of a SYSTEM Registry file.'))
 
   options = argument_parser.parse_args()
 
@@ -52,7 +46,7 @@ def Main():
     print('')
     argument_parser.print_help()
     print('')
-    return False
+    return 1
 
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
@@ -70,37 +64,37 @@ def Main():
     print((f'Unable to retrieve the volume with the Windows directory from: '
            f'{options.source:s}.'))
     print('')
-    return False
+    return 1
 
-  collector_object = environment_variables.EnvironmentVariablesCollector(
-      debug=options.debug)
+  output_writer = output_writers.StdoutOutputWriter()
 
-  output_writer_object = StdoutWriter()
-
-  if not output_writer_object.Open():
+  if not output_writer.Open():
     print('Unable to open output writer.')
     print('')
-    return False
+    return 1
 
   try:
-    has_results = False
-    for environment_variable in sorted(
-        collector_object.Collect(scanner.registry),
-        key=lambda environment_variable: environment_variable.name):
-      output_writer_object.WriteEnvironmentVariable(environment_variable)
-      has_results = True
+    collector_object = appcompatcache.AppCompatCacheCollector(
+        debug=options.debug, output_writer=output_writer)
+
+    # TODO: change collector to generate AppCompatCacheCachedEntry
+    has_results = collector_object.Collect(
+        scanner.registry, all_control_sets=options.all_control_sets)
+    if has_results:
+      for cached_entry in collector_object.cached_entries:
+        output_writer.WriteFiletimeValue(
+            'Last modification time', cached_entry.last_modification_time)
+        output_writer.WriteValue('Path', cached_entry.path)
+        output_writer.WriteText('\n')
 
   finally:
-    output_writer_object.Close()
+    output_writer.Close()
 
   if not has_results:
-    print('No environment variables found.')
+    print('No application compatibility cache entries found.')
 
-  return True
+  return 0
 
 
 if __name__ == '__main__':
-  if not Main():
-    sys.exit(1)
-  else:
-    sys.exit(0)
+  sys.exit(Main())

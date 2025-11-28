@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Script to extract cached credentials."""
+"""Script to extract the program cache."""
 
 import argparse
 import logging
@@ -8,29 +8,30 @@ import sys
 
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
-from winregrc import cached_credentials
 from winregrc import output_writers
+from winregrc import programscache
 from winregrc import volume_scanner
 
 
 def Main():
-  """The main program function.
+  """Entry point of console script to extract the program cache.
 
   Returns:
-    bool: True if successful or False if not.
+    int: exit code that is provided to sys.exit().
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the cached credentials from a SECURITY Registry file.'))
+      'Extracts the program cache from a NTUSER.DAT Registry file.'))
 
   argument_parser.add_argument(
-      '-d', '--debug', dest='debug', action='store_true', default=False, help=(
-          'enable debug output.'))
+      '-d', '--debug', dest='debug', action='store_true', default=False,
+      help='enable debug output.')
 
   argument_parser.add_argument(
-      'source', nargs='?', action='store', metavar='PATH', default=None, help=(
+      'source', nargs='?', action='store', metavar='PATH', default=None,
+      help=(
           'path of the volume containing C:\\Windows, the filename of '
           'a storage media image containing the C:\\Windows directory, '
-          'or the path of a SECURITY and SYSTEM Registry file.'))
+          'or the path of a NTUSER.DAT Registry file.'))
 
   options = argument_parser.parse_args()
 
@@ -39,18 +40,12 @@ def Main():
     print('')
     argument_parser.print_help()
     print('')
-    return False
+    return 1
 
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer = output_writers.StdoutOutputWriter()
-
-  if not output_writer.Open():
-    print('Unable to open output writer.')
-    print('')
-    return False
-
+  # TODO: add support to select user.
   mediator = volume_scanner.WindowsRegistryVolumeScannerMediator()
   scanner = volume_scanner.WindowsRegistryVolumeScanner(mediator=mediator)
 
@@ -64,30 +59,30 @@ def Main():
     print((f'Unable to retrieve the volume with the Windows directory from: '
            f'{options.source:s}.'))
     print('')
-    return False
+    return 1
 
-  if scanner.IsSingleFileRegistry():
-    print('Both SECURITY and SYSYEM Registry files are required.')
+  output_writer = output_writers.StdoutOutputWriter()
+
+  if not output_writer.Open():
+    print('Unable to open output writer.')
     print('')
-    return False
+    return 1
 
-  # TODO: map collector to available Registry keys.
-  collector_object = cached_credentials.CachedCredentialsKeyCollector(
-      debug=options.debug, output_writer=output_writer)
+  try:
+    collector_object = programscache.ProgramsCacheCollector(
+        debug=options.debug, output_writer=output_writer)
 
-  result = collector_object.Collect(scanner.registry)
-  if not result:
-    print('No Cache key found.')
-  else:
-    output_writer.WriteText('\n')
+    # TODO: change collector to generate ProgramCacheEntry
+    has_results = collector_object.Collect(scanner.registry)
 
-  output_writer.Close()
+  finally:
+    output_writer.Close()
 
-  return True
+  if not has_results:
+    print('No program cache entries found.')
+
+  return 0
 
 
 if __name__ == '__main__':
-  if not Main():
-    sys.exit(1)
-  else:
-    sys.exit(0)
+  sys.exit(Main())

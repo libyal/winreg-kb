@@ -43,10 +43,10 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
 
 
 def Main():
-  """The main program function.
+  """Entry point of console script to extract Windows mounted devices.
 
   Returns:
-    bool: True if successful or False if not.
+    int: exit code that is provided to sys.exit().
   """
   argument_parser = argparse.ArgumentParser(description=(
       'Extracts Windows mounted devices from the Windows Registry.'))
@@ -69,7 +69,7 @@ def Main():
     print('')
     argument_parser.print_help()
     print('')
-    return False
+    return 1
 
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
@@ -87,7 +87,7 @@ def Main():
     print((f'Unable to retrieve the volume with the Windows directory from: '
            f'{options.source:s}.'))
     print('')
-    return False
+    return 1
 
   collector_object = mounted_devices.MountedDevicesCollector(
       debug=options.debug)
@@ -97,7 +97,7 @@ def Main():
   if not output_writer_object.Open():
     print('Unable to open output writer.')
     print('')
-    return False
+    return 1
 
   try:
     has_results = False
@@ -111,11 +111,8 @@ def Main():
   if not has_results:
     print('No Windows mounted devices found.')
 
-  return True
+  return 0
 
 
 if __name__ == '__main__':
-  if not Main():
-    sys.exit(1)
-  else:
-    sys.exit(0)
+  sys.exit(Main())

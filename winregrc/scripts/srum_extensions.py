@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Script to extract Windows application identifiers (AppID)."""
+"""Script to extract System Resource Usage Monitor (SRUM) extensions."""
 
 import argparse
 import logging
@@ -8,33 +8,35 @@ import sys
 
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
-from winregrc import application_identifiers
 from winregrc import output_writers
+from winregrc import srum_extensions
 from winregrc import volume_scanner
 
 
 class StdoutWriter(output_writers.StdoutOutputWriter):
   """Stdout output writer."""
 
-  def WriteApplicationIdentifier(self, application_identifier):
-    """Writes an application identifier to the output.
+  def WriteSRUMExtension(self, srum_extension):
+    """Writes a SRUM extension to the output.
 
     Args:
-      application_identifier (ApplicationIdentifier): application identifier.
+      srum_extension (SRUMExtension): SRUM extension.
     """
-    self.WriteValue(
-        application_identifier.guid, application_identifier.description)
+    self.WriteText(f'{srum_extension.guid:s}\t{srum_extension.dll_name:s}\n')
 
 
 def Main():
-  """The main program function.
+  """Entry point of console script to extract SRUM extensions.
 
   Returns:
-    bool: True if successful or False if not.
+    int: exit code that is provided to sys.exit().
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the Windows application identifiers (AppID) from the Windows '
-      'Registry.'))
+      'Extracts the User Assist information from a NTUSER.DAT Registry file.'))
+
+  argument_parser.add_argument(
+      '--codepage', dest='codepage', action='store', metavar='CODEPAGE',
+      default='cp1252', help='the codepage of the extended ASCII strings.')
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -45,7 +47,7 @@ def Main():
       help=(
           'path of the volume containing C:\\Windows, the filename of '
           'a storage media image containing the C:\\Windows directory, '
-          'or the path of a SOFTWARE Registry file.'))
+          'or the path of a NTUSER.DAT Registry file.'))
 
   options = argument_parser.parse_args()
 
@@ -54,10 +56,17 @@ def Main():
     print('')
     argument_parser.print_help()
     print('')
-    return False
+    return 1
 
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
+
+  output_writer_object = StdoutWriter()
+
+  if not output_writer_object.Open():
+    print('Unable to open output writer.')
+    print('')
+    return 1
 
   mediator = volume_scanner.WindowsRegistryVolumeScannerMediator()
   scanner = volume_scanner.WindowsRegistryVolumeScanner(mediator=mediator)
@@ -72,35 +81,20 @@ def Main():
     print((f'Unable to retrieve the volume with the Windows directory from: '
            f'{options.source:s}.'))
     print('')
-    return False
+    return 1
 
-  collector_object = application_identifiers.ApplicationIdentifiersCollector(
+  # TODO: map collector to available Registry keys.
+  collector_object = srum_extensions.SRUMExtensionsCollector(
       debug=options.debug)
 
-  output_writer_object = StdoutWriter()
+  result = collector_object.Collect(scanner.registry, output_writer_object)
+  if not result:
+    print('No SRUM extensions key found.')
 
-  if not output_writer_object.Open():
-    print('Unable to open output writer.')
-    print('')
-    return False
+  output_writer_object.Close()
 
-  try:
-    has_results = False
-    for application_identifier in collector_object.Collect(scanner.registry):
-      output_writer_object.WriteApplicationIdentifier(application_identifier)
-      has_results = True
-
-  finally:
-    output_writer_object.Close()
-
-  if not has_results:
-    print('No Windows application identifiers (AppID) found.')
-
-  return True
+  return 0
 
 
 if __name__ == '__main__':
-  if not Main():
-    sys.exit(1)
-  else:
-    sys.exit(0)
+  sys.exit(Main())

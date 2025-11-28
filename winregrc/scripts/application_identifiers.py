@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Script to extract Task Scheduler Task Cache information."""
+"""Script to extract Windows application identifiers (AppID)."""
 
 import argparse
 import logging
@@ -8,19 +8,32 @@ import sys
 
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
+from winregrc import application_identifiers
 from winregrc import output_writers
-from winregrc import task_cache
 from winregrc import volume_scanner
 
 
+class StdoutWriter(output_writers.StdoutOutputWriter):
+  """Stdout output writer."""
+
+  def WriteApplicationIdentifier(self, application_identifier):
+    """Writes an application identifier to the output.
+
+    Args:
+      application_identifier (ApplicationIdentifier): application identifier.
+    """
+    self.WriteValue(
+        application_identifier.guid, application_identifier.description)
+
+
 def Main():
-  """The main program function.
+  """Entry point of console script to extract Windows AppIDs.
 
   Returns:
-    bool: True if successful or False if not.
+    int: exit code that is provided to sys.exit().
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts Task Scheduler Task Cache information from the Windows '
+      'Extracts the Windows application identifiers (AppID) from the Windows '
       'Registry.'))
 
   argument_parser.add_argument(
@@ -41,17 +54,10 @@ def Main():
     print('')
     argument_parser.print_help()
     print('')
-    return False
+    return 1
 
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
-
-  output_writer = output_writers.StdoutOutputWriter()
-
-  if not output_writer.Open():
-    print('Unable to open output writer.')
-    print('')
-    return False
 
   mediator = volume_scanner.WindowsRegistryVolumeScannerMediator()
   scanner = volume_scanner.WindowsRegistryVolumeScanner(mediator=mediator)
@@ -66,23 +72,32 @@ def Main():
     print((f'Unable to retrieve the volume with the Windows directory from: '
            f'{options.source:s}.'))
     print('')
-    return False
+    return 1
 
-  # TODO: map collector to available Registry keys.
-  collector_object = task_cache.TaskCacheCollector(
-      debug=options.debug, output_writer=output_writer)
+  collector_object = application_identifiers.ApplicationIdentifiersCollector(
+      debug=options.debug)
 
-  result = collector_object.Collect(scanner.registry)
-  if not result:
-    print('No Task Cache key found.')
+  output_writer_object = StdoutWriter()
 
-  output_writer.Close()
+  if not output_writer_object.Open():
+    print('Unable to open output writer.')
+    print('')
+    return 1
 
-  return True
+  try:
+    has_results = False
+    for application_identifier in collector_object.Collect(scanner.registry):
+      output_writer_object.WriteApplicationIdentifier(application_identifier)
+      has_results = True
+
+  finally:
+    output_writer_object.Close()
+
+  if not has_results:
+    print('No Windows application identifiers (AppID) found.')
+
+  return 0
 
 
 if __name__ == '__main__':
-  if not Main():
-    sys.exit(1)
-  else:
-    sys.exit(0)
+  sys.exit(Main())

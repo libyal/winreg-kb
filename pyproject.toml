@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "winregrc"
-version = "20251126"
+version = "20251128"
 description = "Windows Registry resources (winregrc)"
 maintainers = [
     { name = "Joachim Metz", email = "joachim.metz@gmail.com" },
@@ -60,6 +60,33 @@ dependencies = [
     "pytsk3 >= 20210419",
     "xattr >= 0.7.2 ; platform_system != \"Windows\"",
 ]
+
+[project.scripts]
+appcompatcache = "winregrc.scripts.appcompatcache:Main"
+application_identifiers = "winregrc.scripts.application_identifiers:Main"
+cached_credentials = "winregrc.scripts.cached_credentials:Main"
+catalog = "winregrc.scripts.catalog:Main"
+controlpanel_items = "winregrc.scripts.controlpanel_items:Main"
+delegatefolders = "winregrc.scripts.delegatefolders:Main"
+environment_variables = "winregrc.scripts.environment_variables:Main"
+eventlog_providers = "winregrc.scripts.eventlog_providers:Main"
+knownfolders = "winregrc.scripts.knownfolders:Main"
+mounted_devices = "winregrc.scripts.mounted_devices:Main"
+mru = "winregrc.scripts.mru:Main"
+msie_zone_info = "winregrc.scripts.msie_zone_info:Main"
+profiles = "winregrc.scripts.profiles:Main"
+programscache = "winregrc.scripts.programscache:Main"
+sam = "winregrc.scripts.sam:Main"
+services = "winregrc.scripts.services:Main"
+shellfolders = "winregrc.scripts.shellfolders:Main"
+srum_extensions = "winregrc.scripts.srum_extensions:Main"
+sysinfo = "winregrc.scripts.sysinfo:Main"
+syskey = "winregrc.scripts.syskey:Main"
+task_cache = "winregrc.scripts.task_cache:Main"
+time_zones = "winregrc.scripts.time_zones:Main"
+type_libraries = "winregrc.scripts.type_libraries:Main"
+usbstor = "winregrc.scripts.usbstor:Main"
+userassist = "winregrc.scripts.userassist:Main"
 
 [project.urls]
 Documentation = "https://winregrc.readthedocs.io/en/latest"

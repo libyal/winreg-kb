@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Script to extract System Resource Usage Monitor (SRUM) extensions."""
+"""Script to extract type libraries."""
 
 import argparse
 import logging
@@ -9,34 +9,18 @@ import sys
 from dfvfs.helpers import volume_scanner as dfvfs_volume_scanner
 
 from winregrc import output_writers
-from winregrc import srum_extensions
+from winregrc import type_libraries
 from winregrc import volume_scanner
 
 
-class StdoutWriter(output_writers.StdoutOutputWriter):
-  """Stdout output writer."""
-
-  def WriteSRUMExtension(self, srum_extension):
-    """Writes a SRUM extension to the output.
-
-    Args:
-      srum_extension (SRUMExtension): SRUM extension.
-    """
-    self.WriteText(f'{srum_extension.guid:s}\t{srum_extension.dll_name:s}\n')
-
-
 def Main():
-  """The main program function.
+  """Entry point of console script to extract type libraries.
 
   Returns:
-    bool: True if successful or False if not.
+    int: exit code that is provided to sys.exit().
   """
   argument_parser = argparse.ArgumentParser(description=(
-      'Extracts the User Assist information from a NTUSER.DAT Registry file.'))
-
-  argument_parser.add_argument(
-      '--codepage', dest='codepage', action='store', metavar='CODEPAGE',
-      default='cp1252', help='the codepage of the extended ASCII strings.')
+      'Extracts the type libraries from the Windows Registry.'))
 
   argument_parser.add_argument(
       '-d', '--debug', dest='debug', action='store_true', default=False,
@@ -47,7 +31,7 @@ def Main():
       help=(
           'path of the volume containing C:\\Windows, the filename of '
           'a storage media image containing the C:\\Windows directory, '
-          'or the path of a NTUSER.DAT Registry file.'))
+          'or the path of a SOFTWARE Registry file.'))
 
   options = argument_parser.parse_args()
 
@@ -56,17 +40,17 @@ def Main():
     print('')
     argument_parser.print_help()
     print('')
-    return False
+    return 1
 
   logging.basicConfig(
       level=logging.INFO, format='[%(levelname)s] %(message)s')
 
-  output_writer_object = StdoutWriter()
+  output_writer = output_writers.StdoutOutputWriter()
 
-  if not output_writer_object.Open():
+  if not output_writer.Open():
     print('Unable to open output writer.')
     print('')
-    return False
+    return 1
 
   mediator = volume_scanner.WindowsRegistryVolumeScannerMediator()
   scanner = volume_scanner.WindowsRegistryVolumeScanner(mediator=mediator)
@@ -81,23 +65,25 @@ def Main():
     print((f'Unable to retrieve the volume with the Windows directory from: '
            f'{options.source:s}.'))
     print('')
-    return False
+    return 1
 
   # TODO: map collector to available Registry keys.
-  collector_object = srum_extensions.SRUMExtensionsCollector(
-      debug=options.debug)
+  collector_object = type_libraries.TypeLibrariesCollector(
+      debug=options.debug, output_writer=output_writer)
 
-  result = collector_object.Collect(scanner.registry, output_writer_object)
+  result = collector_object.Collect(scanner.registry)
   if not result:
-    print('No SRUM extensions key found.')
+    print('No TypeLib key found.')
+  else:
+    for type_library in collector_object.type_libraries:
+      print((f'{type_library.identifier:s}\t{type_library.version:s}\t'
+             f'{type_library.description:s}\t'
+             f'{type_library.typelib_filename:s}'))
 
-  output_writer_object.Close()
+  output_writer.Close()
 
-  return True
+  return 0
 
 
 if __name__ == '__main__':
-  if not Main():
-    sys.exit(1)
-  else:
-    sys.exit(0)
+  sys.exit(Main())
