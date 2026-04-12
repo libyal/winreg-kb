@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "winregrc"
-version = "20251128"
+version = "20260412"
 description = "Windows Registry resources (winregrc)"
 maintainers = [
     { name = "Joachim Metz", email = "joachim.metz@gmail.com" },
@@ -21,7 +21,6 @@ dependencies = [
     "PyYAML >= 3.10",
     "acstore >= 20230101",
     "artifacts >= 20220219",
-    "cffi >= 1.9.1",
     "dfdatetime >= 20221112",
     "dfimagetools >= 20240301",
     "dfvfs >= 20240115",

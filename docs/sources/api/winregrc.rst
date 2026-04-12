@@ -1,6 +1,14 @@
 winregrc package
 ================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   winregrc.scripts
+
 Submodules
 ----------
 
