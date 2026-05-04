@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """Windows known folders collector."""
 
 from winregrc import interface
 
 
-class KnownFolder(object):
+class KnownFolder:
   """Known folder.
 
   Attributes:
@@ -22,7 +21,7 @@ class KnownFolder(object):
       display_name (str): display name.
       localized_display_name (str): localized display name.
     """
-    super(KnownFolder, self).__init__()
+    super().__init__()
     self.alternate_display_names = []
     self.identifier = identifier
     self.localized_display_name = localized_display_name

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "winregrc"
-version = "20260413"
+version = "20260501"
 description = "Windows Registry resources (winregrc)"
 maintainers = [
     { name = "Joachim Metz", email = "joachim.metz@gmail.com" },
@@ -92,13 +92,11 @@ Documentation = "https://winregrc.readthedocs.io/en/latest"
 Homepage = "https://github.com/libyal/winreg-kb"
 Repository = "https://github.com/libyal/winreg-kb"
 
+[tool.setuptools]
+package-dir = {"winregrc" = "winregrc"}
+
 [tool.setuptools.package-data]
 winregrc = [
     "*.yaml",
     "data/*.yaml",
 ]
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["winregrc"]
-exclude = ["docs", "tests", "tests.*", "utils"]

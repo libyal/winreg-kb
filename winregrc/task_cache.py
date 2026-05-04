@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Task Cache collector."""
 
 import logging
@@ -13,7 +12,7 @@ from winregrc import errors
 from winregrc import interface
 
 
-class CachedTask(object):
+class CachedTask:
   """Cached task.
 
   Attributes:
@@ -26,7 +25,7 @@ class CachedTask(object):
 
   def __init__(self):
     """Initializes a cached task."""
-    super(CachedTask, self).__init__()
+    super().__init__()
     self.identifier = None
     self.last_registered_time = None
     self.launch_time = None
@@ -45,7 +44,7 @@ class TaskCacheDataParser(data_format.BinaryDataFormat):
       debug (Optional[bool]): True if debug information should be printed.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(TaskCacheDataParser, self).__init__()
+    super().__init__()
     self._debug = debug
     self._output_writer = output_writer
 
@@ -146,7 +145,7 @@ class TaskCacheCollector(interface.WindowsRegistryKeyCollector):
       debug (Optional[bool]): True if debug information should be printed.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(TaskCacheCollector, self).__init__(debug=debug)
+    super().__init__(debug=debug)
     self._parser = TaskCacheDataParser(debug=debug, output_writer=output_writer)
     self._output_writer = output_writer
     self.cached_tasks = []

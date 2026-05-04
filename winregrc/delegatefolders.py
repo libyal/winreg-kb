@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """Windows delegate folders collector."""
 
 from winregrc import interface
 
 
-class DelegateFolder(object):
+class DelegateFolder:
   """Delegate folder.
 
   Attributes:
@@ -21,7 +20,7 @@ class DelegateFolder(object):
       name (str): name.
       namespace (str): namespace.
     """
-    super(DelegateFolder, self).__init__()
+    super().__init__()
     self.identifier = identifier
     self.name = name
     self.namespace = namespace

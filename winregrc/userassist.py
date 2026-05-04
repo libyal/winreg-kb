@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Windows UserAssist information collector."""
 
 import codecs
@@ -9,7 +8,7 @@ from winregrc import errors
 from winregrc import interface
 
 
-class UserAssistEntry(object):
+class UserAssistEntry:
   """UserAssist entry.
 
   Attributes:
@@ -26,7 +25,7 @@ class UserAssistEntry(object):
       name (Optional[str]): name.
       value_name (Optional[str]): name of the Windows Registry value.
     """
-    super(UserAssistEntry, self).__init__()
+    super().__init__()
     self.guid = guid
     self.name = name
     self.value_name = value_name
@@ -141,7 +140,7 @@ class UserAssistCollector(interface.WindowsRegistryKeyCollector):
       debug (Optional[bool]): True if debug information should be printed.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(UserAssistCollector, self).__init__(debug=debug)
+    super().__init__(debug=debug)
     self._output_writer = output_writer
     self._parser = UserAssistDataParser(
         debug=debug, output_writer=output_writer)

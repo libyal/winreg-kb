@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Script to extract tize zone information from the Windows Registry."""
 
 import argparse
@@ -24,7 +23,7 @@ class CSVFileWriter(output_writers.OutputWriter):
     Args:
       path (str): path of the CSV file to write to.
     """
-    super(CSVFileWriter, self).__init__()
+    super().__init__()
     self._file_object = None
     self._path = path
 

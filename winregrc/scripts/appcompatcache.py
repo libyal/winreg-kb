@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Script to extract Application Compatibility Cache information."""
 
 import argparse

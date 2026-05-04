@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """Windows mounted devices collector."""
 
 from winregrc import data_format
 from winregrc import errors
 
 
-class MountedDevice(object):
+class MountedDevice:
   """Mounted device.
 
   Attributes:
@@ -22,7 +21,7 @@ class MountedDevice(object):
     Args:
       identifier (str): identifier.
     """
-    super(MountedDevice, self).__init__()
+    super().__init__()
     self.device = None
     self.disk_identity = None
     self.identifier = identifier

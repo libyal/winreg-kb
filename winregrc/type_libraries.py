@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """Windows type libraries collector."""
 
 from winregrc import interface
 
 
-class TypeLibrary(object):
+class TypeLibrary:
   """Type library.
 
   Attributes:
@@ -23,7 +22,7 @@ class TypeLibrary(object):
       description (str): description.
       typelib_filename (str): typelib_filename.
     """
-    super(TypeLibrary, self).__init__()
+    super().__init__()
     self.description = description
     self.identifier = identifier
     self.typelib_filename = typelib_filename
@@ -47,7 +46,7 @@ class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
       debug (Optional[bool]): True if debug information should be printed.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(TypeLibrariesCollector, self).__init__(debug=debug)
+    super().__init__(debug=debug)
     self._output_writer = output_writer
     self.type_libraries = []
 

@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """Environment variables collector."""
 
 from winregrc import interface
 
 
-class EnvironmentVariable(object):
+class EnvironmentVariable:
   """Environment variable.
 
   Attributes:
@@ -19,7 +18,7 @@ class EnvironmentVariable(object):
       name (str): name.
       value (str): value.
     """
-    super(EnvironmentVariable, self).__init__()
+    super().__init__()
     self.name = name
     self.value = value
 

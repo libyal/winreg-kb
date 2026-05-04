@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Windows Registry volume scanner."""
 
 from dfimagetools import windows_registry
@@ -30,7 +29,7 @@ class VolumeScannerOptions(dfvfs_volume_scanner.VolumeScannerOptions):
 
   def __init__(self):
     """Initializes volume scanner options."""
-    super(VolumeScannerOptions, self).__init__()
+    super().__init__()
     self.username = None
 
 
@@ -44,7 +43,7 @@ class SingleFileWindowsRegistryFileReader(
     Args:
       path (str): path of the Windows Registry file.
     """
-    super(SingleFileWindowsRegistryFileReader, self).__init__()
+    super().__init__()
     self._path = path
 
   def Open(self, path, ascii_codepage='cp1252'):
@@ -98,7 +97,7 @@ class WindowsRegistryVolumeScanner(dfvfs_volume_scanner.WindowsVolumeScanner):
       mediator (Optional[dfvfs.VolumeScannerMediator]): a volume scanner
           mediator.
     """
-    super(WindowsRegistryVolumeScanner, self).__init__(mediator=mediator)
+    super().__init__(mediator=mediator)
     self._single_file = False
     self._users_path = False
 
@@ -186,7 +185,7 @@ class WindowsRegistryVolumeScanner(dfvfs_volume_scanner.WindowsVolumeScanner):
           is not a file or directory, or if the format of or within
           the source file is not supported.
     """
-    result = super(WindowsRegistryVolumeScanner, self).ScanForWindowsVolume(
+    result = super().ScanForWindowsVolume(
         source_path, options=options)
 
     registry_file_reader = None

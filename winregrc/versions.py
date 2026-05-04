@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 """Windows versions."""
 
 
-class WindowsVersions(object):
+class WindowsVersions:
   """Windows versions."""
 
   _SORT_KEY_PER_VERSION = {

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Shared test case."""
 
 import os
@@ -52,7 +51,7 @@ class TestOutputWriter(output_writers.StdoutOutputWriter):
 
   def __init__(self):
     """Initializes a test output writer."""""
-    super(TestOutputWriter, self).__init__()
+    super().__init__()
     self.output = []
 
   def Close(self):

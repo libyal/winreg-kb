@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 """Windows Registry key and value collector."""
 
 
-class WindowsRegistryKeyCollector(object):
+class WindowsRegistryKeyCollector:
   """Windows Registry key and value collector."""
 
   def __init__(self, debug=False):
@@ -11,7 +10,7 @@ class WindowsRegistryKeyCollector(object):
     Args:
       debug (Optional[bool]): True if debug information should be printed.
     """
-    super(WindowsRegistryKeyCollector, self).__init__()
+    super().__init__()
     self._debug = debug
 
   def _GetStringValueFromKey(

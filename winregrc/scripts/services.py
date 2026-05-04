@@ -1,5 +1,4 @@
 
-# -*- coding: utf-8 -*-
 """Script to extract services information."""
 
 import argparse
@@ -22,7 +21,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     Args:
       use_tsv (bool): True if the output should in tab separated values.
     """
-    super(StdoutWriter, self).__init__()
+    super().__init__()
     self._printed_header = False
     self._use_tsv = use_tsv
 

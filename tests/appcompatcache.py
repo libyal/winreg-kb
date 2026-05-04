@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Tests for the Application Compatibility Cache collector."""
 
 import unittest
@@ -234,7 +233,7 @@ class TestOutputWriter(output_writers.StdoutOutputWriter):
 
   def __init__(self):
     """Initializes an output writer object."""
-    super(TestOutputWriter, self).__init__()
+    super().__init__()
     self.cached_entries = []
 
   def WriteCachedEntry(self, cached_entry):

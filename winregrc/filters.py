@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """The Windows Registry key and value filters."""
 
 import abc
 
 
-class BaseWindowsRegistryKeyFilter(object):
+class BaseWindowsRegistryKeyFilter:
   """Windows Registry key filter interface."""
 
   # Note that redundant-returns-doc is broken for pylint 1.7.x
@@ -46,7 +45,7 @@ class WindowsRegistryKeyPathFilter(BaseWindowsRegistryKeyFilter):
     Args:
       key_path (str): key path.
     """
-    super(WindowsRegistryKeyPathFilter, self).__init__()
+    super().__init__()
 
     key_path.rstrip('\\')
     self._key_path = key_path
@@ -133,7 +132,7 @@ class WindowsRegistryKeyPathPrefixFilter(BaseWindowsRegistryKeyFilter):
     Args:
       key_path_prefix (str): key path prefix.
     """
-    super(WindowsRegistryKeyPathPrefixFilter, self).__init__()
+    super().__init__()
     self._key_path_prefix = key_path_prefix
 
   def Match(self, registry_key):
@@ -157,7 +156,7 @@ class WindowsRegistryKeyPathSuffixFilter(BaseWindowsRegistryKeyFilter):
     Args:
       key_path_suffix (str): key path suffix.
     """
-    super(WindowsRegistryKeyPathSuffixFilter, self).__init__()
+    super().__init__()
     self._key_path_suffix = key_path_suffix
 
   def Match(self, registry_key):
@@ -183,7 +182,7 @@ class WindowsRegistryKeyWithValuesFilter(BaseWindowsRegistryKeyFilter):
     Args:
       value_names (list[str]): value names that should be present in the key.
     """
-    super(WindowsRegistryKeyWithValuesFilter, self).__init__()
+    super().__init__()
     self._value_names = frozenset(value_names)
 
   def Match(self, registry_key):

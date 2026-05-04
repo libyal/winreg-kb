@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Most Recently Used (MRU) collector."""
 
 from dtfabric.runtime import data_maps as dtfabric_data_maps
@@ -7,7 +6,7 @@ from winregrc import data_format
 from winregrc import errors
 
 
-class MostRecentlyUsedEntry(object):
+class MostRecentlyUsedEntry:
   """Most Recently Used (MRU) entry.
 
   Attributes:
@@ -30,7 +29,7 @@ class MostRecentlyUsedEntry(object):
       string (Optional[str]): string.
       value_name (Optional[str]): name of the Windows Registry value.
     """
-    super(MostRecentlyUsedEntry, self).__init__()
+    super().__init__()
     self.key_path = key_path
     self.shell_item_data = shell_item_data
     self.shell_item_list_data = shell_item_list_data
@@ -106,7 +105,7 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
       debug (Optional[bool]): True if debug information should be printed.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(MostRecentlyUsedCollector, self).__init__(debug=debug)
+    super().__init__(debug=debug)
     self._output_writer = output_writer
     self.mru_entries = []
 

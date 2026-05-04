@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Function to provide hexadecimal representation of data."""
 
 

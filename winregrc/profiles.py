@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """Windows user profiles collector."""
 
 from winregrc import interface
 
 
-class UserProfile(object):
+class UserProfile:
   """User profile.
 
   Attributes:
@@ -19,7 +18,7 @@ class UserProfile(object):
       security_identifier (str): security identifier of the user.
       profile_path (str): path of the users profile.
     """
-    super(UserProfile, self).__init__()
+    super().__init__()
     self.profile_path = profile_path
     self.security_identifier = security_identifier
 

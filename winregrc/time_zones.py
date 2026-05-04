@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Windows time zones collector."""
 
 from winregrc import data_format
@@ -6,7 +5,7 @@ from winregrc import errors
 from winregrc import interface
 
 
-class TimeZone(object):
+class TimeZone:
   """Time zone.
 
   Attributes:
@@ -21,7 +20,7 @@ class TimeZone(object):
     Args:
       name (str): name.
     """
-    super(TimeZone, self).__init__()
+    super().__init__()
     self.localized_name = None
     self.name = name
     self.offset = 0

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Application Compatibility Cache collector."""
 
 import logging
@@ -10,7 +9,7 @@ from winregrc import errors
 from winregrc import interface
 
 
-class AppCompatCacheHeader(object):
+class AppCompatCacheHeader:
   """Application Compatibility Cache header.
 
   Attributes:
@@ -20,12 +19,12 @@ class AppCompatCacheHeader(object):
 
   def __init__(self):
     """Initializes an Application Compatibility Cache header."""
-    super(AppCompatCacheHeader, self).__init__()
+    super().__init__()
     self.number_of_cached_entries = 0
     self.header_size = 0
 
 
-class AppCompatCacheCachedEntry(object):
+class AppCompatCacheCachedEntry:
   """Application Compatibility Cache cached entry.
 
   Attributes:
@@ -42,7 +41,7 @@ class AppCompatCacheCachedEntry(object):
 
   def __init__(self):
     """Initializes an Application Compatibility Cache cached entry."""
-    super(AppCompatCacheCachedEntry, self).__init__()
+    super().__init__()
     self.cached_entry_size = 0
     self.data = None
     self.file_size = None
@@ -102,7 +101,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       debug (Optional[bool]): True if debug information should be written.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(AppCompatCacheDataParser, self).__init__(
+    super().__init__(
         debug=debug, output_writer=output_writer)
     self._cached_entry_data_type_map = None
 
@@ -630,7 +629,7 @@ class AppCompatCacheCollector(interface.WindowsRegistryKeyCollector):
       debug (Optional[bool]): True if debug information should be printed.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(AppCompatCacheCollector, self).__init__(debug=debug)
+    super().__init__(debug=debug)
     self._parser = AppCompatCacheDataParser(
         debug=self._debug, output_writer=output_writer)
     self._output_writer = output_writer

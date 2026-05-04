@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Domain cached credentials collector."""
 
 import codecs
@@ -50,7 +49,7 @@ class CachedCredentialsKeyCollector(interface.WindowsRegistryKeyCollector):
       debug (Optional[bool]): True if debug information should be printed.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(CachedCredentialsKeyCollector, self).__init__(debug=debug)
+    super().__init__(debug=debug)
     self._output_writer = output_writer
 
   def _DecryptARC4(self, key, data):

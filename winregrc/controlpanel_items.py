@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """Windows control panel items collector."""
 
 from winregrc import interface
 
 
-class ControlPanelItem(object):
+class ControlPanelItem:
   """Control panel item.
 
   Attributes:
@@ -20,7 +19,7 @@ class ControlPanelItem(object):
       identifier (str): identifier.
       module_name (str): module name.
     """
-    super(ControlPanelItem, self).__init__()
+    super().__init__()
     self.alternate_module_names = []
     self.identifier = identifier
     self.module_name = module_name

@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """Windows Shell folder collector."""
 
 from winregrc import interface
 
 
-class WindowsShellFolder(object):
+class WindowsShellFolder:
   """Windows Shell folder.
 
   Attributes:
@@ -22,7 +21,7 @@ class WindowsShellFolder(object):
       identifier (Optional[str]): identifier (GUID).
       localized_string (Optional[str]): localized string of the name.
     """
-    super(WindowsShellFolder, self).__init__()
+    super().__init__()
     self.alternate_names = []
     self.class_name = None
     self.identifier = identifier
@@ -41,7 +40,7 @@ class ShellFoldersCollector(interface.WindowsRegistryKeyCollector):
     Args:
       debug (Optional[bool]): True if debug information should be printed.
     """
-    super(ShellFoldersCollector, self).__init__(debug=debug)
+    super().__init__(debug=debug)
     self._ascii_codepage = 'cp1252'
 
   def _CollectShellFolders(self, class_identifiers_key):

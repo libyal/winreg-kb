@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """Microsoft Internet Explorer (MSIE) zone information collector."""
 
 from winregrc import interface
 
 
-class MSIEZoneInformation(object):
+class MSIEZoneInformation:
   """MSIE zone information.
 
   Attributes:
@@ -23,7 +22,7 @@ class MSIEZoneInformation(object):
       control (str): control.
       control_value (int|str): value to which the control is set.
     """
-    super(MSIEZoneInformation, self).__init__()
+    super().__init__()
     self.control = control
     self.control_value = control_value
     self.zone = zone

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """System key (syskey) collector."""
 
 import codecs
@@ -6,7 +5,7 @@ import codecs
 from winregrc import interface
 
 
-class SystemKey(object):
+class SystemKey:
   """System key.
 
   Attributes:
@@ -15,7 +14,7 @@ class SystemKey(object):
 
   def __init__(self):
     """Initializes a system key."""
-    super(SystemKey, self).__init__()
+    super().__init__()
     self.boot_key = None
 
 
@@ -36,7 +35,7 @@ class SystemKeyCollector(interface.WindowsRegistryKeyCollector):
       debug (Optional[bool]): True if debug information should be printed.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(SystemKeyCollector, self).__init__(debug=debug)
+    super().__init__(debug=debug)
     self._output_writer = output_writer
     self.system_key = None
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """System information collector."""
 
 from dfdatetime import posix_time as dfdatetime_posix_time
@@ -7,7 +6,7 @@ from dfdatetime import semantic_time as dfdatetime_semantic_time
 from winregrc import interface
 
 
-class SystemInformation(object):
+class SystemInformation:
   """System information.
 
   Attributes:
@@ -26,7 +25,7 @@ class SystemInformation(object):
 
   def __init__(self):
     """Initializes system information."""
-    super(SystemInformation, self).__init__()
+    super().__init__()
     self.csd_version = None
     self.current_build_number = None
     self.current_type = None
@@ -69,7 +68,7 @@ class SystemInfoCollector(interface.WindowsRegistryKeyCollector):
       debug (Optional[bool]): True if debug information should be printed.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(SystemInfoCollector, self).__init__(debug=debug)
+    super().__init__(debug=debug)
     self._output_writer = output_writer
     self.system_information = None
 

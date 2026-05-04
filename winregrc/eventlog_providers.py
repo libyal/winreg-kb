@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """Windows Event Log providers collector."""
 
 from winregrc import interface
 
 
-class EventLogProvider(object):
+class EventLogProvider:
   """Windows Event Log provider.
 
   Attributes:
@@ -22,7 +21,7 @@ class EventLogProvider(object):
 
   def __init__(self):
     """Initializes a Windows Event Log provider."""
-    super(EventLogProvider, self).__init__()
+    super().__init__()
     self.additional_identifier = None
     self.category_message_files = set()
     self.event_message_files = set()

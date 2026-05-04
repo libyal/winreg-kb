@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """Windows services and drivers collector."""
 
 from winregrc import interface
 
 
-class WindowsService(object):
+class WindowsService:
   """Windows service.
 
   Attributes:
@@ -53,7 +52,7 @@ class WindowsService(object):
       object_name (str): object name
       start_value (str): start value.
     """
-    super(WindowsService, self).__init__()
+    super().__init__()
     self.description = description
     self.display_name = display_name
     self.image_path = image_path

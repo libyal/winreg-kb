@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Tests for the Most Recently Used (MRU) collector."""
 
 import unittest

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Windows Programs Cache information collector."""
 
 import logging
@@ -263,7 +262,7 @@ class ProgramsCacheCollector(interface.WindowsRegistryKeyCollector):
       debug (Optional[bool]): True if debug information should be printed.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(ProgramsCacheCollector, self).__init__(debug=debug)
+    super().__init__(debug=debug)
     self._parser = ProgramsCacheDataParser(
         debug=debug, output_writer=output_writer)
 

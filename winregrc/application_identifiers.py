@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """Windows application identifiers (AppID) collector."""
 
 from winregrc import interface
 
 
-class ApplicationIdentifier(object):
+class ApplicationIdentifier:
   """Application identifier.
 
   Attributes:
@@ -19,7 +18,7 @@ class ApplicationIdentifier(object):
       guid (str): identifier.
       description (str): description.
     """
-    super(ApplicationIdentifier, self).__init__()
+    super().__init__()
     self.description = description
     self.guid = guid
 

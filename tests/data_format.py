@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests for binary data format and file."""
 
 import io

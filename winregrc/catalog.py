@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """Catalog collector."""
 
 import re
 
 
-class CatalogKeyDescriptor(object):
+class CatalogKeyDescriptor:
   """Catalog key descriptor.
 
   Attributes:
@@ -16,13 +15,13 @@ class CatalogKeyDescriptor(object):
 
   def __init__(self):
     """Initializes a catalog key descriptor."""
-    super(CatalogKeyDescriptor, self).__init__()
+    super().__init__()
     self.grouped_key_paths = []
     self.key_path = None
     self.value_descriptors = []
 
 
-class CatalogCollector(object):
+class CatalogCollector:
   """Catalog collector."""
 
   def __init__(self, group_keys=False):
@@ -31,7 +30,7 @@ class CatalogCollector(object):
     Args:
       group_keys (bool): group keys with similar values.
     """
-    super(CatalogCollector, self).__init__()
+    super().__init__()
     self._group_keys = group_keys
 
   def _CollectCatalogKeyDescriptors(self, registry_key):

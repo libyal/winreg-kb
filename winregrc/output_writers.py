@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Output writer."""
 
 import abc
@@ -9,7 +8,7 @@ from dfdatetime import filetime as dfdatetime_filetime
 from winregrc import hexdump
 
 
-class OutputWriter(object):
+class OutputWriter:
   """Output writer interface."""
 
   # Note that redundant-returns-doc is broken for pylint 1.7.x

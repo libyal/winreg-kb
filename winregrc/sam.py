@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Security Accounts Manager (SAM) collector."""
 
 import pyfwnt
@@ -11,7 +10,7 @@ from winregrc import errors
 from winregrc import interface
 
 
-class UserAccount(object):
+class UserAccount:
   """User account.
 
   Attributes:
@@ -37,7 +36,7 @@ class UserAccount(object):
 
   def __init__(self):
     """Initializes an user account."""
-    super(UserAccount, self).__init__()
+    super().__init__()
     self.account_expiration_time = None
     self.codepage = None
     self.comment = None
@@ -390,7 +389,7 @@ class SecurityAccountManagerCollector(interface.WindowsRegistryKeyCollector):
       debug (Optional[bool]): True if debug information should be printed.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(SecurityAccountManagerCollector, self).__init__(debug=debug)
+    super().__init__(debug=debug)
     self._parser = SecurityAccountManagerDataParser(
         debug=debug, output_writer=output_writer)
 

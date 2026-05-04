@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Binary data format."""
 
 import os
@@ -11,7 +10,7 @@ from dtfabric.runtime import fabric as dtfabric_fabric
 from winregrc import errors
 
 
-class BinaryDataFormat(object):
+class BinaryDataFormat:
   """Binary data format."""
 
   # The dtFabric definition file, which must be overwritten by a subclass.
@@ -31,7 +30,7 @@ class BinaryDataFormat(object):
       debug (Optional[bool]): True if debug information should be written.
       output_writer (Optional[OutputWriter]): output writer.
     """
-    super(BinaryDataFormat, self).__init__()
+    super().__init__()
     self._data_type_maps = {}
     self._debug = debug
     self._fabric = self._ReadDefinitionFile(self._DEFINITION_FILE)

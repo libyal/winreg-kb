@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Windows USB storage device collector."""
 
 from dfdatetime import filetime as dfdatetime_filetime
@@ -8,7 +7,7 @@ from winregrc import data_format
 from winregrc import errors
 
 
-class USBStorageDeviceProperty(object):
+class USBStorageDeviceProperty:
   """USB storage device property.
 
   Attributes:
@@ -25,14 +24,14 @@ class USBStorageDeviceProperty(object):
       property_set (str): identifier of the property set.
       identifier (str): identifier of the property.
     """
-    super(USBStorageDeviceProperty, self).__init__()
+    super().__init__()
     self.identifier = identifier
     self.property_set = property_set
     self.value = None
     self.value_type = None
 
 
-class USBStorageDevice(object):
+class USBStorageDevice:
   """USB storage device.
 
   Attributes:
@@ -47,7 +46,7 @@ class USBStorageDevice(object):
 
   def __init__(self):
     """Initializes an USB storage device."""
-    super(USBStorageDevice, self).__init__()
+    super().__init__()
     self.device_type = None
     self.display_name = None
     self.key_path = None

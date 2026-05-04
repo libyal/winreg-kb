@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """System Resource Usage Monitor (SRUM) extension collector."""
 
 from winregrc import interface
 
 
-class SRUMExtension(object):
+class SRUMExtension:
   """System Resource Usage Monitor (SRUM) extension.
 
   Attributes:
@@ -19,7 +18,7 @@ class SRUMExtension(object):
       guid (str): identifier.
       dll_name (str): DLL name.
     """
-    super(SRUMExtension, self).__init__()
+    super().__init__()
     self.guid = guid
     self.dll_name = dll_name
 
