@@ -349,7 +349,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
       raise errors.ParseError(
           f'Unable to parse signature value with error: {exception!s}')
 
-    format_type = self._HEADER_SIGNATURES.get(signature, None)
+    format_type = self._HEADER_SIGNATURES.get(signature)
 
     if format_type == self._FORMAT_TYPE_2003:
       # TODO: determine which format version is used (2003 or Vista).
@@ -552,7 +552,7 @@ class AppCompatCacheDataParser(data_format.BinaryDataFormat):
     Raises:
       ParseError: if the value data could not be parsed.
     """
-    data_type_map_name = self._HEADER_DATA_TYPE_MAP_NAMES.get(format_type, None)
+    data_type_map_name = self._HEADER_DATA_TYPE_MAP_NAMES.get(format_type)
     if not data_type_map_name:
       raise errors.ParseError(f'Unsupported format type: {format_type:d}')
 

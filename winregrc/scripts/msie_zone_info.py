@@ -135,16 +135,16 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
         '1601', '1604', '1606', '1607', '1608', '1609', '1800', '1802', '1803',
         '1804', '1809', '1A04', '2000', '2001', '2004', '2100', '2101', '2102',
         '2200', '2201', '2300'):
-      return self._CONTROL_VALUES_COMMON_ENABLE.get(control_value, None)
+      return self._CONTROL_VALUES_COMMON_ENABLE.get(control_value)
 
     if control == '1A00':
-      return self._CONTROL_VALUES_1A00.get(control_value, None)
+      return self._CONTROL_VALUES_1A00.get(control_value)
 
     if control == '1C00':
-      return self._CONTROL_VALUES_1C00.get(control_value, None)
+      return self._CONTROL_VALUES_1C00.get(control_value)
 
     if control == '1E05':
-      return self._CONTROL_VALUES_COMMON_SAFETY.get(control_value, None)
+      return self._CONTROL_VALUES_COMMON_SAFETY.get(control_value)
 
     return None
 
@@ -156,7 +156,7 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
     """
     zone_name = zone_information.zone_name
     if not zone_name:
-      zone_name = self._DEFAULT_ZONE_NAMES.get(zone_information.zone, None)
+      zone_name = self._DEFAULT_ZONE_NAMES.get(zone_information.zone)
 
     if zone_name:
       text = f'Zone\t\t\t: {zone_information.zone:s} ({zone_name:s})\n'

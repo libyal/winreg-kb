@@ -224,11 +224,11 @@ class WindowsServicesCollector(interface.WindowsRegistryKeyCollector):
     for name in service_names:
       services_diff = set()
 
-      windows_service = control_sets[0].get(name, None)
+      windows_service = control_sets[0].get(name)
       for control_set_index in range(1, number_of_control_sets):
         control_set = control_sets[control_set_index]
 
-        compare_windows_service = control_set.get(name, None)
+        compare_windows_service = control_set.get(name)
         if windows_service != compare_windows_service:
           services_diff.add(windows_service)
           services_diff.add(compare_windows_service)

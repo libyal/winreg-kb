@@ -69,7 +69,7 @@ def Main():
       registry_file = dfwinreg_regf.REGFWinRegistryFile()
 
       registry_file.Open(file_object)
-    except IOError:
+    except OSError:
       registry_file = None
 
     if not registry_file:
@@ -77,7 +77,7 @@ def Main():
         registry_file = dfwinreg_creg.CREGWinRegistryFile()
 
         registry_file.Open(file_object)
-      except IOError:
+      except OSError:
         registry_file = None
 
     if not registry_file:

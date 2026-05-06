@@ -30,10 +30,9 @@ class ErrorBytesIO(io.BytesIO):
       bytes: bytes read.
 
     Raises:
-      IOError: for testing.
       OSError: for testing.
     """
-    raise IOError('Unable to read for testing purposes.')
+    raise OSError('Unable to read for testing purposes.')
 
 
 class ErrorDataTypeMap(dtfabric_data_maps.DataTypeMap):

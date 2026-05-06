@@ -305,7 +305,7 @@ class BinaryDataFormat:
       dtfabric.DataTypeMap: data type map which contains a data type definition,
           such as a structure, that can be mapped onto binary data.
     """
-    data_type_map = self._data_type_maps.get(name, None)
+    data_type_map = self._data_type_maps.get(name)
     if not data_type_map:
       data_type_map = self._fabric.CreateDataTypeMap(name)
       self._data_type_maps[name] = data_type_map
