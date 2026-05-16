@@ -4,197 +4,202 @@ import abc
 
 
 class BaseWindowsRegistryKeyFilter:
-  """Windows Registry key filter interface."""
+    """Windows Registry key filter interface."""
 
-  # Note that redundant-returns-doc is broken for pylint 1.7.x
-  # pylint: disable=redundant-returns-doc
+    # Note that redundant-returns-doc is broken for pylint 1.7.x
+    # pylint: disable=redundant-returns-doc
 
-  @property
-  def key_paths(self):
-    """List of key paths defined by the filter."""
-    return []
+    @property
+    def key_paths(self):
+        """List of key paths defined by the filter."""
+        return []
 
-  @abc.abstractmethod
-  def Match(self, registry_key):
-    """Determines if a Windows Registry key matches the filter.
+    @abc.abstractmethod
+    def Match(self, registry_key):
+        """Determines if a Windows Registry key matches the filter.
 
-    Args:
-      registry_key (dfwinreg.WinRegistryKey): a Windows Registry key.
+        Args:
+          registry_key (dfwinreg.WinRegistryKey): a Windows Registry key.
 
-    Returns:
-      bool: True if a match, False otherwise.
-    """
+        Returns:
+          bool: True if a match, False otherwise.
+        """
 
 
 class WindowsRegistryKeyPathFilter(BaseWindowsRegistryKeyFilter):
-  """Windows Registry key path filter."""
+    """Windows Registry key path filter."""
 
-  _CONTROL_SET_PREFIX = (
-      'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet')
+    _CONTROL_SET_PREFIX = "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet"
 
-  # This list must be ordered with most specific matches first.
-  _WOW64_PREFIXES = [
-      'HKEY_CURRENT_USER\\Software\\Classes',
-      'HKEY_CURRENT_USER\\Software',
-      'HKEY_LOCAL_MACHINE\\Software\\Classes',
-      'HKEY_LOCAL_MACHINE\\Software']
+    # This list must be ordered with most specific matches first.
+    _WOW64_PREFIXES = [
+        "HKEY_CURRENT_USER\\Software\\Classes",
+        "HKEY_CURRENT_USER\\Software",
+        "HKEY_LOCAL_MACHINE\\Software\\Classes",
+        "HKEY_LOCAL_MACHINE\\Software",
+    ]
 
-  def __init__(self, key_path):
-    """Initializes a Windows Registry key filter.
+    def __init__(self, key_path):
+        """Initializes a Windows Registry key filter.
 
-    Args:
-      key_path (str): key path.
-    """
-    super().__init__()
+        Args:
+          key_path (str): key path.
+        """
+        super().__init__()
 
-    key_path.rstrip('\\')
-    self._key_path = key_path
+        key_path.rstrip("\\")
+        self._key_path = key_path
 
-    key_path = key_path.upper()
-    self._key_path_upper = key_path
+        key_path = key_path.upper()
+        self._key_path_upper = key_path
 
-    self._wow64_key_path = None
-    self._wow64_key_path_upper = None
+        self._wow64_key_path = None
+        self._wow64_key_path_upper = None
 
-    if key_path.startswith(self._CONTROL_SET_PREFIX.upper()):
-      self._key_path_prefix, _, self._key_path_suffix = key_path.partition(
-          'CurrentControlSet'.upper())
+        if key_path.startswith(self._CONTROL_SET_PREFIX.upper()):
+            self._key_path_prefix, _, self._key_path_suffix = key_path.partition(
+                "CurrentControlSet".upper()
+            )
 
-    else:
-      self._key_path_prefix = None
-      self._key_path_suffix = None
+        else:
+            self._key_path_prefix = None
+            self._key_path_suffix = None
 
-      # Handle WoW64 Windows Registry key redirection.
-      # Also see:
-      # https://msdn.microsoft.com/en-us/library/windows/desktop/
-      # ms724072%28v=vs.85%29.aspx
-      # https://msdn.microsoft.com/en-us/library/windows/desktop/
-      # aa384253(v=vs.85).aspx
-      wow64_prefix = None
-      for key_path_prefix in self._WOW64_PREFIXES:
-        if key_path.startswith(key_path_prefix.upper()):
-          wow64_prefix = key_path_prefix
-          break
+            # Handle WoW64 Windows Registry key redirection.
+            # Also see:
+            # https://msdn.microsoft.com/en-us/library/windows/desktop/
+            # ms724072%28v=vs.85%29.aspx
+            # https://msdn.microsoft.com/en-us/library/windows/desktop/
+            # aa384253(v=vs.85).aspx
+            wow64_prefix = None
+            for key_path_prefix in self._WOW64_PREFIXES:
+                if key_path.startswith(key_path_prefix.upper()):
+                    wow64_prefix = key_path_prefix
+                    break
 
-      if wow64_prefix:
-        key_path_suffix = self._key_path[len(wow64_prefix):]
-        if key_path_suffix.startswith('\\'):
-          key_path_suffix = key_path_suffix[1:]
-        self._wow64_key_path = '\\'.join([
-            wow64_prefix, 'Wow6432Node', key_path_suffix])
-        self._wow64_key_path_upper = self._wow64_key_path.upper()
+            if wow64_prefix:
+                key_path_suffix = self._key_path[len(wow64_prefix) :]
+                if key_path_suffix.startswith("\\"):
+                    key_path_suffix = key_path_suffix[1:]
+                self._wow64_key_path = "\\".join(
+                    [wow64_prefix, "Wow6432Node", key_path_suffix]
+                )
+                self._wow64_key_path_upper = self._wow64_key_path.upper()
 
-  @property
-  def key_paths(self):
-    """Retrieves the key paths defined by the filter.
+    @property
+    def key_paths(self):
+        """Retrieves the key paths defined by the filter.
 
-    Returns:
-      list[str]: key paths defined by the filter.
-    """
-    if self._wow64_key_path:
-      return [self._key_path, self._wow64_key_path]
-    return [self._key_path]
+        Returns:
+          list[str]: key paths defined by the filter.
+        """
+        if self._wow64_key_path:
+            return [self._key_path, self._wow64_key_path]
+        return [self._key_path]
 
-  def Match(self, registry_key):
-    """Determines if a Windows Registry key matches the filter.
+    def Match(self, registry_key):
+        """Determines if a Windows Registry key matches the filter.
 
-    Args:
-      registry_key (dfwinreg.WinRegistryKey): a Windows Registry key.
+        Args:
+          registry_key (dfwinreg.WinRegistryKey): a Windows Registry key.
 
-    Returns:
-      bool: True if a match, False otherwise.
-    """
-    key_path = registry_key.path.upper()
-    if self._key_path_prefix and self._key_path_suffix:
-      if (key_path.startswith(self._key_path_prefix) and
-          key_path.endswith(self._key_path_suffix)):
+        Returns:
+          bool: True if a match, False otherwise.
+        """
+        key_path = registry_key.path.upper()
+        if self._key_path_prefix and self._key_path_suffix:
+            if key_path.startswith(self._key_path_prefix) and key_path.endswith(
+                self._key_path_suffix
+            ):
 
-        key_path_segment = key_path[
-            len(self._key_path_prefix):-len(self._key_path_suffix)]
-        if key_path_segment.startswith('ControlSet'.upper()):
-          try:
-            control_set = int(key_path_segment[10:], 10)
-          except ValueError:
-            control_set = None
+                key_path_segment = key_path[
+                    len(self._key_path_prefix) : -len(self._key_path_suffix)
+                ]
+                if key_path_segment.startswith("ControlSet".upper()):
+                    try:
+                        control_set = int(key_path_segment[10:], 10)
+                    except ValueError:
+                        control_set = None
 
-          # TODO: check if control_set is in bounds.
-          return control_set is not None
+                    # TODO: check if control_set is in bounds.
+                    return control_set is not None
 
-    return key_path in (self._key_path_upper, self._wow64_key_path_upper)
+        return key_path in (self._key_path_upper, self._wow64_key_path_upper)
 
 
 class WindowsRegistryKeyPathPrefixFilter(BaseWindowsRegistryKeyFilter):
-  """Windows Registry key path prefix filter."""
+    """Windows Registry key path prefix filter."""
 
-  def __init__(self, key_path_prefix):
-    """Initializes a Windows Registry key filter.
+    def __init__(self, key_path_prefix):
+        """Initializes a Windows Registry key filter.
 
-    Args:
-      key_path_prefix (str): key path prefix.
-    """
-    super().__init__()
-    self._key_path_prefix = key_path_prefix
+        Args:
+          key_path_prefix (str): key path prefix.
+        """
+        super().__init__()
+        self._key_path_prefix = key_path_prefix
 
-  def Match(self, registry_key):
-    """Determines if a Windows Registry key matches the filter.
+    def Match(self, registry_key):
+        """Determines if a Windows Registry key matches the filter.
 
-    Args:
-      registry_key (dfwinreg.WinRegistryKey): a Windows Registry key.
+        Args:
+          registry_key (dfwinreg.WinRegistryKey): a Windows Registry key.
 
-    Returns:
-      bool: True if a match, False otherwise.
-    """
-    return registry_key.path.startsswith(self._key_path_prefix)
+        Returns:
+          bool: True if a match, False otherwise.
+        """
+        return registry_key.path.startsswith(self._key_path_prefix)
 
 
 class WindowsRegistryKeyPathSuffixFilter(BaseWindowsRegistryKeyFilter):
-  """Windows Registry key path suffix filter."""
+    """Windows Registry key path suffix filter."""
 
-  def __init__(self, key_path_suffix):
-    """Initializes a Windows Registry key filter.
+    def __init__(self, key_path_suffix):
+        """Initializes a Windows Registry key filter.
 
-    Args:
-      key_path_suffix (str): key path suffix.
-    """
-    super().__init__()
-    self._key_path_suffix = key_path_suffix
+        Args:
+          key_path_suffix (str): key path suffix.
+        """
+        super().__init__()
+        self._key_path_suffix = key_path_suffix
 
-  def Match(self, registry_key):
-    """Determines if a Windows Registry key matches the filter.
+    def Match(self, registry_key):
+        """Determines if a Windows Registry key matches the filter.
 
-    Args:
-      registry_key (dfwinreg.WinRegistryKey): a Windows Registry key.
+        Args:
+          registry_key (dfwinreg.WinRegistryKey): a Windows Registry key.
 
-    Returns:
-      bool: True if a match, False otherwise.
-    """
-    return registry_key.path.endswith(self._key_path_suffix)
+        Returns:
+          bool: True if a match, False otherwise.
+        """
+        return registry_key.path.endswith(self._key_path_suffix)
 
 
 class WindowsRegistryKeyWithValuesFilter(BaseWindowsRegistryKeyFilter):
-  """Windows Registry key with values filter."""
+    """Windows Registry key with values filter."""
 
-  _EMPTY_SET = frozenset()
+    _EMPTY_SET = frozenset()
 
-  def __init__(self, value_names):
-    """Initializes a Windows Registry key filter.
+    def __init__(self, value_names):
+        """Initializes a Windows Registry key filter.
 
-    Args:
-      value_names (list[str]): value names that should be present in the key.
-    """
-    super().__init__()
-    self._value_names = frozenset(value_names)
+        Args:
+          value_names (list[str]): value names that should be present in the key.
+        """
+        super().__init__()
+        self._value_names = frozenset(value_names)
 
-  def Match(self, registry_key):
-    """Determines if a Windows Registry key matches the filter.
+    def Match(self, registry_key):
+        """Determines if a Windows Registry key matches the filter.
 
-    Args:
-      registry_key (dfwinreg.WinRegistryKey): a Windows Registry key.
+        Args:
+          registry_key (dfwinreg.WinRegistryKey): a Windows Registry key.
 
-    Returns:
-      bool: True if a match, False otherwise.
-    """
-    value_names = frozenset([
-        registry_value.name for registry_value in registry_key.GetValues()])
+        Returns:
+          bool: True if a match, False otherwise.
+        """
+        value_names = frozenset(
+            [registry_value.name for registry_value in registry_key.GetValues()]
+        )
 
-    return self._value_names.issubset(value_names)
+        return self._value_names.issubset(value_names)

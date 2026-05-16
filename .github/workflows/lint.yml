@@ -1,5 +1,5 @@
-# Run docs tox tests on Ubuntu Docker images using the deadsnakes and GIFT PPAs
-name: test_docs
+# Check source.
+name: lint
 on:
   pull_request:
     branches:
@@ -9,7 +9,16 @@ on:
     - main
 permissions: read-all
 jobs:
-  build:
+  black:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - name: Check format of Python code
+      uses: psf/black@stable
+      with:
+        options: "--check"
+        src: "."
+  pylint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -35,8 +44,25 @@ jobs:
         add-apt-repository -y ppa:gift/dev
         apt-get update -q
         apt-get install -y build-essential git libffi-dev pkg-config python${{ matrix.python-version }} python${{ matrix.python-version }}-dev python${{ matrix.python-version }}-venv libbde-python3 libcaes-python3 libcreg-python3 libewf-python3 libfcrypto-python3 libfsapfs-python3 libfsext-python3 libfsfat-python3 libfshfs-python3 libfsntfs-python3 libfsxfs-python3 libfvde-python3 libfwnt-python3 libfwps-python3 libfwsi-python3 libhmac-python3 libluksde-python3 libmodi-python3 libphdi-python3 libqcow-python3 libregf-python3 libsigscan-python3 libsmdev-python3 libsmraw-python3 libvhdi-python3 libvmdk-python3 libvsapm-python3 libvsgpt-python3 libvshadow-python3 libvslvm-python3 python3-acstore python3-artifacts python3-dfdatetime python3-dfimagetools python3-dfvfs python3-dfwinreg python3-dtfabric python3-pip python3-pytsk3 python3-setuptools python3-xattr python3-yaml tox
-    - name: Run tests
+    - name: Run linter
       env:
         LANG: en_US.UTF-8
       run: |
-        tox -e docs
+        tox -e pylint
+  yamllint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.12']
+    steps:
+    - uses: actions/checkout@v6
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install tox
+      run: |
+        python -m pip install tox
+    - name: Run linter
+      run: |
+        tox -e yamllint

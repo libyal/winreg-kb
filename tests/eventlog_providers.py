@@ -12,62 +12,65 @@ from tests import test_lib as shared_test_lib
 
 
 class EventLogProvidersCollectorTest(shared_test_lib.BaseTestCase):
-  """Tests for the Windows Event Log providers collector."""
+    """Tests for the Windows Event Log providers collector."""
 
-  def testCollect(self):
-    """Tests the Collect function."""
-    software_test_path = self._GetTestFilePath(['SOFTWARE'])
-    self._SkipIfPathNotExists(software_test_path)
+    def testCollect(self):
+        """Tests the Collect function."""
+        software_test_path = self._GetTestFilePath(["SOFTWARE"])
+        self._SkipIfPathNotExists(software_test_path)
 
-    system_test_path = self._GetTestFilePath(['SYSTEM'])
-    self._SkipIfPathNotExists(system_test_path)
+        system_test_path = self._GetTestFilePath(["SYSTEM"])
+        self._SkipIfPathNotExists(system_test_path)
 
-    registry = dfwinreg_registry.WinRegistry()
+        registry = dfwinreg_registry.WinRegistry()
 
-    with open(software_test_path, 'rb') as software_file_object:
-      with open(system_test_path, 'rb') as system_file_object:
-        registry_file = dfwinreg_regf.REGFWinRegistryFile(
-            ascii_codepage='cp1252')
-        registry_file.Open(software_file_object)
+        with open(software_test_path, "rb") as software_file_object:
+            with open(system_test_path, "rb") as system_file_object:
+                registry_file = dfwinreg_regf.REGFWinRegistryFile(
+                    ascii_codepage="cp1252"
+                )
+                registry_file.Open(software_file_object)
 
-        key_path_prefix = registry.GetRegistryFileMapping(registry_file)
-        registry_file.SetKeyPathPrefix(key_path_prefix)
-        registry.MapFile(key_path_prefix, registry_file)
+                key_path_prefix = registry.GetRegistryFileMapping(registry_file)
+                registry_file.SetKeyPathPrefix(key_path_prefix)
+                registry.MapFile(key_path_prefix, registry_file)
 
-        registry_file = dfwinreg_regf.REGFWinRegistryFile(
-            ascii_codepage='cp1252')
-        registry_file.Open(system_file_object)
+                registry_file = dfwinreg_regf.REGFWinRegistryFile(
+                    ascii_codepage="cp1252"
+                )
+                registry_file.Open(system_file_object)
 
-        key_path_prefix = registry.GetRegistryFileMapping(registry_file)
-        registry_file.SetKeyPathPrefix(key_path_prefix)
-        registry.MapFile(key_path_prefix, registry_file)
+                key_path_prefix = registry.GetRegistryFileMapping(registry_file)
+                registry_file.SetKeyPathPrefix(key_path_prefix)
+                registry.MapFile(key_path_prefix, registry_file)
+
+                collector_object = eventlog_providers.EventLogProvidersCollector()
+
+                test_results = list(collector_object.Collect(registry))
+
+        self.assertEqual(len(test_results), 974)
+
+        eventlog_provider = test_results[0]
+        self.assertIsNone(eventlog_provider.identifier)
+        self.assertIsNone(eventlog_provider.name)
+        self.assertEqual(eventlog_provider.log_sources, [".NET Runtime"])
+        self.assertEqual(eventlog_provider.log_types, ["Application"])
+        self.assertEqual(eventlog_provider.category_message_files, set())
+        self.assertEqual(
+            eventlog_provider.event_message_files,
+            set(["C:\\Windows\\System32\\mscoree.dll"]),
+        )
+        self.assertEqual(eventlog_provider.parameter_message_files, set())
+
+    def testCollectEmpty(self):
+        """Tests the Collect function on an empty Registry."""
+        registry = dfwinreg_registry.WinRegistry()
 
         collector_object = eventlog_providers.EventLogProvidersCollector()
 
         test_results = list(collector_object.Collect(registry))
-
-    self.assertEqual(len(test_results), 974)
-
-    eventlog_provider = test_results[0]
-    self.assertIsNone(eventlog_provider.identifier)
-    self.assertIsNone(eventlog_provider.name)
-    self.assertEqual(eventlog_provider.log_sources, ['.NET Runtime'])
-    self.assertEqual(eventlog_provider.log_types, ['Application'])
-    self.assertEqual(eventlog_provider.category_message_files, set())
-    self.assertEqual(
-        eventlog_provider.event_message_files,
-        set(['C:\\Windows\\System32\\mscoree.dll']))
-    self.assertEqual(eventlog_provider.parameter_message_files, set())
-
-  def testCollectEmpty(self):
-    """Tests the Collect function on an empty Registry."""
-    registry = dfwinreg_registry.WinRegistry()
-
-    collector_object = eventlog_providers.EventLogProvidersCollector()
-
-    test_results = list(collector_object.Collect(registry))
-    self.assertEqual(len(test_results), 0)
+        self.assertEqual(len(test_results), 0)
 
 
-if __name__ == '__main__':
-  unittest.main()
+if __name__ == "__main__":
+    unittest.main()

@@ -14,71 +14,73 @@ from tests import test_lib
 
 
 class ErrorBytesIO(io.BytesIO):
-  """Bytes IO that errors."""
+    """Bytes IO that errors."""
 
-  # The following methods are part of the file-like object interface.
-  # pylint: disable=invalid-name
+    # The following methods are part of the file-like object interface.
+    # pylint: disable=invalid-name
 
-  def read(self, size=None):  # pylint: disable=redundant-returns-doc,unused-argument
-    """Reads bytes.
+    def read(self, size=None):  # pylint: disable=redundant-returns-doc,unused-argument
+        """Reads bytes.
 
-    Args:
-      size (Optional[int]): number of bytes to read, where None represents
-          all remaining bytes.
+        Args:
+          size (Optional[int]): number of bytes to read, where None represents
+              all remaining bytes.
 
-    Returns:
-      bytes: bytes read.
+        Returns:
+          bytes: bytes read.
 
-    Raises:
-      OSError: for testing.
-    """
-    raise OSError('Unable to read for testing purposes.')
+        Raises:
+          OSError: for testing.
+        """
+        raise OSError("Unable to read for testing purposes.")
 
 
 class ErrorDataTypeMap(dtfabric_data_maps.DataTypeMap):
-  """Data type map that errors."""
+    """Data type map that errors."""
 
-  # pylint: disable=redundant-returns-doc
+    # pylint: disable=redundant-returns-doc
 
-  def FoldByteStream(self, mapped_value, **unused_kwargs):
-    """Folds the data type into a byte stream.
+    def FoldByteStream(self, mapped_value, **unused_kwargs):
+        """Folds the data type into a byte stream.
 
-    Args:
-      mapped_value (object): mapped value.
+        Args:
+          mapped_value (object): mapped value.
 
-    Returns:
-      bytes: byte stream.
+        Returns:
+          bytes: byte stream.
 
-    Raises:
-      FoldingError: if the data type definition cannot be folded into
-          the byte stream.
-    """
-    raise dtfabric_errors.FoldingError(
-        'Unable to fold to byte stream for testing purposes.')
+        Raises:
+          FoldingError: if the data type definition cannot be folded into
+              the byte stream.
+        """
+        raise dtfabric_errors.FoldingError(
+            "Unable to fold to byte stream for testing purposes."
+        )
 
-  def MapByteStream(self, byte_stream, **unused_kwargs):
-    """Maps the data type on a byte stream.
+    def MapByteStream(self, byte_stream, **unused_kwargs):
+        """Maps the data type on a byte stream.
 
-    Args:
-      byte_stream (bytes): byte stream.
+        Args:
+          byte_stream (bytes): byte stream.
 
-    Returns:
-      object: mapped value.
+        Returns:
+          object: mapped value.
 
-    Raises:
-      dtfabric.MappingError: if the data type definition cannot be mapped on
-          the byte stream.
-    """
-    raise dtfabric_errors.MappingError(
-        'Unable to map byte stream for testing purposes.')
+        Raises:
+          dtfabric.MappingError: if the data type definition cannot be mapped on
+              the byte stream.
+        """
+        raise dtfabric_errors.MappingError(
+            "Unable to map byte stream for testing purposes."
+        )
 
 
 class BinaryDataFormatTest(test_lib.BaseTestCase):
-  """Binary data format tests."""
+    """Binary data format tests."""
 
-  # pylint: disable=protected-access
+    # pylint: disable=protected-access
 
-  _DATA_TYPE_FABRIC_DEFINITION = b"""\
+    _DATA_TYPE_FABRIC_DEFINITION = b"""\
 name: uint32
 type: integer
 attributes:
@@ -111,93 +113,99 @@ members:
   number_of_elements: shape3d.number_of_points
 """
 
-  _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
-      yaml_definition=_DATA_TYPE_FABRIC_DEFINITION)
+    _DATA_TYPE_FABRIC = dtfabric_fabric.DataTypeFabric(
+        yaml_definition=_DATA_TYPE_FABRIC_DEFINITION
+    )
 
-  def testDebugPrintData(self):
-    """Tests the _DebugPrintData function."""
-    output_writer = test_lib.TestOutputWriter()
-    test_format = data_format.BinaryDataFormat(
-        output_writer=output_writer)
+    def testDebugPrintData(self):
+        """Tests the _DebugPrintData function."""
+        output_writer = test_lib.TestOutputWriter()
+        test_format = data_format.BinaryDataFormat(output_writer=output_writer)
 
-    data = b'\x00\x01\x02\x03\x04\x05\x06'
-    test_format._DebugPrintData('Description', data)
+        data = b"\x00\x01\x02\x03\x04\x05\x06"
+        test_format._DebugPrintData("Description", data)
 
-    expected_output = [
-        'Description:\n',
-        ('0x00000000  00 01 02 03 04 05 06                              '
-         '.......\n\n')]
-    self.assertEqual(output_writer.output, expected_output)
+        expected_output = [
+            "Description:\n",
+            (
+                "0x00000000  00 01 02 03 04 05 06                              "
+                ".......\n\n"
+            ),
+        ]
+        self.assertEqual(output_writer.output, expected_output)
 
-  def testDebugPrintDecimalValue(self):
-    """Tests the _DebugPrintDecimalValue function."""
-    output_writer = test_lib.TestOutputWriter()
-    test_format = data_format.BinaryDataFormat(
-        output_writer=output_writer)
+    def testDebugPrintDecimalValue(self):
+        """Tests the _DebugPrintDecimalValue function."""
+        output_writer = test_lib.TestOutputWriter()
+        test_format = data_format.BinaryDataFormat(output_writer=output_writer)
 
-    test_format._DebugPrintDecimalValue('Description', 1)
+        test_format._DebugPrintDecimalValue("Description", 1)
 
-    expected_output = ['Description\t\t\t\t\t\t\t\t: 1\n']
-    self.assertEqual(output_writer.output, expected_output)
+        expected_output = ["Description\t\t\t\t\t\t\t\t: 1\n"]
+        self.assertEqual(output_writer.output, expected_output)
 
-  # TODO add tests for _DebugPrintFiletimeValue
+    # TODO add tests for _DebugPrintFiletimeValue
 
-  def testDebugPrintValue(self):
-    """Tests the _DebugPrintValue function."""
-    output_writer = test_lib.TestOutputWriter()
-    test_format = data_format.BinaryDataFormat(
-        output_writer=output_writer)
+    def testDebugPrintValue(self):
+        """Tests the _DebugPrintValue function."""
+        output_writer = test_lib.TestOutputWriter()
+        test_format = data_format.BinaryDataFormat(output_writer=output_writer)
 
-    test_format._DebugPrintValue('Description', 'Value')
+        test_format._DebugPrintValue("Description", "Value")
 
-    expected_output = ['Description\t\t\t\t\t\t\t\t: Value\n']
-    self.assertEqual(output_writer.output, expected_output)
+        expected_output = ["Description\t\t\t\t\t\t\t\t: Value\n"]
+        self.assertEqual(output_writer.output, expected_output)
 
-  def testDebugPrintText(self):
-    """Tests the _DebugPrintText function."""
-    output_writer = test_lib.TestOutputWriter()
-    test_format = data_format.BinaryDataFormat(
-        output_writer=output_writer)
+    def testDebugPrintText(self):
+        """Tests the _DebugPrintText function."""
+        output_writer = test_lib.TestOutputWriter()
+        test_format = data_format.BinaryDataFormat(output_writer=output_writer)
 
-    test_format._DebugPrintText('Text')
+        test_format._DebugPrintText("Text")
 
-    expected_output = ['Text']
-    self.assertEqual(output_writer.output, expected_output)
+        expected_output = ["Text"]
+        self.assertEqual(output_writer.output, expected_output)
 
-  # TODO: add tests for _GetDataTypeMap
-  # TODO: add tests for _ReadDefinitionFile
+    # TODO: add tests for _GetDataTypeMap
+    # TODO: add tests for _ReadDefinitionFile
 
-  def testReadStructureFromByteStream(self):
-    """Tests the _ReadStructureFromByteStream function."""
-    output_writer = test_lib.TestOutputWriter()
-    test_format = data_format.BinaryDataFormat(
-        debug=True, output_writer=output_writer)
+    def testReadStructureFromByteStream(self):
+        """Tests the _ReadStructureFromByteStream function."""
+        output_writer = test_lib.TestOutputWriter()
+        test_format = data_format.BinaryDataFormat(
+            debug=True, output_writer=output_writer
+        )
 
-    data_type_map = self._DATA_TYPE_FABRIC.CreateDataTypeMap('point3d')
+        data_type_map = self._DATA_TYPE_FABRIC.CreateDataTypeMap("point3d")
 
-    test_format._ReadStructureFromByteStream(
-        b'\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00', 0,
-        data_type_map, 'point3d')
+        test_format._ReadStructureFromByteStream(
+            b"\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00",
+            0,
+            data_type_map,
+            "point3d",
+        )
 
-    # Test with missing byte stream.
-    with self.assertRaises(ValueError):
-      test_format._ReadStructureFromByteStream(
-          None, 0, data_type_map, 'point3d')
+        # Test with missing byte stream.
+        with self.assertRaises(ValueError):
+            test_format._ReadStructureFromByteStream(None, 0, data_type_map, "point3d")
 
-    # Test with missing data map type.
-    with self.assertRaises(ValueError):
-      test_format._ReadStructureFromByteStream(
-          b'\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00', 0, None,
-          'point3d')
+        # Test with missing data map type.
+        with self.assertRaises(ValueError):
+            test_format._ReadStructureFromByteStream(
+                b"\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00", 0, None, "point3d"
+            )
 
-    # Test with data type map that raises an dtfabric.MappingError.
-    data_type_map = ErrorDataTypeMap(None)
+        # Test with data type map that raises an dtfabric.MappingError.
+        data_type_map = ErrorDataTypeMap(None)
 
-    with self.assertRaises(errors.ParseError):
-      test_format._ReadStructureFromByteStream(
-          b'\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00', 0,
-          data_type_map, 'point3d')
+        with self.assertRaises(errors.ParseError):
+            test_format._ReadStructureFromByteStream(
+                b"\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00",
+                0,
+                data_type_map,
+                "point3d",
+            )
 
 
-if __name__ == '__main__':
-  unittest.main()
+if __name__ == "__main__":
+    unittest.main()

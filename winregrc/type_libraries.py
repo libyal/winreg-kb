@@ -4,100 +4,99 @@ from winregrc import interface
 
 
 class TypeLibrary:
-  """Type library.
+    """Type library.
 
-  Attributes:
-    description (str): description.
-    identifier (str): identifier.
-    typelib_filename (str): typelib_filename.
-    version (str): version.
-  """
-
-  def __init__(self, identifier, version, description, typelib_filename):
-    """Initializes a type library.
-
-    Args:
-      identifier (str): identifier.
-      version (str): version.
+    Attributes:
       description (str): description.
+      identifier (str): identifier.
       typelib_filename (str): typelib_filename.
+      version (str): version.
     """
-    super().__init__()
-    self.description = description
-    self.identifier = identifier
-    self.typelib_filename = typelib_filename
-    self.version = version
+
+    def __init__(self, identifier, version, description, typelib_filename):
+        """Initializes a type library.
+
+        Args:
+          identifier (str): identifier.
+          version (str): version.
+          description (str): description.
+          typelib_filename (str): typelib_filename.
+        """
+        super().__init__()
+        self.description = description
+        self.identifier = identifier
+        self.typelib_filename = typelib_filename
+        self.version = version
 
 
 class TypeLibrariesCollector(interface.WindowsRegistryKeyCollector):
-  """Windows type libraries collector.
+    """Windows type libraries collector.
 
-  Attributes:
-    type_libraries (list[TypeLibrary]): type libraries.
-  """
-
-  _TYPE_LIBRARIES_KEY_PATH = (
-      'HKEY_LOCAL_MACHINE\\Software\\Classes\\TypeLib')
-
-  def __init__(self, debug=False, output_writer=None):
-    """Initializes a Windows type libraries collector.
-
-    Args:
-      debug (Optional[bool]): True if debug information should be printed.
-      output_writer (Optional[OutputWriter]): output writer.
+    Attributes:
+      type_libraries (list[TypeLibrary]): type libraries.
     """
-    super().__init__(debug=debug)
-    self._output_writer = output_writer
-    self.type_libraries = []
 
-  def Collect(self, registry):  # pylint: disable=arguments-differ
-    """Collects the type libraries.
+    _TYPE_LIBRARIES_KEY_PATH = "HKEY_LOCAL_MACHINE\\Software\\Classes\\TypeLib"
 
-    Args:
-      registry (dfwinreg.WinRegistry): Windows Registry.
+    def __init__(self, debug=False, output_writer=None):
+        """Initializes a Windows type libraries collector.
 
-    Returns:
-      bool: True if the type libraries key was found, False if not.
-    """
-    type_libraries_key = registry.GetKeyByPath(
-        self._TYPE_LIBRARIES_KEY_PATH)
-    if not type_libraries_key:
-      return False
+        Args:
+          debug (Optional[bool]): True if debug information should be printed.
+          output_writer (Optional[OutputWriter]): output writer.
+        """
+        super().__init__(debug=debug)
+        self._output_writer = output_writer
+        self.type_libraries = []
 
-    for type_library_key in type_libraries_key.GetSubkeys():
-      identifier = type_library_key.name.lower()
+    def Collect(self, registry):  # pylint: disable=arguments-differ
+        """Collects the type libraries.
 
-      for subkey in type_library_key.GetSubkeys():
-        if subkey.name in ('FLAGS', 'HELPDIR'):
-          continue
+        Args:
+          registry (dfwinreg.WinRegistry): Windows Registry.
 
-        description = self._GetValueFromKey(subkey, '')
+        Returns:
+          bool: True if the type libraries key was found, False if not.
+        """
+        type_libraries_key = registry.GetKeyByPath(self._TYPE_LIBRARIES_KEY_PATH)
+        if not type_libraries_key:
+            return False
 
-        language_key = None
-        for lcid in ('0', '409'):
-          language_key = subkey.GetSubkeyByName(lcid)
-          if language_key:
-            break
+        for type_library_key in type_libraries_key.GetSubkeys():
+            identifier = type_library_key.name.lower()
 
-        if not language_key:
-          for language_key in subkey.GetSubkeys():
-            if language_key.name not in ('FLAGS', 'HELPDIR'):
-              break
+            for subkey in type_library_key.GetSubkeys():
+                if subkey.name in ("FLAGS", "HELPDIR"):
+                    continue
 
-        platform_key = None
-        if language_key:
-          for platform in ('win32', ):
-            platform_key = language_key.GetSubkeyByName(platform)
-            if platform_key:
-              break
+                description = self._GetValueFromKey(subkey, "")
 
-          if not platform_key:
-            platform_key = language_key.GetSubkeyByIndex(0)
+                language_key = None
+                for lcid in ("0", "409"):
+                    language_key = subkey.GetSubkeyByName(lcid)
+                    if language_key:
+                        break
 
-        typelib_filename = self._GetValueFromKey(platform_key, '')
+                if not language_key:
+                    for language_key in subkey.GetSubkeys():
+                        if language_key.name not in ("FLAGS", "HELPDIR"):
+                            break
 
-        type_library = TypeLibrary(
-            identifier, subkey.name, description, typelib_filename)
-        self.type_libraries.append(type_library)
+                platform_key = None
+                if language_key:
+                    for platform in ("win32",):
+                        platform_key = language_key.GetSubkeyByName(platform)
+                        if platform_key:
+                            break
 
-    return True
+                    if not platform_key:
+                        platform_key = language_key.GetSubkeyByIndex(0)
+
+                typelib_filename = self._GetValueFromKey(platform_key, "")
+
+                type_library = TypeLibrary(
+                    identifier, subkey.name, description, typelib_filename
+                )
+                self.type_libraries.append(type_library)
+
+        return True

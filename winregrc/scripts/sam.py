@@ -13,112 +13,132 @@ from winregrc import volume_scanner
 
 
 def Main():
-  """Entry point of console script to extract SAM information.
+    """Entry point of console script to extract SAM information.
 
-  Returns:
-    int: exit code that is provided to sys.exit().
-  """
-  argument_parser = argparse.ArgumentParser(description=(
-      'Extracts Security Account Manager information from a SAM Registry '
-      'file.'))
+    Returns:
+      int: exit code that is provided to sys.exit().
+    """
+    argument_parser = argparse.ArgumentParser(
+        description=(
+            "Extracts Security Account Manager information from a SAM Registry " "file."
+        )
+    )
 
-  argument_parser.add_argument(
-      '-d', '--debug', dest='debug', action='store_true', default=False,
-      help='enable debug output.')
+    argument_parser.add_argument(
+        "-d",
+        "--debug",
+        dest="debug",
+        action="store_true",
+        default=False,
+        help="enable debug output.",
+    )
 
-  argument_parser.add_argument(
-      'source', nargs='?', action='store', metavar='PATH', default=None,
-      help=(
-          'path of the volume containing C:\\Windows, the filename of '
-          'a storage media image containing the C:\\Windows directory, '
-          'or the path of a SAM Registry file.'))
+    argument_parser.add_argument(
+        "source",
+        nargs="?",
+        action="store",
+        metavar="PATH",
+        default=None,
+        help=(
+            "path of the volume containing C:\\Windows, the filename of "
+            "a storage media image containing the C:\\Windows directory, "
+            "or the path of a SAM Registry file."
+        ),
+    )
 
-  options = argument_parser.parse_args()
+    options = argument_parser.parse_args()
 
-  if not options.source:
-    print('Source value is missing.')
-    print('')
-    argument_parser.print_help()
-    print('')
-    return 1
+    if not options.source:
+        print("Source value is missing.")
+        print("")
+        argument_parser.print_help()
+        print("")
+        return 1
 
-  logging.basicConfig(
-      level=logging.INFO, format='[%(levelname)s] %(message)s')
+    logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
-  output_writer = output_writers.StdoutOutputWriter()
+    output_writer = output_writers.StdoutOutputWriter()
 
-  if not output_writer.Open():
-    print('Unable to open output writer.')
-    print('')
-    return 1
+    if not output_writer.Open():
+        print("Unable to open output writer.")
+        print("")
+        return 1
 
-  mediator = volume_scanner.WindowsRegistryVolumeScannerMediator()
-  scanner = volume_scanner.WindowsRegistryVolumeScanner(mediator=mediator)
+    mediator = volume_scanner.WindowsRegistryVolumeScannerMediator()
+    scanner = volume_scanner.WindowsRegistryVolumeScanner(mediator=mediator)
 
-  volume_scanner_options = dfvfs_volume_scanner.VolumeScannerOptions()
-  volume_scanner_options.partitions = ['all']
-  volume_scanner_options.snapshots = ['none']
-  volume_scanner_options.volumes = ['none']
+    volume_scanner_options = dfvfs_volume_scanner.VolumeScannerOptions()
+    volume_scanner_options.partitions = ["all"]
+    volume_scanner_options.snapshots = ["none"]
+    volume_scanner_options.volumes = ["none"]
 
-  if not scanner.ScanForWindowsVolume(
-      options.source, options=volume_scanner_options):
-    print((f'Unable to retrieve the volume with the Windows directory from: '
-           f'{options.source:s}.'))
-    print('')
-    return 1
+    if not scanner.ScanForWindowsVolume(options.source, options=volume_scanner_options):
+        print(
+            (
+                f"Unable to retrieve the volume with the Windows directory from: "
+                f"{options.source:s}."
+            )
+        )
+        print("")
+        return 1
 
-  # TODO: map collector to available Registry keys.
-  collector_object = sam.SecurityAccountManagerCollector(
-      debug=options.debug, output_writer=output_writer)
+    # TODO: map collector to available Registry keys.
+    collector_object = sam.SecurityAccountManagerCollector(
+        debug=options.debug, output_writer=output_writer
+    )
 
-  result = collector_object.Collect(scanner.registry)
-  if not result:
-    output_writer.WriteText('No Security Account Manager key found.')
-    output_writer.WriteText('')
+    result = collector_object.Collect(scanner.registry)
+    if not result:
+        output_writer.WriteText("No Security Account Manager key found.")
+        output_writer.WriteText("")
 
-  else:
-    for user_account in collector_object.user_accounts:
-      output_writer.WriteValue('Username', user_account.username)
-      output_writer.WriteValue('Relative identifier (RID)', user_account.rid)
-      output_writer.WriteValue(
-          'Primary group identifier', user_account.primary_gid)
+    else:
+        for user_account in collector_object.user_accounts:
+            output_writer.WriteValue("Username", user_account.username)
+            output_writer.WriteValue("Relative identifier (RID)", user_account.rid)
+            output_writer.WriteValue(
+                "Primary group identifier", user_account.primary_gid
+            )
 
-      if user_account.full_name:
-        output_writer.WriteValue('Full name', user_account.full_name)
+            if user_account.full_name:
+                output_writer.WriteValue("Full name", user_account.full_name)
 
-      if user_account.comment:
-        output_writer.WriteValue('Comment', user_account.comment)
+            if user_account.comment:
+                output_writer.WriteValue("Comment", user_account.comment)
 
-      if user_account.user_comment:
-        output_writer.WriteValue('User comment', user_account.user_comment)
+            if user_account.user_comment:
+                output_writer.WriteValue("User comment", user_account.user_comment)
 
-      output_writer.WriteFiletimeValue(
-          'Last log-in time', user_account.last_login_time)
+            output_writer.WriteFiletimeValue(
+                "Last log-in time", user_account.last_login_time
+            )
 
-      output_writer.WriteFiletimeValue(
-          'Last password set time', user_account.last_password_set_time)
+            output_writer.WriteFiletimeValue(
+                "Last password set time", user_account.last_password_set_time
+            )
 
-      output_writer.WriteFiletimeValue(
-          'Account expiration time', user_account.account_expiration_time)
+            output_writer.WriteFiletimeValue(
+                "Account expiration time", user_account.account_expiration_time
+            )
 
-      output_writer.WriteFiletimeValue(
-          'Last password failure time', user_account.last_password_failure_time)
+            output_writer.WriteFiletimeValue(
+                "Last password failure time", user_account.last_password_failure_time
+            )
 
-      output_writer.WriteValue(
-          'Number of log-ons', user_account.number_of_logons)
-      output_writer.WriteValue(
-          'Number of password failures',
-          user_account.number_of_password_failures)
+            output_writer.WriteValue("Number of log-ons", user_account.number_of_logons)
+            output_writer.WriteValue(
+                "Number of password failures", user_account.number_of_password_failures
+            )
 
-      if user_account.codepage:
-        output_writer.WriteValue('Codepage', user_account.codepage)
+            if user_account.codepage:
+                output_writer.WriteValue("Codepage", user_account.codepage)
 
-      output_writer.WriteText('\n')
+            output_writer.WriteText("\n")
 
-  output_writer.Close()
+    output_writer.Close()
 
-  return 0
+    return 0
 
 
-if __name__ == '__main__':
-  sys.exit(Main())
+if __name__ == "__main__":
+    sys.exit(Main())

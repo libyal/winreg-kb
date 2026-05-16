@@ -6,101 +6,109 @@ from winregrc import interface
 
 
 class SystemKey:
-  """System key.
+    """System key.
 
-  Attributes:
-    boot_key (bytes): boot key.
-  """
+    Attributes:
+      boot_key (bytes): boot key.
+    """
 
-  def __init__(self):
-    """Initializes a system key."""
-    super().__init__()
-    self.boot_key = None
+    def __init__(self):
+        """Initializes a system key."""
+        super().__init__()
+        self.boot_key = None
 
 
 class SystemKeyCollector(interface.WindowsRegistryKeyCollector):
-  """System key collector.
+    """System key collector.
 
-  Attributes:
-    system_key (SystemKey): system key.
-  """
-
-  _LSA_KEY_PATH = (
-      'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Lsa')
-
-  def __init__(self, debug=False, output_writer=None):
-    """Initializes a system key collector.
-
-    Args:
-      debug (Optional[bool]): True if debug information should be printed.
-      output_writer (Optional[OutputWriter]): output writer.
+    Attributes:
+      system_key (SystemKey): system key.
     """
-    super().__init__(debug=debug)
-    self._output_writer = output_writer
-    self.system_key = None
 
-  def _GetBootKey(self, registry):
-    """Retrieves the boot key.
+    _LSA_KEY_PATH = "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Lsa"
 
-    Args:
-      registry (dfwinreg.WinRegistry): Windows Registry.
+    def __init__(self, debug=False, output_writer=None):
+        """Initializes a system key collector.
 
-    Returns:
-      bytes: boot key or None if not found.
-    """
-    try:
-      lsa_key = registry.GetKeyByPath(self._LSA_KEY_PATH)
-    except RuntimeError:
-      lsa_key = None
+        Args:
+          debug (Optional[bool]): True if debug information should be printed.
+          output_writer (Optional[OutputWriter]): output writer.
+        """
+        super().__init__(debug=debug)
+        self._output_writer = output_writer
+        self.system_key = None
 
-    if not lsa_key:
-      return None
+    def _GetBootKey(self, registry):
+        """Retrieves the boot key.
 
-    lsa_jd_key = lsa_key.GetSubkeyByName('JD')
-    lsa_skew1_key = lsa_key.GetSubkeyByName('Skew1')
-    lsa_gbg_key = lsa_key.GetSubkeyByName('GBG')
-    lsa_data_key = lsa_key.GetSubkeyByName('Data')
+        Args:
+          registry (dfwinreg.WinRegistry): Windows Registry.
 
-    if None in (lsa_jd_key, lsa_skew1_key, lsa_gbg_key, lsa_data_key):
-      return None
+        Returns:
+          bytes: boot key or None if not found.
+        """
+        try:
+            lsa_key = registry.GetKeyByPath(self._LSA_KEY_PATH)
+        except RuntimeError:
+            lsa_key = None
 
-    lsa_jd_class_name = lsa_jd_key.class_name
-    lsa_skew1_class_name = lsa_skew1_key.class_name
-    lsa_gbg_class_name = lsa_gbg_key.class_name
-    lsa_data_class_name = lsa_data_key.class_name
+        if not lsa_key:
+            return None
 
-    if None in (
-        lsa_jd_class_name, lsa_skew1_class_name, lsa_gbg_class_name,
-        lsa_data_class_name):
-      return None
+        lsa_jd_key = lsa_key.GetSubkeyByName("JD")
+        lsa_skew1_key = lsa_key.GetSubkeyByName("Skew1")
+        lsa_gbg_key = lsa_key.GetSubkeyByName("GBG")
+        lsa_data_key = lsa_key.GetSubkeyByName("Data")
 
-    class_name_string = ''.join([
-        lsa_jd_class_name, lsa_skew1_class_name, lsa_gbg_class_name,
-        lsa_data_class_name])
+        if None in (lsa_jd_key, lsa_skew1_key, lsa_gbg_key, lsa_data_key):
+            return None
 
-    scrambled_key = codecs.decode(class_name_string, 'hex')
-    key = bytearray([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        lsa_jd_class_name = lsa_jd_key.class_name
+        lsa_skew1_class_name = lsa_skew1_key.class_name
+        lsa_gbg_class_name = lsa_gbg_key.class_name
+        lsa_data_class_name = lsa_data_key.class_name
 
-    for index, scrambled_index in enumerate([
-        8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7]):
-      key[index] = scrambled_key[scrambled_index]
+        if None in (
+            lsa_jd_class_name,
+            lsa_skew1_class_name,
+            lsa_gbg_class_name,
+            lsa_data_class_name,
+        ):
+            return None
 
-    return bytes(key)
+        class_name_string = "".join(
+            [
+                lsa_jd_class_name,
+                lsa_skew1_class_name,
+                lsa_gbg_class_name,
+                lsa_data_class_name,
+            ]
+        )
 
-  def Collect(self, registry):  # pylint: disable=arguments-differ
-    """Collects system information.
+        scrambled_key = codecs.decode(class_name_string, "hex")
+        key = bytearray([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
-    Args:
-      registry (dfwinreg.WinRegistry): Windows Registry.
+        for index, scrambled_index in enumerate(
+            [8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7]
+        ):
+            key[index] = scrambled_key[scrambled_index]
 
-    Returns:
-      bool: True if the system key was found, False if not.
-    """
-    boot_key = self._GetBootKey(registry)
-    if not boot_key:
-      return False
+        return bytes(key)
 
-    self.system_key = SystemKey()
-    self.system_key.boot_key = boot_key
+    def Collect(self, registry):  # pylint: disable=arguments-differ
+        """Collects system information.
 
-    return True
+        Args:
+          registry (dfwinreg.WinRegistry): Windows Registry.
+
+        Returns:
+          bool: True if the system key was found, False if not.
+        """
+        boot_key = self._GetBootKey(registry)
+        if not boot_key:
+            return False
+
+        self.system_key = SystemKey()
+        self.system_key.boot_key = boot_key
+
+        return True
