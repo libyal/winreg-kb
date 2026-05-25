@@ -66,7 +66,6 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
                 self.WriteText(
                     f"\tProperty: {property_key:s} ({shell_property_key:s})\n"
                 )
-
                 self.WriteValue(
                     f"\t\tValue (0x{fwps_record.value_type:04x})", value_string
                 )
@@ -120,7 +119,6 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
             self.WriteValue(
                 "\tRoot shell folder identifier", fwsi_item.shell_folder_identifier
             )
-
         elif isinstance(fwsi_item, pyfwsi.users_property_view):
             self._WriteShellItemUsersPropertyView(fwsi_item)
 
@@ -132,7 +130,6 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
                 "\tNumber of extension blocks",
                 f"{fwsi_item.number_of_extension_blocks:d}",
             )
-
             for index, extension_block in enumerate(fwsi_item.extension_blocks):
                 display_index = index + 1
                 self.WriteText(f"Extension block: {display_index:d}\n")
@@ -213,7 +210,6 @@ class StdoutWriter(output_writers.StdoutOutputWriter):
         self.WriteValue(
             "\tFile attribute flags", f"0x08{fwsi_item.file_attribute_flags:08x}"
         )
-
         self.WriteValue("\tName", fwsi_item.name)
 
     def _WriteShellItemNetworkLocation(self, fwsi_item):
@@ -297,7 +293,6 @@ def Main():
             "file."
         )
     )
-
     argument_parser.add_argument(
         "-d",
         "--debug",
@@ -306,7 +301,6 @@ def Main():
         default=False,
         help="enable debug output.",
     )
-
     argument_parser.add_argument(
         "-u",
         "--username",
@@ -316,7 +310,6 @@ def Main():
         default=None,
         help="username within a storage media image.",
     )
-
     argument_parser.add_argument(
         "source",
         nargs="?",
@@ -324,12 +317,11 @@ def Main():
         metavar="PATH",
         default=None,
         help=(
-            "path of the volume containing C:\\Windows, the filename of "
-            "a storage media image containing the C:\\Windows directory, "
-            "or the path of a NTUSER.DAT or UsrClass.dat Registry file."
+            "path of the volume containing C:\\Windows, the filename of a storage "
+            "media image containing the C:\\Windows directory, or the path of a "
+            "NTUSER.DAT or UsrClass.dat Registry file."
         ),
     )
-
     options = argument_parser.parse_args()
 
     if not options.source:
@@ -361,7 +353,6 @@ def Main():
         result = scanner.ScanForWindowsVolume(
             options.source, options=volume_scanner_options
         )
-
     except dfvfs_errors.ScannerError as exception:
         print(f"[ERROR] {exception!s}", file=sys.stderr)
         print("")
@@ -374,10 +365,8 @@ def Main():
 
     if not result:
         print(
-            (
-                f"Unable to retrieve the volume with the Windows directory from: "
-                f"{options.source:s}."
-            )
+            f"Unable to retrieve the volume with the Windows directory from: "
+            f"{options.source:s}."
         )
         print("")
         return 1
@@ -385,11 +374,12 @@ def Main():
     collector_object = mru.MostRecentlyUsedCollector(
         debug=options.debug, output_writer=output_writer
     )
+    if not collector_object.Collect(scanner.registry):
+        print("No Most Recently Used keys found.")
+        return 0
 
-    # TODO: change collector to generate MostRecentlyUsedEntry
-    result = collector_object.Collect(scanner.registry)
-    if not result:
-        print("No Most Recently Used key found.")
+    if not collector_object.mru_entries:
+        print("No Most Recently Used entries found.")
         return 0
 
     for mru_entry in collector_object.mru_entries:

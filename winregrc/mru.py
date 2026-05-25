@@ -173,16 +173,16 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
         """
         result = False
         value_names = [
-            registry_value.name for registry_value in registry_key.GetValues()
+            (registry_value.name or "").lower()
+            for registry_value in registry_key.GetValues()
         ]
+        if "mrulist" in value_names:
+            self._ProcessKeyWithMRUListValue(registry_key)
+            result = True
 
-        if "MRUList" in value_names:
-            if self._ProcessKeyWithMRUListValue(registry_key):
-                result = True
-
-        elif "MRUListEx" in value_names:
-            if self._ProcessKeyWithMRUListExValue(registry_key):
-                result = True
+        elif "mrulistex" in value_names:
+            self._ProcessKeyWithMRUListExValue(registry_key)
+            result = True
 
         for subkey in registry_key.GetSubkeys():
             if self._ProcessKey(subkey):
@@ -196,9 +196,6 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
         Args:
           registry_key (dfwinreg.WinRegistryKey): Windows Registry key.
 
-        Returns:
-          bool: True if a Most Recently Used (MRU) key was found, False if not.
-
         Raises:
           ParseError: if the MRUList value could not be parsed.
         """
@@ -209,7 +206,6 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
         context = dtfabric_data_maps.DataTypeMapContext(
             values={"data_size": len(registry_value.data)}
         )
-
         try:
             mrulist_entries = self._ReadStructureFromByteStream(
                 registry_value.data,
@@ -237,64 +233,54 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
             else:
                 mrulist.add(entry_letter)
 
-        result = False
         for registry_value in registry_key.GetValues():
-            if registry_value.name in (
-                "MRUList",
-                "NodeSlot",
-                "NodeSlots",
-                "ViewStream",
+            name_lower = (registry_value.name or "").lower()
+            if name_lower in (
+                "mrulist",
+                "nodeslot",
+                "nodeslots",
+                "viewstream",
             ):
                 continue
 
             if self._debug:
+                name = registry_value.name or "(default)"
                 self._output_writer.WriteText(
-                    f"Key: {registry_key.path:s}\nValue: {registry_value.name:s}\n"
+                    f"Key: {registry_key.path:s}\nValue: {name:s}\n"
                 )
 
             if self._InKeyPaths(registry_key.path, self._SHELL_ITEM_MRU_KEY_PATHS):
                 self._ProcessMRUEntryShellItem(
                     registry_key.path, registry_value.name, registry_value.data
                 )
-
             elif self._InKeyPaths(
                 registry_key.path, self._SHELL_ITEM_LIST_MRU_KEY_PATHS
             ):
                 self._ProcessMRUEntryShellItemList(
                     registry_key.path, registry_value.name, registry_value.data
                 )
-
             elif self._InKeyPaths(
                 registry_key.path, self._STRING_AND_SHELL_ITEM_MRU_KEY_PATHS
             ):
                 self._ProcessMRUEntryStringAndShellItem(
                     registry_key.path, registry_value.name, registry_value.data
                 )
-
             elif self._InKeyPaths(
                 registry_key.path, self._STRING_AND_SHELL_ITEM_LIST_MRU_KEY_PATHS
             ):
                 self._ProcessMRUEntryStringAndShellItemList(
                     registry_key.path, registry_value.name, registry_value.data
                 )
-
             else:
                 self._ProcessMRUEntryString(
                     registry_key.path, registry_value.name, registry_value.data
                 )
-
-            result = True
-
-        return result
 
     def _ProcessKeyWithMRUListExValue(self, registry_key):
         """Processes a Windows Registry key that contains a MRUListEx value.
 
         Args:
           registry_key (dfwinreg.WinRegistryKey): Windows Registry key.
-
-        Returns:
-          bool: True if a Most Recently Used (MRU) key was found, False if not.
 
         Raises:
           ParseError: if the MRUListEx value could not be parsed.
@@ -310,7 +296,6 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
         context = dtfabric_data_maps.DataTypeMapContext(
             values={"data_size": len(registry_value.data)}
         )
-
         try:
             mrulistex_entries = self._ReadStructureFromByteStream(
                 registry_value.data,
@@ -336,55 +321,48 @@ class MostRecentlyUsedCollector(data_format.BinaryDataFormat):
             else:
                 mrulistex.add(entry_number)
 
-        result = False
         for registry_value in registry_key.GetValues():
-            if registry_value.name in (
-                "MRUListEx",
-                "NodeSlot",
-                "NodeSlots",
-                "ViewStream",
+            name_lower = (registry_value.name or "").lower()
+            if name_lower in (
+                "mrulistex",
+                "nodeslot",
+                "nodeslots",
+                "viewstream",
             ):
                 continue
 
             if self._debug:
+                name = registry_value.name or "(default)"
                 self._output_writer.WriteText(
-                    f"Key: {registry_key.path:s}\nValue: {registry_value.name:s}\n"
+                    f"Key: {registry_key.path:s}\nValue: {name:s}\n"
                 )
 
             if self._InKeyPaths(registry_key.path, self._SHELL_ITEM_MRU_KEY_PATHS):
                 self._ProcessMRUEntryShellItem(
                     registry_key.path, registry_value.name, registry_value.data
                 )
-
             elif self._InKeyPaths(
                 registry_key.path, self._SHELL_ITEM_LIST_MRU_KEY_PATHS
             ):
                 self._ProcessMRUEntryShellItemList(
                     registry_key.path, registry_value.name, registry_value.data
                 )
-
             elif self._InKeyPaths(
                 registry_key.path, self._STRING_AND_SHELL_ITEM_MRU_KEY_PATHS
             ):
                 self._ProcessMRUEntryStringAndShellItem(
                     registry_key.path, registry_value.name, registry_value.data
                 )
-
             elif self._InKeyPaths(
                 registry_key.path, self._STRING_AND_SHELL_ITEM_LIST_MRU_KEY_PATHS
             ):
                 self._ProcessMRUEntryStringAndShellItemList(
                     registry_key.path, registry_value.name, registry_value.data
                 )
-
             else:
                 self._ProcessMRUEntryString(
                     registry_key.path, registry_value.name, registry_value.data
                 )
-
-            result = True
-
-        return result
 
     def _ProcessMRUEntryShellItem(self, key_path, value_name, value_data):
         """Processes a shell item MRUEntry.
