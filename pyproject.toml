@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "winregrc"
-version = "20260516"
+version = "20260704"
 description = "Windows Registry resources (winregrc)"
 maintainers = [
     { name = "Joachim Metz", email = "joachim.metz@gmail.com" },
@@ -101,6 +101,14 @@ include = "\\.pyi?$"
 black = true
 non-cap = []
 non-strict = true
+
+[tool.l2tdevtools]
+name = "Windows Registry knowledge base (winreg-kb)"
+status = "experimental"
+description = """
+winregrc is a Python module part of winreg-kb to allow reuse of Windows \
+Registry resources. \
+"""
 
 [tool.setuptools]
 package-dir = {"winregrc" = "winregrc"}
