@@ -217,5 +217,5 @@ HKEY_CURRENT_USER\Software\Microsoft\Office\%VERSION%\Outlook\Office
 
 ## External links
 
-* [Administering the offline address book in Outlook](https://support.microsoft.com/en-us/topic/administering-the-offline-address-book-in-outlook-51958cc8-684a-83f9-aea5-97d4dddc0af4)
+* [Administering the offline address book in Outlook](https://support.microsoft.com/en-US/Outlook/administering-the-offline-address-book-in-outlook)
 

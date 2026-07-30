@@ -1,3 +1,3 @@
 """Windows Registry resources (winregrc)."""
 
-__version__ = "20260413"
+__version__ = "20260730"

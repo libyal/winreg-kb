@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "winregrc"
-version = "20260704"
+version = "20260730"
 description = "Windows Registry resources (winregrc)"
 maintainers = [
     { name = "Joachim Metz", email = "joachim.metz@gmail.com" },
