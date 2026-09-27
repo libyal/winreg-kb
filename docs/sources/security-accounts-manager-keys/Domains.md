@@ -242,7 +242,7 @@ Value | Identifier | Description
 0x00000100 | USER_SERVER_TRUST_ACCOUNT | Server trust account <br> Object is a domain controller (DC)
 0x00000200 | USER_DONT_EXPIRE_PASSWORD | User password does not expire
 0x00000400 | USER_ACCOUNT_AUTO_LOCKED | Account auto locked
-0x00000800 | USER_ENCRYPTED_TEXT_PASSWORD_ALLOWED | Encryped text password is allowed
+0x00000800 | USER_ENCRYPTED_TEXT_PASSWORD_ALLOWED | Encrypted text password is allowed
 0x00001000 | USER_SMARTCARD_REQUIRED | Smart Card required
 0x00002000 | USER_TRUSTED_FOR_DELEGATION | Trusted for Delegation
 0x00004000 | USER_NOT_DELEGATED | Not delegated

@@ -79,7 +79,7 @@ Offset | Size | Value | Description
 ## Notes
 
 The Windows `mountvol.exe` command-line tool can show information about mounted and unmounted
-devices. Its PowerShell equivalant is `Get-Volume`.
+devices. Its PowerShell equivalent is `Get-Volume`.
 
 Entries of volumes that are not presently mounted can be removed from the database with:
 

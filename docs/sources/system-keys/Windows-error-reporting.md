@@ -22,6 +22,8 @@ WMR |
 
 Values:
 
+<!-- typos:disable -->
+
 Name | Data type | Description
 --- | --- | ---
 BypassDataThrottling | REG_DWORD | Bypass WER client data throttling
@@ -32,6 +34,8 @@ MachineID | |
 MaxQueueSizePercentage | |
 PurgeThreshholdValueInKB | |
 ServiceTimeout | REG_DWORD |
+
+<!-- typos:enable -->
 
 ### BypassDataThrottling value
 

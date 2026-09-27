@@ -49,7 +49,7 @@ Values:
 Value | Data type | Description
 --- | --- | ---
 CheckExeSignatures | REG_SZ |
-RunInvalidSignatures | REG_DOWRD |
+RunInvalidSignatures | REG_DWORD |
 
 ## Feature controls
 

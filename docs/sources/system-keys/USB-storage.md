@@ -111,7 +111,7 @@ Value type:
 
 * 0x0007 value data contains a 32-bit little-endian integer
 * 0x0010 value data contains a FILETIME
-* 0x0012 value data contains an UTF-16 litte-endian encoded string
+* 0x0012 value data contains an UTF-16 little-endian encoded string
 
 ### Example
 
@@ -120,7 +120,7 @@ HKEY_LOCAL_MACHINE\System\CurrentControlSet\Enum\USBSTOR\Disk&Ven_HP&Prod_v100w&
 
 Property set: 540b947e-8b40-45bc-a8a2-6a0b894cbda2 (System.Devices)
 Property identifier: 4 (PKEY_Device_BusReportedDeviceDesc)
-Type: 0x00000012 (UTF-16 litte-endian encoded string)
+Type: 0x00000012 (UTF-16 little-endian encoded string)
 Data: "HP v100w USB Device"
 ```
 

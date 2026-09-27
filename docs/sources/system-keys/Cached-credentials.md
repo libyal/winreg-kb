@@ -62,6 +62,8 @@ _Data_ |||
 80 | 16 | | <mark style="background-color: yellow">**Unknown (T)**</mark>
 96 | ... | | Encrypted data
 
+<!-- typos:disable -->
+
 ```
 metadata
 * username size
@@ -108,6 +110,8 @@ Encrypted data
 0x000001b0  9a 45 71 85 bf a6 e9 fd  ea 7e b7 2f 01 0d 7d c7  .Eq......~./..}.
 0x000001c0  46 9f e5 73                                       F..s
 ```
+
+<!-- typos:enable -->
 
 Offset | Size | Value | Description
 --- | --- | --- | ---

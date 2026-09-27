@@ -1,6 +1,6 @@
 # Terminal server client
 
-The most recent used (MRU) connnections of the Terminal server client can
+The most recent used (MRU) connections of the Terminal server client can
 be found in the key:
 
 ```

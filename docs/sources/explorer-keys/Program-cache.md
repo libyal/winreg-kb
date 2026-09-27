@@ -87,6 +87,8 @@ end of list?
 
 StartPage2\ProgramsCache
 
+<!-- typos:disable -->
+
 ```
 Window 7
 00000000  13 00 00 00 c3 53 5b 62  48 ab c1 4e ba 1f a1 ef  |.....S[bH..N....|
@@ -127,6 +129,8 @@ TODO: edge case or remnant data?
 0x000198d0  3c 00 08 00 04 00 ef be  0c 3d a4 33 0c 3d a4 33  <........=.3.=.3
 0x000198e0  2a 00 00 00 69 ee 00 00  00 00 04 00 00 00 00 00  *...i...........
 ```
+
+<!-- typos:enable -->
 
 StartPage\ProgramsCache
 
@@ -179,6 +183,8 @@ unknown data 11 bytes
 00004b20                              02                    |..........|
 ```
 
+<!-- typos:disable -->
+
 ```
 Windows Vista (c3535b62-48ab-c14e-ba1f-a1ef4146fc19 FOLDERID_StartMenu)
 
@@ -193,6 +199,8 @@ TODO: edge case or remnant data?
 0x00009ff0                           02 61 ae 4f 05 d8 4d 87  .........a.O..M.
 0x0000a000  47 80 b6 09 02 20 c4 b7  00 02                    G.... ....
 ```
+
+<!-- typos:enable -->
 
 Value data header Windows XP and 2003.
 

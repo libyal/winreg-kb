@@ -21,7 +21,6 @@ def Main():
     argument_parser = argparse.ArgumentParser(
         description=("Extracts the cached credentials from a SECURITY Registry file.")
     )
-
     argument_parser.add_argument(
         "-d",
         "--debug",
@@ -30,7 +29,6 @@ def Main():
         default=False,
         help=("enable debug output."),
     )
-
     argument_parser.add_argument(
         "source",
         nargs="?",
@@ -43,7 +41,6 @@ def Main():
             "or the path of a SECURITY and SYSTEM Registry file."
         ),
     )
-
     options = argument_parser.parse_args()
 
     if not options.source:
@@ -72,16 +69,14 @@ def Main():
 
     if not scanner.ScanForWindowsVolume(options.source, options=volume_scanner_options):
         print(
-            (
-                f"Unable to retrieve the volume with the Windows directory from: "
-                f"{options.source:s}."
-            )
+            f"Unable to retrieve the volume with the Windows directory from: "
+            f"{options.source:s}."
         )
         print("")
         return 1
 
     if scanner.IsSingleFileRegistry():
-        print("Both SECURITY and SYSYEM Registry files are required.")
+        print("Both SECURITY and SYSTEM Registry files are required.")
         print("")
         return 1
 
@@ -89,7 +84,6 @@ def Main():
     collector_object = cached_credentials.CachedCredentialsKeyCollector(
         debug=options.debug, output_writer=output_writer
     )
-
     result = collector_object.Collect(scanner.registry)
     if not result:
         print("No Cache key found.")

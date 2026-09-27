@@ -1,4 +1,4 @@
-# Moint points
+# Mount points
 
 ## MountPoints
 

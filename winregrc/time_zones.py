@@ -55,13 +55,13 @@ class TimeZoneInformationDataParser(data_format.BinaryDataFormat):
         "December",
     ]
 
-    _OCCURANCE = ["", "1st", "2nd", "3rd", "4th", "last"]
+    _OCCURRENCE = ["", "1st", "2nd", "3rd", "4th", "last"]
 
     _WEEKDAYS = [
         "Sunday",
         "Monday",
         "Tuesday",
-        "Wednessday",
+        "Wednesdays",
         "Thursday",
         "Friday",
         "Saturday",
@@ -77,18 +77,18 @@ class TimeZoneInformationDataParser(data_format.BinaryDataFormat):
           str: formatted SYSTEMTIME structure.
         """
         if systemtime.month and systemtime.day_of_month:
-            occurance = self._OCCURANCE[systemtime.day_of_month]
+            occurrence = self._OCCURRENCE[systemtime.day_of_month]
             weekday = self._WEEKDAYS[systemtime.weekday]
             month = self._MONTHS[systemtime.month]
 
             if not systemtime.year:
                 return (
-                    f"{occurance:s} {weekday:s} of {month:s} at "
+                    f"{occurrence:s} {weekday:s} of {month:s} at "
                     f"{systemtime.hours:02d}:{systemtime.minutes:02d}"
                 )
 
             return (
-                f"{occurance:s} {weekday:s} of {month:s} in {systemtime.year:s} "
+                f"{occurrence:s} {weekday:s} of {month:s} in {systemtime.year:s} "
                 f"at {systemtime.hours:02d}:{systemtime.minutes:02d}"
             )
 
